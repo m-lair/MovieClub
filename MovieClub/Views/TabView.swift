@@ -1,14 +1,13 @@
 //
-//  ContentView.swift
+//  TabView.swift
 //  MovieClub
 //
-//  Created by Marcus Lair on 5/12/24.
+//  Created by Marcus Lair on 5/13/24.
 //
 
 import SwiftUI
 
-
-struct ContentView: View {
+struct LowerTabView: View {
     @Environment(DataManager.self) var data: DataManager
     var body: some View {
         if data.userSession != nil {
@@ -29,12 +28,16 @@ struct ContentView: View {
                         
                     }
             }
-        } else {
-            LoginView()
+            
+        
+            } else {
+                LoginView()
+            }
         }
     }
-}
+
+
 
 #Preview {
-    ContentView()
+    LowerTabView()
 }

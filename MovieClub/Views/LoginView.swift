@@ -17,7 +17,7 @@ struct LoginView: View {
         
     
     var body: some View {
-        let _ = print("in login view")
+        NavigationView {
             VStack {
                 Image("logo")
                     .resizable()
@@ -41,9 +41,10 @@ struct LoginView: View {
                 Button {
                     Task{
                         
-                          try await data.signIn(email: userEmail, password: userPwd)
-                        
+                        try await data.signIn(email: userEmail, password: userPwd)
+                        await data.fetchUser()
                     }
+                    
                 } label: {
                     Text("Sign In")
                         .foregroundColor(.white)
@@ -51,17 +52,23 @@ struct LoginView: View {
                         .background(Color.blue)
                         .cornerRadius(8)
                 }
-                NavigationLink{
-                   SignupView()
-                } label: {
-                    Text("Don't have an account?")
-                    Text("Sign Up!")
-                        .bold()
-                }
                 Spacer()
+                
+                NavigationLink {
+                    SignUpView()
+                        .navigationBarBackButtonHidden(true)
+                } label: {
+                    HStack(spacing: 3){
+                        Text("Don't have an account?")
+                        Text("Sign Up!")
+                            .fontWeight(.bold)
+                    }
+                    .font(.system(size: 14))
+                }
             }
             .padding()
         }
+    }
     }
     
 

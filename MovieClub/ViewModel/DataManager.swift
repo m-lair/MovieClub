@@ -32,7 +32,7 @@ import Observation
             do {
                 let result = try await Auth.auth().createUser(withEmail: user.email, password: user.password)
                 self.userSession = result.user
-                let user = User(id: result.user.uid, name: user.name, email: user.email, password: user.password)
+                let user = User(id: result.user.uid, email: user.email, name: user.name, password: user.password)
                 let encodeUser = try Firestore.Encoder().encode(user)
                 try await Firestore.firestore().collection("users").document(user.id ?? "").setData(encodeUser)
                 await fetchUser()
@@ -44,8 +44,10 @@ import Observation
     
     func signIn(email: String, password: String) async throws {
         do{
+            print("in signIn method")
             let result = try await Auth.auth().signIn(withEmail: email, password: password)
             self.userSession = result.user
+            print("before fetch User \(result.user)")
             await fetchUser()
             
         } catch {
@@ -55,8 +57,9 @@ import Observation
         
     func fetchUser() async {
             guard let uid = Auth.auth().currentUser?.uid else {return}
-            guard let snapshot = try? await Firestore.firestore().collection("Users").document(uid).getDocument() else { return }
+            guard let snapshot = try? await Firestore.firestore().collection("users").document(uid).getDocument() else { return }
             self.currentUser = try? snapshot.data(as: User.self)
+       
     }
         
     func signOut(){

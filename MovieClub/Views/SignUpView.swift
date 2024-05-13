@@ -8,7 +8,7 @@
 import SwiftUI
 import Observation
 
-struct SignupView: View {
+struct SignUpView: View {
     @Environment(DataManager.self) private var data
     @Environment(\.dismiss) var dismiss
     
@@ -47,7 +47,7 @@ struct SignupView: View {
             Button {
                 Task {
                     
-                    try await data.createUser(user: User(name: name, email: email, password: password))
+                    try await data.createUser(user: User(email: email, name: name, password: password))
                     try await data.signIn(email: email, password: password)
                     dismiss()
                 }
@@ -61,11 +61,10 @@ struct SignupView: View {
             Button{
                dismiss()
             } label: {
-                Text("Don't have an account?")
-                Text("Sign Up!")
+                Text("Have an Account?")
+                Text("Sign In!")
                     .bold()
             }
-            Spacer()
             
             Spacer()
         }
@@ -74,5 +73,5 @@ struct SignupView: View {
 }
 
 #Preview {
-    SignupView()
+    SignUpView()
 }

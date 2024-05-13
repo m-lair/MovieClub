@@ -20,9 +20,12 @@ struct HomePageView: View {
                         }
                     }
                     
+                    
                 }
                 .navigationTitle("Movie Club")
+                
             }
+            
         }
         
     }
