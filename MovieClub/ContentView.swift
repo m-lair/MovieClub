@@ -1,23 +1,28 @@
 //
 //  ContentView.swift
-//  MovieClub
+//  Movie Club
 //
-//  Created by Marcus Lair on 5/12/24.
+//  Created by Marcus Lair on 5/6/24.
 //
 
 import SwiftUI
+import Observation
 
 struct ContentView: View {
+    @Environment(DataManager.self) private var data
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        if data.userSession != nil {
+            let _ = print("User session not null \(data.userSession)")
+            HomePageView(movies: data.movies)
+            
+        } else {
+            let _ = print("before login view")
+            LoginView()
+           
         }
-        .padding()
     }
-}
+    }
+
 
 #Preview {
     ContentView()
