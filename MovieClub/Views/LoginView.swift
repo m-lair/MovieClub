@@ -42,7 +42,7 @@ struct LoginView: View {
                     Task{
                         
                         try await data.signIn(email: userEmail, password: userPwd)
-                        await data.fetchUser()
+                        
                     }
                     
                 } label: {

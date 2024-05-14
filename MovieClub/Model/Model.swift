@@ -15,15 +15,23 @@ struct User: Identifiable, Codable{
     var email: String
     var name: String
     var password: String
+    var clubs: [Membership]?
     
 }
 
-struct MovieClub {
-   @DocumentID var id: String?
+struct Membership: Codable {
+    @DocumentID var id: String?
+    var clubID: String
+}
+
+struct MovieClub: Identifiable, Codable {
+    @DocumentID var id: String?
     var name: String
-    var owner: String
-    var members: [User]
-    var movies: [Movie]
+    var ownerName: String
+    var ownerID: String
+    var isPublic: Bool
+    var members: [User]?
+    var movies: [Movie]?
 }
 
 struct Movie: Identifiable, Codable{
@@ -34,3 +42,14 @@ struct Movie: Identifiable, Codable{
     var author: String
     
 }
+
+struct Review {
+    var rating: Int // Can also be enum
+    var userID: String
+    var username: String
+    var text: String
+    var date: Date
+    
+}
+
+

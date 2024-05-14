@@ -8,27 +8,31 @@
 import SwiftUI
 
 struct HomePageView: View {
-    var movies: [Movie] = []
     
+    @Environment(DataManager.self) var data: DataManager
+    let userClubs: [MovieClub]
     var body: some View {
-            NavigationView{
-                List(movies){movie in
-                    NavigationLink(destination: MovieDetailView(movie: movie)){
-                        HStack{
-                            MovieRow(movie: movie)
-                            
-                        }
-                    }
-                    
-                    
+        let _ = print("in homepageview\(userClubs)")
+        VStack{
+            if userClubs.count > 0{
+                VStack{
+                    MovieClubScrollView()
                 }
-                .navigationTitle("Movie Club")
+            }else{
                 
+                Text("Nothing to see here!")
             }
+            
+            
             
         }
         
+            
+        }
+        
+        
     }
+    
 
 
 

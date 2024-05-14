@@ -20,12 +20,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct MovieClubApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @State private var datamanager = DataManager()
+    @State private var service = AuthService()
     var body: some Scene {
         
         WindowGroup {
             ContentView()
         }
-        .environment(datamanager)
+        .environment(service)
     }
 }
