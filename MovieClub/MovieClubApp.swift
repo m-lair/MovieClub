@@ -8,6 +8,13 @@
 import SwiftUI
 import Observation
 import FirebaseCore
+import Foundation
+import FirebaseAuth
+import FirebaseFirestoreSwift
+import AuthenticationServices
+import FirebaseFirestore
+import Observation
+
 
 class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,
@@ -20,12 +27,14 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct MovieClubApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @State private var service = AuthService()
+    @State private var datamanager = DataManager()
     var body: some Scene {
         
         WindowGroup {
+            
             ContentView()
+                .environment(datamanager)
         }
-        .environment(service)
+        
     }
 }

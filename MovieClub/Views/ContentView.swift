@@ -11,13 +11,16 @@ import SwiftUI
 struct ContentView: View {
     @Environment(DataManager.self) var data: DataManager
     var body: some View {
-        if data.currentUser != nil {
+        
+        if data.userSession != nil {
             MainTabView()
         } else {
             LoginView()
         }
     }
 }
+
+    
 
 #Preview {
     ContentView()

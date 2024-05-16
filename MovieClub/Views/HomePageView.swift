@@ -10,6 +10,7 @@ import SwiftUI
 struct HomePageView: View {
     
     @Environment(DataManager.self) var data: DataManager
+    
     let userClubs: [MovieClub]
     var body: some View {
         let _ = print("in homepageview\(userClubs)")

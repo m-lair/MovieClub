@@ -19,11 +19,14 @@ import Observation
     var userSession: FirebaseAuth.User?
     var currentUser: User?
     var userMovieClubs: [MovieClub] = []
-    private let service = AuthService.shared
     
     init(){
-        
+        Task {
+            self.userSession = Auth.auth().currentUser
+            await fetchUser()
+        }
     }
+    
     
     func createUser(user: User) async throws {
         /* let db =  Firestore.firestore()
@@ -90,6 +93,33 @@ import Observation
         
     }
     
+    func createMovieClub(movieClub: MovieClub){
+        Task{
+            let db = Firestore.firestore()
+            //let movieClub = MovieClub(name: movieClub.name, ownerName: movieClub.ownerName, ownerID: movieClub.ownerID, isPublic: movieClub.isPublic)
+            let encodeClub = try Firestore.Encoder().encode(movieClub)
+            try await Firestore.firestore().collection("movieclubs").document().setData(encodeClub)
+            
+            await fetchUser()
+        }
+    }
+    
+    func addClubRelationship(movieClub: MovieClub) async {
+        Task{
+            let db = Firestore.firestore()
+            let snapshot = try await db.collection("users").document(currentUser?.id ?? "").getDocument()
+            if movieClub.id != "" {
+                // cant figure out a better way to do this but we know the val wont be null
+                let membership = Membership(clubID: movieClub.id ?? "")
+                
+            }
+            let encodeMembership = try Firestore.Encoder().encode(movieClub)
+            try await db.collection("users").document(currentUser?.id ?? "").collection("memberships").document(currentUser?.id ?? "").setData(encodeMembership)
+            
+            
+        }
+    }
+    
     
     func fetchMovieClub(clubID: String) async {
         print("in fetchMovieClub")
@@ -114,6 +144,7 @@ import Observation
             guard let uid = Auth.auth().currentUser?.uid else {return}
             guard let snapshot = try? await db.collection("users").document(uid).getDocument() else {return}
             self.currentUser = try? snapshot.data(as: User.self)
+            await fetchMovieClubsForUser()
         }
         
     }
