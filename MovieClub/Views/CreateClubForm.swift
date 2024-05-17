@@ -51,4 +51,5 @@ struct CreateClubForm: View {
 
 #Preview {
     CreateClubForm()
+        .environment(DataManager())
 }

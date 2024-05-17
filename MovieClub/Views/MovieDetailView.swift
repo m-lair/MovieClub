@@ -9,7 +9,6 @@ import SwiftUI
 
 
 struct MovieDetailView: View {
-    
     // add view to edit
     var movie: Movie
     var body: some View {

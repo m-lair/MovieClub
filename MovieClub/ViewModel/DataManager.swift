@@ -95,7 +95,6 @@ import Observation
     
     func createMovieClub(movieClub: MovieClub){
         Task{
-            let db = Firestore.firestore()
             //let movieClub = MovieClub(name: movieClub.name, ownerName: movieClub.ownerName, ownerID: movieClub.ownerID, isPublic: movieClub.isPublic)
             let encodeClub = try Firestore.Encoder().encode(movieClub)
             try await Firestore.firestore().collection("movieclubs").document().setData(encodeClub)
@@ -158,5 +157,22 @@ import Observation
         } catch {
             print(error.localizedDescription)
         }
+        
     }
+}
+
+extension MovieClub {
+    static var TestData: [MovieClub] = [MovieClub(name: "Test Title 1",
+                                                  ownerName: "Duhmarcus",
+                                                  ownerID: "000123",
+                                                  isPublic: true,
+                                                  movies: [Movie(id: "001",
+                                                                 title: "The Matrix",
+                                                                 date: Date(),
+                                                                 rating: 5.0,
+                                                                 author: "duhmarcus")]),
+                                        MovieClub(name: "Test Title 2",
+                                                  ownerName: "darius garius",
+                                                  ownerID: "1345",
+                                                  isPublic: true)]
 }
