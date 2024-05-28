@@ -28,6 +28,7 @@ struct CreateClubForm: View {
                 // Call a method to save the club with the entered information
                 
                 let movieClub = MovieClub(id: generateUUID(), name: clubName,
+                                          created: Date(), numMembers: 1,
                                           ownerName: data.currentUser?.name ?? "",
                                           ownerID: data.currentUser?.id ?? "",
                                           isPublic: isPublic)

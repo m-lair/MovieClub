@@ -34,6 +34,9 @@ struct HomePageView: View {
         
     }
     
-
+#Preview {
+    HomePageView(userClubs: MovieClub.TestData)
+        .environment(DataManager())
+}
 
 

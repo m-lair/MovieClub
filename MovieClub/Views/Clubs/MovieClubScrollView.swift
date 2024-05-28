@@ -24,7 +24,10 @@ struct MovieClubScrollView: View {
         }
         .frame(height: 200) // Specify scroll view height
         
-        }
     }
+}
 
-
+#Preview {
+    MovieClubScrollView()
+        .environment(DataManager())
+}

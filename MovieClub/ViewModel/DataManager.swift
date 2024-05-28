@@ -10,6 +10,8 @@ import FirebaseAuth
 import FirebaseFirestoreSwift
 import AuthenticationServices
 import FirebaseFirestore
+import UIKit
+import FirebaseStorage
 import Observation
 
 @MainActor
@@ -40,7 +42,7 @@ import Observation
         do {
             let result = try await Auth.auth().createUser(withEmail: user.email, password: user.password)
             self.userSession = result.user
-            let user = User(id: result.user.uid, email: user.email, name: user.name, password: user.password)
+            let user = User(id: result.user.uid, email: user.email, name: user.name, image: user.image, password: user.password)
             let encodeUser = try Firestore.Encoder().encode(user)
             try await Firestore.firestore().collection("users").document(user.id ?? "").setData(encodeUser)
             await fetchUser()
@@ -63,6 +65,41 @@ import Observation
         }
     }
     
+    func uploadProfileImage(image: UIImage, userId: String) async throws {
+        let storageRef = Storage.storage().reference().child("profileImages/\(userId).jpg")
+        if let imageData = image.jpegData(compressionQuality: 0.75) {
+            let metadata = StorageMetadata()
+            metadata.contentType = "image/jpeg"
+            do {
+                _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
+                let url = try await storageRef.downloadURL()
+                // Update user's profile image URL
+                if var currentUser = currentUser {
+                    currentUser.image = url.absoluteString
+                    try await Firestore.firestore().collection("users").document(userId).updateData(["image": url.absoluteString])
+                    self.currentUser = currentUser
+                }
+            } catch {
+                print("Error uploading image: \(error.localizedDescription)")
+            }
+        }
+    }
+    func getProfileImage(id: String) async -> String  {
+        print("in getter")
+        let storageRef = Storage.storage().reference().child("Users/profile_images/\(id).jpeg")
+        do {
+            let url = try await storageRef.downloadURL()
+            if var currentUser = currentUser {
+                self.currentUser?.image = url.absoluteString
+            }
+            return url.absoluteString
+        } catch {
+            print(error)
+        }
+        return ""
+        }
+    
+    
     func fetchMovieClubsForUser() async {
         print("in fetchMovieClubsForUsers")
         do{
@@ -75,7 +112,6 @@ import Observation
             let snapshot = try await db.collection("users").document(user.id ?? "").collection("memberships").getDocuments()
             
             let documents = snapshot.documents
-            
             
             let clubIDs = documents.compactMap { document in
                 print("document loop\(document.description)")
@@ -110,11 +146,11 @@ import Observation
             if movieClub.id != "" {
                 // cant figure out a better way to do this but we know the val wont be null
                 let membership = Membership(clubID: movieClub.id ?? "")
-                
+                let encodeMembership = try Firestore.Encoder().encode(membership)
+                try await db.collection("users").document(currentUser?.id ?? "").collection("memberships").document(currentUser?.id ?? "").setData(encodeMembership)
+            } else {
+                print("error occurred adding club for \(currentUser?.id ?? "")")
             }
-            let encodeMembership = try Firestore.Encoder().encode(movieClub)
-            try await db.collection("users").document(currentUser?.id ?? "").collection("memberships").document(currentUser?.id ?? "").setData(encodeMembership)
-            
             
         }
     }
@@ -137,14 +173,20 @@ import Observation
     
     
     func fetchUser() async {
-        Task{
+        
             print("in fetch user")
+            
             let db = Firestore.firestore()
+            print("1")
             guard let uid = Auth.auth().currentUser?.uid else {return}
+            print("2")
+            print("uid\(uid)")
             guard let snapshot = try? await db.collection("users").document(uid).getDocument() else {return}
+            print("Document data: \(snapshot.data())")
             self.currentUser = try? snapshot.data(as: User.self)
+            print(currentUser)
             await fetchMovieClubsForUser()
-        }
+        
         
     }
     
@@ -163,6 +205,8 @@ import Observation
 
 extension MovieClub {
     static var TestData: [MovieClub] = [MovieClub(name: "Test Title 1",
+                                                  created: Date(),
+                                                  numMembers: 2,
                                                   ownerName: "Duhmarcus",
                                                   ownerID: "000123",
                                                   isPublic: true,
@@ -172,7 +216,10 @@ extension MovieClub {
                                                                  rating: 5.0,
                                                                  author: "duhmarcus")]),
                                         MovieClub(name: "Test Title 2",
+                                                  created: Date(),
+                                                  numMembers: 1,
                                                   ownerName: "darius garius",
                                                   ownerID: "1345",
                                                   isPublic: true)]
 }
+

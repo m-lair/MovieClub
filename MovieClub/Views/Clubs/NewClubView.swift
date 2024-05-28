@@ -16,14 +16,23 @@ struct NewClubView: View {
     @State var searchText = ""
     @State var searchBarShowing = true
     @State var clubList: [MovieClub]
+    var filteredClubs: [MovieClub] {
+        if searchText.isEmpty {
+            clubList
+        } else {
+            clubList.filter { $0.name.localizedStandardContains(searchText)}
+        }
+    }
     var body: some View {
         
         NavigationStack{
             VStack{
                 //search bar results view
-                List(clubList){club in
-                    Text(club.name)
-                        .font(.title)
+                List(filteredClubs){club in
+                    NavigationLink(destination: ClubDetailView(movieClub: club)) {
+                        Text(club.name)
+                            .font(.title)
+                    }
                 }
                 
                     .toolbar {
@@ -59,7 +68,6 @@ struct NewClubView: View {
         .searchable(text: $searchText, isPresented: $searchBarShowing)
         .onAppear(){
             Task{
-                
                     do{
                        try await clubList = getClubList()
                     } catch {
@@ -100,10 +108,14 @@ struct NewClubView: View {
 
 #Preview {
     NewClubView(clubList: [MovieClub(name: "Test Title 1", 
+                                     created: Date(),
+                                     numMembers: 3,
                                      ownerName: "Duhmarcus",
                                      ownerID: "000123",
                                      isPublic: true),
                            MovieClub(name: "Test Title 2",
+                                     created: Date(),
+                                     numMembers: 20,
                                      ownerName: "darius garius",
                                      ownerID: "1345",
                                      isPublic: true)])
