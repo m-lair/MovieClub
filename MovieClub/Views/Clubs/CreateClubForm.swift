@@ -12,13 +12,14 @@ struct CreateClubForm: View {
     @State private var clubName = ""
     @State private var isPublic = false // Default to private
     @State private var selectedOwnerIndex = 0
+    @State private var description = ""
     @State private var owners = ["User1"]
     var body: some View {
         Form {
             Section(header: Text("Club Information")) {
                 TextField("Club Name", text: $clubName)
                 Toggle("Public Club", isOn: $isPublic)
-                
+                TextField("Description", text: $description)
             }
         }
         // Add more sections for additional club information
@@ -28,7 +29,7 @@ struct CreateClubForm: View {
                 // Call a method to save the club with the entered information
                 
                 let movieClub = MovieClub(id: generateUUID(), name: clubName,
-                                          created: Date(), numMembers: 1,
+                                          created: Date(), numMembers: 1, description: "",
                                           ownerName: data.currentUser?.name ?? "",
                                           ownerID: data.currentUser?.id ?? "",
                                           isPublic: isPublic)

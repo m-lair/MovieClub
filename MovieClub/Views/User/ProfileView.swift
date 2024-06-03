@@ -34,13 +34,10 @@ struct ProfileView: View {
                     .frame(width: 100, height: 100)
             }
         }
-        .onAppear {
-            Task {
-               await datamanager.getProfileImage(id: datamanager.currentUser?.id ?? "")
-            }
-        }
+        
     }
 }
+
 
 #Preview {
     ProfileView()

@@ -15,11 +15,11 @@ struct MovieRow: View {
             VStack(alignment: .leading) {
                 Text(movie.title)
                     .font(.headline)
-                Text("\(movie.date)")
+                Text("\(movie.startDate)")
                     .font(.subheadline)
             }
             Spacer()
-            Text(String(format: "%.1f", movie.rating))
+            Text(String(format: "%.1f", movie.avgRating ?? 0.0))
                 .font(.subheadline)
         }
         .padding()

@@ -76,10 +76,11 @@ struct MovieClub: Identifiable, Codable {
     var name: String
     var created: Date
     var numMembers: Int
-    //var favoriteMovie
+    var description: String? = ""
     var ownerName: String
     var ownerID: String
     var isPublic: Bool
+    var numMovies: Int = 0
     var members: [User]?
     var movies: [Movie]?
 }
@@ -87,19 +88,28 @@ struct MovieClub: Identifiable, Codable {
 struct Movie: Identifiable, Codable{
    @DocumentID var id: String?
     var title: String
-    var date: Date
-    var rating: Double
+    var description: String
+    var startDate: Date
+    var endDate: Date
+    var avgRating: Double?
+    var rating: [Rating]?
     var author: String
+    var comments: [Comment]?
     
 }
 
-struct Review {
-    var rating: Int // Can also be enum
+struct Rating: Identifiable, Codable {
+    @DocumentID var id: String?
     var userID: String
+    var value: Double
+}
+
+struct Comment: Identifiable, Codable{
+    var id = UUID()
     var username: String
-    var text: String
     var date: Date
-    
+    var text: String
+    var likes: Int
 }
 
 

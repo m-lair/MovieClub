@@ -25,7 +25,7 @@ import Observation
     init(){
         Task {
             self.userSession = Auth.auth().currentUser
-            await fetchUser()
+            //await fetchUser()
         }
     }
     
@@ -58,7 +58,7 @@ import Observation
             
             let result = try await Auth.auth().signIn(withEmail: email, password: password)
             self.userSession = result.user
-            await fetchUser()
+            
             
         } catch {
             print(error.localizedDescription)
@@ -84,6 +84,7 @@ import Observation
             }
         }
     }
+    
     func getProfileImage(id: String) async -> String  {
         print("in getter")
         let storageRef = Storage.storage().reference().child("Users/profile_images/\(id).jpeg")
@@ -102,6 +103,7 @@ import Observation
     
     func fetchMovieClubsForUser() async {
         print("in fetchMovieClubsForUsers")
+        self.userMovieClubs = []
         do{
             let db = Firestore.firestore()
             guard let user = self.currentUser else {
@@ -114,7 +116,7 @@ import Observation
             let documents = snapshot.documents
             
             let clubIDs = documents.compactMap { document in
-                print("document loop\(document.description)")
+                print("document loop \(document.description)")
                 return document.data()["clubID"] as? String ?? "error"
                 
             }
@@ -170,25 +172,62 @@ import Observation
         
     }
     
+    func fetchMovies(for movieClubId: String) async -> [Movie]{
+            print("Fetching movies for movie club ID: \(movieClubId)")
+            
+            let db = Firestore.firestore()
+            
+            do {
+                let querySnapshot = try await db.collection("movieclubs").document(movieClubId).collection("movies").getDocuments()
+                print(querySnapshot.documents)
+                let movies = querySnapshot.documents.compactMap { try? $0.data(as: Movie.self) }
+                return movies
+                // Find the movie club by ID and update its movies
+                if let index = userMovieClubs.firstIndex(where: { $0.id == movieClubId }) {
+                    userMovieClubs[index].movies = movies
+                        
+                    
+                }
+            } catch {
+                print("Error fetching movies: \(error.localizedDescription)")
+            }
+        return []
+        }
+    
+    func fetchComments(for movie: inout Movie, in movieClubId: String) async {
+            print("Fetching comments for movie: \(movie.title)")
+            
+            let db = Firestore.firestore()
+            
+            do {
+                let querySnapshot = try await db.collection("movieclubs").document(movieClubId).collection("movies").document(movie.id ?? "").collection("comments").getDocuments()
+                movie.comments = querySnapshot.documents.compactMap { try? $0.data(as: Comment.self) }
+            } catch {
+                print("Error fetching comments: \(error.localizedDescription)")
+            }
+        }
+    
+    
     
     
     func fetchUser() async {
         
-            print("in fetch user")
-            
-            let db = Firestore.firestore()
-            print("1")
-            guard let uid = Auth.auth().currentUser?.uid else {return}
-            print("2")
-            print("uid\(uid)")
-            guard let snapshot = try? await db.collection("users").document(uid).getDocument() else {return}
-            print("Document data: \(snapshot.data())")
-            self.currentUser = try? snapshot.data(as: User.self)
-            print(currentUser)
-            await fetchMovieClubsForUser()
+        print("in fetch user")
         
+        let db = Firestore.firestore()
+        print("1")
+        guard let uid = Auth.auth().currentUser?.uid else {return}
+        print("2")
+        print("uid\(uid)")
+        guard let snapshot = try? await db.collection("users").document(uid).getDocument() else {return}
+        print("Document data: \(snapshot.data())")
+        self.currentUser = try? snapshot.data(as: User.self)
+        await self.currentUser!.image = getProfileImage(id: currentUser!.id!)
+        await fetchMovieClubsForUser()
         
     }
+    
+    
     
     func signOut(){
         do{
@@ -207,17 +246,21 @@ extension MovieClub {
     static var TestData: [MovieClub] = [MovieClub(name: "Test Title 1",
                                                   created: Date(),
                                                   numMembers: 2,
+                                                  description: "description",
                                                   ownerName: "Duhmarcus",
                                                   ownerID: "000123",
                                                   isPublic: true,
                                                   movies: [Movie(id: "001",
                                                                  title: "The Matrix",
-                                                                 date: Date(),
-                                                                 rating: 5.0,
+                                                                 description: "description",
+                                                                 startDate: Date(),
+                                                                 endDate: Date(),
+                                                                 avgRating: 5.0,
                                                                  author: "duhmarcus")]),
                                         MovieClub(name: "Test Title 2",
                                                   created: Date(),
                                                   numMembers: 1,
+                                                  description: "description",
                                                   ownerName: "darius garius",
                                                   ownerID: "1345",
                                                   isPublic: true)]

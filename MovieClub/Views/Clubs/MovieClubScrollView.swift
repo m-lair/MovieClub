@@ -9,21 +9,27 @@ import SwiftUI
 
 struct MovieClubScrollView: View {
     @Environment(DataManager.self) var data: DataManager
+    
     var body: some View {
-        let userClubs = data.userMovieClubs
-        ScrollView(.horizontal) {
-            HStack(spacing: 20) {
-                ForEach(userClubs) { movieClub in
-                    NavigationLink(destination: ClubDetailView(movieClub: movieClub)) {
-                        MovieClubCardView(movieClub: movieClub)
-                            .frame(width: 300) // Specify card width
+        NavigationStack{
+            if data.userMovieClubs.isEmpty {
+                Text("No movie clubs available")
+            } else {
+                ScrollView(.vertical) {
+                    VStack(spacing: 20) {
+                        ForEach(data.userMovieClubs) { movieClub in
+                            NavigationLink(destination: ClubDetailView(movieClub: movieClub)) {
+                                MovieClubCardView(movieClub: movieClub)
+                                
+                            }
+                        
+                            
+                        }
                     }
+                    .padding()
                 }
             }
-            .padding()
         }
-        .frame(height: 200) // Specify scroll view height
-        
     }
 }
 

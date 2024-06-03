@@ -8,21 +8,40 @@
 import SwiftUI
 
 struct ClubDetailView: View {
-    var movieClub: MovieClub
+    @Environment(DataManager.self) var data: DataManager
+    @State var movieClub: MovieClub
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(movieClub.name)
-                .font(.title)
-            Text("Owner: \(movieClub.ownerName)")
-                .font(.subheadline)
-                .foregroundColor(.gray)
-            Text(movieClub.isPublic ? "Public Club" : "Private Club")
-                .font(.subheadline)
-                .foregroundColor(movieClub.isPublic ? .green : .red)
-            // Add more detailed information about the movie club here
+        NavigationStack{
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    // Header Section
+                    HeaderView(movieClub: movieClub)
+                    
+                    // Tabs
+                    MovieClubTabView()
+                    
+                    // Featured Movie Section
+                    
+                    FeaturedMovieView(movie: movieClub.movies?.first)
+                    
+                    // Comments Section
+                    CommentsView(comments: movieClub.movies?.first?.comments ?? [])
+                }
+                .padding()
+            }
+            .navigationTitle(movieClub.name)
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .padding()
-        .navigationBarTitle("Club Detail")
+        .onAppear(){
+            Task{
+                movieClub.movies = await data.fetchMovies(for: movieClub.id ?? "")
+            }
+        }
     }
+}
+
+#Preview {
+    ClubDetailView(movieClub: MovieClub.TestData[0])
+        .environment(DataManager())
 }

@@ -29,9 +29,16 @@ struct MainTabView: View {
                     
                 }
         }
+        .onAppear {
+            Task {
+                await data.fetchUser()
+            }
+        }
+
     }
 }
 
 #Preview {
     MainTabView()
+        .environment(DataManager())
 }

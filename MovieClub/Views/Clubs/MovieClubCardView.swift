@@ -12,8 +12,6 @@ struct MovieClubCardView: View {
     @State private var screenWidth = UIScreen.main.bounds.size.width
     var body: some View {
         ZStack{
-            
-            
             VStack{
                 Image("MatrixScene")
                     .resizable()
