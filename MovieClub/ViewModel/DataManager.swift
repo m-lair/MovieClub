@@ -100,6 +100,15 @@ import Observation
         return ""
         }
     
+    func postComment(comment: Comment) async{
+        do{
+            let encodeComment = try Firestore.Encoder().encode(comment)
+            try await Firestore.firestore().collection("movieclubs").document().setData(encodeComment)
+        }catch{
+            print(error)
+        }
+    }
+    
     
     func fetchMovieClubsForUser() async {
         print("in fetchMovieClubsForUsers")
