@@ -21,6 +21,7 @@ import Observation
     var userSession: FirebaseAuth.User?
     var currentUser: User?
     var userMovieClubs: [MovieClub] = []
+    var comments: [Comment] = []
     
     init(){
         Task {
@@ -100,15 +101,58 @@ import Observation
         return ""
         }
     
-    func postComment(comment: Comment) async{
+    func postComment(comment: Comment, movieClub: MovieClub) async{
         do{
-            let encodeComment = try Firestore.Encoder().encode(comment)
-            try await Firestore.firestore().collection("movieclubs").document().setData(encodeComment)
-        }catch{
-            print(error)
-        }
+            guard let movieClubId = movieClub.id else {
+                   print("Invalid movie club ID")
+                   return
+               }
+               
+               guard let firstMovie = movieClub.movies?.first, let movieId = firstMovie.id else {
+                   print("No movies found or invalid movie ID")
+                   return
+               }
+               
+               let db = Firestore.firestore()
+               
+               do {
+                   let encodeComment = try Firestore.Encoder().encode(comment)
+                   try await db.collection("movieclubs").document(movieClubId)
+                       .collection("movies").document(movieId)
+                       .collection("comments").document().setData(encodeComment)
+                   self.comments.append(comment)
+                   print("Comment added successfully")
+               } catch {
+                   print("Error adding comment: \(error.localizedDescription)")
+               }
+           }
     }
     
+    func fetchComments(movieClubId: String, movieId: String) async {
+        print("in fetch comments")
+        let db = Firestore.firestore()
+        
+        do {
+            let querySnapshot = try await db.collection("movieclubs")
+                .document(movieClubId)
+                .collection("movies")
+                .document(movieId)
+                .collection("comments")
+                .getDocuments()
+            print(querySnapshot.documents.first?.data())
+            self.comments = querySnapshot.documents.compactMap { document in
+                            do {
+                                return try document.data(as: Comment.self)
+                            } catch {
+                                print("Error decoding document \(document.documentID): \(error)")
+                                return nil
+                            }
+                        }
+            print("self.comments in method: \(self.comments)")
+        } catch {
+            print("Error fetching comments: \(error.localizedDescription)")
+        }
+    }
     
     func fetchMovieClubsForUser() async {
         print("in fetchMovieClubsForUsers")
@@ -202,6 +246,31 @@ import Observation
             }
         return []
         }
+    
+    func fetchPoster(completion: @escaping (Result<Data, Error>) -> Void){
+        let urlString = "http://img.omdbapi.com/?i=tt3896198&h=600&apikey=ab92d369"
+        guard let url = URL(string: urlString) else {
+            completion(.failure(NSError(domain: "Invalid URL", code: 1, userInfo: nil)))
+            return
+        }
+        
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data else {
+                completion(.failure(NSError(domain: "No data", code: 2, userInfo: nil)))
+                return
+            }
+            
+            completion(.success(data))
+        }
+        
+        task.resume()
+    }
+    
     
     func fetchComments(for movie: inout Movie, in movieClubId: String) async {
             print("Fetching comments for movie: \(movie.title)")

@@ -15,6 +15,7 @@ struct CommentsView: View {
         VStack(alignment: .leading) {
             ForEach(comments) { comment in
                 CommentDetailView(comment: comment)
+                
             }
         }
         

@@ -13,10 +13,32 @@ struct CommentDetailView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Image(systemName: "person.crop.circle.fill") // Placeholder for profile image
-                    .resizable()
-                    .frame(width: 40, height: 40)
-                    .clipShape(Circle())
+                
+                AsyncImage(url: URL(string: comment.image ?? "")) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                    case .empty:
+                        Image(systemName: "person.crop.circle.fill") // Placeholder for profile image
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                    case .failure(_):
+                        Image(systemName: "person.crop.circle.fill") // Placeholder for profile image
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                    @unknown default:
+                        Image(systemName: "person.crop.circle.fill") // Placeholder for profile image
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                    }
+                }
                 
                 VStack(alignment: .leading) {
                     Text(comment.username)
@@ -33,7 +55,7 @@ struct CommentDetailView: View {
             HStack {
                 Text("\(comment.likes) likes")
                 Spacer()
-                Text("\(comment) stars")
+            
             }
             .font(.subheadline)
             .foregroundColor(.secondary)

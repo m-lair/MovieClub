@@ -10,7 +10,6 @@ import SwiftUI
 struct ClubDetailView: View {
     @Environment(DataManager.self) var data: DataManager
     @State var movieClub: MovieClub
-    
     var body: some View {
         NavigationStack{
             ScrollView {
@@ -26,7 +25,11 @@ struct ClubDetailView: View {
                     FeaturedMovieView(movie: movieClub.movies?.first)
                     
                     // Comments Section
-                    CommentsView(comments: movieClub.movies?.first?.comments ?? [])
+                    let _ = print("check data.comment: \(data.comments)")
+                    CommentsView(comments: data.comments)
+                    
+                    CommentInputView(movieclub: movieClub)
+                    
                 }
                 .padding()
             }
@@ -36,6 +39,8 @@ struct ClubDetailView: View {
         .onAppear(){
             Task{
                 movieClub.movies = await data.fetchMovies(for: movieClub.id ?? "")
+                await data.fetchComments(movieClubId: movieClub.id ?? "", movieId: movieClub.movies?.first?.id ?? "")
+                            
             }
         }
     }

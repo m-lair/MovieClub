@@ -105,7 +105,8 @@ struct Rating: Identifiable, Codable {
 }
 
 struct Comment: Identifiable, Codable{
-    var id = UUID()
+    @DocumentID var id: String?
+    var image: String?
     var username: String
     var date: Date
     var text: String
