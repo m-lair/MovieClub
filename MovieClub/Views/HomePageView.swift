@@ -13,7 +13,7 @@ struct HomePageView: View {
     
     let userClubs: [MovieClub]
     var body: some View {
-        let _ = print("in homepageview\(userClubs)")
+        let _ = print("in homepageview")
         VStack{
             if userClubs.count > 0{
                 VStack{
@@ -23,16 +23,9 @@ struct HomePageView: View {
                 
                 Text("Nothing to see here!")
             }
-            
-            
-            
         }
-        
-            
-        }
-        
-        
     }
+}
     
 #Preview {
     HomePageView(userClubs: MovieClub.TestData)

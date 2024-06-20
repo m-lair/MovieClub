@@ -30,7 +30,10 @@ struct CommentInputView: View {
                 HStack(alignment: .bottom) {
                     Spacer()
                     Button("", systemImage: "arrow.up.circle.fill"){
-                        submitComment()
+                        Task{
+                           await submitComment()
+                        }
+                        
                     }
                     .foregroundColor(Color(uiColor: .systemBlue))
                     .font(.title)
@@ -42,12 +45,12 @@ struct CommentInputView: View {
     }
     
     
-    @MainActor private func submitComment() {
-        guard let profileImage = data.currentUser?.image else {
+    private func submitComment() async {
+        guard let profileImage = await data.currentUser?.image else {
             print("no profile image")
             return
         }
-        let newComment = Comment(id: nil, image: profileImage, username: data.currentUser?.name ?? "Anonymous", date: Date(), text: commentText, likes: 0)
+        let newComment = await Comment(id: nil, image: profileImage, username: data.currentUser?.name ?? "Anonymous", date: Date(), text: commentText, likes: 0)
         
         Task {
             await data.postComment(comment: newComment, movieClub: movieclub)

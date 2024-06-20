@@ -16,6 +16,7 @@
 		2C4475022C06DE4F0034204C /* CommentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475012C06DE4F0034204C /* CommentView.swift */; };
 		2C4475042C06DE6B0034204C /* CommentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475032C06DE6B0034204C /* CommentDetailView.swift */; };
 		2C4475062C17CFFC0034204C /* CommentInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475052C17CFFC0034204C /* CommentInputView.swift */; };
+		2C4475082C213C150034204C /* ScrollViewContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475072C213C150034204C /* ScrollViewContent.swift */; };
 		2C5DEC1F2BF1AC6C000EF232 /* MovieClubApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5DEC1E2BF1AC6C000EF232 /* MovieClubApp.swift */; };
 		2C5DEC232BF1AC6E000EF232 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2C5DEC222BF1AC6E000EF232 /* Assets.xcassets */; };
 		2C5DEC262BF1AC6E000EF232 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2C5DEC252BF1AC6E000EF232 /* Preview Assets.xcassets */; };
@@ -53,6 +54,7 @@
 		2C4475012C06DE4F0034204C /* CommentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentView.swift; sourceTree = "<group>"; };
 		2C4475032C06DE6B0034204C /* CommentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentDetailView.swift; sourceTree = "<group>"; };
 		2C4475052C17CFFC0034204C /* CommentInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentInputView.swift; sourceTree = "<group>"; };
+		2C4475072C213C150034204C /* ScrollViewContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollViewContent.swift; sourceTree = "<group>"; };
 		2C5DEC1B2BF1AC6C000EF232 /* MovieClub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MovieClub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C5DEC1E2BF1AC6C000EF232 /* MovieClubApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieClubApp.swift; sourceTree = "<group>"; };
 		2C5DEC222BF1AC6E000EF232 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -102,6 +104,7 @@
 				2C8256C42BF2FC2B00D2ED12 /* MovieClubCardView.swift */,
 				2C8256CA2BF30AA500D2ED12 /* MovieClubScrollView.swift */,
 				2C8256BC2BF1E63800D2ED12 /* NewClubView.swift */,
+				2C4475072C213C150034204C /* ScrollViewContent.swift */,
 				2C8256D02BF475D000D2ED12 /* CreateClubForm.swift */,
 				2C4474F72C06DD310034204C /* HeaderView.swift */,
 				2C4474F92C06DD670034204C /* InfoView.swift */,
@@ -288,6 +291,7 @@
 				2C8256D12BF475D000D2ED12 /* CreateClubForm.swift in Sources */,
 				2C5DEC822BF1B3F6000EF232 /* StarRatingView.swift in Sources */,
 				2C5DEC812BF1B3F6000EF232 /* AddMovieSheet.swift in Sources */,
+				2C4475082C213C150034204C /* ScrollViewContent.swift in Sources */,
 				2C5DEC402BF1B0DB000EF232 /* Model.swift in Sources */,
 				2C8256C52BF2FC2B00D2ED12 /* MovieClubCardView.swift in Sources */,
 				2C4475002C06DE3A0034204C /* FeaturedMovieView.swift in Sources */,

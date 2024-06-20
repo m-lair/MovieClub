@@ -13,7 +13,7 @@ import FirebaseAuth
 import FirebaseFirestoreSwift
 import AuthenticationServices
 import FirebaseFirestore
-import Observation
+
 
 
 class AppDelegate: NSObject, UIApplicationDelegate {

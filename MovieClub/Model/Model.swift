@@ -83,6 +83,7 @@ struct MovieClub: Identifiable, Codable {
     var numMovies: Int = 0
     var members: [User]?
     var movies: [Movie]?
+    
 }
 
 struct Movie: Identifiable, Codable{
@@ -90,6 +91,7 @@ struct Movie: Identifiable, Codable{
     var title: String
     var description: String
     var startDate: Date
+    var poster: String?
     var endDate: Date
     var avgRating: Double?
     var rating: [Rating]?
