@@ -8,33 +8,26 @@
 import SwiftUI
 
 struct ProfileView: View {
-    @Environment(DataManager.self) var datamanager
+    @Environment(DataManager.self) private  var data: DataManager
+    @State var showEditView = false
     var body: some View {
-        Group {
-            if let imageUrl = datamanager.currentUser?.image, let url = URL(string: imageUrl) {
-                AsyncImage(url: url) { phase in
-                    if let image = phase.image {
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                            .overlay(
-                                Circle().stroke(Color.white, lineWidth: 4)
-                            )
-                            .shadow(radius: 10)
-                    } else if phase.error != nil {
-                        Color.red
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
+        NavigationStack{
+            ProfileHeaderView(user: data.currentUser!)
+            Spacer()
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: {
+                            showEditView = true
+                        }) {
+                            Text("Edit")
+                        }
                     }
                 }
-            } else {
-                ProgressView()
-                    .frame(width: 100, height: 100)
-            }
+                .sheet(isPresented: $showEditView) {
+                    UserEditView()
+                }
+            
         }
-        
     }
 }
 

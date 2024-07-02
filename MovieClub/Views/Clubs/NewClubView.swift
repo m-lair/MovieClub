@@ -15,7 +15,7 @@ struct NewClubView: View {
     @Environment(\.dismiss) private var dismiss
     @State var searchText = ""
     @State var searchBarShowing = true
-    @State var clubList: [MovieClub]
+    @State var clubList: [MovieClub] = []
     var filteredClubs: [MovieClub] {
         if searchText.isEmpty {
             clubList
@@ -51,15 +51,6 @@ struct NewClubView: View {
                             sheetShowing.toggle()
                         }label:{
                             Text("Create")
-                        }
-                    }
-                }
-                ToolbarItem(placement: .topBarLeading){
-                    HStack{
-                        Button{
-                            sheetShowing.toggle()
-                        }label:{
-                            Text("placeholder")
                         }
                     }
                 }

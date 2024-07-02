@@ -15,6 +15,15 @@ struct MovieClubScrollView: View {
                 ScrollViewContent()
                 
             }
+            .navigationBarTitle("Movie Clubs", displayMode: .inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink(destination: NewClubView()) {
+                        Image(systemName: "plus")
+                            .imageScale(.large)
+                    }
+                }
+            }
         }
     }
 }

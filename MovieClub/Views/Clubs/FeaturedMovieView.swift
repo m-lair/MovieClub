@@ -10,42 +10,51 @@ import SwiftUI
 struct FeaturedMovieView: View {
     @Environment(DataManager.self) var data: DataManager
     
-    @State var movie: Movie?
+    @State var movie: MovieClub.Movie?
     var body: some View {
-        let _ = print("this is the club \(data.currentClub)")
+       // let _ = print("this is the club \(data.currentClub)")
         VStack(alignment: .leading) {
-            if let movie = data.currentClub?.movies?[0] {
+            if let movie = movie {
                 Text(movie.title)
                     .font(.title2)
                     .fontWeight(.bold)
-                
-                Text("Selected By: \(movie.author)")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                
-                Text("Start date: \(movie.startDate) \nEnd date: \(movie.endDate)")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                
-                Text(movie.description)
-                    .font(.body)
-                    .foregroundColor(.primary)
-                let _ = print("movie.poster \(movie.poster)")
-                let url = URL(string: movie.poster ?? "")
-                let _ = print(url)
-                AsyncImage(url: url) { phase in
-                    if let image = phase.image {
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 100, height: 100)
-                        
-                    }else {
-                        ProgressView()
-                            .frame(width: 100, height: 100)
+                HStack {
+                    let url = URL(string: movie.poster ?? "")
+                    AsyncImage(url: url) { phase in
+                        if let image = phase.image {
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 100, height: 100)
+                            
+                        }else {
+                            ProgressView()
+                                .frame(width: 100, height: 100)
+                        }
                     }
+                    
+                    Text(movie.plot ?? "")
+                        .font(.body)
+                        .foregroundColor(.primary)
+                    
+                    
                 }
-                
+                    HStack{
+                        Image(systemName: "person")
+                        Text("Selected By: \(movie.author)")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        Spacer()
+                        Image(systemName: "calendar")
+                        Text("End date: \(movie.endDate.formatted())")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        
+                        
+                    }
+                    
             }
         }
         .onAppear(){

@@ -9,7 +9,7 @@ import SwiftUI
 import Observation
 
 struct MovieRow: View {
-    let movie: Movie
+    let movie: MovieClub.Movie
     var body: some View {
         HStack {
             VStack(alignment: .leading) {

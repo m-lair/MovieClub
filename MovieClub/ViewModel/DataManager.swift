@@ -17,11 +17,11 @@ import Observation
 @MainActor
 @Observable class DataManager: Identifiable{
     
-    var movies: [Movie] = []
+    var movies: [MovieClub.Movie] = []
     var userSession: FirebaseAuth.User?
     var currentUser: User?
     var userMovieClubs: [MovieClub] = []
-    var comments: [Comment] = []
+    var comments: [MovieClub.Comment] = []
     var currentClub: MovieClub?
     
     init(){
@@ -44,7 +44,7 @@ import Observation
         do {
             let result = try await Auth.auth().createUser(withEmail: user.email, password: user.password)
             self.userSession = result.user
-            let user = User(id: result.user.uid, email: user.email, name: user.name, image: user.image, password: user.password)
+            let user = User(id: result.user.uid, email: user.email, bio: user.bio, name: user.name, image: user.image, password: user.password)
             let encodeUser = try Firestore.Encoder().encode(user)
             try await Firestore.firestore().collection("users").document(user.id ?? "").setData(encodeUser)
             await fetchUser()
@@ -102,26 +102,16 @@ import Observation
         return ""
     }
     
-    func postComment(comment: Comment, movieClub: MovieClub) async{
+    func postComment(comment: MovieClub.Comment, movieClubID: String, movieID: String) async{
         do{
-            guard let movieClubId = movieClub.id else {
-                print("Invalid movie club ID")
-                return
-            }
-            
-            guard let firstMovie = movieClub.movies?.first, let movieId = firstMovie.id else {
-                print("No movies found or invalid movie ID")
-                return
-            }
-            
             let db = Firestore.firestore()
             
             do {
                 let encodeComment = try Firestore.Encoder().encode(comment)
-                try await db.collection("movieclubs").document(movieClubId)
-                    .collection("movies").document(movieId)
+                try await db.collection("movieclubs").document(movieClubID)
+                    .collection("movies").document(movieID)
                     .collection("comments").document().setData(encodeComment)
-                self.comments.append(comment)
+                
                 print("Comment added successfully")
             } catch {
                 print("Error adding comment: \(error.localizedDescription)")
@@ -130,7 +120,7 @@ import Observation
     }
     
     func fetchComments(movieClubId: String, movieId: String) async {
-        //  print("in fetch comments")
+        print("in fetch comments")
         let db = Firestore.firestore()
         
         do {
@@ -140,10 +130,9 @@ import Observation
                 .document(movieId)
                 .collection("comments")
                 .getDocuments()
-            print(querySnapshot.documents.first?.data())
             self.comments = querySnapshot.documents.compactMap { document in
                 do {
-                    return try document.data(as: Comment.self)
+                    return try document.data(as: MovieClub.Comment.self)
                 } catch {
                     print("Error decoding document \(document.documentID): \(error)")
                     return nil
@@ -170,7 +159,7 @@ import Observation
             let documents = snapshot.documents
             
             let clubIDs = documents.compactMap { document in
-                // print("document loop \(document.description)")
+                print("document loop \(document.description)")
                 return document.data()["clubID"] as? String ?? "error"
                 
             }
@@ -190,7 +179,8 @@ import Observation
             //let movieClub = MovieClub(name: movieClub.name, ownerName: movieClub.ownerName, ownerID: movieClub.ownerID, isPublic: movieClub.isPublic)
             let encodeClub = try Firestore.Encoder().encode(movieClub)
             try await Firestore.firestore().collection("movieclubs").document().setData(encodeClub)
-            
+            self.userMovieClubs.append(movieClub)
+            await addClubRelationship(movieClub: movieClub)
             await fetchUser()
         }
     }
@@ -226,35 +216,110 @@ import Observation
         
     }
     
-    private func getIMDB(id: String) {
+    func fetchAPIMovie(title: String) async throws -> MovieClub.APIMovie {
+        let formattedTitle = title.replacingOccurrences(of: " ", with: "+")
+        let urlString = "https://omdbapi.com/?t=\(formattedTitle)&apikey=ab92d369"
         
+        guard let url = URL(string: urlString) else {
+            print("Invalid URL: \(urlString)")
+            throw URLError(.badURL)
+        }
+        
+        let (data, response) = try await URLSession.shared.data(from: url)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            print("Bad server response: \(response)")
+            throw URLError(.badServerResponse)
+        }
+        
+        let decoder = JSONDecoder()
+        
+        do {
+            return try decoder.decode(MovieClub.APIMovie.self, from: data)
+        } catch {
+            print("Failed to decode API response: \(error)")
+            throw URLError(.cannotParseResponse)
+        }
     }
     
-    func fetchMovies(for movieClubId: String) async -> [Movie] {
-       
+    func fetchFirestoreMovies() async -> [MovieClub.FirestoreMovie]{
+        let db = Firestore.firestore()
+        do {
+            let moviesRef = try await db.collection("movieclubs").document(self.currentClub?.id ?? "").collection("movies").getDocuments()
+            
+            
+            let firestoreMovies = moviesRef.documents.compactMap { document in
+                try? document.data(as: MovieClub.FirestoreMovie.self)
+            }
+            return firestoreMovies
+        } catch {
+            print("Error fetching Firestore movies: \(error)")
+        }
+        return []
+    }
+    
+    func fetchAndMergeMovies() async -> [MovieClub.Movie] {
+        var movies: [MovieClub.Movie] = []
+        do {
+            let firestoreMovies = await fetchFirestoreMovies()
+            print("firestore movies \(firestoreMovies)")
+            for firestoreMovie in firestoreMovies {
+                
+                let apiMovie = try await fetchAPIMovie(title: firestoreMovie.title)
+                
+                let combinedMovie = MovieClub.Movie(
+                    id: firestoreMovie.id ?? UUID().uuidString,
+                    title: firestoreMovie.title,
+                    startDate: firestoreMovie.startDate,
+                    poster: apiMovie.poster,
+                    endDate: firestoreMovie.endDate,
+                    author: firestoreMovie.author,
+                    comments: firestoreMovie.comments, plot: apiMovie.plot, director: apiMovie.director
+                    
+                )
+                print(combinedMovie)
+                movies.append(combinedMovie)
+            }
+            return movies
+            
+            
+            
+        }catch {
+            print("Failed to fetch or merge movie data: \(error)")
+        }
+        return []
+    }
+
+
+
+    func fetchMovies(for movieClubId: String) async -> [MovieClub.Movie] {
+        
         
         let db = Firestore.firestore()
         
         do {
             let querySnapshot = try await db.collection("movieclubs").document(movieClubId).collection("movies").getDocuments()
-            print(querySnapshot.documents)
-            let movies = querySnapshot.documents.compactMap { try? $0.data(as: Movie.self) }
             
-            print(movies)
-            
-            return movies
-            // Find the movie club by ID and update its movies
-            
-            
+            let movieTitles = querySnapshot.documents.compactMap { document in
+                do {
+                    return try document.data(as: MovieClub.Movie.self)
+                } catch {
+                    print("Error decoding movie document: \(error.localizedDescription), Document: \(document.documentID)")
+                    return nil
+                }
+            }
+            return movieTitles
         } catch {
-            print("Error fetching movies: \(error.localizedDescription)")
+            print("Error fetching movie documents: \(error.localizedDescription)")
+            return []
         }
-        return []
     }
+
     
-    func decodeMovie(title: String) async throws-> Movie {
+    func decodeMovie(title: String) async throws-> MovieClub.Movie {
         let title = formatMovieForAPI(title: title)
-        let urlString = "http://omdbapi.com/?t=\(title)&h=600&apikey=ab92d369"
+        let urlString = "https://omdbapi.com/?t=\(title)&h=600&apikey=ab92d369"
+        print(urlString)
         guard let url = URL(string: urlString) else{
             throw URLError(.badURL)
         }
@@ -264,16 +329,16 @@ import Observation
             throw URLError(.badServerResponse)
         }
         print("return data: \(data)")
-        let movie = try! JSONDecoder().decode(Movie.self, from: data)
+        let movie = try! JSONDecoder().decode(MovieClub.Movie.self, from: data)
         
         return movie
         
     }
     
     func fetchPoster(title: String) async throws -> String {
-        print("in fetch poster method")
+        
         let formattedTitle = formatMovieForAPI(title: title)
-        print(formattedTitle)
+        
         let urlString = "https://omdbapi.com/?t=\(formattedTitle)&apikey=ab92d369"
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
@@ -286,8 +351,8 @@ import Observation
             throw URLError(.badServerResponse)
         }
         
-        print("### data \(data)")
-        print(response)
+        
+    
         do {
                 if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
                    let poster = json["Poster"] as? String {
@@ -309,22 +374,6 @@ import Observation
         }
     
     
-    func fetchComments(for movie: inout Movie, in movieClubId: String) async {
-          //  print("Fetching comments for movie: \(movie.title)")
-            
-            let db = Firestore.firestore()
-            
-            do {
-                let querySnapshot = try await db.collection("movieclubs").document(movieClubId).collection("movies").document(movie.id ?? "").collection("comments").getDocuments()
-                movie.comments = querySnapshot.documents.compactMap { try? $0.data(as: Comment.self) }
-            } catch {
-                print("Error fetching comments: \(error.localizedDescription)")
-            }
-        }
-    
-    
-    
-    
     func fetchUser() async {
         
       //  print("in fetch user")
@@ -333,10 +382,17 @@ import Observation
       //  print("1")
         guard let uid = Auth.auth().currentUser?.uid else {return}
        // print("2")
-      //  print("uid\(uid)")
+      print("uid\(uid)")
         guard let snapshot = try? await db.collection("users").document(uid).getDocument() else {return}
-       // print("Document data: \(snapshot.data())")
-        self.currentUser = try? snapshot.data(as: User.self)
+       print("Document data: \(snapshot.data())")
+        
+            do{
+                self.currentUser = try snapshot.data(as: User.self)
+            }catch{
+                print(error)
+            }
+        
+        
         await self.currentUser!.image = getProfileImage(id: currentUser!.id!)
         await fetchMovieClubsForUser()
         
@@ -367,10 +423,10 @@ extension MovieClub {
                                                   isPublic: true,
                                                   movies: [Movie(id: "001",
                                                                  title: "The Matrix",
-                                                                 description: "description",
                                                                  startDate: Date(),
+                                                                 poster: "test",
                                                                  endDate: Date(),
-                                                                 avgRating: 5.0,
+                                                                 
                                                                  author: "duhmarcus")]),
                                         MovieClub(name: "Test Title 2",
                                                   created: Date(),
