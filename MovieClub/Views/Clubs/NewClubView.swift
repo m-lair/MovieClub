@@ -24,7 +24,6 @@ struct NewClubView: View {
         }
     }
     var body: some View {
-        
         NavigationStack{
             VStack{
                 //search bar results view

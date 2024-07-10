@@ -71,6 +71,7 @@ struct EditEmptyView: View {
                     }
                 }
                 Section(header: Text("Movie Club Settings")){
+                    Toggle("Public Club", isOn: $isPublic)
                 }
             }
             .toolbar{
@@ -80,15 +81,22 @@ struct EditEmptyView: View {
                             // Call a method to save the club with the entered information
                             
                             let movieClub = MovieClub(id: generateUUID(), name: name,
-                                                      created: Date(), numMembers: 1, description: "",
+                                                      created: Date(), numMembers: 1, description: desc,
                                                       ownerName: data.currentUser?.name ?? "",
                                                       ownerID: data.currentUser?.id ?? "",
                                                       isPublic: isPublic)
+                            
+                            
                             await saveClub(movieClub: movieClub)
                             dismiss()
                         }
                     }label: {
                         Text("Save")
+                    }
+                }
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
                     }
                 }
             }

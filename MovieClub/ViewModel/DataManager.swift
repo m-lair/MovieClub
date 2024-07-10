@@ -87,9 +87,28 @@ import Observation
         }
     }
     
-    func getProfileImage(id: String) async -> String  {
+    func uploadClubImage(image: UIImage, clubId: String) async{
+        let storageRef = Storage.storage().reference().child("Clubs/\(clubId)/images/avi_\(clubId).jpg")
+        if let imageData = image.jpegData(compressionQuality: 0.75) {
+            let metadata = StorageMetadata()
+            metadata.contentType = "image/jpeg"
+            do {
+                _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
+                let url = try await storageRef.downloadURL()
+                // Update clubss profile image URL
+                    try await Firestore.firestore().collection("movieclubs").document(clubId).updateData(["avi": url.absoluteString])
+                
+            } catch {
+                print("Error uploading image: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    
+    
+    func getProfileImage(id: String, path: String) async -> String  {
         //   print("in getter")
-        let storageRef = Storage.storage().reference().child("Users/profile_images/\(id).jpeg")
+        let storageRef = Storage.storage().reference().child("\(path).jpeg") //Storage.storage().reference().child("Users/profile_images/\(id).jpeg")
         do {
             let url = try await storageRef.downloadURL()
             if var currentUser = currentUser {
@@ -165,7 +184,7 @@ import Observation
             }
             
             for clubID in clubIDs {
-                
+                print(clubID)
                 await self.fetchMovieClub(clubID: clubID)
             }
         }catch{
@@ -178,9 +197,10 @@ import Observation
         Task{
             //let movieClub = MovieClub(name: movieClub.name, ownerName: movieClub.ownerName, ownerID: movieClub.ownerID, isPublic: movieClub.isPublic)
             let encodeClub = try Firestore.Encoder().encode(movieClub)
-            try await Firestore.firestore().collection("movieclubs").document().setData(encodeClub)
-            self.userMovieClubs.append(movieClub)
-            await addClubRelationship(movieClub: movieClub)
+            if let id = movieClub.id{
+                try await  Firestore.firestore().collection("movieclubs").document(id).setData(encodeClub)
+                self.userMovieClubs.append(movieClub)
+            }
             await fetchUser()
         }
     }
@@ -203,7 +223,7 @@ import Observation
     
     
     func fetchMovieClub(clubID: String) async {
-        // print("in fetchMovieClub")
+        print("in fetchMovieClub")
         
         let db = Firestore.firestore()
         guard let snapshot = try? await db.collection("movieclubs").document(clubID).getDocument() else {return}
@@ -392,8 +412,8 @@ import Observation
                 print(error)
             }
         
-        
-        await self.currentUser!.image = getProfileImage(id: currentUser!.id!)
+        let path = ("Users/profile_images/\(self.currentUser?.id ?? "")")
+        await self.currentUser!.image = getProfileImage(id: currentUser!.id!, path: path)
         await fetchMovieClubsForUser()
         
     }

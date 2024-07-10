@@ -12,6 +12,13 @@ struct ClubDetailView: View {
     @State var movieClub: MovieClub
     @State var isLoading = true
     @State var isPresentingEditView = false
+    var movies: [MovieClub.Movie] {
+        if movieClub.movies!.count > 0 {
+            return movieClub.movies!
+        } else {
+            return []
+        }
+    }
     @FocusState private var isCommentFieldFocused: Bool
     var body: some View {
         VStack{
@@ -29,12 +36,13 @@ struct ClubDetailView: View {
                                 print("###")
                                 print(movieClub.movies)
                                 // data.currentClub?.movies = await    data.fetchMovies(for: id)
-                                if let title = movieClub.movies?[0].title {
-                                    movieClub.movies?[0].poster = try await data.fetchPoster(title: title)
-                                    //data.currentClub?.movies?[0].title {
-                                    //   data.currentClub?.movies?[0].poster = try await data.fetchPoster(title: title)
-                                    
-                                }
+                                if movieClub.movies!.count > 0{
+                                    if let title = movieClub.movies?[0].title {
+                                        movieClub.movies?[0].poster = try await data.fetchPoster(title: title)
+                                        //data.currentClub?.movies?[0].title {
+                                        //   data.currentClub?.movies?[0].poster = try await data.fetchPoster(title: title)
+                                        
+                                    }}
                                 print("before is loading")
                                 isLoading = false
                             }
@@ -52,26 +60,29 @@ struct ClubDetailView: View {
                     ScrollView{
                         Divider()
                         // Featured Movie Section
-                        FeaturedMovieView(movie: movieClub.movies?.first)
+                        FeaturedMovieView(movie: movieClub.movies![0])
                         
                         Divider()
                         
                         // Comments Section
-                        CommentsView(movie: movieClub.movies?[0])
-                        
+                        if movieClub.movies!.count > 0 {
+                            CommentsView(movie: movieClub.movies?[0])
+                        }
                     }
                     
                     .padding()
                     .navigationTitle(movieClub.name)
                     
                     Spacer()
-                    CommentInputView(movieClub: movieClub, movieID: movieClub.movies?[0].id ?? "")
-                        .focused($isCommentFieldFocused)
-                        .onChange(of: isCommentFieldFocused) {
-                            withAnimation {
-                                isCommentFieldFocused = true
+                    if movieClub.movies!.count > 0 {
+                        CommentInputView(movieClub: movieClub, movieID: movieClub.movies?[0].id ?? "")
+                            .focused($isCommentFieldFocused)
+                            .onChange(of: isCommentFieldFocused) {
+                                withAnimation {
+                                    isCommentFieldFocused = true
+                                }
                             }
-                        }
+                    }
                 }
             }
         }

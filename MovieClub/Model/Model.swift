@@ -46,6 +46,7 @@ struct MovieClub: Identifiable, Codable {
     var ownerName: String
     var ownerID: String
     var isPublic: Bool
+    var poster: String?
     var numMovies: Int = 0
     var members: [User]?
     var movies: [Movie]?

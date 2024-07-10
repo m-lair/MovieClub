@@ -28,8 +28,6 @@ struct MovieClubScrollView: View {
     }
 }
 
-
-
 #Preview {
     MovieClubScrollView()
         .environment(DataManager())

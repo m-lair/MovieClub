@@ -32,28 +32,27 @@ struct FeaturedMovieView: View {
                                 .frame(width: 100, height: 100)
                         }
                     }
-                    
                     Text(movie.plot ?? "")
                         .font(.body)
                         .foregroundColor(.primary)
                     
                     
                 }
-                    HStack{
-                        Image(systemName: "person")
-                        Text("Selected By: \(movie.author)")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        
-                        Spacer()
-                        Image(systemName: "calendar")
-                        Text("End date: \(movie.endDate.formatted())")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        
-                        
-                        
-                    }
+                HStack{
+                    Image(systemName: "person")
+                    Text("Selected By: \(movie.author)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    Spacer()
+                    Image(systemName: "calendar")
+                    Text("End date: \(movie.endDate.formatted())")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    
+                    
+                }
                     
             }
         }
