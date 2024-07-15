@@ -28,8 +28,17 @@ struct User: Identifiable, Codable{
     }
 }
 
-
-
+struct OMDBSearchResponse: Codable {
+    let search: [MovieClub.APIMovie]
+    let totalResults: String
+    let response: String
+    
+    enum CodingKeys: String, CodingKey {
+        case search = "Search"
+        case totalResults
+        case response = "Response"
+    }
+}
 
 
 struct Membership: Codable {
@@ -52,7 +61,7 @@ struct MovieClub: Identifiable, Codable {
     var movies: [Movie]?
     
     
-    struct Movie: Identifiable, Codable{
+    struct Movie: Identifiable, Codable, Equatable{
         @DocumentID var id: String?
         var title: String
         var startDate: Date
@@ -64,6 +73,10 @@ struct MovieClub: Identifiable, Codable {
         var plot: String?
         var director: String?
         var releaseYear: String?
+        
+        static func == (lhs: Movie, rhs: Movie) -> Bool {
+                    return lhs.id == rhs.id && lhs.title == rhs.title
+                }
         
         
         enum CodingKeys: String, CodingKey {
@@ -103,16 +116,22 @@ struct MovieClub: Identifiable, Codable {
          var author: String
          var comments: [Comment]?
     }
-    struct APIMovie: Codable {
+    struct APIMovie: Codable, Equatable, Hashable, Identifiable {
+        var id: String
         var title: String
         var released: String
-        var director: String
-        var poster: String
-        var plot: String
+        var director: String?
+        var poster: String?
+        var plot: String?
+        
+        static func == (lhs: APIMovie, rhs: APIMovie) -> Bool {
+                    return lhs.id == rhs.id && lhs.title == rhs.title
+                }
 
         enum CodingKeys: String, CodingKey {
+            case id = "imdbID"
             case title = "Title"
-            case released = "Released"
+            case released = "Year"
             case director = "Director"
             case poster = "Poster"
             case plot = "Plot"

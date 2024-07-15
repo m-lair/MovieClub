@@ -42,19 +42,9 @@ struct NewClubView: View {
             }
             .sheet(isPresented: $sheetShowing, content: {
                 CreateClubForm()})
-            .navigationTitle("Find or Create Club")
-            .toolbar(content: {
-                ToolbarItem(placement: .topBarTrailing){
-                    HStack{
-                        Button{
-                            sheetShowing.toggle()
-                        }label:{
-                            Text("Create")
-                        }
-                    }
-                }
-            }
-        )}
+            
+        }
+        .navigationTitle("Find or Create Club")
         .searchable(text: $searchText, isPresented: $searchBarShowing)
         .onAppear(){
             Task{

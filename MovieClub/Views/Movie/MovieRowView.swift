@@ -8,21 +8,60 @@
 import SwiftUI
 import Observation
 
+
 struct MovieRow: View {
-    let movie: MovieClub.Movie
+    @Environment(DataManager.self) var data: DataManager
+    let movie: MovieClub.APIMovie
+    @State var sheetPresented = false
     var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text(movie.title)
-                    .font(.headline)
-                Text("\(movie.startDate)")
-                    .font(.subheadline)
+        NavigationStack{
+            HStack {
+                if let poster = movie.poster, let url = URL(string: poster) {
+                    AsyncImage(url: url) { phase in
+                        if let image = phase.image {
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 100, height: 100)
+                            
+                        }else {
+                            ProgressView()
+                                .frame(width: 100, height: 100)
+                        }
+                    }
+                    VStack(alignment: .leading) {
+                        Text(movie.title)
+                            .font(.headline)
+                        Text("\(movie.released)")
+                            .font(.subheadline)
+                    }
+                } else {
+                    Rectangle()
+                        .fill(Color.gray)
+                        .frame(width: 50, height: 75)
+                        .overlay(Text("No Image")
+                            .foregroundColor(.white)
+                            .font(.caption))
+                }
+                Spacer()
+                //gonna change to a navlink to an add sheet or something
+                
+                Button(action: {
+                    sheetPresented.toggle()
+                }) {
+                    Image(systemName: "plus")
+                        .padding()
+                }
+                .buttonStyle(PlainButtonStyle())
             }
-            Spacer()
-            Text(String(format: "%.1f", movie.avgRating ?? 0.0))
-                .font(.subheadline)
+            .sheet(isPresented: $sheetPresented, content: {
+                NewMovieForm(movie: movie)})
+            .padding()
         }
-        .padding()
+    
     }
+    
+    
+    
 }
 

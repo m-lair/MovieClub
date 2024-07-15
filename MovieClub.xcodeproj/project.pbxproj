@@ -21,6 +21,8 @@
 		2C44750F2C2A6C2D0034204C /* UserEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C44750E2C2A6C2D0034204C /* UserEditView.swift */; };
 		2C4475112C2A707E0034204C /* ProfileHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475102C2A707D0034204C /* ProfileHeaderView.swift */; };
 		2C4475132C361FA50034204C /* AddMovieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475122C361FA50034204C /* AddMovieView.swift */; };
+		2C4475152C3E18810034204C /* NextUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475142C3E18810034204C /* NextUpView.swift */; };
+		2C4475172C4442680034204C /* NewMovieForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475162C4442680034204C /* NewMovieForm.swift */; };
 		2C5DEC1F2BF1AC6C000EF232 /* MovieClubApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5DEC1E2BF1AC6C000EF232 /* MovieClubApp.swift */; };
 		2C5DEC232BF1AC6E000EF232 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2C5DEC222BF1AC6E000EF232 /* Assets.xcassets */; };
 		2C5DEC262BF1AC6E000EF232 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2C5DEC252BF1AC6E000EF232 /* Preview Assets.xcassets */; };
@@ -63,6 +65,8 @@
 		2C44750E2C2A6C2D0034204C /* UserEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserEditView.swift; sourceTree = "<group>"; };
 		2C4475102C2A707D0034204C /* ProfileHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderView.swift; sourceTree = "<group>"; };
 		2C4475122C361FA50034204C /* AddMovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMovieView.swift; sourceTree = "<group>"; };
+		2C4475142C3E18810034204C /* NextUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextUpView.swift; sourceTree = "<group>"; };
+		2C4475162C4442680034204C /* NewMovieForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewMovieForm.swift; sourceTree = "<group>"; };
 		2C5DEC1B2BF1AC6C000EF232 /* MovieClub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MovieClub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C5DEC1E2BF1AC6C000EF232 /* MovieClubApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieClubApp.swift; sourceTree = "<group>"; };
 		2C5DEC222BF1AC6E000EF232 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -146,15 +150,10 @@
 				2C8256B82BF1BC4A00D2ED12 /* MovieDetailView.swift */,
 				2C8256B62BF1BC1E00D2ED12 /* MovieRowView.swift */,
 				2C4475122C361FA50034204C /* AddMovieView.swift */,
+				2C4475142C3E18810034204C /* NextUpView.swift */,
+				2C4475162C4442680034204C /* NewMovieForm.swift */,
 			);
 			path = Movie;
-			sourceTree = "<group>";
-		};
-		2C4475092C2A3FD90034204C /* Helper */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Helper;
 			sourceTree = "<group>";
 		};
 		2C5DEC122BF1AC6C000EF232 = {
@@ -176,7 +175,6 @@
 		2C5DEC1D2BF1AC6C000EF232 /* MovieClub */ = {
 			isa = PBXGroup;
 			children = (
-				2C4475092C2A3FD90034204C /* Helper */,
 				2C5DEC742BF1B3F6000EF232 /* Views */,
 				2C5DEC1E2BF1AC6C000EF232 /* MovieClubApp.swift */,
 				2C8256952BF1B58C00D2ED12 /* ContentView.swift */,
@@ -309,6 +307,7 @@
 			files = (
 				2C8256962BF1B58C00D2ED12 /* ContentView.swift in Sources */,
 				2C8256D12BF475D000D2ED12 /* CreateClubForm.swift in Sources */,
+				2C4475152C3E18810034204C /* NextUpView.swift in Sources */,
 				2C5DEC822BF1B3F6000EF232 /* StarRatingView.swift in Sources */,
 				2C5DEC812BF1B3F6000EF232 /* AddMovieSheet.swift in Sources */,
 				2C4475082C213C150034204C /* ScrollViewContent.swift in Sources */,
@@ -335,6 +334,7 @@
 				2C44750F2C2A6C2D0034204C /* UserEditView.swift in Sources */,
 				2C5DEC7C2BF1B3F6000EF232 /* SignUpView.swift in Sources */,
 				2C5DEC7F2BF1B3F6000EF232 /* AddToCalendarView.swift in Sources */,
+				2C4475172C4442680034204C /* NewMovieForm.swift in Sources */,
 				2C4475062C17CFFC0034204C /* CommentInputView.swift in Sources */,
 				2C4474FE2C06DE050034204C /* TabViewItem.swift in Sources */,
 				2C5DEC1F2BF1AC6C000EF232 /* MovieClubApp.swift in Sources */,

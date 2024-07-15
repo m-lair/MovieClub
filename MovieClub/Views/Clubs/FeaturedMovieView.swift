@@ -10,12 +10,14 @@ import SwiftUI
 struct FeaturedMovieView: View {
     @Environment(DataManager.self) var data: DataManager
     
+    @State var nextUpView = false
     @State var movie: MovieClub.Movie?
     var body: some View {
        // let _ = print("this is the club \(data.currentClub)")
         VStack(alignment: .leading) {
             if let movie = movie {
                 Text(movie.title)
+                    .padding(.vertical)
                     .font(.title2)
                     .fontWeight(.bold)
                 HStack {
@@ -38,6 +40,7 @@ struct FeaturedMovieView: View {
                     
                     
                 }
+                .padding(.vertical)
                 HStack{
                     Image(systemName: "person")
                     Text("Selected By: \(movie.author)")
@@ -49,8 +52,13 @@ struct FeaturedMovieView: View {
                     Text("End date: \(movie.endDate.formatted())")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
-                    
-                    
+                    NavigationStack {
+                        NavigationLink {
+                            NextUpView()
+                        } label: {
+                            Text("Next Up")
+                        }
+                    }
                     
                 }
                     

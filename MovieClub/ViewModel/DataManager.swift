@@ -103,9 +103,7 @@ import Observation
             }
         }
     }
-    
-    
-    
+
     func getProfileImage(id: String, path: String) async -> String  {
         //   print("in getter")
         let storageRef = Storage.storage().reference().child("\(path).jpeg") //Storage.storage().reference().child("Users/profile_images/\(id).jpeg")
@@ -239,7 +237,7 @@ import Observation
     func fetchAPIMovie(title: String) async throws -> MovieClub.APIMovie {
         let formattedTitle = title.replacingOccurrences(of: " ", with: "+")
         let urlString = "https://omdbapi.com/?t=\(formattedTitle)&apikey=ab92d369"
-        
+        print(urlString)
         guard let url = URL(string: urlString) else {
             print("Invalid URL: \(urlString)")
             throw URLError(.badURL)
@@ -253,7 +251,7 @@ import Observation
         }
         
         let decoder = JSONDecoder()
-        
+        print("data \(data)")
         do {
             return try decoder.decode(MovieClub.APIMovie.self, from: data)
         } catch {
@@ -271,6 +269,7 @@ import Observation
             let firestoreMovies = moviesRef.documents.compactMap { document in
                 try? document.data(as: MovieClub.FirestoreMovie.self)
             }
+            print("fireStoreMovies: \(firestoreMovies)")
             return firestoreMovies
         } catch {
             print("Error fetching Firestore movies: \(error)")
@@ -282,7 +281,7 @@ import Observation
         var movies: [MovieClub.Movie] = []
         do {
             let firestoreMovies = await fetchFirestoreMovies()
-            print("firestore movies \(firestoreMovies)")
+            
             for firestoreMovie in firestoreMovies {
                 
                 let apiMovie = try await fetchAPIMovie(title: firestoreMovie.title)
@@ -299,7 +298,10 @@ import Observation
                 )
                 print(combinedMovie)
                 movies.append(combinedMovie)
+                
             }
+            self.currentClub?.movies = movies
+            print("##### \(currentClub?.movies)")
             return movies
             
             
