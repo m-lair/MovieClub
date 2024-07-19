@@ -11,7 +11,7 @@ struct MainTabView: View {
     @Environment(DataManager.self) var data: DataManager
     
     var body: some View {
-        let _ = print("main tab user session?\(data.userSession?.uid)")
+       // let _ = print("main tab user session?\(data.userSession?.uid)")
         TabView {
             HomePageView(userClubs: data.userMovieClubs)
                 .tabItem {

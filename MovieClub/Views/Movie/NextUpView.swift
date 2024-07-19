@@ -9,39 +9,36 @@ import SwiftUI
 
 struct NextUpView: View {
     @Environment(DataManager.self) var data: DataManager
-    
+    let movies: [Movie]
+   
     var body: some View {
-        ScrollView(.horizontal){
-            HStack{
-                ForEach(data.currentClub!.movies!) { movie in
-                    let url = URL(string: movie.poster ?? "")
-                    AsyncImage(url: url) { phase in
-                        if let image = phase.image {
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .padding()
-                            
-                        }else {
-                            ProgressView()
-                                .frame(width: 100, height: 100)
+        
+            ScrollView(.horizontal){
+                HStack{
+                    ForEach(movies) { movie in
+                        let url = URL(string: movie.poster ?? "")
+                        AsyncImage(url: url) { phase in
+                            if let image = phase.image {
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .padding()
+                                
+                            }else {
+                                ProgressView()
+                                    .frame(width: 100, height: 100)
+                            }
                         }
                     }
                 }
             }
-        }
-        NavigationStack {
-            NavigationLink {
-                AddMovieView()
-            } label: {
-                Text("Add Movie")
-            }
             
-        }
+    //        NavigationLink(destination: AddMovieView()){
+    //            Text("Add Movie")
+     //       }
+            
+        
+        
     }
 }
 
-
-#Preview {
-    NextUpView()
-}

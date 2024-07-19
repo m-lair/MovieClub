@@ -9,72 +9,56 @@ import SwiftUI
 
 struct FeaturedMovieView: View {
     @Environment(DataManager.self) var data: DataManager
-    
     @State var nextUpView = false
-    @State var movie: MovieClub.Movie?
+    let movie: Movie
     var body: some View {
        // let _ = print("this is the club \(data.currentClub)")
         VStack(alignment: .leading) {
-            if let movie = movie {
                 Text(movie.title)
                     .padding(.vertical)
                     .font(.title2)
                     .fontWeight(.bold)
-                HStack {
-                    let url = URL(string: movie.poster ?? "")
-                    AsyncImage(url: url) { phase in
-                        if let image = phase.image {
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 100, height: 100)
-                            
-                        }else {
-                            ProgressView()
-                                .frame(width: 100, height: 100)
-                        }
+            Text(movie.releaseYear ?? "")
+                .font(.subheadline)
+            HStack {
+                let url = URL(string: movie.poster ?? "")
+                AsyncImage(url: url) { phase in
+                    if let image = phase.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 100, height: 100)
+                        
+                    }else {
+                        ProgressView()
+                            .frame(width: 100, height: 100)
                     }
-                    Text(movie.plot ?? "")
-                        .font(.body)
-                        .foregroundColor(.primary)
-                    
-                    
                 }
-                .padding(.vertical)
-                HStack{
-                    Image(systemName: "person")
-                    Text("Selected By: \(movie.author)")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    
-                    Spacer()
-                    Image(systemName: "calendar")
-                    Text("End date: \(movie.endDate.formatted())")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    NavigationStack {
-                        NavigationLink {
-                            NextUpView()
-                        } label: {
-                            Text("Next Up")
-                        }
-                    }
-                    
-                }
+                Text(movie.plot ?? "")
+                    .fixedSize(horizontal: false, vertical: true)
+                    .foregroundColor(.primary)
+                    .multilineTextAlignment(.leading)
                     
             }
-        }
-        .onAppear(){
-            Task{
-                print("fetching poster")
-                self.movie?.poster = try await data.fetchPoster(title: movie?.title ?? "")
+                .padding(.vertical)
+            HStack{
+                VStack{
+                    Image(systemName: "person")
+                    Text(movie.author)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                VStack{
+                    Image(systemName: "calendar")
+                    Text("End date: \(movie.endDate.formatted(date: .abbreviated, time: .omitted))")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
             }
             
         }
+
     }
         
-}
-#Preview {
-    FeaturedMovieView(movie: MovieClub.TestData[0].movies![0])
-    
 }

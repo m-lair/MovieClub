@@ -10,7 +10,7 @@ import SwiftUI
 
 struct MovieDetailView: View {
     // add view to edit
-    var movie: MovieClub.Movie
+    var movie: Movie
     var body: some View {
         VStack {
             Text(movie.title)

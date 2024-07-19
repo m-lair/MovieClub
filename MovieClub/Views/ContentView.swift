@@ -11,7 +11,6 @@ import SwiftUI
 struct ContentView: View {
     @Environment(DataManager.self) var data: DataManager
     var body: some View {
-        
         if data.userSession != nil {
             MainTabView()
         } else {
@@ -19,8 +18,6 @@ struct ContentView: View {
         }
     }
 }
-
-    
 
 #Preview {
     ContentView()

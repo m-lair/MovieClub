@@ -11,10 +11,11 @@ import Observation
 
 struct MovieRow: View {
     @Environment(DataManager.self) var data: DataManager
-    let movie: MovieClub.APIMovie
+    @Environment(\.dismiss) var dismiss
+    let movie: APIMovie
     @State var sheetPresented = false
+    @Binding var path: NavigationPath
     var body: some View {
-        NavigationStack{
             HStack {
                 if let poster = movie.poster, let url = URL(string: poster) {
                     AsyncImage(url: url) { phase in
@@ -48,6 +49,7 @@ struct MovieRow: View {
                 
                 Button(action: {
                     sheetPresented.toggle()
+                    
                 }) {
                     Image(systemName: "plus")
                         .padding()
@@ -55,7 +57,7 @@ struct MovieRow: View {
                 .buttonStyle(PlainButtonStyle())
             }
             .sheet(isPresented: $sheetPresented, content: {
-                NewMovieForm(movie: movie)})
+                NewMovieForm(movie: movie, path: $path)})
             .padding()
         }
     
@@ -63,5 +65,5 @@ struct MovieRow: View {
     
     
     
-}
+//}
 

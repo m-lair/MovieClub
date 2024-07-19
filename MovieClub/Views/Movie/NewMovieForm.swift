@@ -10,7 +10,9 @@ import FirebaseFirestore
 
 struct NewMovieForm: View {
     @Environment(DataManager.self) private var data: DataManager
-    var movie: MovieClub.APIMovie
+    @Environment(\.dismiss) private var dismiss
+    var movie: APIMovie
+    @Binding var path: NavigationPath
     @State var selectedDate: Date = Date()
     var body: some View {
         Section{
@@ -30,41 +32,57 @@ struct NewMovieForm: View {
                                 .frame(width: 100, height: 100)
                         }
                     }
-                    VStack(alignment: .leading) {
-                        Text(movie.title)
-                            .font(.headline)
+                    VStack{
                         Text("\(movie.released)")
                             .font(.subheadline)
                     }
-            } else {
-                Rectangle()
-                    .fill(Color.gray)
-                    .frame(width: 50, height: 75)
-                    .overlay(Text("No Image")
-                        .foregroundColor(.white)
-                        .font(.caption))
-            }
+                } else {
+                    Rectangle()
+                        .fill(Color.gray)
+                        .frame(width: 50, height: 75)
+                        .overlay(Text("No Image")
+                            .foregroundColor(.white)
+                            .font(.caption))
+                }
                 HStack{
                     Text(movie.director ?? "")
                     Text(movie.released)
                     Text(movie.plot ?? "")
                 }
-                
+                Button {
+                    Task{
+                        await addMovie(movie: movie)
+                    }
+                    dismiss()
+    
+                    
+                } label: {
+                    Text("Add Movie")
+                    
+                }
+
             }
+            
         }
         Form{
             DatePicker("Select a date", selection: $selectedDate, displayedComponents: .date)
                                .datePickerStyle(GraphicalDatePickerStyle())
+            
         }
     }
-    private func addMovie(movie: MovieClub.APIMovie) async{
+    private func addMovie(movie: APIMovie) async{
         let db = Firestore.firestore()
-        do{
-            var movie = try await data.fetchAPIMovie(title: movie.title)
-            let encodedMovie = try Firestore.Encoder().encode(movie)
-            try await db.collection("movieclubs").document(data.currentClub?.id ?? "").collection("movies").document(movie.id).setData(encodedMovie)
-        } catch {
-            print("error getting details: \(error)")
+        if let name = await data.currentUser?.name {
+            let firesotoreMovie = FirestoreMovie(title: movie.title, startDate: selectedDate, endDate: selectedDate + TimeInterval(14), author: name)
+            do{
+                var movie = try await data.fetchAPIMovie(title: movie.title)
+                let encodedMovie = try Firestore.Encoder().encode(firesotoreMovie)
+                try await db.collection("movieclubs").document(data.currentClub?.id ?? "").collection("movies").addDocument(from: firesotoreMovie)
+                dismiss()
+                
+            } catch {
+                print("error getting details: \(error)")
+            }
         }
     }
 }

@@ -17,11 +17,11 @@ import Observation
 @MainActor
 @Observable class DataManager: Identifiable{
     
-    var movies: [MovieClub.Movie] = []
+    var movies: [Movie] = []
     var userSession: FirebaseAuth.User?
     var currentUser: User?
     var userMovieClubs: [MovieClub] = []
-    var comments: [MovieClub.Comment] = []
+    var comments: [Comment] = []
     var currentClub: MovieClub?
     
     init(){
@@ -109,7 +109,7 @@ import Observation
         let storageRef = Storage.storage().reference().child("\(path).jpeg") //Storage.storage().reference().child("Users/profile_images/\(id).jpeg")
         do {
             let url = try await storageRef.downloadURL()
-            if var currentUser = currentUser {
+            if var currentUser {
                 self.currentUser?.image = url.absoluteString
             }
             return url.absoluteString
@@ -119,7 +119,7 @@ import Observation
         return ""
     }
     
-    func postComment(comment: MovieClub.Comment, movieClubID: String, movieID: String) async{
+    func postComment(comment: Comment, movieClubID: String, movieID: String) async{
         do{
             let db = Firestore.firestore()
             
@@ -136,7 +136,7 @@ import Observation
         }
     }
     
-    func fetchComments(movieClubId: String, movieId: String) async {
+    func fetchComments(movieClubId: String, movieId: String) async -> [Comment]{
         print("in fetch comments")
         let db = Firestore.firestore()
         
@@ -147,20 +147,22 @@ import Observation
                 .document(movieId)
                 .collection("comments")
                 .getDocuments()
-            self.comments = querySnapshot.documents.compactMap { document in
+            let comments = querySnapshot.documents.compactMap { document in
                 do {
-                    return try document.data(as: MovieClub.Comment.self)
+                    return try document.data(as: Comment.self)
                 } catch {
                     print("Error decoding document \(document.documentID): \(error)")
                     return nil
                 }
             }
+            return comments
             //  print("self.comments in method: \(self.comments)")
         } catch {
             print("Error fetching comments: \(error.localizedDescription)")
         }
+        return []
     }
-    
+    @MainActor
     func fetchMovieClubsForUser() async {
         // print("in fetchMovieClubsForUsers")
         self.userMovieClubs = []
@@ -219,9 +221,9 @@ import Observation
         }
     }
     
-    
+    @MainActor
     func fetchMovieClub(clubID: String) async {
-        print("in fetchMovieClub")
+       // print("in fetchMovieClub")
         
         let db = Firestore.firestore()
         guard let snapshot = try? await db.collection("movieclubs").document(clubID).getDocument() else {return}
@@ -233,11 +235,11 @@ import Observation
         }
         
     }
-    
-    func fetchAPIMovie(title: String) async throws -> MovieClub.APIMovie {
+    @MainActor
+    func fetchAPIMovie(title: String) async throws -> APIMovie {
         let formattedTitle = title.replacingOccurrences(of: " ", with: "+")
         let urlString = "https://omdbapi.com/?t=\(formattedTitle)&apikey=ab92d369"
-        print(urlString)
+        
         guard let url = URL(string: urlString) else {
             print("Invalid URL: \(urlString)")
             throw URLError(.badURL)
@@ -251,42 +253,45 @@ import Observation
         }
         
         let decoder = JSONDecoder()
-        print("data \(data)")
+        
         do {
-            return try decoder.decode(MovieClub.APIMovie.self, from: data)
+            return try decoder.decode(APIMovie.self, from: data)
         } catch {
             print("Failed to decode API response: \(error)")
             throw URLError(.cannotParseResponse)
         }
     }
-    
-    func fetchFirestoreMovies() async -> [MovieClub.FirestoreMovie]{
+    @MainActor
+    func fetchFirestoreMovies(clubId: String) async -> [FirestoreMovie]{
+        
         let db = Firestore.firestore()
+        
         do {
-            let moviesRef = try await db.collection("movieclubs").document(self.currentClub?.id ?? "").collection("movies").getDocuments()
-            
+            let moviesRef = try await db.collection("movieclubs").document(clubId).collection("movies").getDocuments()
+            print(moviesRef.documents)
             
             let firestoreMovies = moviesRef.documents.compactMap { document in
-                try? document.data(as: MovieClub.FirestoreMovie.self)
+                try? document.data(as: FirestoreMovie.self)
             }
-            print("fireStoreMovies: \(firestoreMovies)")
+            //print("fireStoreMovies: \(firestoreMovies)")
             return firestoreMovies
         } catch {
             print("Error fetching Firestore movies: \(error)")
         }
         return []
     }
-    
-    func fetchAndMergeMovies() async -> [MovieClub.Movie] {
-        var movies: [MovieClub.Movie] = []
+    @MainActor
+    func fetchAndMergeMovies(clubId: String) async -> [Movie] {
+        var movies: [Movie] = []
         do {
-            let firestoreMovies = await fetchFirestoreMovies()
+            
+            let firestoreMovies = await fetchFirestoreMovies(clubId: clubId)
             
             for firestoreMovie in firestoreMovies {
                 
                 let apiMovie = try await fetchAPIMovie(title: firestoreMovie.title)
                 
-                let combinedMovie = MovieClub.Movie(
+                let combinedMovie = Movie(
                     id: firestoreMovie.id ?? UUID().uuidString,
                     title: firestoreMovie.title,
                     startDate: firestoreMovie.startDate,
@@ -296,12 +301,12 @@ import Observation
                     comments: firestoreMovie.comments, plot: apiMovie.plot, director: apiMovie.director
                     
                 )
-                print(combinedMovie)
+                //print(combinedMovie)
                 movies.append(combinedMovie)
                 
             }
-            self.currentClub?.movies = movies
-            print("##### \(currentClub?.movies)")
+            //self.currentClub?.movies = movies
+            //print("##### \(currentClub?.movies)")
             return movies
             
             
@@ -313,8 +318,8 @@ import Observation
     }
 
 
-
-    func fetchMovies(for movieClubId: String) async -> [MovieClub.Movie] {
+    
+    func fetchMovies(for movieClubId: String) async -> [Movie] {
         
         
         let db = Firestore.firestore()
@@ -324,7 +329,7 @@ import Observation
             
             let movieTitles = querySnapshot.documents.compactMap { document in
                 do {
-                    return try document.data(as: MovieClub.Movie.self)
+                    return try document.data(as: Movie.self)
                 } catch {
                     print("Error decoding movie document: \(error.localizedDescription), Document: \(document.documentID)")
                     return nil
@@ -338,10 +343,10 @@ import Observation
     }
 
     
-    func decodeMovie(title: String) async throws-> MovieClub.Movie {
+    func decodeMovie(title: String) async throws-> Movie {
         let title = formatMovieForAPI(title: title)
         let urlString = "https://omdbapi.com/?t=\(title)&h=600&apikey=ab92d369"
-        print(urlString)
+       
         guard let url = URL(string: urlString) else{
             throw URLError(.badURL)
         }
@@ -350,8 +355,8 @@ import Observation
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw URLError(.badServerResponse)
         }
-        print("return data: \(data)")
-        let movie = try! JSONDecoder().decode(MovieClub.Movie.self, from: data)
+       
+        let movie = try! JSONDecoder().decode(Movie.self, from: data)
         
         return movie
         
@@ -404,9 +409,9 @@ import Observation
       //  print("1")
         guard let uid = Auth.auth().currentUser?.uid else {return}
        // print("2")
-      print("uid\(uid)")
+     
         guard let snapshot = try? await db.collection("users").document(uid).getDocument() else {return}
-       print("Document data: \(snapshot.data())")
+            //print("Document data: \(snapshot.data())")
         
             do{
                 self.currentUser = try snapshot.data(as: User.self)

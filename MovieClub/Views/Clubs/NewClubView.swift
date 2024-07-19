@@ -16,6 +16,7 @@ struct NewClubView: View {
     @State var searchText = ""
     @State var searchBarShowing = true
     @State var clubList: [MovieClub] = []
+    @Binding var path: NavigationPath
     var filteredClubs: [MovieClub] {
         if searchText.isEmpty {
             clubList
@@ -24,26 +25,21 @@ struct NewClubView: View {
         }
     }
     var body: some View {
-        NavigationStack{
-            VStack{
-                //search bar results view
-                List(filteredClubs){club in
-                    NavigationLink(destination: ClubDetailView(movieClub: club)) {
-                        Text(club.name)
-                            .font(.title)
-                    }
+        VStack{
+            //search bar results view
+            List(filteredClubs){club in
+                NavigationLink(destination: ClubDetailView(movieClub: club, path: $path )) {
+                    Text(club.name)
+                        .font(.title)
                 }
-                
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarLeading) {
-                            
-                        }
-                    }
             }
-            .sheet(isPresented: $sheetShowing, content: {
-                CreateClubForm()})
-            
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                }
+            }
         }
+        .sheet(isPresented: $sheetShowing, content: {
+            CreateClubForm()})
         .navigationTitle("Find or Create Club")
         .searchable(text: $searchText, isPresented: $searchBarShowing)
         .onAppear(){
@@ -82,26 +78,3 @@ struct NewClubView: View {
     // after that the user should be presented with a search bar to search the name of the club
     // if the user wishes to create their own then lets make the top right of this search view a Create button
     // when button is clicked it will take the user to the form to create one from scratch
-    
-   
-
-
-#Preview {
-    NewClubView(clubList: [MovieClub(name: "Test Title 1", 
-                                     created: Date(),
-                                     numMembers: 3,
-                                     description: "test club for people", 
-                                     ownerName: "Duhmarcus",
-                                     ownerID: "000123",
-                                     isPublic: true),
-                           MovieClub(name: "Test Title 2",
-                                     created: Date(),
-                                     numMembers: 20,
-                                     description: "test club for people", 
-                                     ownerName: "darius garius",
-                                     ownerID: "1345",
-                                     isPublic: true)])
-                           
-        .environment(DataManager())
-}
-

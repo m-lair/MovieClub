@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CommentDetailView: View {
-    var comment: MovieClub.Comment
+    var comment: Comment
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -67,5 +67,5 @@ struct CommentDetailView: View {
 }
 
 #Preview {
-    CommentDetailView(comment: MovieClub.Comment(username: "username", date: Date(), text: "hate this", likes: 10))
+    CommentDetailView(comment: Comment(username: "username", date: Date(), text: "hate this", likes: 10))
 }

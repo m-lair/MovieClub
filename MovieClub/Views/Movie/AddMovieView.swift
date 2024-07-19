@@ -11,8 +11,9 @@ struct AddMovieView: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) private var dismiss
     @State var searchText = ""
-    @State var movieList: [MovieClub.APIMovie] = []
-    var filteredMovies: [MovieClub.APIMovie] {
+    @State var movieList: [APIMovie] = []
+    @Binding var path: NavigationPath
+    var filteredMovies: [APIMovie] {
         if searchText.isEmpty {
             return movieList
         } else {
@@ -20,20 +21,21 @@ struct AddMovieView: View {
         }
     }
     var body: some View {
-        NavigationStack{
-            VStack{
-                //search bar results view
-                List(filteredMovies){movie in
-                    MovieRow(movie: movie)
-                        
-                }
-                .searchable(text: $searchText)
+        
+        let _ = print("path: \($path)")
+        VStack{
+            //search bar results view
+            List(filteredMovies){movie in
+                MovieRow(movie: movie, path: $path)
+                
             }
-            .onSubmit(of: .search) {
-                searchMovies()
-            }
+            .searchable(text: $searchText)
+        }
+        .onSubmit(of: .search) {
+            searchMovies()
         }
     }
+   
     private func searchMovies() {
         guard !searchText.isEmpty else {
             return
@@ -48,7 +50,7 @@ struct AddMovieView: View {
         }
     }
     
-    private func fetchMovies(from searchText: String) async throws -> [MovieClub.APIMovie] {
+    private func fetchMovies(from searchText: String) async throws -> [APIMovie] {
         let formattedSearchText = searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? searchText
         let urlString = "https://omdbapi.com/?s=\(formattedSearchText)&type=movie&apikey=ab92d369"
         print("urlString \(urlString)")
@@ -71,7 +73,7 @@ struct AddMovieView: View {
             let apiResponse = try decoder.decode(OMDBSearchResponse.self, from: data)
             print("data \(data.debugDescription)")
             return apiResponse.search.map { apiMovie in
-                MovieClub.APIMovie(
+                APIMovie(
                     id: apiMovie.id,
                     title: apiMovie.title,
                     released: apiMovie.released,
@@ -90,6 +92,3 @@ struct AddMovieView: View {
 
 
 
-#Preview {
-    AddMovieView()
-}

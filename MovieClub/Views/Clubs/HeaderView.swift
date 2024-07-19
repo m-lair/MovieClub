@@ -15,7 +15,7 @@ struct HeaderView: View {
         VStack(alignment: .leading) {
             HStack {
                 
-                Image(systemName: "person.crop.circle.fill") // Placeholder image
+           /*     Image(systemName: "person.crop.circle.fill") // Placeholder image
                     .resizable()
                     .frame(width: 60, height: 60)
                     .clipShape(Circle())
@@ -26,16 +26,19 @@ struct HeaderView: View {
                     Text(movieClub.name)
                         .font(.title)
                         .fontWeight(.bold)
+            
                     
-                    Text(movieClub.description ?? "")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
+                }*/
             }
+            Section{
+                Text(movieClub.description ?? "")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
                 HStack(spacing: 20) {
                     InfoView(imageName: "person.3", count: movieClub.numMembers, label: "Members")
                     InfoView(imageName: "film", count: movieClub.numMovies, label: "Movies")
                 }
+            }
         }
     }
 }

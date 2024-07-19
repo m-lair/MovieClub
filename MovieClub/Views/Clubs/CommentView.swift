@@ -9,42 +9,23 @@ import SwiftUI
 
 struct CommentsView: View {
     @Environment(DataManager.self) private var data: DataManager
-    var movie: MovieClub.Movie?
-    @State var isLoading = true
-    
+    let movie: Movie
+    let clubId: String
+    @State private var comments: [Comment] = []
     var body: some View {
-        if isLoading {
-            ProgressView("Loading...")
-                .onAppear {
-                    Task {
-                        isLoading = false
-                    }
-                }
-            
-        } else {
-            VStack(alignment: .leading) {
-                ForEach(data.comments) { comment in
-                        CommentDetailView(comment: comment)
-                        
-                    }
+        VStack(alignment: .leading) {
+            ForEach(comments) { comment in
+                CommentDetailView(comment: comment)
                 
             }
-            .onAppear {
-                Task {
-                    print("in featured Movie")
-                    print(movie?.title)
-                    if let clubID = data.currentClub?.id, let movieID = movie?.id {
-                        print("movieID: \(movieID)")
-                        await data.fetchComments(movieClubId: clubID, movieId: movieID)
-                        
-                    }
-                }
-            }
-            
+        }
+        .task {
+            print("in featured Movie")
+            print(movie.title)
+            self.comments = try! await data.fetchComments(movieClubId: clubId, movieId: movie.id ?? "")
         }
     }
 }
 
-#Preview {
-    CommentsView()
-}
+
+

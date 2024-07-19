@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MovieClubCardView: View {
-    var movieClub: MovieClub
+    let movieClub: MovieClub
     @State private var screenWidth = UIScreen.main.bounds.size.width
     var body: some View {
         ZStack{
@@ -38,10 +38,6 @@ struct MovieClubCardView: View {
             .foregroundColor(.white)
             .padding()
             .frame(maxWidth: (screenWidth - 20), maxHeight: 275, alignment: .bottomLeading)
-            
-
-            
-            
         }
     }
     var cardText: some View {
@@ -50,15 +46,12 @@ struct MovieClubCardView: View {
             if !movieClub.name.isEmpty{
                 Text(movieClub.name)
                     .font(.title)
-                if let movies = movieClub.movies, !movies.isEmpty{
-                    Text("Now Playing: \(movieClub.movies![0].title)")
-                        .font(.subheadline)
+                Text("Movie: \(movieClub.numMovies)")
+                Text("Members: \(movieClub.numMembers)")
                     // You can add more information about the movie club here
-                } else {
-                    Text("no movies")
-                }
+                
             }
-            Text("no clubs")
+            
         }
     }
     
