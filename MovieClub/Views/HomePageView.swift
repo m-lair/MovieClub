@@ -48,14 +48,9 @@ struct HomePageView: View {
                         .navigationTitle(club.name)
                         .navigationBarTitleDisplayMode(.inline)
                 }
-                
-                    
-                
             }
         }
-        
     }
-   
 }
 
 #Preview {

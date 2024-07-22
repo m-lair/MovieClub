@@ -23,10 +23,12 @@ import Observation
     var userMovieClubs: [MovieClub] = []
     var comments: [Comment] = []
     var currentClub: MovieClub?
-    
+    var roster: [(Date)] = []
+    var db: Firestore!
     init(){
         Task {
             self.userSession = Auth.auth().currentUser
+            db = Firestore.firestore()
             //await fetchUser()
         }
     }
@@ -120,26 +122,20 @@ import Observation
     }
     
     func postComment(comment: Comment, movieClubID: String, movieID: String) async{
-        do{
-            let db = Firestore.firestore()
+        do {
+            let encodeComment = try Firestore.Encoder().encode(comment)
+            try await db.collection("movieclubs").document(movieClubID)
+                .collection("movies").document(movieID)
+                .collection("comments").document().setData(encodeComment)
             
-            do {
-                let encodeComment = try Firestore.Encoder().encode(comment)
-                try await db.collection("movieclubs").document(movieClubID)
-                    .collection("movies").document(movieID)
-                    .collection("comments").document().setData(encodeComment)
-                
-                print("Comment added successfully")
-            } catch {
-                print("Error adding comment: \(error.localizedDescription)")
-            }
+            print("Comment added successfully")
+        } catch {
+            print("Error adding comment: \(error.localizedDescription)")
         }
     }
     
     func fetchComments(movieClubId: String, movieId: String) async -> [Comment]{
         print("in fetch comments")
-        let db = Firestore.firestore()
-        
         do {
             let querySnapshot = try await db.collection("movieclubs")
                 .document(movieClubId)
@@ -155,6 +151,7 @@ import Observation
                     return nil
                 }
             }
+            self.comments = comments
             return comments
             //  print("self.comments in method: \(self.comments)")
         } catch {
@@ -162,12 +159,11 @@ import Observation
         }
         return []
     }
-    @MainActor
+    
     func fetchMovieClubsForUser() async {
         // print("in fetchMovieClubsForUsers")
         self.userMovieClubs = []
         do{
-            let db = Firestore.firestore()
             guard let user = self.currentUser else {
                 print("User not found")
                 return
@@ -207,11 +203,10 @@ import Observation
     
     func addClubRelationship(movieClub: MovieClub) async {
         Task{
-            let db = Firestore.firestore()
             let snapshot = try await db.collection("users").document(currentUser?.id ?? "").getDocument()
             if movieClub.id != "" {
                 // cant figure out a better way to do this but we know the val wont be null
-                let membership = Membership(clubID: movieClub.id ?? "")
+                let membership = Membership(clubID: movieClub.id ?? "", selector: true)
                 let encodeMembership = try Firestore.Encoder().encode(membership)
                 try await db.collection("users").document(currentUser?.id ?? "").collection("memberships").document(currentUser?.id ?? "").setData(encodeMembership)
             } else {
@@ -221,11 +216,8 @@ import Observation
         }
     }
     
-    @MainActor
     func fetchMovieClub(clubID: String) async {
        // print("in fetchMovieClub")
-        
-        let db = Firestore.firestore()
         guard let snapshot = try? await db.collection("movieclubs").document(clubID).getDocument() else {return}
         do {
             let movieClub = try snapshot.data(as: MovieClub.self)
@@ -235,7 +227,7 @@ import Observation
         }
         
     }
-    @MainActor
+    
     func fetchAPIMovie(title: String) async throws -> APIMovie {
         let formattedTitle = title.replacingOccurrences(of: " ", with: "+")
         let urlString = "https://omdbapi.com/?t=\(formattedTitle)&apikey=ab92d369"
@@ -261,11 +253,8 @@ import Observation
             throw URLError(.cannotParseResponse)
         }
     }
-    @MainActor
+    
     func fetchFirestoreMovies(clubId: String) async -> [FirestoreMovie]{
-        
-        let db = Firestore.firestore()
-        
         do {
             let moviesRef = try await db.collection("movieclubs").document(clubId).collection("movies").getDocuments()
             print(moviesRef.documents)
@@ -280,7 +269,7 @@ import Observation
         }
         return []
     }
-    @MainActor
+    
     func fetchAndMergeMovies(clubId: String) async -> [Movie] {
         var movies: [Movie] = []
         do {
@@ -316,96 +305,19 @@ import Observation
         }
         return []
     }
-
-
-    
-    func fetchMovies(for movieClubId: String) async -> [Movie] {
-        
-        
-        let db = Firestore.firestore()
-        
-        do {
-            let querySnapshot = try await db.collection("movieclubs").document(movieClubId).collection("movies").getDocuments()
-            
-            let movieTitles = querySnapshot.documents.compactMap { document in
-                do {
-                    return try document.data(as: Movie.self)
-                } catch {
-                    print("Error decoding movie document: \(error.localizedDescription), Document: \(document.documentID)")
-                    return nil
-                }
-            }
-            return movieTitles
-        } catch {
-            print("Error fetching movie documents: \(error.localizedDescription)")
-            return []
-        }
-    }
-
-    
-    func decodeMovie(title: String) async throws-> Movie {
-        let title = formatMovieForAPI(title: title)
-        let urlString = "https://omdbapi.com/?t=\(title)&h=600&apikey=ab92d369"
-       
-        guard let url = URL(string: urlString) else{
-            throw URLError(.badURL)
-        }
-        
-        let (data, response) = try await URLSession.shared.data(from: url)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse)
-        }
-       
-        let movie = try! JSONDecoder().decode(Movie.self, from: data)
-        
-        return movie
-        
-    }
-    
-    func fetchPoster(title: String) async throws -> String {
-        
-        let formattedTitle = formatMovieForAPI(title: title)
-        
-        let urlString = "https://omdbapi.com/?t=\(formattedTitle)&apikey=ab92d369"
-        guard let url = URL(string: urlString) else {
-            throw URLError(.badURL)
-        }
-        
-        let (data, response) = try await URLSession.shared.data(from: url)
-       
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            print("error")
-            throw URLError(.badServerResponse)
-        }
-        
-        
-    
-        do {
-                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-                   let poster = json["Poster"] as? String {
-                    return poster
-                } else {
-                    print("The key 'Poster' does not exist or is not a string.")
-                    throw URLError(.cannotParseResponse)
-                }
-            } catch let error {
-                print("Failed to parse JSON: \(error.localizedDescription)")
-                throw URLError(.cannotParseResponse)
-            }
-        
-        
-    }
     
     func formatMovieForAPI(title: String) -> String {
             return title.replacingOccurrences(of: " ", with: "+")
         }
-    
+    func fetchMember() async {
+        //TODO
+    }
     
     func fetchUser() async {
         
       //  print("in fetch user")
         
-        let db = Firestore.firestore()
+      
       //  print("1")
         guard let uid = Auth.auth().currentUser?.uid else {return}
        // print("2")
@@ -424,8 +336,6 @@ import Observation
         await fetchMovieClubsForUser()
         
     }
-    
-    
     
     func signOut(){
         do{

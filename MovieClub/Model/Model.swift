@@ -44,10 +44,12 @@ struct OMDBSearchResponse: Codable {
     }
 }
 
-
 struct Membership: Codable {
     @DocumentID var id: String?
     var clubID: String
+    var selector: Bool = false
+    var queue: [FirestoreMovie]?
+    var rosterDate: Date?
 }
 
 struct Movie: Identifiable, Codable, Hashable{
@@ -125,7 +127,7 @@ struct FirestoreMovie: Identifiable, Codable {
     @DocumentID var id: String?
      var title: String
      var startDate: Date
-     var poster: String? = ""
+     var poster: String?
      var endDate: Date
      var avgRating: Double?
      var author: String
@@ -142,9 +144,9 @@ struct MovieClub: Identifiable, Codable, Hashable{
     var ownerName: String
     var ownerID: String
     var isPublic: Bool
-    var poster: String? = ""
+    var banner: String? = ""
     var numMovies: Int = 0
-    var members: [User]?
+    var roster: [String]?
     var movies: [Movie]?
     
     static func == (lhs: MovieClub, rhs: MovieClub) -> Bool {
@@ -160,22 +162,11 @@ struct MovieClub: Identifiable, Codable, Hashable{
             hasher.combine(ownerName)
             hasher.combine(ownerID)
             hasher.combine(isPublic)
-            hasher.combine(poster)
+            hasher.combine(banner)
             hasher.combine(numMovies)
-            hasher.combine(members)
+            hasher.combine(roster)
             hasher.combine(movies)
         }
-
-    
-    
-    
-    
-        
-        
-        
-        
-    
-   
 
 }
 

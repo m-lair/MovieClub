@@ -48,6 +48,8 @@ struct CommentInputView: View {
             print(newComment)
             await data.postComment(comment: newComment, movieClubID: movieClub.id ?? "", movieID: movieID)
             commentText = ""
+            await data.fetchComments(movieClubId: movieClub.id ?? "", movieId: movieID)
+            
             
         }
     }
