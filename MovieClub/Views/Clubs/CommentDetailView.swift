@@ -13,7 +13,6 @@ struct CommentDetailView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                
                 AsyncImage(url: URL(string: comment.image ?? "")) { phase in
                     switch phase {
                     case .success(let image):

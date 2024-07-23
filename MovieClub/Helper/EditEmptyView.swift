@@ -7,18 +7,20 @@
 
 import SwiftUI
 import PhotosUI
+import FirebaseFirestore
 
 struct EditEmptyView: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) private var dismiss
-    @State private var aviImage: Image?
-    @State private var aviImageItem: PhotosPickerItem?
+    @State private var banner: Image?
+    @State private var photoItem: PhotosPickerItem?
     @State private var name = ""
     @State private var isPublic = false // Default to private
     @State private var selectedOwnerIndex = 0
     @State private var desc = ""
     @State private var showPicker = false
     @State private var owners = ["User1"]
+    @State private var screenWidth = UIScreen.main.bounds.size.width
     var body: some View {
         NavigationStack{
             Form {
@@ -28,13 +30,18 @@ struct EditEmptyView: View {
                             Button {
                                 showPicker.toggle()
                             } label: {
-                                if let aviImage = aviImage{
-                                    aviImage
+                                if let banner {
+                                    banner
                                         .resizable()
-                                        .frame(width: 60, height: 60)
-                                        .clipShape(Circle())
-                                        .overlay(Circle().stroke(Color.white, lineWidth: 4))
-                                        .shadow(radius: 10)
+                                        .scaledToFill()
+                                        .padding(-20) /// expand the blur a bit to cover the edges
+                                        .clipped() /// prevent blur overflow
+                                        .frame(maxWidth: (screenWidth - 20))
+                                        .blur(radius: 1.5, opaque: true)
+                                    .mask(LinearGradient(stops:
+                                     [.init(color: .white, location: 0),
+                                     .init(color: .white, location: 0.85),
+                                     .init(color: .clear, location: 1.0),], startPoint: .top, endPoint: .bottom))
                                 }else{
                                     Image(systemName: "popcorn.circle")
                                         .resizable()
@@ -45,10 +52,10 @@ struct EditEmptyView: View {
                                     
                                 }
                             }
-                            .onChange(of: aviImageItem) {
+                            .onChange(of: banner) {
                                 Task {
-                                    if let loaded = try? await aviImageItem?.loadTransferable(type: Image.self) {
-                                        aviImage = loaded
+                                    if let loaded = try? await photoItem?.loadTransferable(type: Image.self) {
+                                        banner = loaded
                                     } else {
                                         print("Failed")
                                     }
@@ -65,8 +72,7 @@ struct EditEmptyView: View {
                                     .foregroundColor(.secondary)
                             }
                         }
-                        
-                        .photosPicker(isPresented: $showPicker, selection: $aviImageItem)
+                        .photosPicker(isPresented: $showPicker, selection: $photoItem)
                         Spacer()
                     }
                 }
@@ -79,15 +85,19 @@ struct EditEmptyView: View {
                     Button{
                         Task{
                             // Call a method to save the club with the entered information
-                            
-                            let movieClub = MovieClub(id: generateUUID(), name: name,
-                                                      created: Date(), numMembers: 1, description: desc,
-                                                      ownerName: data.currentUser?.name ?? "",
-                                                      ownerID: data.currentUser?.id ?? "",
-                                                      isPublic: isPublic)
-                            
-                            
-                            await saveClub(movieClub: movieClub)
+                            if let imageData = try await photoItem?.loadTransferable(type: Data.self) {
+                                let documentString = data.db.collection("movieclubs").document().documentID
+                                print(documentString)
+                                let urlString = await data.uploadClubImage(image: UIImage(data: imageData)!, clubId: documentString)
+                                
+                                let movieClub = MovieClub(id: documentString, name: name,
+                                                          created: Date(), numMembers: 1, description: desc,
+                                                          ownerName: data.currentUser?.name ?? "",
+                                                          ownerID: data.currentUser?.id ?? "",
+                                                          isPublic: isPublic,
+                                                          banner: urlString)
+                                await saveClub(movieClub: movieClub)
+                            }
                             dismiss()
                         }
                     }label: {

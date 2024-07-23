@@ -23,7 +23,8 @@ struct CommentInputView: View {
                 Button("", systemImage: "arrow.up.circle.fill"){
                     Task{
                         if commentText != "" && commentText.count > 0{
-                            await submitComment()
+                        await submitComment()
+                            data.comments =  await data.fetchComments(movieClubId: movieClub.id ?? "", movieId: movieID)
                         } else {
                             print("empty Text")
                         }
@@ -48,7 +49,7 @@ struct CommentInputView: View {
             print(newComment)
             await data.postComment(comment: newComment, movieClubID: movieClub.id ?? "", movieID: movieID)
             commentText = ""
-            await data.fetchComments(movieClubId: movieClub.id ?? "", movieId: movieID)
+            
             
             
         }

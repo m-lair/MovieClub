@@ -28,9 +28,7 @@ struct HomePageView: View {
                                 NavigationLink(value: movieClub) {
                                     MovieClubCardView(movieClub: movieClub)
                                 }
-                                
                             }
-                        
                     } else {
                         ProgressView()
                     }
@@ -48,8 +46,15 @@ struct HomePageView: View {
                         .navigationTitle(club.name)
                         .navigationBarTitleDisplayMode(.inline)
                 }
+                .navigationDestination(for: String.self) { str in
+                    if str == "NewClub" {
+                        NewClubView(path: $path)
+                    }
+                    
+                }
             }
         }
+        .navigationTitle("Movie Clubs")
     }
 }
 

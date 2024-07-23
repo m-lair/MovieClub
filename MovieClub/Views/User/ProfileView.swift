@@ -9,24 +9,34 @@ import SwiftUI
 
 struct ProfileView: View {
     @Environment(DataManager.self) private  var data: DataManager
+    @Environment(\.dismiss) private var dismiss
     @State var showEditView = false
     var body: some View {
-        NavigationStack{
-            ProfileHeaderView(user: data.currentUser!)
-            Spacer()
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: {
-                            showEditView = true
-                        }) {
-                            Text("Edit")
-                        }
+        if let user = data.currentUser{
+            NavigationStack{
+                ProfileHeaderView(user: user)
+                Spacer()
+                Button {
+                    data.signOut()
+                    
+                } label: {
+                    Text("Sign Out")
+                        .foregroundStyle(Color(.red))
+                        .padding()
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        showEditView = true
+                    }) {
+                        Text("Edit")
                     }
                 }
-                .sheet(isPresented: $showEditView) {
-                    UserEditView()
-                }
-            
+            }
+            .sheet(isPresented: $showEditView) {
+                UserEditView()
+            }
         }
     }
 }

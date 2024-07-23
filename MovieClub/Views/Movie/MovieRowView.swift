@@ -14,7 +14,6 @@ struct MovieRow: View {
     @Environment(\.dismiss) var dismiss
     let movie: APIMovie
     @State var sheetPresented = false
-    @Binding var path: NavigationPath
     var body: some View {
             HStack {
                 if let poster = movie.poster, let url = URL(string: poster) {
@@ -57,7 +56,7 @@ struct MovieRow: View {
                 .buttonStyle(PlainButtonStyle())
             }
             .sheet(isPresented: $sheetPresented, content: {
-                NewMovieForm(movie: movie, path: $path)})
+                NewMovieForm(movie: movie)})
             .padding()
         }
     

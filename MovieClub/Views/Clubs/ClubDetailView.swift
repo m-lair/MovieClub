@@ -21,30 +21,36 @@ struct ClubDetailView: View {
         VStack {
             // Header Section
             HeaderView(movieClub: movieClub)
-                
-                
+            Spacer()
             Divider()
-            if let movie = movies?[0] {
+            if let movie = movies?.first {
                 SwipeableView(numberOfPages: 2) {
                     NowPlayingView(movie: movies?.first, comments: comments)
                     RosterView(currentEndDate: movie.endDate)
-                    
                 }
+                CommentInputView(movieClub: movieClub,movieID:movie.id ?? "")
+            }else{
+                EmptyMovieView()
             }
-            
         }
+        Spacer()
         .task{
             data.currentClub = movieClub
             if let id = movieClub.id {
                 self.movies = await data.fetchAndMergeMovies(clubId: id)
-                self.comments = await data.fetchComments(movieClubId: movieClub.id!, movieId: self.movies?[0].id ?? "")
+                if let movie = movies?.first {
+                    self.comments = await data.fetchComments(movieClubId: movieClub.id!, movieId: movie.id ?? "")
+                }
             }
         }
         .toolbar{
-            Button("Edit") {
-                isPresentingEditView = true
+            if movieClub.ownerID == data.currentUser?.id ?? "" {
+                Button("Edit") {
+                    isPresentingEditView = true
+                }
             }
         }
+            
         .sheet(isPresented: $isPresentingEditView) {
             EditEmptyView()
         }

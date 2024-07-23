@@ -13,8 +13,8 @@ struct NewClubView: View {
     @Environment(DataManager.self) private var data: DataManager
     @State var sheetShowing = false
     @Environment(\.dismiss) private var dismiss
-    @State var searchText = ""
-    @State var searchBarShowing = true
+    @State var searchText: String = ""
+    @State var searchBarShowing = false
     @State var clubList: [MovieClub] = []
     @Binding var path: NavigationPath
     var filteredClubs: [MovieClub] {
@@ -34,25 +34,37 @@ struct NewClubView: View {
                 }
             }
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        sheetShowing.toggle()
+                    } label: {
+                        Text("Create")
+                    }
                 }
-            }
-        }
-        .sheet(isPresented: $sheetShowing, content: {
-            CreateClubForm()})
-        .navigationTitle("Find or Create Club")
-        .searchable(text: $searchText, isPresented: $searchBarShowing)
-        .onAppear(){
-            Task{
-                    do{
-                       try await clubList = getClubList()
-                    } catch {
-                        print("Error Retrieving Clubs")
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Back")
                     }
                 }
             }
         }
+        .sheet(isPresented: $sheetShowing, content: {
+            EditEmptyView()})
+        .navigationTitle("Find or Create Club")
+        .searchable(text: $searchText, isPresented: $searchBarShowing)
+        .onAppear(){
+            Task{
+                do{
+                    try await clubList = getClubList()
+                } catch {
+                    print("Error Retrieving Clubs")
+                }
+            }
+        }
     }
+
     
     func getClubList() async throws -> [MovieClub]{
         var newList: [MovieClub] = []
@@ -69,6 +81,7 @@ struct NewClubView: View {
         }
         return newList
     }
+}
     
 
 

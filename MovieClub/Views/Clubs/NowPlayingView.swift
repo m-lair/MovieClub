@@ -11,16 +11,13 @@ struct NowPlayingView: View {
     let movie: Movie?
     let comments: [Comment]
     var body: some View {
-        LazyVStack {
+        ScrollView {
             
             if let movie {
                 FeaturedMovieView(movie: movie)
-                HStack{
-                    
-                }
             }
             // Comments Section
-            CommentsView(comments: comments)
+            CommentsView()
         }
     }
 }

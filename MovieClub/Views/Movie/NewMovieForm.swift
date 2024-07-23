@@ -12,7 +12,6 @@ struct NewMovieForm: View {
     @Environment(DataManager.self) private var data: DataManager
     @Environment(\.dismiss) private var dismiss
     var movie: APIMovie
-    @Binding var path: NavigationPath
     @State var selectedDate: Date = Date()
     var body: some View {
         Section{

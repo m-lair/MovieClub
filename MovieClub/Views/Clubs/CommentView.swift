@@ -9,10 +9,9 @@ import SwiftUI
 
 struct CommentsView: View {
     @Environment(DataManager.self) private var data: DataManager
-    let comments: [Comment]
     var body: some View {
         VStack(alignment: .leading) {
-            ForEach(comments) { comment in
+            ForEach(data.comments) { comment in
                 CommentDetailView(comment: comment)
                 
             }

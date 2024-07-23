@@ -13,6 +13,7 @@ import FirebaseFirestore
 import UIKit
 import FirebaseStorage
 import Observation
+import SwiftUI
 
 @MainActor
 @Observable class DataManager: Identifiable{
@@ -25,6 +26,7 @@ import Observation
     var currentClub: MovieClub?
     var roster: [(Date)] = []
     var db: Firestore!
+    
     init(){
         Task {
             self.userSession = Auth.auth().currentUser
@@ -35,14 +37,6 @@ import Observation
     
     
     func createUser(user: User) async throws {
-        /* let db =  Firestore.firestore()
-         let ref = db.collection("users").document(user.name)
-         ref.setData(["id": UUID(), "name": user.name, "password": user.password]) { error in
-         if let error = error {
-         print(error.localizedDescription)
-         }
-         
-         }*/
         do {
             let result = try await Auth.auth().createUser(withEmail: user.email, password: user.password)
             self.userSession = result.user
@@ -89,21 +83,22 @@ import Observation
         }
     }
     
-    func uploadClubImage(image: UIImage, clubId: String) async{
-        let storageRef = Storage.storage().reference().child("Clubs/\(clubId)/images/avi_\(clubId).jpg")
-        if let imageData = image.jpegData(compressionQuality: 0.75) {
+    func uploadClubImage(image: UIImage, clubId: String) async -> String{
+        let storageRef = Storage.storage().reference().child("Clubs/\(clubId)/banner.jpg")
+        if let imageData = image.jpegData(compressionQuality: 0.25) {
             let metadata = StorageMetadata()
             metadata.contentType = "image/jpeg"
             do {
                 _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
                 let url = try await storageRef.downloadURL()
                 // Update clubss profile image URL
-                    try await Firestore.firestore().collection("movieclubs").document(clubId).updateData(["avi": url.absoluteString])
+                return url.absoluteString
                 
             } catch {
                 print("Error uploading image: \(error.localizedDescription)")
             }
         }
+        return ""
     }
 
     func getProfileImage(id: String, path: String) async -> String  {
@@ -191,10 +186,10 @@ import Observation
     
     func createMovieClub(movieClub: MovieClub){
         Task{
-            //let movieClub = MovieClub(name: movieClub.name, ownerName: movieClub.ownerName, ownerID: movieClub.ownerID, isPublic: movieClub.isPublic)
             let encodeClub = try Firestore.Encoder().encode(movieClub)
             if let id = movieClub.id{
                 try await  Firestore.firestore().collection("movieclubs").document(id).setData(encodeClub)
+                await addClubRelationship(movieClub: movieClub)
                 self.userMovieClubs.append(movieClub)
             }
             await fetchUser()
@@ -204,11 +199,11 @@ import Observation
     func addClubRelationship(movieClub: MovieClub) async {
         Task{
             let snapshot = try await db.collection("users").document(currentUser?.id ?? "").getDocument()
-            if movieClub.id != "" {
+            if let id = movieClub.id, id != ""{
                 // cant figure out a better way to do this but we know the val wont be null
-                let membership = Membership(clubID: movieClub.id ?? "", selector: true)
+                let membership = Membership(clubID: movieClub.id ?? "", selector: false, queue: [], rosterDate: nil)
                 let encodeMembership = try Firestore.Encoder().encode(membership)
-                try await db.collection("users").document(currentUser?.id ?? "").collection("memberships").document(currentUser?.id ?? "").setData(encodeMembership)
+                try await db.collection("users").document(currentUser?.id ?? "").collection("memberships").document(id).setData(encodeMembership)
             } else {
                 print("error occurred adding club for \(currentUser?.id ?? "")")
             }

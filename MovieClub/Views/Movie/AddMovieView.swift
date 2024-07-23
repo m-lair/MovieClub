@@ -12,7 +12,6 @@ struct AddMovieView: View {
     @Environment(\.dismiss) private var dismiss
     @State var searchText = ""
     @State var movieList: [APIMovie] = []
-    @Binding var path: NavigationPath
     var filteredMovies: [APIMovie] {
         if searchText.isEmpty {
             return movieList
@@ -21,12 +20,10 @@ struct AddMovieView: View {
         }
     }
     var body: some View {
-        
-        let _ = print("path: \($path)")
         VStack{
             //search bar results view
             List(filteredMovies){movie in
-                MovieRow(movie: movie, path: $path)
+                MovieRow(movie: movie)
                 
             }
             .searchable(text: $searchText)
