@@ -12,7 +12,6 @@ struct NowPlayingView: View {
     let comments: [Comment]
     var body: some View {
         ScrollView {
-            
             if let movie {
                 FeaturedMovieView(movie: movie)
             }

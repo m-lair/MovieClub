@@ -11,7 +11,7 @@ struct EmptyMovieView: View {
     var body: some View {
         Text("No Movies Coming Up Yet...")
         NavigationLink {
-            AddMovieView()
+            //needs reworked
         } label: {
             Text("Add One")
         }

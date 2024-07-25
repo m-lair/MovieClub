@@ -27,7 +27,7 @@ struct FeaturedMovieView: View {
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: 100, height: 100)
+                            .frame(width: 100, height: 150)
                         
                     }else {
                         ProgressView()
@@ -51,7 +51,7 @@ struct FeaturedMovieView: View {
                 Spacer()
                 VStack{
                     Image(systemName: "calendar")
-                    Text("End date: \(movie.endDate.formatted(date: .numeric,  time: .omitted))")
+                    Text("End date: \(movie.startDate.formatted(date: .numeric,  time: .omitted))")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }

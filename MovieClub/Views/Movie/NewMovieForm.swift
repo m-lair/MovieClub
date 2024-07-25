@@ -18,7 +18,6 @@ struct NewMovieForm: View {
             VStack{
                 Text(movie.title)
                 if let poster = movie.poster, let url = URL(string: poster) {
-                    
                     AsyncImage(url: url) { phase in
                         if let image = phase.image {
                             image
@@ -50,38 +49,22 @@ struct NewMovieForm: View {
                 }
                 Button {
                     Task{
-                        await addMovie(movie: movie)
+                        //
                     }
                     dismiss()
-    
+                    
                     
                 } label: {
                     Text("Add Movie")
                     
                 }
-
+                
             }
             
         }
         Form{
             DatePicker("Select a date", selection: $selectedDate, displayedComponents: .date)
-                               .datePickerStyle(GraphicalDatePickerStyle())
-            
-        }
-    }
-    private func addMovie(movie: APIMovie) async{
-        let db = Firestore.firestore()
-        if let name = await data.currentUser?.name {
-            let firesotoreMovie = FirestoreMovie(title: movie.title, startDate: selectedDate, endDate: selectedDate + TimeInterval(14), author: name)
-            do{
-                var movie = try await data.fetchAPIMovie(title: movie.title)
-                let encodedMovie = try Firestore.Encoder().encode(firesotoreMovie)
-                try await db.collection("movieclubs").document(data.currentClub?.id ?? "").collection("movies").addDocument(from: firesotoreMovie)
-                dismiss()
-                
-            } catch {
-                print("error getting details: \(error)")
-            }
+                .datePickerStyle(GraphicalDatePickerStyle())
         }
     }
 }

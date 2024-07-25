@@ -16,6 +16,7 @@ struct NewClubView: View {
     @State var searchText: String = ""
     @State var searchBarShowing = false
     @State var clubList: [MovieClub] = []
+    @State var btnDisabled: Bool = false
     @Binding var path: NavigationPath
     var filteredClubs: [MovieClub] {
         if searchText.isEmpty {
@@ -28,32 +29,50 @@ struct NewClubView: View {
         VStack{
             //search bar results view
             List(filteredClubs){club in
-                NavigationLink(destination: ClubDetailView(movieClub: club, path: $path )) {
-                    Text(club.name)
+                HStack{
+                    Text("\(club.name)")
                         .font(.title)
+                    Spacer()
+                    Image(systemName: "person.fill")
+                    Text(": \(club.numMembers)")
+                    Button {
+                        Task{
+                            await data.joinClub(club: club)
+                            data.userMovieClubs.append(club)
+                            btnDisabled = true
+                            dismiss()
+                        }
+                    } label: {
+                        Text("Join")
+                    }
+                    .disabled(btnDisabled)
+                }
+                /* NavigationLink(destination: ClubDetailView(movieClub: club, path: $path )) {
+                 Text(club.name)
+                 .font(.title)
+                 }*/
+            }
+            .searchable(text: $searchText)
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    sheetShowing.toggle()
+                } label: {
+                    Text("Create")
                 }
             }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        sheetShowing.toggle()
-                    } label: {
-                        Text("Create")
-                    }
-                }
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Text("Back")
-                    }
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Text("Back")
                 }
             }
         }
         .sheet(isPresented: $sheetShowing, content: {
             EditEmptyView()})
         .navigationTitle("Find or Create Club")
-        .searchable(text: $searchText, isPresented: $searchBarShowing)
         .onAppear(){
             Task{
                 do{
@@ -65,17 +84,19 @@ struct NewClubView: View {
         }
     }
 
-    
     func getClubList() async throws -> [MovieClub]{
         var newList: [MovieClub] = []
         do{
-            let db = Firestore.firestore()
-            let snapshot = try? await db.collection("movieclubs").getDocuments()
+            
+            let snapshot = try? await data.movieClubCollection().getDocuments()
             let movieClubs = snapshot?.documents ?? []
             for document in movieClubs {
                 let movieClub = try document.data(as: MovieClub.self)
-                newList.append(movieClub)
+                if await !data.userMovieClubs.contains(movieClub) {
+                    newList.append(movieClub)
                 }
+                
+            }
         }catch{
             print("Error decoding movie club: \(error)")
         }

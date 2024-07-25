@@ -24,11 +24,11 @@ struct HomePageView: View {
                 //let _ = print("userclubs: \(userClubs)")
                 VStack {
                     if userClubs.count > 0 {
-                            ForEach(data.userMovieClubs) { movieClub in
-                                NavigationLink(value: movieClub) {
-                                    MovieClubCardView(movieClub: movieClub)
-                                }
+                        ForEach(data.userMovieClubs) { movieClub in
+                            NavigationLink(value: movieClub) {
+                                MovieClubCardView(movieClub: movieClub)
                             }
+                        }
                     } else {
                         ProgressView()
                     }
@@ -46,9 +46,16 @@ struct HomePageView: View {
                         .navigationTitle(club.name)
                         .navigationBarTitleDisplayMode(.inline)
                 }
-                .navigationDestination(for: String.self) { str in
-                    if str == "NewClub" {
+                .navigationDestination(for: String.self) { value in
+                    switch value {
+                    
+                    case "EditMovies":
+                        ComingSoonEditView(userID: data.currentUser!.id!)
+                    
+                    case "NewClub":
                         NewClubView(path: $path)
+                        
+                    default: ProgressView()
                     }
                     
                 }

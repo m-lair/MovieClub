@@ -34,7 +34,6 @@ struct MovieClubCardView: View {
                     @unknown default:
                         Image(systemName: "person.crop.circle.fill")
                     }
-                    
                 }
             }
                 .frame(width: (screenWidth - 20), height: 275)

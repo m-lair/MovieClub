@@ -10,6 +10,7 @@ import FirebaseFirestore
 
 struct ClubDetailView: View {
     @Environment(DataManager.self) var data: DataManager
+    @Environment(\.dismiss) var dismiss
     let movieClub: MovieClub
     @State var isPresentingEditView = false
     @State var movies: [Movie]?
@@ -26,15 +27,18 @@ struct ClubDetailView: View {
             if let movie = movies?.first {
                 SwipeableView(numberOfPages: 2) {
                     NowPlayingView(movie: movies?.first, comments: comments)
-                    RosterView(currentEndDate: movie.endDate)
+                    ComingSoonView()
                 }
-                CommentInputView(movieClub: movieClub,movieID:movie.id ?? "")
+                CommentInputView(movieClub: movieClub, movieID: movie.id ?? "")
             }else{
                 EmptyMovieView()
             }
         }
         Spacer()
         .task{
+            if let currId = data.currentClub?.id, let newId = movieClub.id{
+                //do nothing but this will be a caching system eventually
+            }
             data.currentClub = movieClub
             if let id = movieClub.id {
                 self.movies = await data.fetchAndMergeMovies(clubId: id)
@@ -45,12 +49,33 @@ struct ClubDetailView: View {
         }
         .toolbar{
             if movieClub.ownerID == data.currentUser?.id ?? "" {
-                Button("Edit") {
-                    isPresentingEditView = true
+                Menu {
+                    Button {
+                        // Do Nothing
+                    } label: {
+                        Label("Report A Problem", systemImage: "exclamationmark.octagon")
+                    }
+                    Button {
+                        isPresentingEditView = true
+                    } label: {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                    
+                    Button {
+                        Task{
+                            await data.leaveClub(club: movieClub)
+                            dismiss()
+                        }
+                    } label: {
+                        Label("Leave Club", systemImage: "trash")
+                    }
+                    .foregroundStyle(.red)
+                    
+                } label: {
+                    Label("Menu", systemImage: "ellipsis")
                 }
             }
         }
-            
         .sheet(isPresented: $isPresentingEditView) {
             EditEmptyView()
         }

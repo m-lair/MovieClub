@@ -11,6 +11,8 @@ struct AddMovieView: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) private var dismiss
     @State var searchText = ""
+    let date: Date
+    let index: Int
     @State var movieList: [APIMovie] = []
     var filteredMovies: [APIMovie] {
         if searchText.isEmpty {
@@ -21,13 +23,12 @@ struct AddMovieView: View {
     }
     var body: some View {
         VStack{
-            //search bar results view
+            let _ = print("\(filteredMovies)")
             List(filteredMovies){movie in
-                MovieRow(movie: movie)
-                
+                MovieRow(index: index, date: date, movie: movie)
             }
-            .searchable(text: $searchText)
         }
+        .searchable(text: $searchText, placement: .automatic)
         .onSubmit(of: .search) {
             searchMovies()
         }
@@ -74,7 +75,8 @@ struct AddMovieView: View {
                     id: apiMovie.id,
                     title: apiMovie.title,
                     released: apiMovie.released,
-                    director: apiMovie.director, poster: apiMovie.poster
+                    director: apiMovie.director, 
+                    poster: apiMovie.poster
                   //  plot: apiMovie.plot
                 )
             }

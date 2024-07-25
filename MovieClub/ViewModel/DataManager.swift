@@ -24,7 +24,7 @@ import SwiftUI
     var userMovieClubs: [MovieClub] = []
     var comments: [Comment] = []
     var currentClub: MovieClub?
-    var roster: [(Date)] = []
+    var queue: Membership?
     var db: Firestore!
     
     init(){
@@ -34,7 +34,26 @@ import SwiftUI
             //await fetchUser()
         }
     }
+    func addToComingSoon(clubID: String, userID: String, date: Date) async {
+        //add member object
+        do {
+            try await movieClubCollection().document(clubID).collection("members").document(userID).updateData(["seletor" : true, "comingSoonDate" : date])
+            
+            //add date from greatest current roster date, could be movieclub.movies to get this easier
+            //allow user to select queue of movies now
+            //display roster by sorting on date
+        } catch {
+            print(error)
+        }
+    }
     
+    func movieClubCollection() -> CollectionReference {
+        return db.collection("movieclubs")
+    }
+    
+    func usersCollection() -> CollectionReference {
+        return db.collection("users")
+    }
     
     func createUser(user: User) async throws {
         do {
@@ -42,12 +61,11 @@ import SwiftUI
             self.userSession = result.user
             let user = User(id: result.user.uid, email: user.email, bio: user.bio, name: user.name, image: user.image, password: user.password)
             let encodeUser = try Firestore.Encoder().encode(user)
-            try await Firestore.firestore().collection("users").document(user.id ?? "").setData(encodeUser)
+            try await usersCollection().document(user.id ?? "").setData(encodeUser)
             await fetchUser()
         } catch {
             print(error)
         }
-        
     }
     
     func signIn(email: String, password: String) async throws {
@@ -83,6 +101,7 @@ import SwiftUI
         }
     }
     
+    
     func uploadClubImage(image: UIImage, clubId: String) async -> String{
         let storageRef = Storage.storage().reference().child("Clubs/\(clubId)/banner.jpg")
         if let imageData = image.jpegData(compressionQuality: 0.25) {
@@ -100,26 +119,96 @@ import SwiftUI
         }
         return ""
     }
+    
+    func joinClub(club: MovieClub) async {
+        if let user = self.currentUser, let clubID = club.id {
+            await addClubMember(clubID: clubID, user: user)
+            await incrementMember(clubID: clubID)
+            await addClubRelationship(club: club)
+        }
+    }
+    
+    func addClubMember(clubID: String, user: User) async {
+        do{
+            if let id = user.id {
+                let member = Member(userID: id, userName: user.name, userAvi: user.image ?? "" , selector: false, movieDate: nil)
+                let encodedMember = try Firestore.Encoder().encode(member)
+                try await movieClubCollection().document(clubID).collection("members").document(id).setData(encodedMember)
+            }
+        } catch {
+            print("couldnt add member")
+        }
+    }
+    
+    
+    func leaveClub(club: MovieClub) async {
+        if let clubID = club.id, let userID = self.currentUser?.id {
+            do {
+                try await movieClubCollection().document(clubID).collection("memberships").document(userID).delete()
+                await decrementMember(clubID: clubID)
+                self.userMovieClubs.removeAll { $0.name == club.name}
+            }catch {
+                print(error)
+            }
+        }
+    }
 
+    func decrementMember(clubID: String) async {
+        do{
+            try await movieClubCollection().document(clubID).updateData(["numMembers" : FieldValue.increment(-1.0)])
+        } catch {
+            print("unable to update number of members. User count may be incorrect")
+        }
+    }
+    
+    func removeClubRelationship(clubID: String, userID: String) async {
+            // cant figure out a better way to do this but we know the val wont be null
+        do{
+            try await usersCollection().document(userID).collection("memberships").document(clubID).delete()
+        } catch {
+            print("could not delete club membership: \(error)")
+        }
+    }
+    
+    func incrementMember(clubID: String) async {
+        do{
+            try await movieClubCollection().document(clubID).updateData(["numMembers" : FieldValue.increment(1.0)])
+        } catch {
+            print("unable to update number of members. User count may be incorrect")
+        }
+    }
+    
     func getProfileImage(id: String, path: String) async -> String  {
         //   print("in getter")
         let storageRef = Storage.storage().reference().child("\(path).jpeg") //Storage.storage().reference().child("Users/profile_images/\(id).jpeg")
         do {
             let url = try await storageRef.downloadURL()
-            if var currentUser {
-                self.currentUser?.image = url.absoluteString
-            }
+            self.currentUser?.image = url.absoluteString
             return url.absoluteString
         } catch {
             print(error)
         }
         return ""
     }
+    func loadQueue() async {
+        if let clubID = self.currentClub?.id, let id = self.currentUser?.id  {
+            usersCollection().document(id).collection("memberships").document(clubID).addSnapshotListener { documentSnapshot, error in
+                guard let document = documentSnapshot else{
+                    print("errrr fetching queue \(String(describing: error))")
+                    return
+                }
+                if let member = try? document.data(as: Membership.self) {
+                    print("#### Member object: \(member)")
+                    self.queue = member
+                }
+            }
+        }
+    }
     
     func postComment(comment: Comment, movieClubID: String, movieID: String) async{
         do {
             let encodeComment = try Firestore.Encoder().encode(comment)
-            try await db.collection("movieclubs").document(movieClubID)
+            try await movieClubCollection().document(movieClubID)
                 .collection("movies").document(movieID)
                 .collection("comments").document().setData(encodeComment)
             
@@ -131,14 +220,13 @@ import SwiftUI
     
     func fetchComments(movieClubId: String, movieId: String) async -> [Comment]{
         print("in fetch comments")
+        print("query clubID \(movieClubId) + movieID \(movieId)")
         do {
-            let querySnapshot = try await db.collection("movieclubs")
-                .document(movieClubId)
-                .collection("movies")
-                .document(movieId)
-                .collection("comments")
-                .getDocuments()
+            let querySnapshot = try await movieClubCollection().document(movieClubId).collection("movies").document(movieId).collection("comments").getDocuments()
+            
+            
             let comments = querySnapshot.documents.compactMap { document in
+                print("comment doc \(document)")
                 do {
                     return try document.data(as: Comment.self)
                 } catch {
@@ -146,6 +234,7 @@ import SwiftUI
                     return nil
                 }
             }
+            print("comments \(comments)")
             self.comments = comments
             return comments
             //  print("self.comments in method: \(self.comments)")
@@ -157,14 +246,13 @@ import SwiftUI
     
     func fetchMovieClubsForUser() async {
         // print("in fetchMovieClubsForUsers")
-        self.userMovieClubs = []
         do{
             guard let user = self.currentUser else {
                 print("User not found")
                 return
             }
             
-            let snapshot = try await db.collection("users").document(user.id ?? "").collection("memberships").getDocuments()
+            let snapshot = try await usersCollection().document(user.id ?? "").collection("memberships").getDocuments()
             
             let documents = snapshot.documents
             
@@ -188,32 +276,34 @@ import SwiftUI
         Task{
             let encodeClub = try Firestore.Encoder().encode(movieClub)
             if let id = movieClub.id{
-                try await  Firestore.firestore().collection("movieclubs").document(id).setData(encodeClub)
-                await addClubRelationship(movieClub: movieClub)
+                try await  movieClubCollection().document(id).setData(encodeClub)
+                await addClubRelationship(club: movieClub)
                 self.userMovieClubs.append(movieClub)
             }
-            await fetchUser()
+           
         }
     }
     
-    func addClubRelationship(movieClub: MovieClub) async {
-        Task{
-            let snapshot = try await db.collection("users").document(currentUser?.id ?? "").getDocument()
-            if let id = movieClub.id, id != ""{
-                // cant figure out a better way to do this but we know the val wont be null
-                let membership = Membership(clubID: movieClub.id ?? "", selector: false, queue: [], rosterDate: nil)
+    func addClubRelationship(club: MovieClub) async {
+            // cant figure out a better way to do this but we know the val wont be null
+        do{
+            let emptyMovie = FirestoreMovie(title: "", startDate: Date(), author: "")
+            let emptyQueueList = [emptyMovie, emptyMovie, emptyMovie]
+            if let id = club.id, id != ""{
+                let membership = Membership(clubID: id, clubName: club.name, queue: emptyQueueList, movieDate: Date())
                 let encodeMembership = try Firestore.Encoder().encode(membership)
-                try await db.collection("users").document(currentUser?.id ?? "").collection("memberships").document(id).setData(encodeMembership)
+                try await usersCollection().document(currentUser?.id ?? "").collection("memberships").document(id).setData(encodeMembership)
             } else {
-                print("error occurred adding club for \(currentUser?.id ?? "")")
+                print("error occurred adding club")
             }
-            
+        } catch {
+            print("could not add club membership to user")
         }
     }
     
     func fetchMovieClub(clubID: String) async {
        // print("in fetchMovieClub")
-        guard let snapshot = try? await db.collection("movieclubs").document(clubID).getDocument() else {return}
+        guard let snapshot = try? await movieClubCollection().document(clubID).getDocument() else {return}
         do {
             let movieClub = try snapshot.data(as: MovieClub.self)
             self.userMovieClubs.append(movieClub)
@@ -250,19 +340,20 @@ import SwiftUI
     }
     
     func fetchFirestoreMovies(clubId: String) async -> [FirestoreMovie]{
+        var firestoreMovies: [FirestoreMovie] = []
         do {
-            let moviesRef = try await db.collection("movieclubs").document(clubId).collection("movies").getDocuments()
+            let moviesRef = try await movieClubCollection().document(clubId).collection("movies").getDocuments()
             print(moviesRef.documents)
             
-            let firestoreMovies = moviesRef.documents.compactMap { document in
-                try? document.data(as: FirestoreMovie.self)
+            firestoreMovies = try moviesRef.documents.compactMap { document in
+                
+                try document.data(as: FirestoreMovie.self)
             }
             //print("fireStoreMovies: \(firestoreMovies)")
-            return firestoreMovies
         } catch {
             print("Error fetching Firestore movies: \(error)")
         }
-        return []
+        return firestoreMovies
     }
     
     func fetchAndMergeMovies(clubId: String) async -> [Movie] {
@@ -270,24 +361,23 @@ import SwiftUI
         do {
             
             let firestoreMovies = await fetchFirestoreMovies(clubId: clubId)
-            
             for firestoreMovie in firestoreMovies {
                 
                 let apiMovie = try await fetchAPIMovie(title: firestoreMovie.title)
                 
                 let combinedMovie = Movie(
-                    id: firestoreMovie.id ?? UUID().uuidString,
+                    id: firestoreMovie.id,
                     title: firestoreMovie.title,
-                    startDate: firestoreMovie.startDate,
                     poster: apiMovie.poster,
-                    endDate: firestoreMovie.endDate,
+                    startDate: firestoreMovie.startDate, 
                     author: firestoreMovie.author,
-                    comments: firestoreMovie.comments, plot: apiMovie.plot, director: apiMovie.director
+                    comments: firestoreMovie.comments,
+                    plot: apiMovie.plot,
+                    director: apiMovie.director
                     
                 )
                 //print(combinedMovie)
                 movies.append(combinedMovie)
-                
             }
             //self.currentClub?.movies = movies
             //print("##### \(currentClub?.movies)")
@@ -317,7 +407,7 @@ import SwiftUI
         guard let uid = Auth.auth().currentUser?.uid else {return}
        // print("2")
      
-        guard let snapshot = try? await db.collection("users").document(uid).getDocument() else {return}
+        guard let snapshot = try? await usersCollection().document(uid).getDocument() else {return}
             //print("Document data: \(snapshot.data())")
         
             do{
@@ -355,11 +445,8 @@ extension MovieClub {
                                                   isPublic: true,
                                                   movies: [Movie(id: "001",
                                                                  title: "The Matrix",
-                                                                 startDate: Date(),
                                                                  poster: "test",
-                                                                 endDate: Date(),
-                                                                 
-                                                                 author: "duhmarcus")]),
+                                                                 startDate: Date(), author: "duhmarcus")]),
                                         MovieClub(name: "Test Title 2",
                                                   created: Date(),
                                                   numMembers: 1,
