@@ -51,6 +51,7 @@
 		2C8256D12BF475D000D2ED12 /* CreateClubForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256D02BF475D000D2ED12 /* CreateClubForm.swift */; };
 		2CAEAB962C569B2E00A0011A /* MoviePosterButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEAB952C569B2E00A0011A /* MoviePosterButtonView.swift */; };
 		2CAEAB982C57140300A0011A /* FirstMovieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEAB972C57140300A0011A /* FirstMovieView.swift */; };
+		2CAEAB9A2C58972300A0011A /* ClubDetailsForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -95,6 +96,7 @@
 		2C8256D02BF475D000D2ED12 /* CreateClubForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateClubForm.swift; sourceTree = "<group>"; };
 		2CAEAB952C569B2E00A0011A /* MoviePosterButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviePosterButtonView.swift; sourceTree = "<group>"; };
 		2CAEAB972C57140300A0011A /* FirstMovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstMovieView.swift; sourceTree = "<group>"; };
+		2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubDetailsForm.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -165,6 +167,7 @@
 		2C5DEC122BF1AC6C000EF232 = {
 			isa = PBXGroup;
 			children = (
+				2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */,
 				2C5DEC1D2BF1AC6C000EF232 /* MovieClub */,
 				2C5DEC1C2BF1AC6C000EF232 /* Products */,
 			);
@@ -315,6 +318,7 @@
 				2C8256962BF1B58C00D2ED12 /* ContentView.swift in Sources */,
 				2CAEAB962C569B2E00A0011A /* MoviePosterButtonView.swift in Sources */,
 				2C8256D12BF475D000D2ED12 /* CreateClubForm.swift in Sources */,
+				2CAEAB9A2C58972300A0011A /* ClubDetailsForm.swift in Sources */,
 				2C4475152C3E18810034204C /* NextUpView.swift in Sources */,
 				2C5DEC822BF1B3F6000EF232 /* StarRatingView.swift in Sources */,
 				2C5DEC402BF1B0DB000EF232 /* Model.swift in Sources */,

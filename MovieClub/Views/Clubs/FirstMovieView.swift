@@ -12,19 +12,21 @@ struct FirstMovieView: View {
     @Environment(\.dismiss) var dismiss
     var club: MovieClub?
     var body: some View {
-        VStack{
-            Text("Choose Your First Movie!")
-            MoviePosterButtonView()
-            Spacer()
-            if let club = data.currentClub{
-                Button {
-                    Task {
-                        await data.createMovieClub(movieClub: club)
+        ScrollView{
+            VStack{
+                Text("Choose Your First Movie!")
+                MoviePosterButtonView()
+                Spacer()
+                if let club = data.currentClub{
+                    Button {
+                        Task {
+                            await data.createMovieClub(movieClub: club)
+                        }
+                    } label: {
+                        Text("Submit")
                     }
-                } label: {
-                    Text("Submit")
+                    .padding(.bottom)
                 }
-                .padding(.bottom)
             }
         }
     }
