@@ -48,7 +48,7 @@ struct Membership: Codable, Identifiable, Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(clubName)
-       
+        hasher.combine(queue)
         hasher.combine(movieDate)
      
     }
@@ -62,6 +62,7 @@ struct Member: Codable, Identifiable, Hashable {
     var userAvi: String
     var selector: Bool = true
     var movieDate: Date?
+    var dateAdded: Date?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -70,6 +71,7 @@ struct Member: Codable, Identifiable, Hashable {
         case userAvi
         case selector
         case movieDate
+        case dateAdded
     }
 }
 
@@ -78,7 +80,7 @@ struct Movie: Identifiable, Codable, Hashable{
     var title: String
     var poster: String? = ""
     var avgRating: Double? = 0.0
-    var startDate: Date
+    var endDate: Date
     var author: String
     var comments: [Comment]? = []
     var plot: String? = ""
@@ -96,7 +98,7 @@ struct Movie: Identifiable, Codable, Hashable{
         case id
         case title = "Title"
         case plot = "Plot"
-        case startDate
+        case endDate
         case poster = "Poster"
         case author
         case comments
@@ -131,33 +133,59 @@ struct APIMovie: Codable, Equatable, Hashable, Identifiable {
     }
 }
 
-struct Comment: Identifiable, Codable{
+struct Comment: Identifiable, Codable, Equatable, Hashable{
     @DocumentID var id: String?
     var image: String? = ""
     var username: String
     var date: Date
     var text: String
     var likes: Int
+    
+    static func == (lhs: Comment, rhs: Comment) -> Bool {
+                return lhs.id == rhs.id && lhs.username == rhs.username
+            }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(image)
+        hasher.combine(date)
+        hasher.combine(text)
+        hasher.combine(likes)
+     
+    }
 }
 
-struct FirestoreMovie: Identifiable, Codable, Equatable {
-    static func == (lhs: FirestoreMovie, rhs: FirestoreMovie) -> Bool {
-        lhs.id == rhs.id
+struct FirestoreMovie: Identifiable, Codable, Equatable, Hashable {
+    static func == (lhs: FirestoreMovie, rhs: FirestoreMovie) -> Bool{
+        return lhs.id == rhs.id &&
+        lhs.title == rhs.title &&
+        lhs.author == rhs.author &&
+        lhs.comments == rhs.comments
     }
     
     @DocumentID var id: String?
      var title: String
      var poster: String?
-     var startDate: Date
+     var endDate: Date?
      var avgRating: Double?
      var author: String
      var comments: [Comment]?
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(poster)
+        hasher.combine(endDate)
+        hasher.combine(avgRating)
+        hasher.combine(author)
+        hasher.combine(comments)
+     
+    }
     
     enum CodingKeys: String, CodingKey {
         case id
         case title
         case poster
-        case startDate
+        case endDate
         case avgRating
         case author
         case comments
@@ -171,9 +199,12 @@ struct MovieClub: Identifiable, Codable, Hashable{
     var numMembers: Int
     var description: String? = ""
     var ownerName: String
+    var timeInterval: Int
+    var movieEndDate: Date
     var ownerID: String
     var isPublic: Bool
-    var banner: String? = ""
+    var banner: Data?
+    var bannerUrl: String?
     var numMovies: Int = 0
     var members: [Member]?
     var movies: [Movie]?
@@ -189,6 +220,8 @@ struct MovieClub: Identifiable, Codable, Hashable{
             hasher.combine(numMembers)
             hasher.combine(description)
             hasher.combine(ownerName)
+            hasher.combine(timeInterval)
+            hasher.combine(movieEndDate)
             hasher.combine(ownerID)
             hasher.combine(isPublic)
             hasher.combine(banner)

@@ -13,10 +13,9 @@ import FirebaseFirestore
 struct MovieRow: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) var dismiss
-    let index: Int
-    let date: Date
+    let index: Int = 0
+    let date: Date = Date()
     let movie: APIMovie
-    
     @State var sheetPresented = false
     var body: some View {
         HStack {
@@ -48,10 +47,9 @@ struct MovieRow: View {
             }
             Spacer()
             //gonna change to a navlink to an add sheet or something
-            
             Button {
                 Task{
-                    await addMovie(movie: movie)
+                    await addMovie(apiMovie: movie)
                     dismiss()
                 }
             } label: {
@@ -60,15 +58,23 @@ struct MovieRow: View {
             }
             .buttonStyle(PlainButtonStyle())
         }
-        .sheet(isPresented: $sheetPresented, content: {
-            NewMovieForm(movie: movie)})
-        .padding()
     }
+    //check to see if the club exists and then create it if not
     
-    private func addMovie(movie: APIMovie) async{
-        
+    private func addMovie(apiMovie: APIMovie) async {
         if let user = await data.currentUser, let clubID = await data.currentClub?.id {
-            let firesotoreMovie = FirestoreMovie(title: movie.title, poster: movie.poster, startDate: date, author: user.name)
+            let firestoreMovie = FirestoreMovie(title: movie.title, poster: movie.poster, author: user.name)
+            let movie = Movie(
+                id: firestoreMovie.id,
+                title: firestoreMovie.title,
+                poster: apiMovie.poster,
+                endDate: firestoreMovie.endDate!,
+                author: firestoreMovie.author,
+                comments: firestoreMovie.comments,
+                plot: apiMovie.plot,
+                director: apiMovie.director)
+                await data.addMovie(movie: movie)
+          /* saving this for updating the queue
             do{
                 let snapshot = await data.usersCollection()
                     .document(user.id ?? "").collection("memberships").document(clubID)
@@ -76,10 +82,9 @@ struct MovieRow: View {
                 queue.queue[index] = firesotoreMovie
                 let encodedQueue = try Firestore.Encoder().encode(queue)
                 try await snapshot.setData(encodedQueue)
-                
             } catch {
                 print("error getting details: \(error)")
-            }
+            }*/
         }
     }
     

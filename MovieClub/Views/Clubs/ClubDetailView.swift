@@ -13,7 +13,7 @@ struct ClubDetailView: View {
     @Environment(\.dismiss) var dismiss
     let movieClub: MovieClub
     @State var isPresentingEditView = false
-    @State var movies: [Movie]?
+    @State var movie: Movie?
     @State var rosterUsers: [User] = []
     @Binding var path: NavigationPath
     @State var comments: [Comment] = []
@@ -24,9 +24,9 @@ struct ClubDetailView: View {
             HeaderView(movieClub: movieClub)
             Spacer()
             Divider()
-            if let movie = movies?.first {
+            if let movie {
                 SwipeableView(numberOfPages: 2) {
-                    NowPlayingView(movie: movies?.first, comments: comments)
+                    NowPlayingView(movie: movie, comments: comments)
                     ComingSoonView()
                 }
                 CommentInputView(movieClub: movieClub, movieID: movie.id ?? "")
@@ -40,11 +40,15 @@ struct ClubDetailView: View {
                 //do nothing but this will be a caching system eventually
             }
             data.currentClub = movieClub
-            if let id = movieClub.id {
-                self.movies = await data.fetchAndMergeMovies(clubId: id)
-                if let movie = movies?.first {
-                    self.comments = await data.fetchComments(movieClubId: movieClub.id!, movieId: movie.id ?? "")
+            do {
+                if let id = movieClub.id {
+                    self.movie = try await data.fetchAndMergeMovieData(club: movieClub)
+                    if let movie = movie {
+                        self.comments = await data.fetchComments(movieClubId: movieClub.id!, movieId: movie.id ?? "")
+                    }
                 }
+            }catch{
+                print(error)
             }
         }
         .toolbar{

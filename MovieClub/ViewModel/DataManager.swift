@@ -101,7 +101,6 @@ import SwiftUI
         }
     }
     
-    
     func uploadClubImage(image: UIImage, clubId: String) async -> String{
         let storageRef = Storage.storage().reference().child("Clubs/\(clubId)/banner.jpg")
         if let imageData = image.jpegData(compressionQuality: 0.25) {
@@ -122,16 +121,16 @@ import SwiftUI
     
     func joinClub(club: MovieClub) async {
         if let user = self.currentUser, let clubID = club.id {
-            await addClubMember(clubID: clubID, user: user)
+            await addClubMember(clubID: clubID, user: user, date: Date())
             await incrementMember(clubID: clubID)
             await addClubRelationship(club: club)
         }
     }
     
-    func addClubMember(clubID: String, user: User) async {
+    func addClubMember(clubID: String, user: User, date: Date) async {
         do{
             if let id = user.id {
-                let member = Member(userID: id, userName: user.name, userAvi: user.image ?? "" , selector: false, movieDate: nil)
+                let member = Member(userID: id, userName: user.name, userAvi: user.image ?? "" , selector: false, dateAdded: date)
                 let encodedMember = try Firestore.Encoder().encode(member)
                 try await movieClubCollection().document(clubID).collection("members").document(id).setData(encodedMember)
             }
@@ -139,7 +138,6 @@ import SwiftUI
             print("couldnt add member")
         }
     }
-    
     
     func leaveClub(club: MovieClub) async {
         if let clubID = club.id, let userID = self.currentUser?.id {
@@ -152,7 +150,7 @@ import SwiftUI
             }
         }
     }
-
+    
     func decrementMember(clubID: String) async {
         do{
             try await movieClubCollection().document(clubID).updateData(["numMembers" : FieldValue.increment(-1.0)])
@@ -162,7 +160,7 @@ import SwiftUI
     }
     
     func removeClubRelationship(clubID: String, userID: String) async {
-            // cant figure out a better way to do this but we know the val wont be null
+        // cant figure out a better way to do this but we know the val wont be null
         do{
             try await usersCollection().document(userID).collection("memberships").document(clubID).delete()
         } catch {
@@ -190,10 +188,11 @@ import SwiftUI
         }
         return ""
     }
+    
     func loadQueue() async {
         if let clubID = self.currentClub?.id, let id = self.currentUser?.id  {
             usersCollection().document(id).collection("memberships").document(clubID).addSnapshotListener { documentSnapshot, error in
-                guard let document = documentSnapshot else{
+                guard let document = documentSnapshot else {
                     print("errrr fetching queue \(String(describing: error))")
                     return
                 }
@@ -269,28 +268,70 @@ import SwiftUI
         }catch{
             print(error.localizedDescription)
         }
-        
+    }
+    func addMovie(movie: Movie) {
+        self.currentClub?.movies?.append(movie)
     }
     
-    func createMovieClub(movieClub: MovieClub){
-        Task{
-            let encodeClub = try Firestore.Encoder().encode(movieClub)
-            if let id = movieClub.id{
-                try await  movieClubCollection().document(id).setData(encodeClub)
-                await addClubRelationship(club: movieClub)
-                self.userMovieClubs.append(movieClub)
+    func createMovieClub(movieClub: MovieClub) async {
+        var urlString = ""
+        //just to be sure
+        self.currentClub = movieClub
+            do {
+                //commit image data
+                if let banner = movieClub.banner, let id = movieClub.id {
+                    if let image = UIImage(data: banner) {
+                        urlString = await uploadClubImage(image: image, clubId: id)
+                    
+                    }
+                }
+                self.currentClub?.bannerUrl = urlString
+                //this is the future date for the owner, would be their 2nd movie
+                let futureOwnerMovieDate = Date()
+                if let timeIntervalFromToday = Calendar.current.date(byAdding: .weekOfYear, value: movieClub.timeInterval, to: futureOwnerMovieDate){
+                    //encode the club
+                    let encodeClub = try Firestore.Encoder().encode(self.currentClub)
+                    if let id = movieClub.id{
+                        //commit club
+                        try await movieClubCollection().document(id).setData(encodeClub)
+                        //commit movie
+                        if let movie = movieClub.movies?.first {
+                            await addFirstMovie(club: movieClub, movie: movie)
+                        }
+                        // dont need to change anything here
+                        await addClubRelationship(club: movieClub)
+                        //make sure owner date is being set
+                        await addClubMember(clubID: id, user: self.currentUser!, date: timeIntervalFromToday)
+                        self.userMovieClubs.append(movieClub)
+                        
+                    }
+                }
+            }catch{
+                print(error)
             }
-           
+    }
+    func addFirstMovie(club: MovieClub, movie: Movie) async {
+        if let clubID = club.id {
+            do {
+                let encodedMovie = try Firestore.Encoder().encode(movie)
+                try await  movieClubCollection().document(clubID).collection("movies").document().setData(encodedMovie)
+            }catch{
+                print(error)
+            }
         }
     }
     
+    //TODO: update time interval method to push movies back
+    
+    
     func addClubRelationship(club: MovieClub) async {
-            // cant figure out a better way to do this but we know the val wont be null
+        // cant figure out a better way to do this but we know the val wont be null
         do{
-            let emptyMovie = FirestoreMovie(title: "", startDate: Date(), author: "")
+            let emptyMovie = FirestoreMovie(title: "", author: "")
             let emptyQueueList = [emptyMovie, emptyMovie, emptyMovie]
             if let id = club.id, id != ""{
-                let membership = Membership(clubID: id, clubName: club.name, queue: emptyQueueList, movieDate: Date())
+                //could set movie date here but might wait until they're closer to the next up
+                let membership = Membership(clubID: id, clubName: club.name, queue: emptyQueueList)
                 let encodeMembership = try Firestore.Encoder().encode(membership)
                 try await usersCollection().document(currentUser?.id ?? "").collection("memberships").document(id).setData(encodeMembership)
             } else {
@@ -302,7 +343,7 @@ import SwiftUI
     }
     
     func fetchMovieClub(clubID: String) async {
-       // print("in fetchMovieClub")
+        // print("in fetchMovieClub")
         guard let snapshot = try? await movieClubCollection().document(clubID).getDocument() else {return}
         do {
             let movieClub = try snapshot.data(as: MovieClub.self)
@@ -339,57 +380,140 @@ import SwiftUI
         }
     }
     
-    func fetchFirestoreMovies(clubId: String) async -> [FirestoreMovie]{
+    func fetchNextUp(club: MovieClub) async throws -> FirestoreMovie? {
+        // get small list of members and store here
+        var members: [Member] = []
+        // initialize date/time
+        let today = Date()
+        //if club has an id, proceed
+        if let clubID = club.id {
+            do {
+                //get a max of 3 members in the roster/list
+                //sort by date added to the list, this date is refreshed after a users movie becomes
+                //current playing
+                let querySnapshot = try await movieClubCollection()
+                    .document(club.id ?? "")
+                    .collection("members")
+                    .whereField("selector", isEqualTo: true)
+                    .order(by: "dateAdded", descending: true)
+                    .limit(to: 3)
+                    .getDocuments()
+                // get next up members based on how long ago they joined club
+                // this date is sorting oldest to the top
+                members = try querySnapshot.documents.compactMap { document in
+                    try document.data(as: Member.self)
+                }
+                //this counter should be an easy way to handle most of the date manipulation.
+                //start at 1 since its used as a multiplyer
+                var counter = 1
+                for member in members {
+                    if let endDate = member.movieDate {
+                        let nextEndDate = Calendar.current.date(byAdding: .weekOfYear, value: club.timeInterval * counter, to: club.movieEndDate)
+                        // if the end date of the next users movie doesnt match the predicted next date based on the clubs current club interval, update the 3
+                        if endDate != nextEndDate {
+                            updateEndDates(memberID: member.id ?? "", club: club, counter: counter)
+                            // this will likely break
+                        } else {
+                            // if they do match, then cycle to next movie
+                            do {
+                                try await movieClubCollection().document(club.id ?? "").collection("members").document(member.userID).updateData(["dateAdded" : Date()])
+                                let snapshot = try await usersCollection().document(member.userID).collection("memberships").document(club.id ?? "").getDocument()
+                                let membership = try snapshot.data(as: Membership.self)
+                                let userQueue: [FirestoreMovie] = membership.queue
+                                for movie in userQueue {
+                                    //should probably change this to imdb id
+                                    let fireStoreMovies = try await movieClubCollection().document(clubID).collection("movies").whereField("title", isEqualTo: movie.title)
+                                        .whereField("dateEnded", isLessThan: Date()).getDocuments()
+                                    if fireStoreMovies.count == 0 {
+                                        return movie
+                                    }
+                                }
+                            }catch{
+                                print("unable to add user to list")
+                            }
+                        }
+                        counter += 1
+                    }
+                }
+            } catch {
+                print("Error fetching Firestore movies: \(error)")
+            }
+        }
+        return nil
+    }
+    
+    func updateEndDates(memberID: String, club: MovieClub, counter: Int) {
+        if let clubID = club.id {
+            movieClubCollection().document(clubID).collection("members").document(memberID).updateData(["movieEndDate": Calendar.current.date(byAdding: .weekOfYear, value: club.timeInterval * counter, to: club.movieEndDate) as Any])
+        }
+    }
+    
+    /*  func fetchMemberMovie(clubID: String, member: Member) async {
+     let userID = member.userID
+     do {
+     let snapshot = try await usersCollection().document(userID).collection("memberships").document(clubID).
+     }catch{
+     print(error)
+     }
+     } */
+
+    func fetchFirestoreMovie(club: MovieClub) async throws-> FirestoreMovie? {
         var firestoreMovies: [FirestoreMovie] = []
+        let today = Date()
         do {
-            let moviesRef = try await movieClubCollection().document(clubId).collection("movies").getDocuments()
-            print(moviesRef.documents)
-            
-            firestoreMovies = try moviesRef.documents.compactMap { document in
-                
+            let querySnapshot = try await movieClubCollection()
+                .document(club.id ?? "")
+                .collection("movies")
+                .whereField("endDate", isGreaterThan: today)
+                .order(by: "endDate", descending: true)
+                .limit(to: 3)
+                .getDocuments()
+            firestoreMovies = try querySnapshot.documents.compactMap { document in
                 try document.data(as: FirestoreMovie.self)
             }
-            //print("fireStoreMovies: \(firestoreMovies)")
         } catch {
             print("Error fetching Firestore movies: \(error)")
         }
-        return firestoreMovies
+        if firestoreMovies.count > 0 {
+            return firestoreMovies[0]
+        }else{
+            do {
+                return try await fetchNextUp(club: club)
+            } catch {
+                print("error fetching next movie")
+            }
+        }
+        return nil
     }
     
-    func fetchAndMergeMovies(clubId: String) async -> [Movie] {
-        var movies: [Movie] = []
+    //fetch current playing by current end date that is greater than today
+    //should only be one, everything else would be archive
+    //if 0, iterate the list
+    //query members
+    func fetchAndMergeMovieData(club: MovieClub) async throws -> Movie? {
         do {
-            
-            let firestoreMovies = await fetchFirestoreMovies(clubId: clubId)
-            for firestoreMovie in firestoreMovies {
-                
+            if let firestoreMovie = try await fetchFirestoreMovie(club: club){
                 let apiMovie = try await fetchAPIMovie(title: firestoreMovie.title)
-                
                 let combinedMovie = Movie(
                     id: firestoreMovie.id,
                     title: firestoreMovie.title,
                     poster: apiMovie.poster,
-                    startDate: firestoreMovie.startDate, 
+                    endDate: firestoreMovie.endDate!,
                     author: firestoreMovie.author,
                     comments: firestoreMovie.comments,
                     plot: apiMovie.plot,
                     director: apiMovie.director
-                    
                 )
                 //print(combinedMovie)
-                movies.append(combinedMovie)
+                return combinedMovie
             }
-            //self.currentClub?.movies = movies
-            //print("##### \(currentClub?.movies)")
-            return movies
-            
-            
-            
-        }catch {
-            print("Failed to fetch or merge movie data: \(error)")
+        }catch{
+            print(error)
         }
-        return []
+        return nil
     }
+    //self.currentClub?.movies = movies
+    //print("##### \(currentClub?.movies)")
     
     func formatMovieForAPI(title: String) -> String {
             return title.replacingOccurrences(of: " ", with: "+")
@@ -399,14 +523,10 @@ import SwiftUI
     }
     
     func fetchUser() async {
-        
-      //  print("in fetch user")
-        
-      
+      //  print("in fetch user"
       //  print("1")
         guard let uid = Auth.auth().currentUser?.uid else {return}
        // print("2")
-     
         guard let snapshot = try? await usersCollection().document(uid).getDocument() else {return}
             //print("Document data: \(snapshot.data())")
         
@@ -415,11 +535,9 @@ import SwiftUI
             }catch{
                 print(error)
             }
-        
         let path = ("Users/profile_images/\(self.currentUser?.id ?? "")")
         await self.currentUser!.image = getProfileImage(id: currentUser!.id!, path: path)
         await fetchMovieClubsForUser()
-        
     }
     
     func signOut(){
@@ -441,18 +559,20 @@ extension MovieClub {
                                                   numMembers: 2,
                                                   description: "description",
                                                   ownerName: "Duhmarcus",
+                                                  timeInterval: 4,
+                                                  movieEndDate: Calendar.current.date(byAdding: .weekOfYear, value: 4, to: Date())!,
                                                   ownerID: "000123",
                                                   isPublic: true,
                                                   movies: [Movie(id: "001",
                                                                  title: "The Matrix",
                                                                  poster: "test",
-                                                                 startDate: Date(), author: "duhmarcus")]),
+                                                                 endDate: Date(), author: "duhmarcus")]),
                                         MovieClub(name: "Test Title 2",
                                                   created: Date(),
                                                   numMembers: 1,
                                                   description: "description",
                                                   ownerName: "darius garius",
-                                                  ownerID: "1345",
+                                                  timeInterval: 2, movieEndDate: Date(), ownerID: "1345",
                                                   isPublic: true)]
 }
 

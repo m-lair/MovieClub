@@ -25,7 +25,7 @@ struct AddMovieView: View {
         VStack{
             let _ = print("\(filteredMovies)")
             List(filteredMovies){movie in
-                MovieRow(index: index, date: date, movie: movie)
+                MovieRow(movie: movie)
             }
         }
         .searchable(text: $searchText, placement: .automatic)
@@ -51,12 +51,11 @@ struct AddMovieView: View {
     private func fetchMovies(from searchText: String) async throws -> [APIMovie] {
         let formattedSearchText = searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? searchText
         let urlString = "https://omdbapi.com/?s=\(formattedSearchText)&type=movie&apikey=ab92d369"
-        print("urlString \(urlString)")
+        //print("urlString \(urlString)")
         guard let url = URL(string: urlString) else {
             print("Invalid URL: \(urlString)")
             throw URLError(.badURL)
         }
-        
         let (data, response) = try await URLSession.shared.data(from: url)
         
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {

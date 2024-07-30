@@ -27,40 +27,7 @@ struct ComingSoonEditView: View {
                 ScrollView(.horizontal) {
                     HStack {
                         ForEach(0..<3) { i in
-                            VStack {
-                                Text("\(member.queue[i].title)")
-                                    .font(.title)
-                                let url = URL(string: member.queue[i].poster ?? "")
-                                AsyncImage(url: url) { phase in
-                                    if let image = phase.image {
-                                        NavigationLink(destination: AddMovieView(date: member.movieDate!, index: i)) {
-                                            image
-                                                .resizable()
-                                                .frame(width: 200, height: 350)
-                                                .background(Color.gray)
-                                                .cornerRadius(10)
-                                                .padding()
-                                        }
-                                    }else {
-                                        NavigationLink(destination: AddMovieView(date: member.movieDate!, index: i)) {
-                                            VStack {
-                                                Spacer()
-                                                Text("?")
-                                                    .font(.system(size: 200))
-                                                    .foregroundColor(.white)
-                                                    .shadow(radius: 10)
-                                                
-                                            }
-                                        }
-                                        .frame(width: 100, height: 150)
-                                        .background(Color.gray)
-                                        .scaledToFit()
-                                        .cornerRadius(10)
-                                        .padding()
-                                    }
-                                }
-                                
-                            }
+                            MoviePosterButtonView(i: i, member: member)
                             .navigationTitle("Select Movie")
                         }
                         .padding(.top)

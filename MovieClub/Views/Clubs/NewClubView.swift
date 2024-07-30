@@ -27,7 +27,6 @@ struct NewClubView: View {
     }
     var body: some View {
         VStack{
-            //search bar results view
             List(filteredClubs){club in
                 HStack{
                     Text("\(club.name)")
@@ -53,26 +52,15 @@ struct NewClubView: View {
                  }*/
             }
             .searchable(text: $searchText)
-        }
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    sheetShowing.toggle()
-                } label: {
-                    Text("Create")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink(value: "CreateForm"){
+                        Text("Create")
+                    }
                 }
             }
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    Text("Back")
-                }
-            }
+            .navigationTitle("Find or Create Club")
         }
-        .sheet(isPresented: $sheetShowing, content: {
-            EditEmptyView()})
-        .navigationTitle("Find or Create Club")
         .onAppear(){
             Task{
                 do{

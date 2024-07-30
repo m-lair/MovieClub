@@ -12,7 +12,6 @@ struct NextUpView: View {
     let movies: [Movie]
    
     var body: some View {
-        
             ScrollView(.horizontal){
                 HStack{
                     ForEach(movies) { movie in

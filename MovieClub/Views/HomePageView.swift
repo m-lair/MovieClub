@@ -20,7 +20,7 @@ struct HomePageView: View {
     var body: some View {
         NavigationStack(path: $path) {
             ScrollView{
-                let _ = print("in homepageview \(path)")
+                //let _ = print("in homepageview \(path)")
                 //let _ = print("userclubs: \(userClubs)")
                 VStack {
                     if userClubs.count > 0 {
@@ -54,7 +54,9 @@ struct HomePageView: View {
                     
                     case "NewClub":
                         NewClubView(path: $path)
-                        
+                    
+                    case "CreateForm":
+                        EditEmptyView()
                     default: ProgressView()
                     }
                     

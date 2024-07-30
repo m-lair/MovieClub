@@ -74,13 +74,6 @@ struct UserEditView: View {
             Task{
                 // Call a method to save the club with the entered information
                 
-                let movieClub = MovieClub(id: generateUUID(), name: name,
-                                          created: Date(), numMembers: 1, description: "",
-                                          ownerName: data.currentUser?.name ?? "",
-                                          ownerID: data.currentUser?.id ?? "",
-                                          isPublic: isPublic)
-                await saveClub(movieClub: movieClub)
-                dismiss()
             }
         })
         
@@ -91,10 +84,6 @@ struct UserEditView: View {
         }
         
         
-    }
-    private func generateUUID() -> String {
-        let id = UUID()
-        return id.uuidString
     }
 }
 

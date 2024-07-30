@@ -15,7 +15,7 @@ struct MovieDetailView: View {
         VStack {
             Text(movie.title)
                 .font(.title)
-            Text("\(movie.startDate)")
+            Text("\(movie.endDate)")
                 .font(.subheadline)
             Text("Rating: \(String(format: "%.1f", movie.avgRating ?? 0.0))")
                 .font(.subheadline)
