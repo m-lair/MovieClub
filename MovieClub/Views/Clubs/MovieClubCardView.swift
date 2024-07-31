@@ -14,8 +14,7 @@ struct MovieClubCardView: View {
         ZStack{
             VStack{
                 AsyncImage(url: URL(string: movieClub.bannerUrl ?? "")) { phase in
-                    switch phase {
-                    case .success(let image):
+                    if let image = phase.image {
                         image
                             .resizable()
                             .scaledToFill()
@@ -27,12 +26,13 @@ struct MovieClubCardView: View {
                                                     [.init(color: .white, location: 0),
                                                      .init(color: .white, location: 0.85),
                                                      .init(color: .clear, location: 1.0),], startPoint: .top, endPoint: .bottom))
-                    case .empty:
-                        Image(systemName: "person.crop.circle.fill")
-                    case .failure(_):
-                        Image(systemName: "person.crop.circle.fill")
-                    @unknown default:
-                        Image(systemName: "person.crop.circle.fill")
+                    } else {
+                        Image(systemName: "house.fill")
+                            .resizable()
+                            .scaledToFill()
+                            .padding(-20) /// expand the blur a bit to cover the edges
+                            .clipped() /// prevent blur overflow
+                            .frame(maxWidth: (screenWidth - 20))
                     }
                 }
             }

@@ -16,14 +16,22 @@ import Observation
 import SwiftUI
 
 @MainActor
-@Observable class DataManager: Identifiable{
+@Observable 
+class DataManager: Identifiable {
     
     var movies: [Movie] = []
+    var poster: String {
+        movies.first?.poster ?? ""
+    }
     var userSession: FirebaseAuth.User?
     var currentUser: User?
     var userMovieClubs: [MovieClub] = []
     var comments: [Comment] = []
     var currentClub: MovieClub?
+    var clubID: String {
+        currentClub?.id ?? ""
+    }
+    
     var queue: Membership?
     var db: Firestore!
     
@@ -102,7 +110,7 @@ import SwiftUI
     }
     
     func uploadClubImage(image: UIImage, clubId: String) async -> String{
-        let storageRef = Storage.storage().reference().child("Clubs/\(clubId)/banner.jpg")
+        let storageRef = Storage.storage().reference().child("Clubs/\(clubId)/_banner.jpg")
         if let imageData = image.jpegData(compressionQuality: 0.25) {
             let metadata = StorageMetadata()
             metadata.contentType = "image/jpeg"
@@ -250,7 +258,6 @@ import SwiftUI
                 print("User not found")
                 return
             }
-            
             let snapshot = try await usersCollection().document(user.id ?? "").collection("memberships").getDocuments()
             
             let documents = snapshot.documents
@@ -270,7 +277,8 @@ import SwiftUI
         }
     }
     func addMovie(movie: Movie) {
-        self.currentClub?.movies?.append(movie)
+        self.movies.append(movie)
+        print("current movie in method \(movie)")
     }
     
     func createMovieClub(movieClub: MovieClub) async {
@@ -290,12 +298,14 @@ import SwiftUI
                 let futureOwnerMovieDate = Date()
                 if let timeIntervalFromToday = Calendar.current.date(byAdding: .weekOfYear, value: movieClub.timeInterval, to: futureOwnerMovieDate){
                     //encode the club
-                    let encodeClub = try Firestore.Encoder().encode(self.currentClub)
+                    let encodeClub = try Firestore.Encoder().encode(movieClub)
                     if let id = movieClub.id{
                         //commit club
                         try await movieClubCollection().document(id).setData(encodeClub)
                         //commit movie
-                        if let movie = movieClub.movies?.first {
+                        print("2: \(movieClub.movies?.first)")
+                        if let movie = self.movies.first {
+                            print("in if: \(movie)")
                             await addFirstMovie(club: movieClub, movie: movie)
                         }
                         // dont need to change anything here
@@ -311,9 +321,11 @@ import SwiftUI
             }
     }
     func addFirstMovie(club: MovieClub, movie: Movie) async {
+        print("m")
         if let clubID = club.id {
             do {
                 let encodedMovie = try Firestore.Encoder().encode(movie)
+                print("encoded movie \(encodedMovie)")
                 try await  movieClubCollection().document(clubID).collection("movies").document().setData(encodedMovie)
             }catch{
                 print(error)
@@ -466,8 +478,8 @@ import SwiftUI
                 .collection("movies")
                 .whereField("endDate", isGreaterThan: today)
                 .order(by: "endDate", descending: true)
-                .limit(to: 3)
                 .getDocuments()
+            print("document\(querySnapshot)")
             firestoreMovies = try querySnapshot.documents.compactMap { document in
                 try document.data(as: FirestoreMovie.self)
             }

@@ -81,7 +81,7 @@ struct ClubDetailView: View {
             }
         }
         .sheet(isPresented: $isPresentingEditView) {
-            EditEmptyView()
+            ClubDetailsForm()
         }
     }
 }

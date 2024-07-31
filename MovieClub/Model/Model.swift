@@ -80,7 +80,7 @@ struct Movie: Identifiable, Codable, Hashable{
     var title: String
     var poster: String? = ""
     var avgRating: Double? = 0.0
-    var endDate: Date
+    var endDate: Date?
     var author: String
     var comments: [Comment]? = []
     var plot: String? = ""
@@ -96,10 +96,10 @@ struct Movie: Identifiable, Codable, Hashable{
     }
     enum CodingKeys: String, CodingKey {
         case id
-        case title = "Title"
-        case plot = "Plot"
+        case title = "title"
+        case plot = "plot"
         case endDate
-        case poster = "Poster"
+        case poster = "poster"
         case author
         case comments
     }
@@ -193,7 +193,7 @@ struct FirestoreMovie: Identifiable, Codable, Equatable, Hashable {
 }
 
 struct MovieClub: Identifiable, Codable, Hashable{
-   @DocumentID var id: String?
+    var id: String?
     var name: String
     var created: Date
     var numMembers: Int

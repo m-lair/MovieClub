@@ -56,7 +56,7 @@ struct HomePageView: View {
                         NewClubView(path: $path)
                     
                     case "CreateForm":
-                        EditEmptyView()
+                        ClubDetailsForm()
                     default: ProgressView()
                     }
                     

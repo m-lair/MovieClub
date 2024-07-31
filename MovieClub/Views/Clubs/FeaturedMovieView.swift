@@ -51,9 +51,11 @@ struct FeaturedMovieView: View {
                 Spacer()
                 VStack{
                     Image(systemName: "calendar")
-                    Text("End date: \(movie.endDate.formatted(date: .numeric,  time: .omitted))")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                    if let endDate = data.currentClub?.movieEndDate {
+                        Text("End date: \(endDate.formatted(date: .numeric,  time: .omitted))")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
                 }
             }
             

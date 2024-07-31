@@ -11,8 +11,8 @@ struct AddMovieView: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) private var dismiss
     @State var searchText = ""
-    let date: Date
-    let index: Int
+    var date: Date?
+    var index: Int?
     @State var movieList: [APIMovie] = []
     var filteredMovies: [APIMovie] {
         if searchText.isEmpty {
@@ -23,15 +23,31 @@ struct AddMovieView: View {
     }
     var body: some View {
         VStack{
-            let _ = print("\(filteredMovies)")
+            HStack{
+                TextField("Search Movie", text: $searchText)
+                    .padding()
+                    .background(Color(.systemGray6))
+                Button {
+                    searchMovies()
+                }label: {
+                    
+                    Text("search")
+                        .frame(width: 100, height: 40)
+                        .background(Color(.blue))
+                        .foregroundStyle(.bar)
+                }
+            }
+            //let _ = print("in add movie")
             List(filteredMovies){movie in
                 MovieRow(movie: movie)
             }
+            .onSubmit(of: .text) {
+                searchMovies()
+            }
+            .searchable(text: $searchText, placement: .automatic)
+            
         }
-        .searchable(text: $searchText, placement: .automatic)
-        .onSubmit(of: .search) {
-            searchMovies()
-        }
+        
     }
    
     private func searchMovies() {
@@ -40,7 +56,10 @@ struct AddMovieView: View {
         }
         Task {
             do {
+                
                 let apiMovies = try await fetchMovies(from: searchText)
+               // print("in search movies")
+               // print("movieList: \(movieList)")
                 self.movieList = apiMovies
             } catch {
                 print("Failed to fetch movies: \(error)")
@@ -49,6 +68,7 @@ struct AddMovieView: View {
     }
     
     private func fetchMovies(from searchText: String) async throws -> [APIMovie] {
+       // print("in fetch Movies")
         let formattedSearchText = searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? searchText
         let urlString = "https://omdbapi.com/?s=\(formattedSearchText)&type=movie&apikey=ab92d369"
         //print("urlString \(urlString)")

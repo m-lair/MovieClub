@@ -16,7 +16,6 @@
 		2C4475022C06DE4F0034204C /* CommentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475012C06DE4F0034204C /* CommentView.swift */; };
 		2C4475042C06DE6B0034204C /* CommentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475032C06DE6B0034204C /* CommentDetailView.swift */; };
 		2C4475062C17CFFC0034204C /* CommentInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475052C17CFFC0034204C /* CommentInputView.swift */; };
-		2C44750D2C2A61170034204C /* EditEmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C44750C2C2A61170034204C /* EditEmptyView.swift */; };
 		2C44750F2C2A6C2D0034204C /* UserEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C44750E2C2A6C2D0034204C /* UserEditView.swift */; };
 		2C4475112C2A707E0034204C /* ProfileHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475102C2A707D0034204C /* ProfileHeaderView.swift */; };
 		2C4475132C361FA50034204C /* AddMovieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475122C361FA50034204C /* AddMovieView.swift */; };
@@ -48,7 +47,6 @@
 		2C8256C52BF2FC2B00D2ED12 /* MovieClubCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256C42BF2FC2B00D2ED12 /* MovieClubCardView.swift */; };
 		2C8256C72BF2FE3400D2ED12 /* ClubDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256C62BF2FE3400D2ED12 /* ClubDetailView.swift */; };
 		2C8256CD2BF3D80D00D2ED12 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256CC2BF3D80D00D2ED12 /* MainTabView.swift */; };
-		2C8256D12BF475D000D2ED12 /* CreateClubForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256D02BF475D000D2ED12 /* CreateClubForm.swift */; };
 		2CAEAB962C569B2E00A0011A /* MoviePosterButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEAB952C569B2E00A0011A /* MoviePosterButtonView.swift */; };
 		2CAEAB982C57140300A0011A /* FirstMovieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEAB972C57140300A0011A /* FirstMovieView.swift */; };
 		2CAEAB9A2C58972300A0011A /* ClubDetailsForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */; };
@@ -63,7 +61,6 @@
 		2C4475012C06DE4F0034204C /* CommentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentView.swift; sourceTree = "<group>"; };
 		2C4475032C06DE6B0034204C /* CommentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentDetailView.swift; sourceTree = "<group>"; };
 		2C4475052C17CFFC0034204C /* CommentInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentInputView.swift; sourceTree = "<group>"; };
-		2C44750C2C2A61170034204C /* EditEmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = EditEmptyView.swift; path = MovieClub/Helper/EditEmptyView.swift; sourceTree = SOURCE_ROOT; };
 		2C44750E2C2A6C2D0034204C /* UserEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserEditView.swift; sourceTree = "<group>"; };
 		2C4475102C2A707D0034204C /* ProfileHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderView.swift; sourceTree = "<group>"; };
 		2C4475122C361FA50034204C /* AddMovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMovieView.swift; sourceTree = "<group>"; };
@@ -93,7 +90,6 @@
 		2C8256C42BF2FC2B00D2ED12 /* MovieClubCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieClubCardView.swift; sourceTree = "<group>"; };
 		2C8256C62BF2FE3400D2ED12 /* ClubDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubDetailView.swift; sourceTree = "<group>"; };
 		2C8256CC2BF3D80D00D2ED12 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = SOURCE_ROOT; };
-		2C8256D02BF475D000D2ED12 /* CreateClubForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateClubForm.swift; sourceTree = "<group>"; };
 		2CAEAB952C569B2E00A0011A /* MoviePosterButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviePosterButtonView.swift; sourceTree = "<group>"; };
 		2CAEAB972C57140300A0011A /* FirstMovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstMovieView.swift; sourceTree = "<group>"; };
 		2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubDetailsForm.swift; sourceTree = "<group>"; };
@@ -117,12 +113,11 @@
 		2C4474F12BFCF1EA0034204C /* Clubs */ = {
 			isa = PBXGroup;
 			children = (
+				2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */,
 				2C8256C62BF2FE3400D2ED12 /* ClubDetailView.swift */,
 				2C4475052C17CFFC0034204C /* CommentInputView.swift */,
 				2C8256C42BF2FC2B00D2ED12 /* MovieClubCardView.swift */,
 				2C8256BC2BF1E63800D2ED12 /* NewClubView.swift */,
-				2C8256D02BF475D000D2ED12 /* CreateClubForm.swift */,
-				2C44750C2C2A61170034204C /* EditEmptyView.swift */,
 				2C4474F72C06DD310034204C /* HeaderView.swift */,
 				2C4474F92C06DD670034204C /* InfoView.swift */,
 				2C4474FB2C06DD840034204C /* MovieClubTabView.swift */,
@@ -167,7 +162,6 @@
 		2C5DEC122BF1AC6C000EF232 = {
 			isa = PBXGroup;
 			children = (
-				2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */,
 				2C5DEC1D2BF1AC6C000EF232 /* MovieClub */,
 				2C5DEC1C2BF1AC6C000EF232 /* Products */,
 			);
@@ -317,7 +311,6 @@
 				2C0EDD892C516B51001D85C4 /* ComingSoonEditView.swift in Sources */,
 				2C8256962BF1B58C00D2ED12 /* ContentView.swift in Sources */,
 				2CAEAB962C569B2E00A0011A /* MoviePosterButtonView.swift in Sources */,
-				2C8256D12BF475D000D2ED12 /* CreateClubForm.swift in Sources */,
 				2CAEAB9A2C58972300A0011A /* ClubDetailsForm.swift in Sources */,
 				2C4475152C3E18810034204C /* NextUpView.swift in Sources */,
 				2C5DEC822BF1B3F6000EF232 /* StarRatingView.swift in Sources */,
@@ -343,7 +336,6 @@
 				2C8256BD2BF1E63800D2ED12 /* NewClubView.swift in Sources */,
 				2C8256BB2BF1BC9300D2ED12 /* LoginView.swift in Sources */,
 				2C8256B72BF1BC1E00D2ED12 /* MovieRowView.swift in Sources */,
-				2C44750D2C2A61170034204C /* EditEmptyView.swift in Sources */,
 				2C44750F2C2A6C2D0034204C /* UserEditView.swift in Sources */,
 				2C5DEC7C2BF1B3F6000EF232 /* SignUpView.swift in Sources */,
 				2C5DEC7F2BF1B3F6000EF232 /* AddToCalendarView.swift in Sources */,

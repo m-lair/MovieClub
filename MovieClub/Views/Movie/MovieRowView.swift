@@ -13,8 +13,6 @@ import FirebaseFirestore
 struct MovieRow: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) var dismiss
-    let index: Int = 0
-    let date: Date = Date()
     let movie: APIMovie
     @State var sheetPresented = false
     var body: some View {
@@ -49,6 +47,7 @@ struct MovieRow: View {
             //gonna change to a navlink to an add sheet or something
             Button {
                 Task{
+                   // let _ = print("in task in movie row \(movie)")
                     await addMovie(apiMovie: movie)
                     dismiss()
                 }
@@ -60,20 +59,22 @@ struct MovieRow: View {
         }
     }
     //check to see if the club exists and then create it if not
-    
+    @MainActor
     private func addMovie(apiMovie: APIMovie) async {
-        if let user = await data.currentUser, let clubID = await data.currentClub?.id {
+        //print("in add api movie \(apiMovie)")
+        if let user = data.currentUser, let club = data.currentClub {
+           // print("in if")
             let firestoreMovie = FirestoreMovie(title: movie.title, poster: movie.poster, author: user.name)
             let movie = Movie(
-                id: firestoreMovie.id,
                 title: firestoreMovie.title,
                 poster: apiMovie.poster,
-                endDate: firestoreMovie.endDate!,
+                endDate: club.movieEndDate,
                 author: firestoreMovie.author,
                 comments: firestoreMovie.comments,
                 plot: apiMovie.plot,
                 director: apiMovie.director)
-                await data.addMovie(movie: movie)
+                data.movies.append(movie)
+                data.addMovie(movie: movie)
           /* saving this for updating the queue
             do{
                 let snapshot = await data.usersCollection()
