@@ -17,7 +17,6 @@ struct NewClubView: View {
     @State var searchBarShowing = false
     @State var clubList: [MovieClub] = []
     @State var btnDisabled: Bool = false
-    @Binding var path: NavigationPath
     var filteredClubs: [MovieClub] {
         if searchText.isEmpty {
             clubList

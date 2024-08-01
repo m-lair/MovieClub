@@ -9,16 +9,12 @@
 
 import SwiftUI
 
+
 struct HomePageView: View {
     @Environment(DataManager.self) var data: DataManager
-    @State var path = NavigationPath() {
-        didSet{
-            print("updated path \(path)")
-        }
-    }
     let userClubs: [MovieClub]
     var body: some View {
-        NavigationStack(path: $path) {
+       // NavigationStack(path: $path) {
             ScrollView{
                 //let _ = print("in homepageview \(path)")
                 //let _ = print("userclubs: \(userClubs)")
@@ -42,7 +38,7 @@ struct HomePageView: View {
                     }
                 }
                 .navigationDestination(for: MovieClub.self) { club in
-                    ClubDetailView(movieClub: club, path: $path)
+                    ClubDetailView(movieClub: club)
                         .navigationTitle(club.name)
                         .navigationBarTitleDisplayMode(.inline)
                 }
@@ -53,7 +49,7 @@ struct HomePageView: View {
                         ComingSoonEditView(userID: data.currentUser!.id!)
                     
                     case "NewClub":
-                        NewClubView(path: $path)
+                        NewClubView()
                     
                     case "CreateForm":
                         ClubDetailsForm()
@@ -62,14 +58,10 @@ struct HomePageView: View {
                     
                 }
             }
+            .navigationTitle("Movie Clubs")
         }
-        .navigationTitle("Movie Clubs")
     }
-}
+//}
 
-#Preview {
-    HomePageView(userClubs: MovieClub.TestData)
-        .environment(DataManager())
-}
 
 

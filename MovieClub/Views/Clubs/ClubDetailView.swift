@@ -15,7 +15,6 @@ struct ClubDetailView: View {
     @State var isPresentingEditView = false
     @State var movie: Movie?
     @State var rosterUsers: [User] = []
-    @Binding var path: NavigationPath
     @State var comments: [Comment] = []
     @FocusState private var isCommentFieldFocused: Bool
     var body: some View {

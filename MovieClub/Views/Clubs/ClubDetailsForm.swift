@@ -12,6 +12,8 @@ import FirebaseFirestore
 struct ClubDetailsForm: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var navigationViewModel: NavigationViewModel
+    
     @State var sheetShowing = false
     @State private var banner: Image?
     @State private var photoItem: PhotosPickerItem?
@@ -107,7 +109,7 @@ struct ClubDetailsForm: View {
                     Text("Club Settings")
                 }
                 Section {
-                    VStack{
+                    VStack(alignment: .center){
                         Button {
                             Task{
                                 if let imageData = try await photoItem?.loadTransferable(type: Data.self) {
@@ -146,37 +148,10 @@ struct ClubDetailsForm: View {
                         }
                     }
                 }
-                
                 Button{
                     Task{
-                        
-                        if let image = try await photoItem?.loadTransferable(type: Data.self) {
-                                let documentString = data.db.collection("movieclubs").document().documentID
-                            if let imageData = UIImage(data: image) {
-                                print(documentString)
-                                let urlString =  await data.uploadClubImage(image: imageData, clubId: documentString)
-                                
-                                var movieClub =
-                                MovieClub(id: documentString, name: name,
-                                          created: created, numMembers: 1,
-                                          description: desc,
-                                          ownerName: data.currentUser?.name ?? "",
-                                          timeInterval: timeInterval,
-                                          movieEndDate: endDate,
-                                          ownerID: data.currentUser?.id ?? "",
-                                          isPublic: isPublic, bannerUrl: urlString)
-                                print("MovieClub \(movieClub)")
-                           
-                                if let movie = data.movies.first {
-                                    print("movie: \(movie)")
-                                    movieClub.movies?.append(movie)
-                                    data.currentClub = movieClub
-                                    print("in let movie \(movieClub.movies)")
-                                    await data.createMovieClub(movieClub: movieClub)
-                                    dismiss()
-                                }
-                            }
-                        }
+                        await submit()
+                        navigationViewModel.resetClubsPath()
                     }
                 }label:{
                     Text("Next")
@@ -190,9 +165,37 @@ struct ClubDetailsForm: View {
                 
         }
     }
+    @MainActor
+    private func submit() async {
+        do{
+            if let image = try await photoItem?.loadTransferable(type: Data.self) {
+                let documentString = data.db.collection("movieclubs").document().documentID
+                if let imageData = UIImage(data: image) {
+                    print(documentString)
+                    let urlString =  await data.uploadClubImage(image: imageData, clubId: documentString)
+                    
+                    var movieClub =
+                    MovieClub(id: documentString, name: name,
+                              created: created, numMembers: 1,
+                              description: desc,
+                              ownerName: data.currentUser?.name ?? "",
+                              timeInterval: timeInterval,
+                              movieEndDate: endDate,
+                              ownerID: data.currentUser?.id ?? "",
+                              isPublic: isPublic, bannerUrl: urlString)
+                    print("MovieClub \(movieClub)")
+                    if let movie = data.movies.first {
+                        print("movie: \(movie)")
+                        movieClub.movies?.append(movie)
+                        data.currentClub = movieClub
+                        await data.createMovieClub(movieClub: movieClub)
+                    }
+                }
+            }
+        }catch{
+            print("error submitting club \(error)")
+        }
+    }
+    
 }
 
-
-#Preview {
-    ClubDetailsForm()
-}
