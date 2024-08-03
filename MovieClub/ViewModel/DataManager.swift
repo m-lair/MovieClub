@@ -313,6 +313,7 @@ class DataManager: Identifiable {
                         //make sure owner date is being set
                         await addClubMember(clubID: id, user: self.currentUser!, date: timeIntervalFromToday)
                         self.userMovieClubs.append(movieClub)
+                        self.movies = []
                         
                     }
                 }

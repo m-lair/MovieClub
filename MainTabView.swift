@@ -28,50 +28,62 @@ class NavigationViewModel: ObservableObject {
 struct MainTabView: View {
     @StateObject private var navigationViewModel = NavigationViewModel()
     enum Tab {
-        case clubs, discover, profile
+        case clubsPath, discoverPath, profilePath
     }
     @Environment(DataManager.self) var data: DataManager
-    @State private var selection: Tab = .clubs
+    @State private var selection: Tab = .clubsPath
     var body: some View {
-       // let _ = print("main tab user session?\(data.userSession?.uid)")
         TabView(selection: $selection){
-            NavigationStack(path: $navigationViewModel.clubsPath){
-                HomePageView(userClubs: data.userMovieClubs)
-                    }
-            .tabItem {
-                Label("Clubs", systemImage: "house.fill")
-            }
-            .tag(Tab.clubs)
-            
-            DiscoverView()
+            Group {
+                NavigationStack(path: $navigationViewModel.clubsPath){
+                    HomePageView(userClubs: data.userMovieClubs)
+                        
+                }
+                .tabItem {
+                    Label("Clubs", systemImage: "house.fill")
+                }
+                .background(Color.gray)
+                .background(ignoresSafeAreaEdges: .all)
+                
+                .tag(Tab.clubsPath)
+                NavigationStack(path: $navigationViewModel.discoverPath){
+                    DiscoverView()
+                }
                 .tabItem {
                     Label("Discover", systemImage: "magnifyingglass")
                 }
-                .tag(Tab.discover)
-            
-            ProfileView()
+                .tag(Tab.discoverPath)
+                NavigationStack(path: $navigationViewModel.profilePath){
+                    ProfileView()
+                }
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                     
                 }
-                .tag(Tab.profile)
+                .tag(Tab.profilePath)
+            }
+            .toolbarBackground(.gray, for: .navigationBar)
+            .toolbarBackground(.black, for: .tabBar)
+            .toolbarBackground(.visible, for: .tabBar)
+            
         }
-        .environmentObject(navigationViewModel)
         .onAppear {
             Task {
                 await data.fetchUser()
             }
         }
+            
 
     }
 }
+    
 extension MainTabView {
  private func tabSelection() -> Binding<Tab> {
     Binding { //this is the get block
      self.selection
     } set: { tappedTab in
      if tappedTab == self.selection {
-      //User tapped on the currently active tab icon => Pop to root/Scroll to top
+         
      }
      //Set the tab to the tabbed tab
      self.selection = tappedTab

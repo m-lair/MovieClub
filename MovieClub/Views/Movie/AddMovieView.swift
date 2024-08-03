@@ -11,44 +11,42 @@ struct AddMovieView: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) private var dismiss
     @State var searchText = ""
+    @State var searchBar = true
+    @State var showList = false
     var date: Date?
     var index: Int?
     @State var movieList: [APIMovie] = []
     var filteredMovies: [APIMovie] {
-        if searchText.isEmpty {
-            return movieList
-        } else {
-           return movieList.filter { $0.title.localizedStandardContains(searchText)}
-        }
+        guard !searchText.isEmpty else { return movieList }
+        return movieList.filter { $0.title.localizedStandardContains(searchText) }
     }
     var body: some View {
-        VStack{
-            HStack{
-                TextField("Search Movie", text: $searchText)
-                    .padding()
-                    .background(Color(.systemGray6))
-                Button {
-                    searchMovies()
-                }label: {
-                    
-                    Text("search")
-                        .frame(width: 100, height: 40)
-                        .background(Color(.blue))
-                        .foregroundStyle(.bar)
+        NavigationStack{
+            List(filteredMovies, id: \.self){movie in
+                //  let _ = print("movie: \(movie)")
+                MovieRow(movie: movie)
+                // Text("\(movie.title)")
+            }
+            .searchable(text: $searchText)
+            .navigationTitle("Search Movies")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar{
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button{
+                        dismiss()
+                    } label: {
+                        Label("Dismiss", systemImage: "xmark.circle")
+                    }
                 }
             }
-            //let _ = print("in add movie")
-            List(filteredMovies){movie in
-                MovieRow(movie: movie)
-            }
-            .onSubmit(of: .text) {
-                searchMovies()
-            }
-            .searchable(text: $searchText, placement: .automatic)
-            
         }
-        
+        .onSubmit(of: .search){
+            searchMovies()
+        }
+
     }
+    
+    
    
     private func searchMovies() {
         guard !searchText.isEmpty else {
@@ -106,7 +104,10 @@ struct AddMovieView: View {
     }
 }
 
-    
+#Preview {
+    AddMovieView()
+        .environment(DataManager())
+}
 
 
 

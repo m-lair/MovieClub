@@ -13,6 +13,7 @@ struct ContentView: View {
     var body: some View {
         if data.userSession != nil {
             MainTabView()
+            
         } else {
             LoginView()
         }

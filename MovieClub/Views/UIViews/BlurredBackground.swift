@@ -7,12 +7,23 @@
 
 import SwiftUI
 
-struct SwiftUIView: View {
+struct BlurredBackgroundView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ZStack {
+            Color(.black)
+                .ignoresSafeArea()
+            
+            Image("matrixPoster") // Replace with your image name
+                .resizable()
+                .scaledToFill()
+                .blur(radius: 40) // Adjust the blur radius as needed
+                .overlay(
+                    Color.black.opacity(0.3) // Semi-transparent overlay for "glass" effect
+                )
+                .ignoresSafeArea() // Ensure the background covers the entire screen
+        }
     }
 }
-
 #Preview {
-    SwiftUIView()
+    BlurredBackgroundView()
 }

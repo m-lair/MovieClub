@@ -13,8 +13,9 @@ struct ClubDetailsForm: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var navigationViewModel: NavigationViewModel
-    
-    @State var sheetShowing = false
+    @State private var searchText = ""
+    @State private var searchBar = true
+    @State private var sheetShowing = false
     @State private var banner: Image?
     @State private var photoItem: PhotosPickerItem?
     @State private var name = ""
@@ -139,13 +140,17 @@ struct ClubDetailsForm: View {
                                         .resizable()
                                         .aspectRatio(contentMode: .fit)
                                         .frame(width: 200, height: 300)
-                                        .padding(.leading)
                                 } else {
                                    // let _ = print("emptyView")
                                     Text("Choose First Movie...")
                                 }
                             }
                         }
+                    }
+                    .sheet(isPresented: $sheetShowing) {
+                      //  let _ = print("in sheet")
+                        AddMovieView()
+                        
                     }
                 }
                 Button{
@@ -157,12 +162,6 @@ struct ClubDetailsForm: View {
                     Text("Next")
                 }
             }
-            
-        }
-        .sheet(isPresented: $sheetShowing) {
-            let _ = print("in sheet")
-            AddMovieView()
-                
         }
     }
     @MainActor

@@ -14,10 +14,10 @@ struct HomePageView: View {
     @Environment(DataManager.self) var data: DataManager
     let userClubs: [MovieClub]
     var body: some View {
-       // NavigationStack(path: $path) {
+        ZStack{
+            Color.gray.ignoresSafeArea()
+                .overlay(Color.black.opacity(0.7))
             ScrollView{
-                //let _ = print("in homepageview \(path)")
-                //let _ = print("userclubs: \(userClubs)")
                 VStack {
                     if userClubs.count > 0 {
                         ForEach(data.userMovieClubs) { movieClub in
@@ -30,12 +30,20 @@ struct HomePageView: View {
                     }
                 }
                 .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
+                    ToolbarItem(placement: .topBarLeading) {
                         NavigationLink(value: "NewClub") {
                             Image(systemName: "plus")
                                 .imageScale(.large)
                         }
                     }
+                    ToolbarItem(placement: .topBarTrailing){
+                        Button {
+                            
+                        } label: {
+                            Image(systemName: "bell.fill")
+                        }
+                    }
+                    
                 }
                 .navigationDestination(for: MovieClub.self) { club in
                     ClubDetailView(movieClub: club)
@@ -44,13 +52,13 @@ struct HomePageView: View {
                 }
                 .navigationDestination(for: String.self) { value in
                     switch value {
-                    
+                        
                     case "EditMovies":
                         ComingSoonEditView(userID: data.currentUser!.id!)
-                    
+                        
                     case "NewClub":
                         NewClubView()
-                    
+                        
                     case "CreateForm":
                         ClubDetailsForm()
                     default: ProgressView()
@@ -58,10 +66,12 @@ struct HomePageView: View {
                     
                 }
             }
-            .navigationTitle("Movie Clubs")
         }
+        .navigationTitle("Movie Clubs")
+        .navigationBarTitleDisplayMode(.inline)
     }
-//}
+}
+
 
 
 

@@ -36,17 +36,20 @@ struct MovieClubCardView: View {
                     }
                 }
             }
-            .frame(width: (screenWidth - 20), height: 275)
-            .border(.white, width: 2)
+            .frame(width: (screenWidth - 20), height: 185)
             .clipShape(.rect(cornerRadius: 25))
+            .overlay(
+                RoundedRectangle(cornerRadius: 25)
+                    .stroke(.white, lineWidth: 2)
+            )
             .shadow(radius: 8)
-                
-                VStack(alignment: .leading){
-                    cardText.padding(.horizontal)
-                }
-                .foregroundColor(.white)
-                .padding()
-                .frame(maxWidth: (screenWidth - 20), maxHeight: 275, alignment: .bottomLeading)
+            
+            VStack(alignment: .leading){
+                cardText.padding(.horizontal)
+            }
+            .foregroundColor(.white)
+            .padding()
+            .frame(maxWidth: (screenWidth - 20), maxHeight: 185, alignment: .bottomLeading)
             
         }
         

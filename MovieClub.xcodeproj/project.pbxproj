@@ -50,6 +50,7 @@
 		2CAEAB962C569B2E00A0011A /* MoviePosterButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEAB952C569B2E00A0011A /* MoviePosterButtonView.swift */; };
 		2CAEAB982C57140300A0011A /* FirstMovieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEAB972C57140300A0011A /* FirstMovieView.swift */; };
 		2CAEAB9A2C58972300A0011A /* ClubDetailsForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */; };
+		2CAEABA12C5C5C9300A0011A /* BlurredBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -93,6 +94,7 @@
 		2CAEAB952C569B2E00A0011A /* MoviePosterButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviePosterButtonView.swift; sourceTree = "<group>"; };
 		2CAEAB972C57140300A0011A /* FirstMovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstMovieView.swift; sourceTree = "<group>"; };
 		2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubDetailsForm.swift; sourceTree = "<group>"; };
+		2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurredBackground.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -217,6 +219,7 @@
 		2C5DEC742BF1B3F6000EF232 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				2CAEAB9F2C5C5C8100A0011A /* UIViews */,
 				2C4474F12BFCF1EA0034204C /* Clubs */,
 				2C4474F22BFCF1F10034204C /* User */,
 				2C4474F32BFCF21D0034204C /* Movie */,
@@ -226,6 +229,14 @@
 				2C8256C22BF1E90E00D2ED12 /* DiscoverView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		2CAEAB9F2C5C5C8100A0011A /* UIViews */ = {
+			isa = PBXGroup;
+			children = (
+				2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */,
+			);
+			path = UIViews;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -342,6 +353,7 @@
 				2C4475172C4442680034204C /* NewMovieForm.swift in Sources */,
 				2C4475062C17CFFC0034204C /* CommentInputView.swift in Sources */,
 				2C5DEC1F2BF1AC6C000EF232 /* MovieClubApp.swift in Sources */,
+				2CAEABA12C5C5C9300A0011A /* BlurredBackground.swift in Sources */,
 				2C8256B92BF1BC4A00D2ED12 /* MovieDetailView.swift in Sources */,
 				2C4475042C06DE6B0034204C /* CommentDetailView.swift in Sources */,
 			);

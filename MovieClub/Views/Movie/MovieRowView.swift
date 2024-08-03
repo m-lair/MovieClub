@@ -73,6 +73,7 @@ struct MovieRow: View {
                 comments: firestoreMovie.comments,
                 plot: apiMovie.plot,
                 director: apiMovie.director)
+            
                 data.movies.append(movie)
                 data.addMovie(movie: movie)
           /* saving this for updating the queue
