@@ -518,6 +518,8 @@ class DataManager: Identifiable {
                     director: apiMovie.director
                 )
                 //print(combinedMovie)
+                self.movies = []
+                self.movies.append(combinedMovie)
                 return combinedMovie
             }
         }catch{
@@ -567,19 +569,20 @@ class DataManager: Identifiable {
 }
 
 extension MovieClub {
-    static var TestData: [MovieClub] = [MovieClub(name: "Test Title 1",
+    static var TestData: [MovieClub] = [MovieClub(name: "FMFC Club",
                                                   created: Date(),
                                                   numMembers: 2,
-                                                  description: "description",
+                                                  description: "FMFC",
                                                   ownerName: "Duhmarcus",
                                                   timeInterval: 4,
                                                   movieEndDate: Calendar.current.date(byAdding: .weekOfYear, value: 4, to: Date())!,
                                                   ownerID: "000123",
                                                   isPublic: true,
+                                                  bannerUrl: "https://firebasestorage.googleapis.com:443/v0/b/movieclub-93714.appspot.com/o/Clubs%2FH71IficmTcmCGOnF4hrn%2F_banner.jpg?alt=media&token=7c5c6c53-c1a7-4a28-a1ba-8defd431c7fa",
                                                   movies: [Movie(id: "001",
                                                                  title: "The Matrix",
-                                                                 poster: "test",
-                                                                 endDate: Date(), author: "duhmarcus")]),
+                                                                 poster: "https://m.media-amazon.com/images/M/MV5BOGUyZDUxZjEtMmIzMC00MzlmLTg4MGItZWJmMzBhZjE0Mjc1XkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
+                                                                 endDate: Calendar.current.date(byAdding: .weekOfYear, value: 4, to: Date())!, author: "duhmarcus")]),
                                         MovieClub(name: "Test Title 2",
                                                   created: Date(),
                                                   numMembers: 1,

@@ -13,34 +13,31 @@ struct FeaturedMovieView: View {
     let movie: Movie
     var body: some View {
        // let _ = print("this is the club \(data.currentClub)")
-        VStack(alignment: .leading) {
-                Text(movie.title)
-                    .padding(.vertical)
-                    .font(.title2)
-                    .fontWeight(.bold)
-            Text(movie.releaseYear ?? "")
-                .font(.subheadline)
-            HStack {
+        VStack {
+                //Text(movie.title)
+           // Text(movie.releaseYear ?? "")
+              
+            HStack(alignment: .center){
                 let url = URL(string: movie.poster ?? "")
                 AsyncImage(url: url) { phase in
                     if let image = phase.image {
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: 100, height: 150)
+                            .frame(width: 250, height: 300)
                         
                     }else {
                         ProgressView()
                             .frame(width: 100, height: 100)
                     }
                 }
-                Text(movie.plot ?? "")
+                /*Text(movie.plot ?? "")
                     .fixedSize(horizontal: false, vertical: true)
                     .foregroundColor(.primary)
                     .multilineTextAlignment(.leading)
-                    
+                    */
             }
-                .padding(.vertical)
+            .padding(.vertical)
             HStack{
                 VStack{
                     Image(systemName: "person")
@@ -52,7 +49,7 @@ struct FeaturedMovieView: View {
                 VStack{
                     Image(systemName: "calendar")
                     if let endDate = data.currentClub?.movieEndDate {
-                        Text("End date: \(endDate.formatted(date: .numeric,  time: .omitted))")
+                        Text("\(endDate.formatted(date: .numeric,  time: .omitted))")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }

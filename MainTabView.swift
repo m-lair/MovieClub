@@ -40,7 +40,7 @@ struct MainTabView: View {
                         
                 }
                 .tabItem {
-                    Label("Clubs", systemImage: "house.fill")
+                    Label("", systemImage: "house.fill")
                 }
                 .background(Color.gray)
                 .background(ignoresSafeAreaEdges: .all)
@@ -50,14 +50,14 @@ struct MainTabView: View {
                     DiscoverView()
                 }
                 .tabItem {
-                    Label("Discover", systemImage: "magnifyingglass")
+                    Label("", systemImage: "magnifyingglass")
                 }
                 .tag(Tab.discoverPath)
                 NavigationStack(path: $navigationViewModel.profilePath){
                     ProfileView()
                 }
                 .tabItem {
-                    Label("Profile", systemImage: "person.fill")
+                    Label("", systemImage: "person.fill")
                     
                 }
                 .tag(Tab.profilePath)

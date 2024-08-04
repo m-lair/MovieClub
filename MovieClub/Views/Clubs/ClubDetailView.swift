@@ -18,38 +18,45 @@ struct ClubDetailView: View {
     @State var comments: [Comment] = []
     @FocusState private var isCommentFieldFocused: Bool
     var body: some View {
-        VStack {
-            // Header Section
-            HeaderView(movieClub: movieClub)
-            Spacer()
-            Divider()
-            if let movie {
-                SwipeableView(numberOfPages: 2) {
-                    NowPlayingView(movie: movie, comments: comments)
-                    ComingSoonView()
+        ZStack{
+            BlurredBackgroundView()
+            VStack {
+                // Header Section
+                HeaderView(movieClub: movieClub)
+                Spacer()
+                Divider()
+                if let movie {
+                    SwipeableView(numberOfPages: 2) {
+                        NowPlayingView(movie: movie, comments: comments)
+                        ComingSoonView()
+                    }
+                    .padding(.horizontal)
+                    CommentInputView(movieClub: movieClub, movieID: movie.id ?? "")
+                        .padding(.horizontal)
+                }else{
+                    EmptyMovieView()
                 }
-                CommentInputView(movieClub: movieClub, movieID: movie.id ?? "")
-            }else{
-                EmptyMovieView()
             }
+            .padding()
         }
-        Spacer()
-        .task{
-            if let currId = data.currentClub?.id, let newId = movieClub.id{
-                //do nothing but this will be a caching system eventually
-            }
-            data.currentClub = movieClub
-            do {
-                if let id = movieClub.id {
-                    self.movie = try await data.fetchAndMergeMovieData(club: movieClub)
-                    if let movie = movie {
-                        self.comments = await data.fetchComments(movieClubId: movieClub.id!, movieId: movie.id ?? "")
+            Spacer()
+                .task{
+                    if let currId = data.currentClub?.id, let newId = movieClub.id{
+                        //do nothing but this will be a caching system eventually
+                    }
+                    data.currentClub = movieClub
+                    do {
+                        if let id = movieClub.id {
+                            self.movie = try await data.fetchAndMergeMovieData(club: movieClub)
+                            if let movie = movie {
+                                self.comments = await data.fetchComments(movieClubId: movieClub.id!, movieId: movie.id ?? "")
+                            }
+                        }
+                    }catch{
+                        print(error)
                     }
                 }
-            }catch{
-                print(error)
-            }
-        }
+        
         .toolbar{
             if movieClub.ownerID == data.currentUser?.id ?? "" {
                 Menu {
@@ -83,4 +90,9 @@ struct ClubDetailView: View {
             ClubDetailsForm()
         }
     }
+}
+
+#Preview {
+    ClubDetailView(movieClub: MovieClub.TestData[0])
+        .environment(DataManager())
 }
