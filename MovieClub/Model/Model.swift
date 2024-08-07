@@ -81,7 +81,9 @@ struct Movie: Identifiable, Codable, Hashable{
     var poster: String? = ""
     var avgRating: Double? = 0.0
     var endDate: Date?
-    var author: String
+    var author: String = ""
+    var authorID: String = ""
+    var authorAvi: String = ""
     var comments: [Comment]? = []
     var plot: String? = ""
     var director: String? = ""
@@ -100,7 +102,6 @@ struct Movie: Identifiable, Codable, Hashable{
         case plot = "plot"
         case endDate
         case poster = "poster"
-        case author
         case comments
     }
 }
@@ -164,12 +165,14 @@ struct FirestoreMovie: Identifiable, Codable, Equatable, Hashable {
     }
     
     @DocumentID var id: String?
-     var title: String
-     var poster: String?
-     var endDate: Date?
-     var avgRating: Double?
-     var author: String
-     var comments: [Comment]?
+    var title: String
+    var poster: String?
+    var endDate: Date?
+    var avgRating: Double?
+    var author: String
+    var authorID: String
+    var authorAvi: String
+    var comments: [Comment]?
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
@@ -177,8 +180,9 @@ struct FirestoreMovie: Identifiable, Codable, Equatable, Hashable {
         hasher.combine(endDate)
         hasher.combine(avgRating)
         hasher.combine(author)
+        hasher.combine(authorID)
+        hasher.combine(authorAvi)
         hasher.combine(comments)
-     
     }
     
     enum CodingKeys: String, CodingKey {
@@ -188,6 +192,8 @@ struct FirestoreMovie: Identifiable, Codable, Equatable, Hashable {
         case endDate
         case avgRating
         case author
+        case authorID
+        case authorAvi
         case comments
     }
 }

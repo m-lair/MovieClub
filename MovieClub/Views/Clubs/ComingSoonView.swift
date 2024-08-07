@@ -10,10 +10,15 @@ import FirebaseFirestore
 
 struct ComingSoonView: View {
     @Environment(DataManager.self) var data: DataManager
+    @State var i: Int = 1
     @State private var screenWidth = UIScreen.main.bounds.size.width
     @State var comingSoon: [Member] = []
+    let club: MovieClub
     var body: some View {
         LazyVStack {
+            Text("Coming Soon...")
+                .font(.title)
+            Divider()
             ForEach(comingSoon) { member in
                 HStack{
                     AsyncImage(url: URL(string: member.userAvi)) {
@@ -36,27 +41,34 @@ struct ComingSoonView: View {
                     }
                     Text("\(member.userName)")
                     Spacer()
-                    Text("Date \(String(describing: member.movieDate?.formatted(date: .numeric, time: .omitted)))")
-                        .font(.title3)
-                        .foregroundStyle(.black)
-                    if member.id == data.currentUser?.id ?? "" {
-                        NavigationLink(value: "EditMovies") {
-                            Label("Edit Movies", systemImage: "pencil")
+                    
+                    if let date = Calendar.current.date(byAdding: .weekOfYear, value: club.timeInterval * i, to: club.movieEndDate) {
+                        Text("\(String(describing: date.formatted(date: .numeric, time: .omitted)))")
+                            .font(.title3)
+                            .foregroundStyle(.black)
+                        if member.id == data.currentUser?.id ?? "" {
+                            NavigationLink(value: "EditMovies") {
+                                Label("Edit Movies", systemImage: "pencil")
+                                
+                            }
                         }
                     }
                 }
-                .frame(width: (screenWidth - 20), height: 100)
-                .clipped()
-                .clipShape(.rect(cornerRadius: 10))
-                .backgroundStyle(.gray)
-               
+                .padding()
+                .frame(width: (screenWidth - 20), height: 25)
+                .background(Color(.gray))
+                .clipShape(.rect(cornerRadius: 20))
+                
+                
             }
+            
         }
         .onAppear() {
             Task{
                 await getUserData()
             }
         }
+        Spacer()
     }
         
     func getUserData() async {

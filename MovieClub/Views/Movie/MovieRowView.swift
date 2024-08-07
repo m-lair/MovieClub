@@ -64,12 +64,14 @@ struct MovieRow: View {
         //print("in add api movie \(apiMovie)")
         if let user = data.currentUser, let club = data.currentClub {
            // print("in if")
-            let firestoreMovie = FirestoreMovie(title: movie.title, poster: movie.poster, author: user.name)
+            let firestoreMovie = FirestoreMovie(title: movie.title, poster: movie.poster, author: user.name, authorID: user.id ?? "", authorAvi: user.image ?? "")
             let movie = Movie(
                 title: firestoreMovie.title,
                 poster: apiMovie.poster,
                 endDate: club.movieEndDate,
                 author: firestoreMovie.author,
+                authorID: firestoreMovie.authorID,
+                authorAvi: firestoreMovie.authorAvi,
                 comments: firestoreMovie.comments,
                 plot: apiMovie.plot,
                 director: apiMovie.director)

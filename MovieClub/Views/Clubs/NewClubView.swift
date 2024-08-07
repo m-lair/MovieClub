@@ -63,6 +63,7 @@ struct NewClubView: View {
         .onAppear(){
             Task{
                 do{
+                    data.clearMoviesCache()
                     try await clubList = getClubList()
                 } catch {
                     print("Error Retrieving Clubs")

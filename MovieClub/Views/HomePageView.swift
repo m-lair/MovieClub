@@ -12,6 +12,7 @@ import SwiftUI
 
 struct HomePageView: View {
     @Environment(DataManager.self) var data: DataManager
+    @Binding var navPath: NavigationPath
     let userClubs: [MovieClub]
     var body: some View {
         ZStack{
@@ -46,7 +47,7 @@ struct HomePageView: View {
                     
                 }
                 .navigationDestination(for: MovieClub.self) { club in
-                    ClubDetailView(movieClub: club)
+                    ClubDetailView(navPath: $navPath, movieClub: club)
                         .navigationTitle(club.name)
                         .navigationBarTitleDisplayMode(.inline)
                 }
@@ -60,7 +61,7 @@ struct HomePageView: View {
                         NewClubView()
                         
                     case "CreateForm":
-                        ClubDetailsForm()
+                        ClubDetailsForm(navPath: $navPath)
                     default: ProgressView()
                     }
                     

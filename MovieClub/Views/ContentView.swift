@@ -10,12 +10,21 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(DataManager.self) var data: DataManager
+    @State private var isLoading = true
     var body: some View {
-        if data.userSession != nil {
-            MainTabView()
-            
-        } else {
-            LoginView()
+        Group{
+            if isLoading {
+                ProgressView()
+            }else{
+                if data.userSession != nil {
+                    MainTabView()
+                } else {
+                    LoginView()
+                }
+            }
+        }
+        .onAppear{
+            isLoading = false
         }
     }
 }

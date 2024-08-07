@@ -11,6 +11,7 @@ import FirebaseFirestore
 struct ClubDetailView: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) var dismiss
+    @Binding var navPath: NavigationPath
     let movieClub: MovieClub
     @State var isPresentingEditView = false
     @State var movie: Movie?
@@ -23,22 +24,20 @@ struct ClubDetailView: View {
             VStack {
                 // Header Section
                 HeaderView(movieClub: movieClub)
-                Spacer()
-                Divider()
                 if let movie {
-                    SwipeableView(numberOfPages: 2) {
-                        NowPlayingView(movie: movie, comments: comments)
-                        ComingSoonView()
-                    }
+                    SwipeableView(contents: [
+                        AnyView(NowPlayingView(movie: movie, comments: comments, club: movieClub)),
+                        AnyView(ComingSoonView(club: movieClub))
+                    ])
                     .padding(.horizontal)
-                    CommentInputView(movieClub: movieClub, movieID: movie.id ?? "")
-                        .padding(.horizontal)
+                    
+                    
                 }else{
                     EmptyMovieView()
                 }
             }
             .padding()
-        }
+            
             Spacer()
                 .task{
                     if let currId = data.currentClub?.id, let newId = movieClub.id{
@@ -56,43 +55,44 @@ struct ClubDetailView: View {
                         print(error)
                     }
                 }
-        
-        .toolbar{
-            if movieClub.ownerID == data.currentUser?.id ?? "" {
-                Menu {
-                    Button {
-                        // Do Nothing
-                    } label: {
-                        Label("Report A Problem", systemImage: "exclamationmark.octagon")
-                    }
-                    Button {
-                        isPresentingEditView = true
-                    } label: {
-                        Label("Edit", systemImage: "pencil")
-                    }
-                    
-                    Button {
-                        Task{
-                            await data.leaveClub(club: movieClub)
-                            dismiss()
+                .toolbar{
+                    if movieClub.ownerID == data.currentUser?.id ?? "" {
+                        Menu {
+                            Button {
+                                // Do Nothing
+                            } label: {
+                                Label("Report A Problem", systemImage: "exclamationmark.octagon")
+                            }
+                            Button {
+                                isPresentingEditView = true
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                            
+                            Button {
+                                Task{
+                                    await data.leaveClub(club: movieClub)
+                                    dismiss()
+                                }
+                            } label: {
+                                Label("Leave Club", systemImage: "trash")
+                            }
+                            .foregroundStyle(.red)
+                            
+                        } label: {
+                            Label("Menu", systemImage: "ellipsis")
                         }
-                    } label: {
-                        Label("Leave Club", systemImage: "trash")
                     }
-                    .foregroundStyle(.red)
-                    
-                } label: {
-                    Label("Menu", systemImage: "ellipsis")
                 }
-            }
-        }
-        .sheet(isPresented: $isPresentingEditView) {
-            ClubDetailsForm()
+                .sheet(isPresented: $isPresentingEditView) {
+                    ClubDetailsForm(navPath: $navPath)
+                }
         }
     }
 }
-
+/*
 #Preview {
     ClubDetailView(movieClub: MovieClub.TestData[0])
         .environment(DataManager())
 }
+*/

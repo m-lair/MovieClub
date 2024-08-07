@@ -252,7 +252,7 @@ class DataManager: Identifiable {
     }
     
     func fetchMovieClubsForUser() async {
-        // print("in fetchMovieClubsForUsers")
+        var clubList: [MovieClub] = []
         do{
             guard let user = self.currentUser else {
                 print("User not found")
@@ -270,12 +270,16 @@ class DataManager: Identifiable {
             
             for clubID in clubIDs {
                 print(clubID)
-                await self.fetchMovieClub(clubID: clubID)
+                if let movieClub = await fetchMovieClub(clubID: clubID) {
+                    clubList.append(movieClub)
+                }
             }
+            self.userMovieClubs = clubList
         }catch{
             print(error.localizedDescription)
         }
     }
+    
     func addMovie(movie: Movie) {
         self.movies.append(movie)
         print("current movie in method \(movie)")
@@ -340,7 +344,7 @@ class DataManager: Identifiable {
     func addClubRelationship(club: MovieClub) async {
         // cant figure out a better way to do this but we know the val wont be null
         do{
-            let emptyMovie = FirestoreMovie(title: "", author: "")
+            let emptyMovie = FirestoreMovie(title: "", author: currentUser?.name ?? "", authorID: currentUser?.id ?? "", authorAvi: currentUser?.image ?? "")
             let emptyQueueList = [emptyMovie, emptyMovie, emptyMovie]
             if let id = club.id, id != ""{
                 //could set movie date here but might wait until they're closer to the next up
@@ -355,16 +359,16 @@ class DataManager: Identifiable {
         }
     }
     
-    func fetchMovieClub(clubID: String) async {
+    func fetchMovieClub(clubID: String) async -> MovieClub? {
         // print("in fetchMovieClub")
-        guard let snapshot = try? await movieClubCollection().document(clubID).getDocument() else {return}
+        guard let snapshot = try? await movieClubCollection().document(clubID).getDocument() else {return nil}
         do {
             let movieClub = try snapshot.data(as: MovieClub.self)
-            self.userMovieClubs.append(movieClub)
+            return movieClub
         } catch {
             print("Error decoding movie club: \(error)")
         }
-        
+        return nil
     }
     
     func fetchAPIMovie(title: String) async throws -> APIMovie {
@@ -513,6 +517,8 @@ class DataManager: Identifiable {
                     poster: apiMovie.poster,
                     endDate: firestoreMovie.endDate!,
                     author: firestoreMovie.author,
+                    authorID: firestoreMovie.authorID,
+                    authorAvi: firestoreMovie.authorAvi,
                     comments: firestoreMovie.comments,
                     plot: apiMovie.plot,
                     director: apiMovie.director
@@ -535,6 +541,10 @@ class DataManager: Identifiable {
         }
     func fetchMember() async {
         //TODO
+    }
+    
+    func clearMoviesCache() {
+        self.movies = []
     }
     
     func fetchUser() async {
@@ -582,7 +592,7 @@ extension MovieClub {
                                                   movies: [Movie(id: "001",
                                                                  title: "The Matrix",
                                                                  poster: "https://m.media-amazon.com/images/M/MV5BOGUyZDUxZjEtMmIzMC00MzlmLTg4MGItZWJmMzBhZjE0Mjc1XkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
-                                                                 endDate: Calendar.current.date(byAdding: .weekOfYear, value: 4, to: Date())!, author: "duhmarcus")]),
+                                                                 endDate: Calendar.current.date(byAdding: .weekOfYear, value: 4, to: Date())!, author: "duhmarcus", authorID: "tUM5fRuYZSUs86ud8tydTqjKcC43", authorAvi: "https://firebasestorage.googleapis.com/v0/b/movieclub-93714.appspot.com/o/Users%2Fprofile_images%2FtUM5fRuYZSUs86ud8tydTqjKcC43.jpeg?alt=media&token=1abbcce9-e460-48b8-9770-04f2a75be20f")]),
                                         MovieClub(name: "Test Title 2",
                                                   created: Date(),
                                                   numMembers: 1,

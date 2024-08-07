@@ -12,7 +12,7 @@ import FirebaseFirestore
 struct ClubDetailsForm: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject var navigationViewModel: NavigationViewModel
+    @Binding var navPath: NavigationPath
     @State private var searchText = ""
     @State private var searchBar = true
     @State private var sheetShowing = false
@@ -25,9 +25,7 @@ struct ClubDetailsForm: View {
     @State private var screenWidth = UIScreen.main.bounds.size.width
     var created = Date()
     private var endDate: Date {
-        
         return Calendar.current.date(byAdding: .weekOfYear, value: timeInterval, to: created) ?? Date()
-    
     }
     let weeks: [Int] = [1,2,3,4]
     @State private var desc = ""
@@ -36,7 +34,7 @@ struct ClubDetailsForm: View {
         VStack{
             Form {
                 Section {
-                    VStack(alignment: .leading){
+                    VStack{
                         HStack{
                             VStack {
                                 TextField("Name", text: $name)
@@ -132,7 +130,6 @@ struct ClubDetailsForm: View {
                                 }
                             }
                         } label: {
-                            //let _ = print("movie poster: \(data.movies)")
                             AsyncImage(url: URL(string: data.poster)){ phase in
                                 if let image = phase.image {
                                    // let _ = print("emptyView")
@@ -148,7 +145,6 @@ struct ClubDetailsForm: View {
                         }
                     }
                     .sheet(isPresented: $sheetShowing) {
-                      //  let _ = print("in sheet")
                         AddMovieView()
                         
                     }
@@ -156,7 +152,7 @@ struct ClubDetailsForm: View {
                 Button{
                     Task{
                         await submit()
-                        navigationViewModel.resetClubsPath()
+                        navPath.removeLast(navPath.count)
                     }
                 }label:{
                     Text("Next")

@@ -10,13 +10,19 @@ import SwiftUI
 struct NowPlayingView: View {
     let movie: Movie?
     let comments: [Comment]
+    let club: MovieClub
     var body: some View {
-        ScrollView {
-            if let movie {
-                FeaturedMovieView(movie: movie)
+        VStack{
+            ScrollView {
+                if let movie {
+                    FeaturedMovieView(movie: movie)
+                }
+                // Comments Section
+                CommentsView()
+                
             }
-            // Comments Section
-            CommentsView()
+            CommentInputView(movieClub: club, movieID: movie?.id ?? "")
+                .padding(.horizontal)
         }
     }
 }

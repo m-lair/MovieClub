@@ -7,57 +7,43 @@
 
 import SwiftUI
 
-class NavigationViewModel: ObservableObject {
-    @Published var clubsPath = NavigationPath()
-    @Published var discoverPath = NavigationPath()
-    @Published var profilePath = NavigationPath()
-    
-    func resetClubsPath() {
-        clubsPath = NavigationPath()
-    }
-    
-    func resetDiscoverPath() {
-        discoverPath = NavigationPath()
-    }
-    
-    func resetProfilePath() {
-        profilePath = NavigationPath()
-    }
-}
 
 struct MainTabView: View {
-    @StateObject private var navigationViewModel = NavigationViewModel()
     enum Tab {
         case clubsPath, discoverPath, profilePath
     }
+    //fixing navigation to be observable
     @Environment(DataManager.self) var data: DataManager
     @State private var selection: Tab = .clubsPath
+    @State var navPath = NavigationPath()
     var body: some View {
         TabView(selection: $selection){
             Group {
-                NavigationStack(path: $navigationViewModel.clubsPath){
-                    HomePageView(userClubs: data.userMovieClubs)
-                        
+                NavigationStack(path: $navPath){
+                    HomePageView(navPath: $navPath, userClubs: data.userMovieClubs)
                 }
                 .tabItem {
                     Label("", systemImage: "house.fill")
+                        .padding(.top)
                 }
                 .background(Color.gray)
                 .background(ignoresSafeAreaEdges: .all)
-                
                 .tag(Tab.clubsPath)
-                NavigationStack(path: $navigationViewModel.discoverPath){
+                
+                NavigationStack(path: $navPath){
                     DiscoverView()
                 }
                 .tabItem {
                     Label("", systemImage: "magnifyingglass")
+                        .padding(.top)
                 }
                 .tag(Tab.discoverPath)
-                NavigationStack(path: $navigationViewModel.profilePath){
+                NavigationStack(path: $navPath){
                     ProfileView()
                 }
                 .tabItem {
                     Label("", systemImage: "person.fill")
+                        .padding(.top)
                     
                 }
                 .tag(Tab.profilePath)
@@ -72,8 +58,6 @@ struct MainTabView: View {
                 await data.fetchUser()
             }
         }
-            
-
     }
 }
     
@@ -83,7 +67,7 @@ extension MainTabView {
      self.selection
     } set: { tappedTab in
      if tappedTab == self.selection {
-         
+         self.navPath = NavigationPath()
      }
      //Set the tab to the tabbed tab
      self.selection = tappedTab
