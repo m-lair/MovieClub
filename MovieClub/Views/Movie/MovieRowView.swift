@@ -13,7 +13,8 @@ import FirebaseFirestore
 struct MovieRow: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) var dismiss
-    let movie: APIMovie
+    @State var movie: APIMovie
+    var onSave: (APIMovie) -> Void
     @State var sheetPresented = false
     var body: some View {
         HStack {
@@ -44,13 +45,11 @@ struct MovieRow: View {
                         .font(.caption))
             }
             Spacer()
-            //gonna change to a navlink to an add sheet or something
             Button {
-                Task{
-                   // let _ = print("in task in movie row \(movie)")
-                    await addMovie(apiMovie: movie)
+                    onSave(movie)
                     dismiss()
-                }
+                   // let _ = print("in task in movie row \(movie)")
+                    //await addMovie(apiMovie: movie)
             } label: {
                 Image(systemName: "plus")
                     .padding()

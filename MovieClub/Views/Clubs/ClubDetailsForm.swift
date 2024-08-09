@@ -13,6 +13,7 @@ struct ClubDetailsForm: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) private var dismiss
     @Binding var navPath: NavigationPath
+    @State private var apiMovie: APIMovie?
     @State private var searchText = ""
     @State private var searchBar = true
     @State private var sheetShowing = false
@@ -34,17 +35,15 @@ struct ClubDetailsForm: View {
         VStack{
             Form {
                 Section {
-                    VStack{
-                        HStack{
-                            VStack {
-                                TextField("Name", text: $name)
-                                    .font(.title)
-                                    .fontWeight(.bold)
-                                
-                                TextField("Description", text: $desc)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
+                    HStack{
+                        VStack {
+                            TextField("Name", text: $name)
+                                .font(.title)
+                                .fontWeight(.bold)
+                            
+                            TextField("Description", text: $desc)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
                         }
                     }
                 }header: {
@@ -52,7 +51,7 @@ struct ClubDetailsForm: View {
                 }
                 Section{
                     HStack{
-                        Button {
+                        Button{
                             showPicker = true
                         } label: {
                             if let banner {
@@ -145,7 +144,9 @@ struct ClubDetailsForm: View {
                         }
                     }
                     .sheet(isPresented: $sheetShowing) {
-                        AddMovieView()
+                        AddMovieView() {movie in
+                            apiMovie = movie
+                        }
                         
                     }
                 }

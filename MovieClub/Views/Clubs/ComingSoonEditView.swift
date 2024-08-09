@@ -14,6 +14,7 @@ struct ComingSoonEditView: View {
     @State var index: Int = 0
     var body: some View {
         VStack {
+            Text("Edit Your Queue")
             if let member = data.queue {
                 HStack{
                     Label(member.clubName, systemImage: "house")
@@ -27,19 +28,11 @@ struct ComingSoonEditView: View {
                 ScrollView(.horizontal) {
                     HStack {
                         ForEach(0..<3) { i in
-                            MoviePosterButtonView(i: i, member: member)
-                            .navigationTitle("Select Movie")
+                            //MoviePosterButtonView(i: i, member: member)
                         }
                         .padding(.top)
                     }
-                    
                 }
-            }
-        }
-        .onAppear(){
-            Task{
-                
-                await data.loadQueue()
             }
         }
     }

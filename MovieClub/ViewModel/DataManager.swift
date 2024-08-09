@@ -31,7 +31,6 @@ class DataManager: Identifiable {
     var clubID: String {
         currentClub?.id ?? ""
     }
-    
     var queue: Membership?
     var db: Firestore!
     
@@ -197,17 +196,28 @@ class DataManager: Identifiable {
         return ""
     }
     
+    func updateQueue(movies: [FirestoreMovie]) async {
+        do{
+            queue?.queue = movies
+            let encodedQueue = try Firestore.Encoder().encode(queue)
+            try await usersCollection().document(currentUser?.id ?? "" ).collection("memberships").document(currentClub?.id ?? "").setData(encodedQueue)
+        }catch{
+            print("error updating queue \(error)")
+        }
+    }
+    
     func loadQueue() async {
+       // print("clubID \(currentClub?.id)")
+      //  print("clubID \(currentUser?.id)")
         if let clubID = self.currentClub?.id, let id = self.currentUser?.id  {
-            usersCollection().document(id).collection("memberships").document(clubID).addSnapshotListener { documentSnapshot, error in
-                guard let document = documentSnapshot else {
-                    print("errrr fetching queue \(String(describing: error))")
-                    return
-                }
+            do {
+                let document = try await usersCollection().document(id).collection("memberships").document(clubID).getDocument()
                 if let member = try? document.data(as: Membership.self) {
-                    print("#### Member object: \(member)")
+                   // print("#### Member object: \(member)")
                     self.queue = member
                 }
+            } catch {
+                print("error getting membership")
             }
         }
     }

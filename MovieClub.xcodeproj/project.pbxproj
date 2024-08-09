@@ -47,10 +47,9 @@
 		2C8256C52BF2FC2B00D2ED12 /* MovieClubCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256C42BF2FC2B00D2ED12 /* MovieClubCardView.swift */; };
 		2C8256C72BF2FE3400D2ED12 /* ClubDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256C62BF2FE3400D2ED12 /* ClubDetailView.swift */; };
 		2C8256CD2BF3D80D00D2ED12 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256CC2BF3D80D00D2ED12 /* MainTabView.swift */; };
-		2CAEAB962C569B2E00A0011A /* MoviePosterButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEAB952C569B2E00A0011A /* MoviePosterButtonView.swift */; };
-		2CAEAB982C57140300A0011A /* FirstMovieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEAB972C57140300A0011A /* FirstMovieView.swift */; };
 		2CAEAB9A2C58972300A0011A /* ClubDetailsForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */; };
 		2CAEABA12C5C5C9300A0011A /* BlurredBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */; };
+		2CAEABA32C63EB2600A0011A /* ComingSoonListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEABA22C63EB2600A0011A /* ComingSoonListView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -91,10 +90,9 @@
 		2C8256C42BF2FC2B00D2ED12 /* MovieClubCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieClubCardView.swift; sourceTree = "<group>"; };
 		2C8256C62BF2FE3400D2ED12 /* ClubDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubDetailView.swift; sourceTree = "<group>"; };
 		2C8256CC2BF3D80D00D2ED12 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = SOURCE_ROOT; };
-		2CAEAB952C569B2E00A0011A /* MoviePosterButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviePosterButtonView.swift; sourceTree = "<group>"; };
-		2CAEAB972C57140300A0011A /* FirstMovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstMovieView.swift; sourceTree = "<group>"; };
 		2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubDetailsForm.swift; sourceTree = "<group>"; };
 		2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurredBackground.swift; sourceTree = "<group>"; };
+		2CAEABA22C63EB2600A0011A /* ComingSoonListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComingSoonListView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,7 +127,7 @@
 				2C4475182C4C0D6E0034204C /* ComingSoonView.swift */,
 				2C44751A2C4C63AB0034204C /* NowPlayingView.swift */,
 				2C0EDD882C516B51001D85C4 /* ComingSoonEditView.swift */,
-				2CAEAB972C57140300A0011A /* FirstMovieView.swift */,
+				2CAEABA22C63EB2600A0011A /* ComingSoonListView.swift */,
 			);
 			path = Clubs;
 			sourceTree = "<group>";
@@ -156,7 +154,6 @@
 				2C4475142C3E18810034204C /* NextUpView.swift */,
 				2C4475162C4442680034204C /* NewMovieForm.swift */,
 				2C44751C2C4F4F1D0034204C /* EmptyMovieView.swift */,
-				2CAEAB952C569B2E00A0011A /* MoviePosterButtonView.swift */,
 			);
 			path = Movie;
 			sourceTree = "<group>";
@@ -321,12 +318,10 @@
 			files = (
 				2C0EDD892C516B51001D85C4 /* ComingSoonEditView.swift in Sources */,
 				2C8256962BF1B58C00D2ED12 /* ContentView.swift in Sources */,
-				2CAEAB962C569B2E00A0011A /* MoviePosterButtonView.swift in Sources */,
 				2CAEAB9A2C58972300A0011A /* ClubDetailsForm.swift in Sources */,
 				2C4475152C3E18810034204C /* NextUpView.swift in Sources */,
 				2C5DEC822BF1B3F6000EF232 /* StarRatingView.swift in Sources */,
 				2C5DEC402BF1B0DB000EF232 /* Model.swift in Sources */,
-				2CAEAB982C57140300A0011A /* FirstMovieView.swift in Sources */,
 				2C8256C52BF2FC2B00D2ED12 /* MovieClubCardView.swift in Sources */,
 				2C4475112C2A707E0034204C /* ProfileHeaderView.swift in Sources */,
 				2C4475002C06DE3A0034204C /* FeaturedMovieView.swift in Sources */,
@@ -339,6 +334,7 @@
 				2C4475192C4C0D6E0034204C /* ComingSoonView.swift in Sources */,
 				2C4474FA2C06DD670034204C /* InfoView.swift in Sources */,
 				2C4475022C06DE4F0034204C /* CommentView.swift in Sources */,
+				2CAEABA32C63EB2600A0011A /* ComingSoonListView.swift in Sources */,
 				2C4474FC2C06DD840034204C /* SwipeView.swift in Sources */,
 				2C44751B2C4C63AB0034204C /* NowPlayingView.swift in Sources */,
 				2C8256C12BF1E8FE00D2ED12 /* ProfileView.swift in Sources */,

@@ -12,7 +12,9 @@ struct AddMovieView: View {
     @Environment(\.dismiss) private var dismiss
     @State var searchText = ""
     @State var searchBar = true
-    @State var showList = false
+    @State var showQueue = false
+    @State var selectedMovie: APIMovie?
+    var onSave: (APIMovie) -> Void
     var date: Date?
     var index: Int?
     @State var movieList: [APIMovie] = []
@@ -22,20 +24,25 @@ struct AddMovieView: View {
     }
     var body: some View {
         NavigationStack{
-            List(filteredMovies, id: \.self){movie in
+            List(filteredMovies, id: \.self){ movie in
                 //  let _ = print("movie: \(movie)")
-                MovieRow(movie: movie)
+                MovieRow(movie: movie) { selectedMovie in
+                    onSave(selectedMovie)
+                }
                 // Text("\(movie.title)")
             }
-            .searchable(text: $searchText)
-            .navigationTitle("Search Movies")
+            .searchable(text: $searchText, prompt: "Add Movie")
+            .navigationTitle("Add Movies")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar{
                 ToolbarItem(placement: .topBarTrailing) {
                     Button{
-                        dismiss()
+                        if let selectedMovie {
+                            let _ = print("selected Movie \(selectedMovie)")
+                            onSave(selectedMovie)
+                        }
                     } label: {
-                        Label("Dismiss", systemImage: "xmark.circle")
+                        Text("Save")
                     }
                 }
             }
@@ -43,11 +50,11 @@ struct AddMovieView: View {
         .onSubmit(of: .search){
             searchMovies()
         }
-
+        
     }
     
     
-   
+    
     private func searchMovies() {
         guard !searchText.isEmpty else {
             return
@@ -56,8 +63,8 @@ struct AddMovieView: View {
             do {
                 
                 let apiMovies = try await fetchMovies(from: searchText)
-               // print("in search movies")
-               // print("movieList: \(movieList)")
+                // print("in search movies")
+                // print("movieList: \(movieList)")
                 self.movieList = apiMovies
             } catch {
                 print("Failed to fetch movies: \(error)")
@@ -66,7 +73,7 @@ struct AddMovieView: View {
     }
     
     private func fetchMovies(from searchText: String) async throws -> [APIMovie] {
-       // print("in fetch Movies")
+        // print("in fetch Movies")
         let formattedSearchText = searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? searchText
         let urlString = "https://omdbapi.com/?s=\(formattedSearchText)&type=movie&apikey=ab92d369"
         //print("urlString \(urlString)")
@@ -86,15 +93,15 @@ struct AddMovieView: View {
         
         do {
             let apiResponse = try decoder.decode(OMDBSearchResponse.self, from: data)
-            print("data \(data.debugDescription)")
+            //print("data \(apiResponse)")
             return apiResponse.search.map { apiMovie in
                 APIMovie(
                     id: apiMovie.id,
                     title: apiMovie.title,
                     released: apiMovie.released,
-                    director: apiMovie.director, 
+                    director: apiMovie.director,
                     poster: apiMovie.poster
-                  //  plot: apiMovie.plot
+                    //plot: apiMovie.plot
                 )
             }
         } catch {
@@ -103,11 +110,5 @@ struct AddMovieView: View {
         }
     }
 }
-
-#Preview {
-    AddMovieView()
-        .environment(DataManager())
-}
-
 
 

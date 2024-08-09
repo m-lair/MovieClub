@@ -157,6 +157,7 @@ struct Comment: Identifiable, Codable, Equatable, Hashable{
 }
 
 struct FirestoreMovie: Identifiable, Codable, Equatable, Hashable {
+    
     static func == (lhs: FirestoreMovie, rhs: FirestoreMovie) -> Bool{
         return lhs.id == rhs.id &&
         lhs.title == rhs.title &&

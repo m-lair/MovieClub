@@ -55,7 +55,7 @@ struct HomePageView: View {
                     switch value {
                         
                     case "EditMovies":
-                        ComingSoonEditView(userID: data.currentUser!.id!)
+                        ComingSoonListView()
                         
                     case "NewClub":
                         NewClubView()
