@@ -10,7 +10,7 @@ import FirebaseFirestore
 
 struct ComingSoonView: View {
     @Environment(DataManager.self) var data: DataManager
-    @State var i: Int = 1
+    @State var i: Int = 0
     @State private var screenWidth = UIScreen.main.bounds.size.width
     @State var comingSoon: [Member] = []
     let club: MovieClub
@@ -19,9 +19,9 @@ struct ComingSoonView: View {
             Text("Coming Soon...")
                 .font(.title)
             Divider()
-            ForEach(comingSoon) { member in
+            ForEach(comingSoon.indices, id: \.self) { index in
                 HStack{
-                    AsyncImage(url: URL(string: member.userAvi)) {
+                    AsyncImage(url: URL(string: comingSoon[index].userAvi)) {
                         phase in
                         switch phase {
                         case .success(let image):
@@ -39,20 +39,22 @@ struct ComingSoonView: View {
                             Image(systemName: "person.crop.circle.fill")
                         }
                     }
-                    Text("\(member.userName)")
+                    Text("\(comingSoon[index].userName)")
                     Spacer()
                     
-                    if let date = Calendar.current.date(byAdding: .weekOfYear, value: club.timeInterval * i, to: club.movieEndDate) {
+                    if let date = Calendar.current.date(byAdding: .weekOfYear, value: club.timeInterval * index, to: club.movieEndDate) {
                         Text("\(String(describing: date.formatted(date: .numeric, time: .omitted)))")
                             .font(.title3)
                             .foregroundStyle(.black)
-                        if member.id == data.currentUser?.id ?? "" {
+                        
+                        if comingSoon[index].id == data.currentUser?.id ?? "" {
                             NavigationLink(value: "EditMovies") {
                                 Label("Edit Movies", systemImage: "pencil")
                                 
                             }
                         }
                     }
+                    
                 }
                 .padding()
                 .frame(width: (screenWidth - 20), height: 25)
@@ -69,6 +71,9 @@ struct ComingSoonView: View {
             }
         }
         Spacer()
+    }
+    func inrement() {
+        self.i += 1
     }
         
     func getUserData() async {

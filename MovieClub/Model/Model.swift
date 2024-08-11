@@ -19,7 +19,7 @@ struct User: Identifiable, Codable, Hashable{
     var name: String
     var image: String? = ""
     var password: String
-    var clubs: [Membership]? = []
+    var clubs: [Membership]?
     
     static func == (lhs: User, rhs: User) -> Bool {
            lhs.id == rhs.id
@@ -84,7 +84,7 @@ struct Movie: Identifiable, Codable, Hashable{
     var author: String = ""
     var authorID: String = ""
     var authorAvi: String = ""
-    var comments: [Comment]? = []
+    var comments: [Comment]?
     var plot: String? = ""
     var director: String? = ""
     var releaseYear: String? = ""
@@ -98,11 +98,14 @@ struct Movie: Identifiable, Codable, Hashable{
     }
     enum CodingKeys: String, CodingKey {
         case id
+        case author
+        case endDate
+        case authorID
+        case authorAvi
+        case releaseYear
         case title = "title"
         case plot = "plot"
-        case endDate
         case poster = "poster"
-        case comments
     }
 }
 

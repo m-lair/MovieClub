@@ -294,7 +294,7 @@ class DataManager: Identifiable {
         print("current movie in method \(movie)")
     }
     
-    func createMovieClub(movieClub: MovieClub) async {
+    func createMovieClub(movieClub: MovieClub, movie: Movie?) async {
         var urlString = ""
         //just to be sure
         self.currentClub = movieClub
@@ -312,15 +312,15 @@ class DataManager: Identifiable {
                 if let timeIntervalFromToday = Calendar.current.date(byAdding: .weekOfYear, value: movieClub.timeInterval, to: futureOwnerMovieDate){
                     //encode the club
                     let encodeClub = try Firestore.Encoder().encode(movieClub)
-                    if let id = movieClub.id{
+                    if let id = movieClub.id {
                         //commit club
                         try await movieClubCollection().document(id).setData(encodeClub)
                         //commit movie
-                       // print("2: \(movieClub.movies?.first)")
-                        if let movie = movieClub.movies?.first {
-                           // print("in if: \(movie)")
+                        // print("2: \(movieClub.movies?.first)"
+                        if let movie {
                             await addFirstMovie(club: movieClub, movie: movie)
                         }
+                        
                         // dont need to change anything here
                         await addClubRelationship(club: movieClub)
                         //make sure owner date is being set
@@ -535,6 +535,7 @@ class DataManager: Identifiable {
                 //print(combinedMovie)
                 self.movies = []
                 self.movies.append(combinedMovie)
+                print("combined movie \(combinedMovie)")
                 return combinedMovie
             }
         }catch{
