@@ -10,19 +10,36 @@ import SwiftUI
 struct ComingSoonListView: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) var dismiss
-    @State private var movies: [FirestoreMovie] = []
+    private var movies: [FirestoreMovie] {
+        membership?.queue ?? []
+    }
+    var clubName: String {
+        membership?.clubName ?? ""
+    }
     @State private var showSheet = false
     @State private var selectedMovie: APIMovie?
     @State private var selectedIndex: Int = 0
     @State private var isAddingNewMovie = false
+    @State private var membership: Membership?
     var body: some View {
-        Text("Manage Your Queue for \(data.queue?.clubName)")
-            .font(.title)
+        Text("Manage Your Queue for \(clubName)")
+            .font(.title2)
         List {
           //  let _ = print("\(data.queue?.queue)")
             ForEach(movies.indices, id: \.self) { index in
                 HStack {
-                    AsyncImage(url: URL(string: movies[index].poster ?? ""))
+                    AsyncImage(url: URL(string: movies[index].poster ?? "")) { phase in
+                        if let image = phase.image {
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 100, height: 100)
+                        }else {
+                            ProgressView()
+                                .frame(width: 100, height: 100)
+                        }
+                    }
+
                     Text(movies[index].title)  // Assuming 'title' is a property of Movie
                     Spacer()
                     Button {
@@ -34,14 +51,15 @@ struct ComingSoonListView: View {
                     }
                 }
             }
-            .onMove(perform: move)
             .sheet(isPresented: $showSheet) {
                 AddMovieView() { newMovie in
                     let _ = print("NEW MOVIE: \(newMovie)")
-                    // Update existing movie
-                    movies[selectedIndex].title = newMovie.title
-                    movies[selectedIndex].poster = newMovie.poster
-                    
+                    if var membership = membership {
+                        membership.queue[selectedIndex].title = newMovie.title
+                        membership.queue[selectedIndex].poster = newMovie.poster
+                        self.membership = membership  // Reassign to update the state
+                        let _ = print("poster \(String(describing: membership.queue[selectedIndex].poster))")
+                    }
                     showSheet = false
                 }
             }
@@ -50,9 +68,6 @@ struct ComingSoonListView: View {
             Task{
                 await data.loadQueue()
                 await loadQueue()
-                //okay we are getting the list back but the entries are empty
-                //need to get the poster and title onto the queue now
-                //easiest to just grab these values off the api movie and add them to queue
             }
         }
         .onChange(of: movies) {
@@ -74,13 +89,15 @@ struct ComingSoonListView: View {
         }
     }
     private func save() async {
-        await data.updateQueue(movies: self.movies)
-    }
-    private func move(from source: IndexSet, to destination: Int) {
-        movies.move(fromOffsets: source, toOffset: destination)
+        if let membership {
+            print("MEMBERSHIP \(membership)")
+            await data.updateQueue(membership: membership)
+        }
     }
     private func loadQueue() async {
-        self.movies = await data.queue?.queue ?? []
+        if let membership = await data.queue {
+            self.membership = membership
+        }
         print("self.movies \(movies)")
     }
 }

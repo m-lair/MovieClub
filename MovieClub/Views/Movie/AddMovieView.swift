@@ -61,7 +61,6 @@ struct AddMovieView: View {
         }
         Task {
             do {
-                
                 let apiMovies = try await fetchMovies(from: searchText)
                 // print("in search movies")
                 // print("movieList: \(movieList)")

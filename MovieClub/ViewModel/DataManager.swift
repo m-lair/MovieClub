@@ -196,11 +196,10 @@ class DataManager: Identifiable {
         return ""
     }
     
-    func updateQueue(movies: [FirestoreMovie]) async {
+    func updateQueue(membership: Membership) async {
         do{
-            queue?.queue = movies
-            let encodedQueue = try Firestore.Encoder().encode(queue)
-            try await usersCollection().document(currentUser?.id ?? "" ).collection("memberships").document(currentClub?.id ?? "").setData(encodedQueue)
+            let encodedMembership = try Firestore.Encoder().encode(membership)
+            try await usersCollection().document(currentUser?.id ?? "" ).collection("memberships").document(currentClub?.id ?? "").setData(encodedMembership)
         }catch{
             print("error updating queue \(error)")
         }
@@ -317,9 +316,9 @@ class DataManager: Identifiable {
                         //commit club
                         try await movieClubCollection().document(id).setData(encodeClub)
                         //commit movie
-                        print("2: \(movieClub.movies?.first)")
-                        if let movie = self.movies.first {
-                            print("in if: \(movie)")
+                       // print("2: \(movieClub.movies?.first)")
+                        if let movie = movieClub.movies?.first {
+                           // print("in if: \(movie)")
                             await addFirstMovie(club: movieClub, movie: movie)
                         }
                         // dont need to change anything here
@@ -336,7 +335,7 @@ class DataManager: Identifiable {
             }
     }
     func addFirstMovie(club: MovieClub, movie: Movie) async {
-        print("m")
+       // print("Adding first movie: \(movie)")
         if let clubID = club.id {
             do {
                 let encodedMovie = try Firestore.Encoder().encode(movie)
@@ -354,7 +353,7 @@ class DataManager: Identifiable {
     func addClubRelationship(club: MovieClub) async {
         // cant figure out a better way to do this but we know the val wont be null
         do{
-            let emptyMovie = FirestoreMovie(title: "", author: currentUser?.name ?? "", authorID: currentUser?.id ?? "", authorAvi: currentUser?.image ?? "")
+            let emptyMovie = FirestoreMovie(title: "", poster: "", author: currentUser?.name ?? "", authorID: currentUser?.id ?? "", authorAvi: currentUser?.image ?? "")
             let emptyQueueList = [emptyMovie, emptyMovie, emptyMovie]
             if let id = club.id, id != ""{
                 //could set movie date here but might wait until they're closer to the next up

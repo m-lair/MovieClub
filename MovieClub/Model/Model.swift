@@ -117,7 +117,7 @@ struct APIMovie: Codable, Equatable, Hashable, Identifiable {
     var title: String
     var released: String
     var director: String? = ""
-    var poster: String? = ""
+    var poster: String = ""
     var plot: String? = ""
     
     static func == (lhs: APIMovie, rhs: APIMovie) -> Bool {

@@ -77,7 +77,9 @@ struct ClubDetailsForm: View {
                         Task {
                             do {
                                 if let loaded = try await photoItem?.loadTransferable(type: Image.self) {
+                                    showPicker = false
                                     banner = loaded
+                                    
                                 } else {
                                     print("Failed")
                                 }
@@ -113,23 +115,12 @@ struct ClubDetailsForm: View {
                                 if let imageData = try await photoItem?.loadTransferable(type: Data.self) {
                                     let documentString = data.db.collection("movieclubs").document().documentID
                                     print(documentString)
-                                    
-                                    let movieClub =
-                                    MovieClub(name: name,
-                                              created: created, numMembers: 1,
-                                              description: desc,
-                                              ownerName: data.currentUser?.name ?? "",
-                                              timeInterval: timeInterval,
-                                              movieEndDate: endDate,
-                                              ownerID: data.currentUser?.id ?? "",
-                                              isPublic: isPublic)
-                                    data.currentClub = movieClub
                                     sheetShowing = true
                                     
                                 }
                             }
                         } label: {
-                            AsyncImage(url: URL(string: data.poster)){ phase in
+                            AsyncImage(url: URL(string: apiMovie?.poster ?? "")){ phase in
                                 if let image = phase.image {
                                    // let _ = print("emptyView")
                                     image
@@ -144,10 +135,9 @@ struct ClubDetailsForm: View {
                         }
                     }
                     .sheet(isPresented: $sheetShowing) {
-                        AddMovieView() {movie in
+                        AddMovieView() { movie in
                             apiMovie = movie
                         }
-                        
                     }
                 }
                 Button{
@@ -169,7 +159,6 @@ struct ClubDetailsForm: View {
                 if let imageData = UIImage(data: image) {
                     print(documentString)
                     let urlString =  await data.uploadClubImage(image: imageData, clubId: documentString)
-                    
                     var movieClub =
                     MovieClub(id: documentString, name: name,
                               created: created, numMembers: 1,
@@ -179,13 +168,13 @@ struct ClubDetailsForm: View {
                               movieEndDate: endDate,
                               ownerID: data.currentUser?.id ?? "",
                               isPublic: isPublic, bannerUrl: urlString)
-                    print("MovieClub \(movieClub)")
-                    if let movie = data.movies.first {
-                        print("movie: \(movie)")
-                        movieClub.movies?.append(movie)
+                    
+                    let movie = Movie(title: apiMovie?.title ?? "", poster: apiMovie?.poster ?? "", author: data.currentUser?.name ?? "", authorID: data.currentUser?.id ?? "", authorAvi: data.currentUser?.image ?? "", plot: apiMovie?.plot)
+                        movieClub.movies = [movie]
+                        print("MovieClub \(movieClub)")
                         data.currentClub = movieClub
                         await data.createMovieClub(movieClub: movieClub)
-                    }
+                    
                 }
             }
         }catch{

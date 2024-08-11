@@ -18,7 +18,8 @@ struct MovieRow: View {
     @State var sheetPresented = false
     var body: some View {
         HStack {
-            if let poster = movie.poster, let url = URL(string: poster) {
+            if movie.poster != "" {
+            let url = URL(string: movie.poster)
                 AsyncImage(url: url) { phase in
                     if let image = phase.image {
                         image
