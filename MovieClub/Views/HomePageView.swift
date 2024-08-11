@@ -5,30 +5,74 @@
 //  Created by Marcus Lair on 5/7/24.
 //
 
+
+
 import SwiftUI
 
+
 struct HomePageView: View {
-    var movies: [Movie] = []
-    
+    @Environment(DataManager.self) var data: DataManager
+    @Binding var navPath: NavigationPath
+    let userClubs: [MovieClub]
     var body: some View {
-            NavigationView{
-                List(movies){movie in
-                    NavigationLink(destination: MovieDetailView(movie: movie)){
-                        HStack{
-                            MovieRow(movie: movie)
+        ZStack{
+            Color.gray.ignoresSafeArea()
+                .overlay(Color.black.opacity(0.7))
+            ScrollView{
+                VStack {
+                    if userClubs.count > 0 {
+                        ForEach(data.userMovieClubs) { movieClub in
+                            NavigationLink(value: movieClub) {
+                                MovieClubCardView(movieClub: movieClub)
+                            }
+                        }
+                    } else {
+                        ProgressView()
+                    }
+                }
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        NavigationLink(value: "NewClub") {
+                            Image(systemName: "plus")
+                                .imageScale(.large)
+                        }
+                    }
+                    ToolbarItem(placement: .topBarTrailing){
+                        Button {
                             
+                        } label: {
+                            Image(systemName: "bell.fill")
                         }
                     }
                     
+                }
+                .navigationDestination(for: MovieClub.self) { club in
+                    ClubDetailView(navPath: $navPath, movieClub: club)
+                        .navigationTitle(club.name)
+                        .navigationBarTitleDisplayMode(.inline)
+                }
+                .navigationDestination(for: String.self) { value in
+                    switch value {
+                        
+                    case "EditMovies":
+                        ComingSoonListView()
+                        
+                    case "NewClub":
+                        NewClubView()
+                        
+                    case "CreateForm":
+                        ClubDetailsForm(navPath: $navPath)
+                    default: ProgressView()
+                    }
                     
                 }
-                .navigationTitle("Movie Club")
-                
             }
-            
         }
-        
+        .navigationTitle("Movie Clubs")
+        .navigationBarTitleDisplayMode(.inline)
     }
+}
+
 
 
 

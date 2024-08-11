@@ -9,16 +9,15 @@ import SwiftUI
 
 
 struct MovieDetailView: View {
-    
     // add view to edit
     var movie: Movie
     var body: some View {
         VStack {
             Text(movie.title)
                 .font(.title)
-            Text("\(movie.date)")
+            Text("\(movie.endDate)")
                 .font(.subheadline)
-            Text("Rating: \(String(format: "%.1f", movie.rating))")
+            Text("Rating: \(String(format: "%.1f", movie.avgRating ?? 0.0))")
                 .font(.subheadline)
             Spacer()
         }

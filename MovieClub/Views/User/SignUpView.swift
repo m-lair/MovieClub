@@ -15,6 +15,7 @@ struct SignUpView: View {
     @State private var name: String = ""
     @State private var email: String = ""
     @State private var password: String = ""
+    @State private var bio: String = ""
     
     var body: some View {
         VStack {
@@ -24,6 +25,13 @@ struct SignUpView: View {
                 .padding(.bottom, 50)
             
             TextField("Name", text: $name)
+                .padding()
+                .background(Color.gray.opacity(0.1))
+                .cornerRadius(8)
+                .padding(.horizontal, 50)
+                .padding(.bottom, 20)
+            
+            TextField("Bio", text: $bio)
                 .padding()
                 .background(Color.gray.opacity(0.1))
                 .cornerRadius(8)
@@ -47,7 +55,7 @@ struct SignUpView: View {
             Button {
                 Task {
                     
-                    try await data.createUser(user: User(email: email, name: name, password: password))
+                    try await data.createUser(user: User(email: email, bio: bio, name: name, password: password))
                     try await data.signIn(email: email, password: password)
                     dismiss()
                 }
