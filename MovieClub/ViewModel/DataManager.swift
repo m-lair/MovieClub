@@ -71,20 +71,17 @@ class DataManager: Identifiable {
             try await usersCollection().document(user.id ?? "").setData(encodeUser)
             await fetchUser()
         } catch {
-            print(error)
+            throw error
         }
     }
     
     func signIn(email: String, password: String) async throws {
         print("in sign in")
         do{
-            
             let result = try await Auth.auth().signIn(withEmail: email, password: password)
             self.userSession = result.user
-            
-            
         } catch {
-            print(error.localizedDescription)
+            throw error
         }
     }
     
@@ -545,14 +542,6 @@ class DataManager: Identifiable {
     }
     //self.currentClub?.movies = movies
     //print("##### \(currentClub?.movies)")
-    
-    func formatMovieForAPI(title: String) -> String {
-            return title.replacingOccurrences(of: " ", with: "+")
-        }
-    func fetchMember() async {
-        //TODO
-    }
-    
     func clearMoviesCache() {
         self.movies = []
     }
@@ -564,7 +553,6 @@ class DataManager: Identifiable {
        // print("2")
         guard let snapshot = try? await usersCollection().document(uid).getDocument() else {return}
             //print("Document data: \(snapshot.data())")
-        
             do{
                 self.currentUser = try snapshot.data(as: User.self)
             }catch{
@@ -574,6 +562,9 @@ class DataManager: Identifiable {
         await self.currentUser!.image = getProfileImage(id: currentUser!.id!, path: path)
         await fetchMovieClubsForUser()
     }
+    
+    
+    
     
     func signOut(){
         do{

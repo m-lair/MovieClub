@@ -30,7 +30,6 @@
 		2C5DEC342BF1AE5D000EF232 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 2C5DEC332BF1AE5D000EF232 /* FirebaseAuth */; };
 		2C5DEC362BF1AE5D000EF232 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 2C5DEC352BF1AE5D000EF232 /* FirebaseFirestore */; };
 		2C5DEC382BF1AE5D000EF232 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2C5DEC372BF1AE5D000EF232 /* FirebaseFirestoreSwift */; };
-		2C5DEC3B2BF1B018000EF232 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2C5DEC3A2BF1B018000EF232 /* GoogleService-Info.plist */; };
 		2C5DEC402BF1B0DB000EF232 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5DEC3F2BF1B0DB000EF232 /* Model.swift */; };
 		2C5DEC422BF1B12D000EF232 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5DEC412BF1B12D000EF232 /* DataManager.swift */; };
 		2C5DEC7C2BF1B3F6000EF232 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5DEC792BF1B3F6000EF232 /* SignUpView.swift */; };
@@ -50,6 +49,7 @@
 		2CAEAB9A2C58972300A0011A /* ClubDetailsForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */; };
 		2CAEABA12C5C5C9300A0011A /* BlurredBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */; };
 		2CAEABA32C63EB2600A0011A /* ComingSoonListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEABA22C63EB2600A0011A /* ComingSoonListView.swift */; };
+		2CAEABA62C6A88E000A0011A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2CAEABA52C6A88E000A0011A /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -73,7 +73,6 @@
 		2C5DEC1E2BF1AC6C000EF232 /* MovieClubApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieClubApp.swift; sourceTree = "<group>"; };
 		2C5DEC222BF1AC6E000EF232 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2C5DEC252BF1AC6E000EF232 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		2C5DEC3A2BF1B018000EF232 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2C5DEC3F2BF1B0DB000EF232 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		2C5DEC412BF1B12D000EF232 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		2C5DEC752BF1B3F6000EF232 /* StarRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarRatingView.swift; sourceTree = "<group>"; };
@@ -93,6 +92,8 @@
 		2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubDetailsForm.swift; sourceTree = "<group>"; };
 		2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurredBackground.swift; sourceTree = "<group>"; };
 		2CAEABA22C63EB2600A0011A /* ComingSoonListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComingSoonListView.swift; sourceTree = "<group>"; };
+		2CAEABA42C6A7FD500A0011A /* MovieClub.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MovieClub.entitlements; sourceTree = "<group>"; };
+		2CAEABA52C6A88E000A0011A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../Desktop/GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,6 +162,7 @@
 		2C5DEC122BF1AC6C000EF232 = {
 			isa = PBXGroup;
 			children = (
+				2CAEABA52C6A88E000A0011A /* GoogleService-Info.plist */,
 				2C5DEC1D2BF1AC6C000EF232 /* MovieClub */,
 				2C5DEC1C2BF1AC6C000EF232 /* Products */,
 			);
@@ -177,12 +179,12 @@
 		2C5DEC1D2BF1AC6C000EF232 /* MovieClub */ = {
 			isa = PBXGroup;
 			children = (
+				2CAEABA42C6A7FD500A0011A /* MovieClub.entitlements */,
 				2C5DEC742BF1B3F6000EF232 /* Views */,
 				2C5DEC1E2BF1AC6C000EF232 /* MovieClubApp.swift */,
 				2C8256952BF1B58C00D2ED12 /* ContentView.swift */,
 				2C5DEC3E2BF1B081000EF232 /* ViewModel */,
 				2C5DEC3D2BF1B06C000EF232 /* Model */,
-				2C5DEC3A2BF1B018000EF232 /* GoogleService-Info.plist */,
 				2C5DEC222BF1AC6E000EF232 /* Assets.xcassets */,
 				2C5DEC242BF1AC6E000EF232 /* Preview Content */,
 			);
@@ -305,7 +307,7 @@
 			files = (
 				2C5DEC262BF1AC6E000EF232 /* Preview Assets.xcassets in Resources */,
 				2C5DEC232BF1AC6E000EF232 /* Assets.xcassets in Resources */,
-				2C5DEC3B2BF1B018000EF232 /* GoogleService-Info.plist in Resources */,
+				2CAEABA62C6A88E000A0011A /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -482,10 +484,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = MovieClub/MovieClub.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MovieClub/Preview Content\"";
-				DEVELOPMENT_TEAM = 5Z6AC3LV9L;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 5Z6AC3LV9L;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -498,8 +503,10 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = duhmarcus.MovieClub;
+				PRODUCT_BUNDLE_IDENTIFIER = "duhmarcus.Movie-Club";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = duhmarcus;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -511,10 +518,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = MovieClub/MovieClub.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MovieClub/Preview Content\"";
-				DEVELOPMENT_TEAM = 5Z6AC3LV9L;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 5Z6AC3LV9L;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -527,8 +537,10 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = duhmarcus.MovieClub;
+				PRODUCT_BUNDLE_IDENTIFIER = "duhmarcus.Movie-Club";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = duhmarcus;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
