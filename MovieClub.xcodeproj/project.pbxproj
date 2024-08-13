@@ -49,7 +49,7 @@
 		2CAEAB9A2C58972300A0011A /* ClubDetailsForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */; };
 		2CAEABA12C5C5C9300A0011A /* BlurredBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */; };
 		2CAEABA32C63EB2600A0011A /* ComingSoonListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEABA22C63EB2600A0011A /* ComingSoonListView.swift */; };
-		2CAEABA62C6A88E000A0011A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2CAEABA52C6A88E000A0011A /* GoogleService-Info.plist */; };
+		2CAEABA82C6A9C9700A0011A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2CAEABA72C6A9C9700A0011A /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -93,7 +93,7 @@
 		2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurredBackground.swift; sourceTree = "<group>"; };
 		2CAEABA22C63EB2600A0011A /* ComingSoonListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComingSoonListView.swift; sourceTree = "<group>"; };
 		2CAEABA42C6A7FD500A0011A /* MovieClub.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MovieClub.entitlements; sourceTree = "<group>"; };
-		2CAEABA52C6A88E000A0011A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../Desktop/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		2CAEABA72C6A9C9700A0011A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,7 +162,7 @@
 		2C5DEC122BF1AC6C000EF232 = {
 			isa = PBXGroup;
 			children = (
-				2CAEABA52C6A88E000A0011A /* GoogleService-Info.plist */,
+				2CAEABA72C6A9C9700A0011A /* GoogleService-Info.plist */,
 				2C5DEC1D2BF1AC6C000EF232 /* MovieClub */,
 				2C5DEC1C2BF1AC6C000EF232 /* Products */,
 			);
@@ -307,7 +307,7 @@
 			files = (
 				2C5DEC262BF1AC6E000EF232 /* Preview Assets.xcassets in Resources */,
 				2C5DEC232BF1AC6E000EF232 /* Assets.xcassets in Resources */,
-				2CAEABA62C6A88E000A0011A /* GoogleService-Info.plist in Resources */,
+				2CAEABA82C6A9C9700A0011A /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

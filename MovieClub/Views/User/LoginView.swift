@@ -25,12 +25,11 @@ struct LoginView: View {
     }
     
     var body: some View {
-        NavigationStack{
             VStack {
                 Spacer()
                 Text("Movie Club")
-                    .font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
-                    .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
+                    .font(.title)
+                    .fontWeight(.bold)
                     .fontDesign(.rounded)
                     .padding(.bottom, 50)
                 
@@ -59,8 +58,6 @@ struct LoginView: View {
                             errorMessage = error.localizedDescription
                         }
                     }
-                    
-                    
                 } label: {
                     switch btnDisabled{
                     case true:
@@ -94,12 +91,8 @@ struct LoginView: View {
                 }
             }
             .padding()
-        }
     }
-    }
-    
-
-    
+}
     
 #Preview {
     LoginView()
