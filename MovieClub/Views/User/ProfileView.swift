@@ -13,23 +13,23 @@ struct ProfileView: View {
     @State var showEditView = false
     var body: some View {
         if let user = data.currentUser{
-            NavigationStack{
+            VStack{
                 ProfileHeaderView(user: user)
                 Spacer()
                 Button {
                     data.signOut()
-                    
                 } label: {
                     Text("Sign Out")
                         .foregroundStyle(Color(.red))
                         .padding()
                 }
             }
+            .navigationTitle(user.name)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
+                    Button {
                         showEditView = true
-                    }) {
+                    } label: {
                         Text("Edit")
                     }
                 }

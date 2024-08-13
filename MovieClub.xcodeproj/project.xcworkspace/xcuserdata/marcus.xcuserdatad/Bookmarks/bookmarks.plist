@@ -12,13 +12,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>324</string>
+					<string>321</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>323</string>
+					<string>320</string>
 					<key>Timestamp</key>
-					<string>744949524.116853</string>
+					<string>745171750.494602</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -37,8 +37,8 @@
 				<string>                        // dont need to change anything here
 </string>
 				<key>leading</key>
-				<string>                            await addFirstMovie(club: movieClub, movie: movie)
-                        }
+				<string>                        }
+                        
 </string>
 				<key>trailing</key>
 				<string>                        await addClubRelationship(club: movieClub)

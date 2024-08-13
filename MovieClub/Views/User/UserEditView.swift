@@ -80,7 +80,7 @@ struct UserEditView: View {
     }
     private func saveClub(movieClub: MovieClub) async {
         Task{
-            await data.createMovieClub(movieClub: movieClub)
+          //  await data.createMovieClub(movieClub: movieClub)
         }
         
         

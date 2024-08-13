@@ -169,11 +169,10 @@ struct ClubDetailsForm: View {
                               ownerID: data.currentUser?.id ?? "",
                               isPublic: isPublic, bannerUrl: urlString)
                     
-                    let movie = Movie(title: apiMovie?.title ?? "", poster: apiMovie?.poster ?? "", author: data.currentUser?.name ?? "", authorID: data.currentUser?.id ?? "", authorAvi: data.currentUser?.image ?? "", plot: apiMovie?.plot)
-                        movieClub.movies = [movie]
+                    let movie = Movie(title: apiMovie?.title ?? "", poster: apiMovie?.poster ?? "", endDate: endDate, author: data.currentUser?.name ?? "", authorID: data.currentUser?.id ?? "", authorAvi: data.currentUser?.image ?? "")
                         print("MovieClub \(movieClub)")
                         data.currentClub = movieClub
-                        await data.createMovieClub(movieClub: movieClub)
+                    await data.createMovieClub(movieClub: movieClub, movie: movie)
                     
                 }
             }
