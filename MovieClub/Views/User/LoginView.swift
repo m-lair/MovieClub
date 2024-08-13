@@ -17,7 +17,7 @@ struct LoginView: View {
     @State private var userEmail = ""
     @State private var userPwd = ""
     private var btnDisabled: Bool {
-        if userEmail.isEmpty && userPwd.isEmpty {
+        if userEmail.isEmpty || userPwd.isEmpty {
             return true
         }else{
             return false
@@ -25,6 +25,7 @@ struct LoginView: View {
     }
     
     var body: some View {
+        NavigationStack{
             VStack {
                 Spacer()
                 Text("Movie Club")
@@ -91,6 +92,7 @@ struct LoginView: View {
                 }
             }
             .padding()
+        }
     }
 }
     
