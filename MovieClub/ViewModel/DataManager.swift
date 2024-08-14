@@ -182,7 +182,7 @@ class DataManager: Identifiable {
     
     func getProfileImage(id: String, path: String) async -> String  {
         //   print("in getter")
-        let storageRef = Storage.storage().reference().child("\(path).jpeg") //Storage.storage().reference().child("Users/profile_images/\(id).jpeg")
+        let storageRef = Storage.storage().reference().child(path) //Storage.storage().reference().child("Users/profile_images/\(id)")
         do {
             let url = try await storageRef.downloadURL()
             self.currentUser?.image = url.absoluteString
@@ -559,10 +559,24 @@ class DataManager: Identifiable {
                 print(error)
             }
         let path = ("Users/profile_images/\(self.currentUser?.id ?? "")")
-        await self.currentUser!.image = getProfileImage(id: currentUser!.id!, path: path)
+        await self.currentUser?.image = getProfileImage(id: currentUser!.id!, path: path)
         await fetchMovieClubsForUser()
     }
     
+    func updateProfilePicture(imageData: Data) async throws {
+        let path = ("Users/profile_images/\(self.currentUser?.id ?? "")")
+        let storageRef = Storage.storage().reference().child(path)
+        let metadata = StorageMetadata()
+        metadata.contentType = "image/jpeg"
+        do {
+            _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
+            let url = try await storageRef.downloadURL()
+            try await usersCollection().document(currentUser?.id ?? "").updateData(["image" : url.absoluteString])
+        
+        }catch{
+            throw error
+        }
+    }
     
     
     

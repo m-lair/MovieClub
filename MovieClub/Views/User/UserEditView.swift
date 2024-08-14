@@ -6,87 +6,43 @@
 //
 
 import SwiftUI
-import PhotosUI
+//change editMode to only be used on lists
+//will need a dedicated edit/save
+//do it like instagram
 
 struct UserEditView: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) private var dismiss
-    @State private var aviImage: Image?
-    @State private var aviImageItem: PhotosPickerItem?
-    @State private var name = ""
-    @State private var isPublic = false // Default to private
-    @State private var selectedOwnerIndex = 0
-    @State private var desc = ""
-    @State private var showPicker = false
-    @State private var owners = ["User1"]
+    @Environment(\.editMode) private var editMode
+    @Binding var name: String
+    @Binding var bio: String
     var body: some View {
-        VStack(alignment: .leading){
-            HStack{
-                Button {
-                    showPicker.toggle()
-                } label: {
-                    if let aviImage = aviImage{
-                        aviImage
-                            .resizable()
-                            .frame(width: 60, height: 60)
-                            .clipShape(Circle())
-                            .overlay(Circle().stroke(Color.white, lineWidth: 4))
-                            .shadow(radius: 10)
-                    }else{
-                        Image(systemName: "person.circle")
-                            .resizable()
-                            .frame(width: 60, height: 60)
-                            .clipShape(Circle())
-                            .overlay(Circle().stroke(Color.white, lineWidth: 4))
-                            .shadow(radius: 10)
-                        
-                    }
-                }
-                .onChange(of: aviImageItem) {
-                    Task {
-                        if let loaded = try? await aviImageItem?.loadTransferable(type: Image.self) {
-                            aviImage = loaded
-                        } else {
-                            print("Failed")
-                        }
+        VStack{
+            if let user = data.currentUser {
+                if editMode?.wrappedValue.isEditing == true {
+                    Form {
+                        TextField("Name", text: $name, prompt: Text(user.name))
+                        TextField("Bio", text: $name)
                     }
                 }
                 
-                VStack(alignment: .leading) {
-                        TextField("Name", text: $name)
-                        .font(.title)
-                        .fontWeight(.bold)
+            }
+        }
+        .onChange(of: editMode?.wrappedValue) {
+            if editMode?.wrappedValue.isEditing == true {
+                print("is editing true")
+            }
+            if editMode?.wrappedValue.isEditing == false {
+                var changes: [String] = []
+                var attrs = ["name", "bio"]
+                if name != data.currentUser?.name && !name.isEmpty{
+                    // the field isnt empty and also doesnt equal the current username
+                    //update
+                    changes.append("name")
                     
-                        TextField("Bio", text: $desc)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
                 }
             }
-            .padding()
-            .photosPicker(isPresented: $showPicker, selection: $aviImageItem)
-            
-            
-            
-            
-            Spacer()
-        }
-        .navigationBarItems(trailing: Button("Save") {
-            Task{
-                // Call a method to save the club with the entered information
-                
-            }
-        })
-        
-    }
-    private func saveClub(movieClub: MovieClub) async {
-        Task{
-          //  await data.createMovieClub(movieClub: movieClub)
         }
         
-        
     }
-}
-
-#Preview {
-    UserEditView()
 }

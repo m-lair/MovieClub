@@ -10,27 +10,29 @@ import SwiftUI
 
 struct MainTabView: View {
     enum Tab {
-        case clubsPath, discoverPath, profilePath
+        case clubsPath, 
+             discoverPath,
+             profilePath
     }
-    //fixing navigation to be observable
     @Environment(DataManager.self) var data: DataManager
     @State private var selection: Tab = .clubsPath
-    @State var navPath = NavigationPath()
+    @State var clubsPath = NavigationPath()
+    @State var discoverPath = NavigationPath()
+    @State var profilePath = NavigationPath()
     var body: some View {
-        TabView(selection: $selection){
+        TabView(selection: tabSelection()){
             Group {
-                NavigationStack(path: $navPath){
-                    HomePageView(navPath: $navPath, userClubs: data.userMovieClubs)
+                NavigationStack(path: $clubsPath){
+                    HomePageView(navPath: $clubsPath, userClubs: data.userMovieClubs)
                 }
                 .tabItem {
                     Label("", systemImage: "house.fill")
                         .padding(.top)
                 }
-                .background(Color.gray)
                 .background(ignoresSafeAreaEdges: .all)
                 .tag(Tab.clubsPath)
                 
-                NavigationStack(path: $navPath){
+                NavigationStack(path: $discoverPath){
                     DiscoverView()
                 }
                 .tabItem {
@@ -38,7 +40,7 @@ struct MainTabView: View {
                         .padding(.top)
                 }
                 .tag(Tab.discoverPath)
-                NavigationStack(path: $navPath){
+                NavigationStack(path: $profilePath){
                     ProfileView()
                 }
                 .tabItem {
@@ -60,19 +62,30 @@ struct MainTabView: View {
         }
     }
 }
-    
+
+//this is working better but double tap still wont send you home
+//need a way to set navPath base on the Tab.
+//if tapped == self.selected, rest that Stack
 extension MainTabView {
- private func tabSelection() -> Binding<Tab> {
-    Binding { //this is the get block
-     self.selection
-    } set: { tappedTab in
-     if tappedTab == self.selection {
-         self.navPath = NavigationPath()
-     }
-     //Set the tab to the tabbed tab
-     self.selection = tappedTab
+    private func tabSelection() -> Binding<Tab> {
+        Binding { //this is the get block
+            self.selection
+        } set: { tappedTab in
+            if tappedTab == self.selection {
+                // Reset the navigation stack for the current tab
+                switch tappedTab {
+                case .clubsPath:
+                    self.clubsPath = NavigationPath()
+                case .discoverPath:
+                    self.discoverPath = NavigationPath()
+                case .profilePath:
+                    self.profilePath = NavigationPath()
+                }
+            }
+            // Set the tab to the selected tab
+            self.selection = tappedTab
+        }
     }
- }
 }
 
 #Preview {
