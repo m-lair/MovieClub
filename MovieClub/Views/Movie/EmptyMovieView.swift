@@ -10,11 +10,6 @@ import SwiftUI
 struct EmptyMovieView: View {
     var body: some View {
         Text("No Movies Coming Up Yet...")
-        NavigationLink {
-            //needs reworked
-        } label: {
-            Text("Add One")
-        }
     }
 }
 

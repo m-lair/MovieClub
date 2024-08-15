@@ -261,6 +261,10 @@
 			buildRules = (
 			);
 			dependencies = (
+				2C87B2B32C6DBF6600A49B2B /* PBXTargetDependency */,
+				2C87B2B52C6DBF6600A49B2B /* PBXTargetDependency */,
+				2C87B2B72C6DBF6600A49B2B /* PBXTargetDependency */,
+				2C87B2B92C6DBF6600A49B2B /* PBXTargetDependency */,
 			);
 			name = MovieClub;
 			packageProductDependencies = (
@@ -370,6 +374,25 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2C87B2B32C6DBF6600A49B2B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 2C87B2B22C6DBF6600A49B2B /* FirebaseAuth */;
+		};
+		2C87B2B52C6DBF6600A49B2B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 2C87B2B42C6DBF6600A49B2B /* FirebaseFirestore */;
+		};
+		2C87B2B72C6DBF6600A49B2B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 2C87B2B62C6DBF6600A49B2B /* FirebaseFirestoreSwift */;
+		};
+		2C87B2B92C6DBF6600A49B2B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 2C87B2B82C6DBF6600A49B2B /* FirebaseStorage */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		2C5DEC272BF1AC6E000EF232 /* Debug */ = {
@@ -613,6 +636,26 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2C5DEC322BF1AE5D000EF232 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestoreSwift;
+		};
+		2C87B2B22C6DBF6600A49B2B /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2C5DEC322BF1AE5D000EF232 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		2C87B2B42C6DBF6600A49B2B /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2C5DEC322BF1AE5D000EF232 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		2C87B2B62C6DBF6600A49B2B /* FirebaseFirestoreSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2C5DEC322BF1AE5D000EF232 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestoreSwift;
+		};
+		2C87B2B82C6DBF6600A49B2B /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2C5DEC322BF1AE5D000EF232 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
