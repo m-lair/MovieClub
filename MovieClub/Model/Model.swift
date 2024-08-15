@@ -13,7 +13,6 @@ import FirebaseFirestore
 
 struct User: Identifiable, Codable, Hashable{
     @DocumentID var id: String?
-    
     var email: String
     var bio: String? = ""
     var name: String
@@ -139,6 +138,7 @@ struct APIMovie: Codable, Equatable, Hashable, Identifiable {
 
 struct Comment: Identifiable, Codable, Equatable, Hashable{
     @DocumentID var id: String?
+    var userID: String
     var image: String? = ""
     var username: String
     var date: Date
@@ -151,6 +151,7 @@ struct Comment: Identifiable, Codable, Equatable, Hashable{
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+        hasher.combine(userID)
         hasher.combine(image)
         hasher.combine(date)
         hasher.combine(text)

@@ -15,34 +15,30 @@ struct ProfileView: View {
     @State private var name = ""
     @State private var bio = ""
     var body: some View {
-        if let user = data.currentUser{
-            VStack{
-                AviSelector()
-                UserEditView(name: $name, bio: $bio)
-                ProfileDisplayView()
-            }
+        VStack{
+            AviSelector()
+            UserEditView()
+            ProfileDisplayView()
             //save data after edit
-            .toolbar {
-                ToolbarItem {
-                    EditButton()
-                   /* Button {
-                        edit.toggle()
-                    } label: {
-                        switch edit {
-                        case true:
-                            Text("Save")
-                        case false:
-                            Text("Edit")
-                        }
-                    }*/
-                }
-                
-            }
-            .navigationTitle("Profile")
         }
-    }
-    private func saveUser() {
-       
+        .toolbar {
+            ToolbarItem {
+                EditButton()
+                /* Button {
+                 edit.toggle()
+                 } label: {
+                 switch edit {
+                 case true:
+                 Text("Save")
+                 case false:
+                 Text("Edit")
+                 }
+                 }*/
+            }
+            
+        }
+        .navigationTitle("Profile")
+        
     }
 }
 

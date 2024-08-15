@@ -30,8 +30,8 @@
             filePath = "MovieClub/ViewModel/DataManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "518"
-            endingLineNumber = "518"
+            startingLineNumber = "520"
+            endingLineNumber = "520"
             landmarkName = "fetchAndMergeMovieData(club:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -62,8 +62,8 @@
             filePath = "MovieClub/ViewModel/DataManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "334"
-            endingLineNumber = "334"
+            startingLineNumber = "336"
+            endingLineNumber = "336"
             landmarkName = "addFirstMovie(club:movie:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -78,8 +78,8 @@
             filePath = "MovieClub/ViewModel/DataManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "336"
-            endingLineNumber = "336"
+            startingLineNumber = "338"
+            endingLineNumber = "338"
             landmarkName = "addFirstMovie(club:movie:)"
             landmarkType = "7">
          </BreakpointContent>

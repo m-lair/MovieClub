@@ -11,8 +11,9 @@ struct FeaturedMovieView: View {
     @Environment(DataManager.self) var data: DataManager
     @State var nextUpView = false
     let movie: Movie
+    @State var selectedByUrl: String = ""
     var body: some View {
-       // let _ = print("this is the club \(data.currentClub)")
+        // let _ = print("this is the club \(data.currentClub)")
         VStack(alignment: .center){
             HStack{
                 Text("Selected by: ")
@@ -20,8 +21,7 @@ struct FeaturedMovieView: View {
                     .foregroundColor(.secondary)
                     .padding(.leading)
                 VStack{
-                    let url = URL(string: movie.authorAvi)
-                    AsyncImage(url: url) { phase in
+                    AsyncImage(url: URL(string: selectedByUrl)) { phase in
                         if let image = phase.image {
                             image
                                 .resizable()
@@ -31,7 +31,7 @@ struct FeaturedMovieView: View {
                             
                         } else {
                             ProgressView()
-                                .frame(width: 100, height: 100)
+                                .frame(width: 30, height: 30)
                         }
                     }
                     Text(movie.author)
@@ -70,7 +70,10 @@ struct FeaturedMovieView: View {
              .multilineTextAlignment(.leading)
              */
         }
-
+        .task{
+            let path = "/Users/profile_images/\(movie.authorID)"
+           // print("comment.userID \(comment.userID)")
+            self.selectedByUrl = await data.getProfileImage(id: movie.authorID, path: path)
+        }
     }
-        
 }

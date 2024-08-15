@@ -14,34 +14,45 @@ struct UserEditView: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) private var dismiss
     @Environment(\.editMode) private var editMode
-    @Binding var name: String
-    @Binding var bio: String
+    @State private var changes: [String: String] = [:]
+    @State var name: String = ""
+    @State var bio: String = ""
     var body: some View {
         VStack{
             if let user = data.currentUser {
                 if editMode?.wrappedValue.isEditing == true {
                     Form {
                         TextField("Name", text: $name, prompt: Text(user.name))
-                        TextField("Bio", text: $name)
+                            .onChange(of: name) {
+                                   changes["name"] = name
+                               }
+                        TextField("Bio", text: $bio)
+                            .onChange(of: bio) {
+                                   changes["bio"] = bio
+                               }
                     }
                 }
                 
             }
         }
         .onChange(of: editMode?.wrappedValue) {
-            if editMode?.wrappedValue.isEditing == true {
-                print("is editing true")
-            }
-            if editMode?.wrappedValue.isEditing == false {
-                var changes: [String] = []
-                var attrs = ["name", "bio"]
-                if name != data.currentUser?.name && !name.isEmpty{
-                    // the field isnt empty and also doesnt equal the current username
-                    //update
-                    changes.append("name")
+            Task{
+                if editMode?.wrappedValue.isEditing == true {
+                    print("is editing true")
+                }
+                if editMode?.wrappedValue.isEditing == false {
+                    if !changes.isEmpty {
+                        do {
+                            print("in try update")
+                            try await data.updateUserDetails(changes: changes)
+                        }catch{
+                            print(error)
+                        }
+                    }
                     
                 }
             }
+            
         }
         
     }
