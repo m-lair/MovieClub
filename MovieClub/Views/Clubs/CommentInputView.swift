@@ -43,7 +43,7 @@ struct CommentInputView: View {
         }
         print("movie club ...")
        
-        let newComment = await Comment(id: nil, image: profileImage, username: data.currentUser?.name ?? "Anonymous", date: Date(), text: commentText, likes: 0)
+        let newComment = await Comment(id: nil, userID: data.currentUser?.id ?? "", image: profileImage, username: data.currentUser?.name ?? "Anonymous", date: Date(), text: commentText, likes: 0)
         
         Task {
             print(newComment)

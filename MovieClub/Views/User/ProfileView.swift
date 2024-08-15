@@ -9,35 +9,36 @@ import SwiftUI
 
 struct ProfileView: View {
     @Environment(DataManager.self) private  var data: DataManager
+    @Environment(\.editMode) private var editMode
     @Environment(\.dismiss) private var dismiss
-    @State var showEditView = false
+    @State private var edit = false
+    @State private var name = ""
+    @State private var bio = ""
     var body: some View {
-        if let user = data.currentUser{
-            VStack{
-                ProfileHeaderView(user: user)
-                Spacer()
-                Button {
-                    data.signOut()
-                } label: {
-                    Text("Sign Out")
-                        .foregroundStyle(Color(.red))
-                        .padding()
-                }
-            }
-            .navigationTitle(user.name)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showEditView = true
-                    } label: {
-                        Text("Edit")
-                    }
-                }
-            }
-            .sheet(isPresented: $showEditView) {
-                UserEditView()
-            }
+        VStack{
+            AviSelector()
+            UserEditView()
+            ProfileDisplayView()
+            //save data after edit
         }
+        .toolbar {
+            ToolbarItem {
+                EditButton()
+                /* Button {
+                 edit.toggle()
+                 } label: {
+                 switch edit {
+                 case true:
+                 Text("Save")
+                 case false:
+                 Text("Edit")
+                 }
+                 }*/
+            }
+            
+        }
+        .navigationTitle("Profile")
+        
     }
 }
 

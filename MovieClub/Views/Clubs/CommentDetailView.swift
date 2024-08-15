@@ -8,37 +8,27 @@
 import SwiftUI
 
 struct CommentDetailView: View {
-    var comment: Comment
-
+    @Environment(DataManager.self) private var data
+    @State var comment: Comment
+    @State var imageUrl: String = ""
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                AsyncImage(url: URL(string: comment.image ?? "")) { phase in
-                    switch phase {
-                    case .success(let image):
+                let _ = print("comment image: \(comment.image)")
+                AsyncImage(url: URL(string: imageUrl)) { phase in
+                    if let image = phase.image {
                         image
                             .resizable()
                             .scaledToFill()
                             .frame(width: 40, height: 40)
                             .clipShape(Circle())
-                    case .empty:
-                        Image(systemName: "person.crop.circle.fill") // Placeholder for profile image
-                            .resizable()
-                            .frame(width: 40, height: 40)
-                            .clipShape(Circle())
-                    case .failure(_):
-                        Image(systemName: "person.crop.circle.fill") // Placeholder for profile image
-                            .resizable()
-                            .frame(width: 40, height: 40)
-                            .clipShape(Circle())
-                    @unknown default:
+                    } else {
                         Image(systemName: "person.crop.circle.fill") // Placeholder for profile image
                             .resizable()
                             .frame(width: 40, height: 40)
                             .clipShape(Circle())
                     }
                 }
-                
                 VStack(alignment: .leading) {
                     Text(comment.username)
                         .font(.headline)
@@ -47,7 +37,6 @@ struct CommentDetailView: View {
                         .foregroundColor(.secondary)
                 }
             }
-            
             Text(comment.text)
                 .font(.body)
             
@@ -59,12 +48,14 @@ struct CommentDetailView: View {
             .font(.subheadline)
             .foregroundColor(.secondary)
         }
+        .task{
+            let path = "/Users/profile_images/\(comment.userID)"
+            print("comment.userID \(comment.userID)")
+            self.imageUrl = await data.getProfileImage(id: comment.userID, path: path)
+        }
         .padding()
         .background(Color.gray.opacity(0.1))
         .cornerRadius(8)
     }
-}
-
-#Preview {
-    CommentDetailView(comment: Comment(username: "username", date: Date(), text: "hate this", likes: 10))
+    
 }

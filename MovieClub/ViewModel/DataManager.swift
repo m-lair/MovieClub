@@ -182,10 +182,11 @@ class DataManager: Identifiable {
     
     func getProfileImage(id: String, path: String) async -> String  {
         //   print("in getter")
-        let storageRef = Storage.storage().reference().child("\(path).jpeg") //Storage.storage().reference().child("Users/profile_images/\(id).jpeg")
+        let storageRef = Storage.storage().reference().child(path) //Storage.storage().reference().child("Users/profile_images/\(id)")
         do {
             let url = try await storageRef.downloadURL()
             self.currentUser?.image = url.absoluteString
+            print("url.absoluteString \(url.absoluteString)")
             return url.absoluteString
         } catch {
             print(error)
@@ -232,14 +233,14 @@ class DataManager: Identifiable {
     }
     
     func fetchComments(movieClubId: String, movieId: String) async -> [Comment]{
-        print("in fetch comments")
-        print("query clubID \(movieClubId) + movieID \(movieId)")
+       // print("in fetch comments")
+       // print("query clubID \(movieClubId) + movieID \(movieId)")
         do {
-            let querySnapshot = try await movieClubCollection().document(movieClubId).collection("movies").document(movieId).collection("comments").getDocuments()
-            
-            
+            let querySnapshot = try await movieClubCollection().document(movieClubId).collection("movies").document(movieId).collection("comments")
+                .order(by: "date", descending: true)
+                .getDocuments()
             let comments = querySnapshot.documents.compactMap { document in
-                print("comment doc \(document)")
+                //print("comment doc \(document)")
                 do {
                     return try document.data(as: Comment.self)
                 } catch {
@@ -247,7 +248,8 @@ class DataManager: Identifiable {
                     return nil
                 }
             }
-            print("comments \(comments)")
+          //  print("comments \(comments)")
+            
             self.comments = comments
             return comments
             //  print("self.comments in method: \(self.comments)")
@@ -559,11 +561,76 @@ class DataManager: Identifiable {
                 print(error)
             }
         let path = ("Users/profile_images/\(self.currentUser?.id ?? "")")
-        await self.currentUser!.image = getProfileImage(id: currentUser!.id!, path: path)
-        await fetchMovieClubsForUser()
+        await self.currentUser?.image = getProfileImage(id: currentUser!.id!, path: path)
+        
+        
+        if userMovieClubs.isEmpty {
+            await fetchMovieClubsForUser()
+        }
     }
     
+    func updateProfilePicture(imageData: Data) async throws {
+        let path = ("Users/profile_images/\(self.currentUser?.id ?? "")")
+        let storageRef = Storage.storage().reference().child(path)
+        let metadata = StorageMetadata()
+        metadata.contentType = "image/jpeg"
+        do {
+            _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
+            let url = try await storageRef.downloadURL()
+            try await usersCollection().document(currentUser?.id ?? "").updateData(["image" : url.absoluteString])
+        
+        }catch{
+            throw error
+        }
+    }
     
+    func updateUserDetails(changes: [String: Any]) async throws{
+        do{
+            print("in update")
+           try await usersCollection().document(currentUser?.id ??
+                                            "").updateData(changes)
+            
+            let commentsQuery = db.collectionGroup("comments").whereField("userID", isEqualTo: currentUser?.id ?? "")
+            do {
+                    let commentsSnapshot = try await commentsQuery.getDocuments()
+                    let batch = db.batch()
+
+                    for document in commentsSnapshot.documents {
+                        // Update each comment document with the new username and profile image URL
+                        batch.updateData([
+                            "username": changes["name"],
+                        ], forDocument: document.reference)
+                    }
+
+                    // Commit the batch write
+                    try await batch.commit()
+                    print("Successfully updated all relevant comments.")
+                } catch {
+                    print("Error updating comments: \(error)")
+                }
+            
+            let moviesQuery = db.collectionGroup("movies").whereField("authorID", isEqualTo: currentUser?.id ?? "")
+            do {
+                let movieSnapshot = try await moviesQuery.getDocuments()
+                let batch = db.batch()
+                
+                for document in movieSnapshot.documents {
+                    batch.updateData([
+                        "author": changes["name"] as Any,
+                    ], forDocument: document.reference)
+                }
+                try await batch.commit()
+                print("successfully updated all relevant movies")
+            } catch {
+                print(error)
+            }
+            print("fetching user")
+            await fetchUser()
+            
+        }catch{
+            throw error
+        }
+    }
     
     
     func signOut(){
