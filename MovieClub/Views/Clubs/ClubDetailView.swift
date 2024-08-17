@@ -15,7 +15,6 @@ struct ClubDetailView: View {
     let movieClub: MovieClub
     @State var isPresentingEditView = false
     @State var movie: Movie?
-    @State var rosterUsers: [User] = []
     @State var comments: [Comment] = []
     @FocusState private var isCommentFieldFocused: Bool
     var body: some View {
@@ -30,14 +29,11 @@ struct ClubDetailView: View {
                         AnyView(ComingSoonView(club: movieClub))
                     ])
                     .padding(.horizontal)
-                    
-                    
                 }else{
                     EmptyMovieView()
                 }
             }
             .padding()
-            
             Spacer()
                 .task{
                     if let currId = data.currentClub?.id, let newId = movieClub.id{

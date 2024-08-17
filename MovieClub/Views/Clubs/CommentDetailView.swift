@@ -14,48 +14,22 @@ struct CommentDetailView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                let _ = print("comment image: \(comment.image)")
-                AsyncImage(url: URL(string: imageUrl)) { phase in
-                    if let image = phase.image {
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 40, height: 40)
-                            .clipShape(Circle())
-                    } else {
-                        Image(systemName: "person.crop.circle.fill") // Placeholder for profile image
-                            .resizable()
-                            .frame(width: 40, height: 40)
-                            .clipShape(Circle())
-                    }
-                }
-                VStack(alignment: .leading) {
+                VStack{
+                    CircularImageView(userID: comment.userID, size: 40)
                     Text(comment.username)
-                        .font(.headline)
-                    Text(comment.date, style: .date)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .font(.caption)
                 }
+                Text(comment.text)
+                    .font(.body)
             }
-            Text(comment.text)
-                .font(.body)
-            
-            HStack {
-                Text("\(comment.likes) likes")
-                Spacer()
-            
+            .task{
+                let path = "/Users/profile_images/\(comment.userID)"
+                //print("comment.userID \(comment.userID)")
+                self.imageUrl = await data.getProfileImage(userID: comment.userID)
             }
-            .font(.subheadline)
-            .foregroundColor(.secondary)
+            .padding()
+            .background(Color.gray.opacity(0.1))
+            .cornerRadius(8)
         }
-        .task{
-            let path = "/Users/profile_images/\(comment.userID)"
-            print("comment.userID \(comment.userID)")
-            self.imageUrl = await data.getProfileImage(id: comment.userID, path: path)
-        }
-        .padding()
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(8)
     }
-    
 }
