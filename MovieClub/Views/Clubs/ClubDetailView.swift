@@ -78,6 +78,21 @@ struct ClubDetailView: View {
                         } label: {
                             Label("Menu", systemImage: "ellipsis")
                         }
+                    } else {
+                        Menu {
+                            Button {
+                                Task{
+                                    await data.leaveClub(club: movieClub)
+                                    dismiss()
+                                }
+                            } label: {
+                                Label("Leave Club", systemImage: "trash")
+                            }
+                            .foregroundStyle(.red)
+                            
+                        } label: {
+                            Label("Menu", systemImage: "ellipsis")
+                        }
                     }
                 }
                 .sheet(isPresented: $isPresentingEditView) {
