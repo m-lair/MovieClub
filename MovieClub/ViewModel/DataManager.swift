@@ -85,26 +85,6 @@ class DataManager: Identifiable {
         }
     }
     
-    func uploadProfileImage(image: UIImage, userId: String) async throws {
-        let storageRef = Storage.storage().reference().child("profileImages/\(userId).jpg")
-        if let imageData = image.jpegData(compressionQuality: 0.75) {
-            let metadata = StorageMetadata()
-            metadata.contentType = "image/jpeg"
-            do {
-                _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
-                let url = try await storageRef.downloadURL()
-                // Update user's profile image URL
-                if var currentUser = currentUser {
-                    currentUser.image = url.absoluteString
-                    try await Firestore.firestore().collection("users").document(userId).updateData(["image": url.absoluteString])
-                    self.currentUser = currentUser
-                }
-            } catch {
-                print("Error uploading image: \(error.localizedDescription)")
-            }
-        }
-    }
-    
     func uploadClubImage(image: UIImage, clubId: String) async -> String{
         let storageRef = Storage.storage().reference().child("Clubs/\(clubId)/_banner.jpg")
         if let imageData = image.jpegData(compressionQuality: 0.25) {
@@ -180,18 +160,38 @@ class DataManager: Identifiable {
         }
     }
     
-    func getProfileImage(id: String, path: String) async -> String  {
+    func getProfileImage(path: String) async -> String {
         //   print("in getter")
         let storageRef = Storage.storage().reference().child(path) //Storage.storage().reference().child("Users/profile_images/\(id)")
         do {
             let url = try await storageRef.downloadURL()
             self.currentUser?.image = url.absoluteString
             print("url.absoluteString \(url.absoluteString)")
+            //return url to image in the cloud as a String
             return url.absoluteString
         } catch {
             print(error)
         }
         return ""
+    }
+    
+    func getProfileImage(userID: String) async -> String {
+        let db = Firestore.firestore()
+        do {
+            // Fetch the document
+            let document = try await usersCollection().document(userID).getDocument()
+            
+            // Retrieve the `profileImageURL` field
+            if let url = document.get("image") as? String {
+                return url
+            } else {
+                print("profileImageURL not found in document")
+                return ""
+            }
+        } catch {
+            print("Error fetching profile image URL: \(error)")
+            return ""
+        }
     }
     
     func updateQueue(membership: Membership) async {
@@ -333,6 +333,7 @@ class DataManager: Identifiable {
                 print(error)
             }
     }
+    
     func addFirstMovie(club: MovieClub, movie: Movie) async {
        // print("Adding first movie: \(movie)")
         if let clubID = club.id {
@@ -345,9 +346,6 @@ class DataManager: Identifiable {
             }
         }
     }
-    
-    //TODO: update time interval method to push movies back
-    
     
     func addClubRelationship(club: MovieClub) async {
         // cant figure out a better way to do this but we know the val wont be null
@@ -371,7 +369,11 @@ class DataManager: Identifiable {
         // print("in fetchMovieClub")
         guard let snapshot = try? await movieClubCollection().document(clubID).getDocument() else {return nil}
         do {
-            let movieClub = try snapshot.data(as: MovieClub.self)
+            var movieClub = try snapshot.data(as: MovieClub.self)
+            let moviesSnapshot = try await movieClubCollection().document(clubID).collection("movies").order(by: "endDate" , descending: true).limit(to: 1).getDocuments()
+            for document in moviesSnapshot.documents {
+                movieClub.movies = [try document.data(as: Movie.self)]
+            }
             return movieClub
         } catch {
             print("Error decoding movie club: \(error)")
@@ -420,7 +422,7 @@ class DataManager: Identifiable {
                     .document(club.id ?? "")
                     .collection("members")
                     .whereField("selector", isEqualTo: true)
-                    .order(by: "dateAdded", descending: true)
+                    .order(by: "dateAdded", descending: false)
                     .limit(to: 3)
                     .getDocuments()
                 // get next up members based on how long ago they joined club
@@ -561,7 +563,7 @@ class DataManager: Identifiable {
                 print(error)
             }
         let path = ("Users/profile_images/\(self.currentUser?.id ?? "")")
-        await self.currentUser?.image = getProfileImage(id: currentUser!.id!, path: path)
+        await self.currentUser?.image = getProfileImage(path: path)
         
         
         if userMovieClubs.isEmpty {
@@ -578,7 +580,7 @@ class DataManager: Identifiable {
             _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
             let url = try await storageRef.downloadURL()
             try await usersCollection().document(currentUser?.id ?? "").updateData(["image" : url.absoluteString])
-        
+            //update movies with new image
         }catch{
             throw error
         }
@@ -601,7 +603,6 @@ class DataManager: Identifiable {
                             "username": changes["name"],
                         ], forDocument: document.reference)
                     }
-
                     // Commit the batch write
                     try await batch.commit()
                     print("Successfully updated all relevant comments.")
@@ -621,6 +622,22 @@ class DataManager: Identifiable {
                 }
                 try await batch.commit()
                 print("successfully updated all relevant movies")
+            } catch {
+                print(error)
+            }
+            
+            let membersQuery = db.collectionGroup("members").whereField("userID", isEqualTo: currentUser?.id ?? "")
+            do {
+                let membersSnapshot = try await membersQuery.getDocuments()
+                let batch = db.batch()
+                
+                for document in membersSnapshot.documents {
+                    batch.updateData([
+                        "userName": changes["name"] as Any,
+                    ], forDocument: document.reference)
+                }
+                try await batch.commit()
+                print("successfully updated all relevant members")
             } catch {
                 print(error)
             }

@@ -12,13 +12,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>323</string>
+					<string>574</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>322</string>
+					<string>573</string>
 					<key>Timestamp</key>
-					<string>745384721.069631</string>
+					<string>745558141.121736</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -34,16 +34,16 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>                        // dont need to change anything here
+				<string>    func updateProfilePicture(imageData: Data) async throws {
 </string>
 				<key>leading</key>
-				<string>                        }
-                        
+				<string>    }
+    
 </string>
 				<key>trailing</key>
-				<string>                        await addClubRelationship(club: movieClub)
-                        //make sure owner date is being set
-                        await addClubMember(clubID: id, user: self.currentUser!, date: timeIntervalFromToday)
+				<string>        let path = ("Users/profile_images/\(self.currentUser?.id ?? "")")
+        let storageRef = Storage.storage().reference().child(path)
+        let metadata = StorageMetadata()
 </string>
 			</dict>
 			<key>type</key>

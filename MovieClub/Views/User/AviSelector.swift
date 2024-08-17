@@ -41,8 +41,7 @@ struct AviSelector: View {
                     }
             } else if let profileImageURL = data.currentUser?.image {
                 // Show the existing profile image from Firebase
-                CircularImageView(imageUrl: URL(string: profileImageURL))
-                    .frame(width: 150, height: 150)
+                CircularImageView(imageUrl: URL(string: profileImageURL), size: 150)
                     .overlay(Circle().stroke(Color.white, lineWidth: 4))
                     .shadow(radius: 10)
                     .onTapGesture {
