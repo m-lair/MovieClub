@@ -41,6 +41,7 @@ class DataManager: Identifiable {
             //await fetchUser()
         }
     }
+    
     func addToComingSoon(clubID: String, userID: String, date: Date) async {
         //add member object
         do {

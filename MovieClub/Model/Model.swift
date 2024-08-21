@@ -76,6 +76,7 @@ struct Member: Codable, Identifiable, Hashable {
 
 struct Movie: Identifiable, Codable, Hashable{
     @DocumentID var id: String? = ""
+    var created: Date
     var title: String
     var poster: String? = ""
     var avgRating: Double? = 0.0
@@ -95,12 +96,14 @@ struct Movie: Identifiable, Codable, Hashable{
     func hash(into hasher: inout Hasher) {
         
     }
+    
     enum CodingKeys: String, CodingKey {
         case id
         case author
         case endDate
         case authorID
         case authorAvi
+        case created
         case releaseYear
         case title = "title"
         case plot = "plot"

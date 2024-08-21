@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		2C0EDD892C516B51001D85C4 /* ComingSoonEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0EDD882C516B51001D85C4 /* ComingSoonEditView.swift */; };
+		2C2FD1D72C7194E9008BC592 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 2C2FD1D62C7194E9008BC592 /* FirebaseMessaging */; };
+		2C2FD1D92C719B97008BC592 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2FD1D82C719B97008BC592 /* NotificationManager.swift */; };
 		2C4474F62BFCF3520034204C /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 2C4474F52BFCF3520034204C /* FirebaseStorage */; };
 		2C4474F82C06DD310034204C /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4474F72C06DD310034204C /* HeaderView.swift */; };
 		2C4474FA2C06DD670034204C /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4474F92C06DD670034204C /* InfoView.swift */; };
@@ -58,6 +60,7 @@
 
 /* Begin PBXFileReference section */
 		2C0EDD882C516B51001D85C4 /* ComingSoonEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComingSoonEditView.swift; sourceTree = "<group>"; };
+		2C2FD1D82C719B97008BC592 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		2C4474F72C06DD310034204C /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		2C4474F92C06DD670034204C /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
 		2C4474FB2C06DD840034204C /* SwipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeView.swift; sourceTree = "<group>"; };
@@ -111,6 +114,7 @@
 			files = (
 				2C5DEC342BF1AE5D000EF232 /* FirebaseAuth in Frameworks */,
 				2C4474F62BFCF3520034204C /* FirebaseStorage in Frameworks */,
+				2C2FD1D72C7194E9008BC592 /* FirebaseMessaging in Frameworks */,
 				2C5DEC362BF1AE5D000EF232 /* FirebaseFirestore in Frameworks */,
 				2C5DEC382BF1AE5D000EF232 /* FirebaseFirestoreSwift in Frameworks */,
 			);
@@ -223,6 +227,7 @@
 			isa = PBXGroup;
 			children = (
 				2C5DEC412BF1B12D000EF232 /* DataManager.swift */,
+				2C2FD1D82C719B97008BC592 /* NotificationManager.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -275,6 +280,7 @@
 				2C5DEC352BF1AE5D000EF232 /* FirebaseFirestore */,
 				2C5DEC372BF1AE5D000EF232 /* FirebaseFirestoreSwift */,
 				2C4474F52BFCF3520034204C /* FirebaseStorage */,
+				2C2FD1D62C7194E9008BC592 /* FirebaseMessaging */,
 			);
 			productName = MovieClub;
 			productReference = 2C5DEC1B2BF1AC6C000EF232 /* MovieClub.app */;
@@ -354,6 +360,7 @@
 				2C4474FA2C06DD670034204C /* InfoView.swift in Sources */,
 				2C4475022C06DE4F0034204C /* CommentView.swift in Sources */,
 				2C87B2AB2C6C072E00A49B2B /* UserMembershipsView.swift in Sources */,
+				2C2FD1D92C719B97008BC592 /* NotificationManager.swift in Sources */,
 				2CAEABA32C63EB2600A0011A /* ComingSoonListView.swift in Sources */,
 				2C4474FC2C06DD840034204C /* SwipeView.swift in Sources */,
 				2C44751B2C4C63AB0034204C /* NowPlayingView.swift in Sources */,
@@ -621,6 +628,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2C2FD1D62C7194E9008BC592 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2C5DEC322BF1AE5D000EF232 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
 		2C4474F52BFCF3520034204C /* FirebaseStorage */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2C5DEC322BF1AE5D000EF232 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
