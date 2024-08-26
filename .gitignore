@@ -4,3 +4,11 @@ MovieClub.xcodeproj/xcuserdata/marcus.xcuserdatad/xcdebugger/Breakpoints_v2.xcbk
 .firebaserc
 firebase.json
 functions/.eslintrc.js
+MovieClub.xcodeproj/project.xcworkspace/xcuserdata/marcus.xcuserdatad/UserInterfaceState.xcuserstate
+ui-debug.log
+firestore-debug.log
+firestore.indexes.json
+firestore.rules
+functions/package-lock.json
+functions/package-lock.json
+.DS_Store
