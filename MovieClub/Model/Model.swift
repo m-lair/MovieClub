@@ -76,7 +76,7 @@ struct Member: Codable, Identifiable, Hashable {
 
 struct Movie: Identifiable, Codable, Hashable{
     @DocumentID var id: String? = ""
-    var created: Date
+    var created: Date?
     var title: String
     var poster: String? = ""
     var avgRating: Double? = 0.0
@@ -103,7 +103,6 @@ struct Movie: Identifiable, Codable, Hashable{
         case endDate
         case authorID
         case authorAvi
-        case created
         case releaseYear
         case title = "title"
         case plot = "plot"
@@ -209,7 +208,7 @@ struct FirestoreMovie: Identifiable, Codable, Equatable, Hashable {
 struct MovieClub: Identifiable, Codable, Hashable{
     var id: String?
     var name: String
-    var created: Date
+    var created: Date = Date()
     var numMembers: Int
     var description: String? = ""
     var ownerName: String
@@ -223,27 +222,39 @@ struct MovieClub: Identifiable, Codable, Hashable{
     var members: [Member]?
     var movies: [Movie]?
     
-    static func == (lhs: MovieClub, rhs: MovieClub) -> Bool {
-            lhs.id == rhs.id
-        }
-        
-        func hash(into hasher: inout Hasher) {
-            hasher.combine(id)
-            hasher.combine(name)
-            hasher.combine(created)
-            hasher.combine(numMembers)
-            hasher.combine(description)
-            hasher.combine(ownerName)
-            hasher.combine(timeInterval)
-            hasher.combine(movieEndDate)
-            hasher.combine(ownerID)
-            hasher.combine(isPublic)
-            hasher.combine(banner)
-            hasher.combine(numMovies)
-            hasher.combine(members)
-            hasher.combine(movies)
-        }
-
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case numMembers
+        case description
+        case ownerName
+        case timeInterval
+        case movieEndDate
+        case ownerID
+        case isPublic
+        case banner
+        case bannerUrl
+        case numMovies
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(name)
+        hasher.combine(created)
+        hasher.combine(numMembers)
+        hasher.combine(description)
+        hasher.combine(ownerName)
+        hasher.combine(timeInterval)
+        hasher.combine(movieEndDate)
+        hasher.combine(ownerID)
+        hasher.combine(isPublic)
+        hasher.combine(banner)
+        hasher.combine(numMovies)
+        hasher.combine(members)
+        hasher.combine(movies)
+    }
+    
+    
 }
 
 

@@ -524,6 +524,7 @@ class DataManager: Identifiable {
                 let apiMovie = try await fetchAPIMovie(title: firestoreMovie.title)
                 let combinedMovie = Movie(
                     id: firestoreMovie.id,
+                    created: Date(),
                     title: firestoreMovie.title,
                     poster: apiMovie.poster,
                     endDate: firestoreMovie.endDate!,
@@ -675,7 +676,7 @@ extension MovieClub {
                                                   ownerID: "000123",
                                                   isPublic: true,
                                                   bannerUrl: "https://firebasestorage.googleapis.com:443/v0/b/movieclub-93714.appspot.com/o/Clubs%2FH71IficmTcmCGOnF4hrn%2F_banner.jpg?alt=media&token=7c5c6c53-c1a7-4a28-a1ba-8defd431c7fa",
-                                                  movies: [Movie(id: "001",
+                                                  movies: [Movie(id: "001", created: Date(),
                                                                  title: "The Matrix",
                                                                  poster: "https://m.media-amazon.com/images/M/MV5BOGUyZDUxZjEtMmIzMC00MzlmLTg4MGItZWJmMzBhZjE0Mjc1XkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
                                                                  endDate: Calendar.current.date(byAdding: .weekOfYear, value: 4, to: Date())!, author: "duhmarcus", authorID: "tUM5fRuYZSUs86ud8tydTqjKcC43", authorAvi: "https://firebasestorage.googleapis.com/v0/b/movieclub-93714.appspot.com/o/Users%2Fprofile_images%2FtUM5fRuYZSUs86ud8tydTqjKcC43.jpeg?alt=media&token=1abbcce9-e460-48b8-9770-04f2a75be20f")]),
