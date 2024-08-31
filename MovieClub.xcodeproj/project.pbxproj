@@ -46,7 +46,6 @@
 		2C8256C32BF1E90E00D2ED12 /* DiscoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256C22BF1E90E00D2ED12 /* DiscoverView.swift */; };
 		2C8256C52BF2FC2B00D2ED12 /* MovieClubCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256C42BF2FC2B00D2ED12 /* MovieClubCardView.swift */; };
 		2C8256C72BF2FE3400D2ED12 /* ClubDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256C62BF2FE3400D2ED12 /* ClubDetailView.swift */; };
-		2C8256CD2BF3D80D00D2ED12 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256CC2BF3D80D00D2ED12 /* MainTabView.swift */; };
 		2C87B2A72C6B13C500A49B2B /* AviSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C87B2A62C6B13C500A49B2B /* AviSelector.swift */; };
 		2C87B2A92C6B145400A49B2B /* CircularImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C87B2A82C6B145400A49B2B /* CircularImageView.swift */; };
 		2C87B2AB2C6C072E00A49B2B /* UserMembershipsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C87B2AA2C6C072E00A49B2B /* UserMembershipsView.swift */; };
@@ -56,6 +55,7 @@
 		2CAEABA12C5C5C9300A0011A /* BlurredBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */; };
 		2CAEABA32C63EB2600A0011A /* ComingSoonListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEABA22C63EB2600A0011A /* ComingSoonListView.swift */; };
 		2CAEABA82C6A9C9700A0011A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2CAEABA72C6A9C9700A0011A /* GoogleService-Info.plist */; };
+		2CF654582C82AE41006F31A9 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF654572C82AE41006F31A9 /* MainTabView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -94,7 +94,6 @@
 		2C8256C22BF1E90E00D2ED12 /* DiscoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverView.swift; sourceTree = "<group>"; };
 		2C8256C42BF2FC2B00D2ED12 /* MovieClubCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieClubCardView.swift; sourceTree = "<group>"; };
 		2C8256C62BF2FE3400D2ED12 /* ClubDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubDetailView.swift; sourceTree = "<group>"; };
-		2C8256CC2BF3D80D00D2ED12 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = SOURCE_ROOT; };
 		2C87B2A62C6B13C500A49B2B /* AviSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AviSelector.swift; sourceTree = "<group>"; };
 		2C87B2A82C6B145400A49B2B /* CircularImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularImageView.swift; sourceTree = "<group>"; };
 		2C87B2AA2C6C072E00A49B2B /* UserMembershipsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserMembershipsView.swift; sourceTree = "<group>"; };
@@ -105,6 +104,7 @@
 		2CAEABA22C63EB2600A0011A /* ComingSoonListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComingSoonListView.swift; sourceTree = "<group>"; };
 		2CAEABA42C6A7FD500A0011A /* MovieClub.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MovieClub.entitlements; sourceTree = "<group>"; };
 		2CAEABA72C6A9C9700A0011A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		2CF654572C82AE41006F31A9 /* MainTabView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MainTabView.swift; path = MovieClub/MainTabView.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -239,7 +239,7 @@
 				2C4474F12BFCF1EA0034204C /* Clubs */,
 				2C4474F22BFCF1F10034204C /* User */,
 				2C4474F32BFCF21D0034204C /* Movie */,
-				2C8256CC2BF3D80D00D2ED12 /* MainTabView.swift */,
+				2CF654572C82AE41006F31A9 /* MainTabView.swift */,
 				2C5DEC772BF1B3F6000EF232 /* AddToCalendarView.swift */,
 				2C5DEC762BF1B3F6000EF232 /* HomePageView.swift */,
 				2C8256C22BF1E90E00D2ED12 /* DiscoverView.swift */,
@@ -349,8 +349,8 @@
 				2C5DEC402BF1B0DB000EF232 /* Model.swift in Sources */,
 				2C8256C52BF2FC2B00D2ED12 /* MovieClubCardView.swift in Sources */,
 				2C4475002C06DE3A0034204C /* FeaturedMovieView.swift in Sources */,
-				2C8256CD2BF3D80D00D2ED12 /* MainTabView.swift in Sources */,
 				2C5DEC7E2BF1B3F6000EF232 /* HomePageView.swift in Sources */,
+				2CF654582C82AE41006F31A9 /* MainTabView.swift in Sources */,
 				2C8256C72BF2FE3400D2ED12 /* ClubDetailView.swift in Sources */,
 				2C5DEC422BF1B12D000EF232 /* DataManager.swift in Sources */,
 				2C87B2B12C6D08F300A49B2B /* ProfileDisplayView.swift in Sources */,
