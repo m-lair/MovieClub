@@ -1,19 +1,16 @@
-
-import { expect } from 'chai';
-
+'use strict';
 const test = require('firebase-functions-test')({
   databaseURL: 'localhost:8080',
   projectId: 'movieclub-93714',
 }, '/Users/marcus/Library/Mobile Documents/com~apple~CloudDocs/Documents/movieclub-93714-f6efcc256851.json');
 const admin = require('firebase-admin');
-
+const { rotateMovieLogic } = require('../index');
 if (!admin.apps.length) {
   admin.initializeApp();
 }
 
 const db = admin.firestore();
 db.settings({ host: 'localhost:8080', ssl: false });
-const myFunctions = require('../index');
 //test.mockConfig({ omdbapi: { key: 'ab92d369' }});
 
 describe('rotateMovie', () => {
@@ -101,7 +98,7 @@ describe('rotateMovie', () => {
 
     // Call the wrapped rotateMovie function
     console.log('Calling rotateMovie function...');
-    await myFunctions.rotateMovie(context);
+    await rotateMovieLogic();
 
     console.log('Finished running rotateMovie function');
 

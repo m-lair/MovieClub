@@ -1,23 +1,25 @@
 
-import { pubsub } from "firebase-functions";
+const functions = require("firebase-functions");
 // The Firebase Admin SDK to delete inactive users.
-import { apps, initializeApp } from "firebase-admin";
-if (!apps.length) {
-    initializeApp();
+const admin = require("firebase-admin");
+if (!admin.apps.length) {
+    admin.initializeApp();
 }
 
-export const rotateMovie = pubsub.schedule('every 24 hours').onRun(async (context) => {
+exports.rotateMovie = functions.pubsub.schedule('every 24 hours').onRun(async () => {
     console.log('Rotating movie...');
     await rotateMovieLogic();
 });
 
+// Export the scheduled function for deployment
+
+
 
 async function rotateMovieLogic() {
-/*
+    console.log('Rotating movie logic...');
     const db = admin.firestore();
     const apiEndpoint = `http://www.omdbapi.com/?apikey=${functions.config().omdbapi.key}&r=json`;
-    const currentTimestamp = Date.now();
-  
+    const currentTimestamp = admin.firestore.Timestamp.now();
     try {
       const snapshot = await db.collectionGroup("movieclubs")
         .where("movieEndDate", "<", currentTimestamp)
@@ -37,7 +39,6 @@ async function rotateMovieLogic() {
             const userID = doc.ref.parent.parent.parent.id;
             const clubRef = db.collection("movieclubs").doc(clubID);
             const userRef = db.collection("users").doc(userID);
-
             const userDoc = await userRef.get();
             if (!userDoc.exists) {
                 throw new Error(`User with ID ${userID} does not exist.`);
@@ -68,7 +69,9 @@ async function rotateMovieLogic() {
     } catch (error) {
         console.error('Error rotating movies:', error);
     }
-        */
+        
 }
 
-console.log('index.js loaded, exports:', Object.keys(module.exports));
+exports.rotateMovieLogic = rotateMovieLogic;
+
+exports.rotateMovie = functions.pubsub.schedule('every 24 hours').onRun(rotateMovieLogic);

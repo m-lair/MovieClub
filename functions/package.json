@@ -12,7 +12,6 @@
   "engines": {
     "node": "20"
   },
-  "type": "module",
   "main": "index.js",
   "dependencies": {
     "chai": "^5.1.1",
