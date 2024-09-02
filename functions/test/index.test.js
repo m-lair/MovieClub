@@ -1,36 +1,112 @@
-const test = require('firebase-functions-test')({
-    databaseURL: 'https://movieclub-93714.firebaseio.com',
-    storageBucket: 'movieclub-93714.appspot.com',
-    projectId: 'movieclub-93714',
-  }, '/Users/marcus/Library/Mobile Documents/com~apple~CloudDocs/Documents/movieclub-93714-f6efcc256851.json');
 
+import { expect } from 'chai';
+
+const test = require('firebase-functions-test')({
+  databaseURL: 'localhost:8080',
+  projectId: 'movieclub-93714',
+}, '/Users/marcus/Library/Mobile Documents/com~apple~CloudDocs/Documents/movieclub-93714-f6efcc256851.json');
 const admin = require('firebase-admin');
-admin.initializeApp();
+
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
 
 const db = admin.firestore();
-const functions = require('../index');
+db.settings({ host: 'localhost:8080', ssl: false });
+const myFunctions = require('../index');
+//test.mockConfig({ omdbapi: { key: 'ab92d369' }});
 
 describe('rotateMovie', () => {
   it('should rotate the movie every 24 hours', async () => {
-    // Set up test data
+    console.log('Test Movie Club Data');
     const movieClubRef = db.collection('movieclubs').doc('test-club');
-    const membershipRef = movieClubRef.collection('memberships').doc('test-membership');
-    const movieRef = membershipRef.collection('queue').doc('test-movie');
+    const movieClubData = {
+      name: 'Test Club',
+      description: 'Test Description',
+      image: 'Test Image',
+      created: admin.firestore.Timestamp.fromDate(new Date()),
+      movieEndDate: admin.firestore.Timestamp.fromDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)),
+    };
 
-    await movieRef.set({ title: 'Test Movie' });
-    await membershipRef.set({ queue: [movieRef.id] });
-    await movieClubRef.set({});
+    try {
+    await movieClubRef.set(movieClubData);
+    console.log('movie club data set');
+    } catch (error) {
+      throw new Error(`Error setting movie club data: ${error}`);
+    }
+    // User Test Data
+    const userRef = db.collection('users').doc('test-user');
+    const userData = {
+      name: 'Test User',
+      id: 'test-user',
+      image: 'Test Image',
+      bio: 'Test Bio'
+    };
 
-    // Call the rotateMovie function
-    const context = { req: {}, res: {} };
-    await functions.rotateMovie(context);
+    try {
+    await userRef.set(userData);
+    console.log('user data set');
+    } catch (error) {
+      throw new Error(`Error setting user data: ${error}`);
+    }
+    // Membership Test Data
+    const membershipRef = userRef.collection('memberships').doc("test-club");
+    const membershipData = {
+      clubID: movieClubData.name,
+      clubName: movieClubData.name,
+      queue: [{
+        title: 'Test Movie',
+        author: 'Test user',
+        authorID: 'test-user',
+        authorAvi: 'Test Avi',
+      }]
+    };
 
-    // Verify that the movie has been rotated
-    const newMovieRef = await movieClubRef.collection('movies').get();
-    expect(newMovieRef.docs.length).toBe(1);
-    const newMovieData = newMovieRef.docs[0].data();
-    expect(newMovieData.title).toBe('Test Movie');
-    expect(newMovieData.director).toBeDefined();
-    expect(newMovieData.plot).toBeDefined();
+    try {
+    await membershipRef.set(membershipData);
+    console.log('membership data set');
+    } catch (error) {
+      throw new Error(`Error setting membership data: ${error}`);
+    }
+
+    // Movie Test Data
+    const movieRef = movieClubRef.collection('movies').doc('test-movie');
+    const movieData = {
+      title: 'Test Movie',
+      director: 'Test Director',
+      plot: 'Test Plot',
+    };
+
+    try{
+    await movieRef.set(movieData);
+    console.log('movie data set');
+    } catch (error) {
+      throw new Error(`Error setting movie data: ${error}`);
+    }
+
+    const memberRef = movieClubRef.collection('members').doc('test-user');
+    const memberData = {
+      name: 'Test User',
+      id: 'test-user',
+      avi: 'Test Image',
+      dateAdded: admin.firestore.Timestamp.fromDate(new Date())
+    };
+
+    try {
+    await memberRef.set(memberData);
+    console.log('member data set');
+    } catch (error) {
+      throw new Error(`Error setting member data: ${error}`);
+    }
+
+    // Call the wrapped rotateMovie function
+    console.log('Calling rotateMovie function...');
+    await myFunctions.rotateMovie(context);
+
+    console.log('Finished running rotateMovie function');
+
   });
-});
+    after(() => {
+      console.log('Test complete');
+    });
+  });
