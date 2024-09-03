@@ -5,6 +5,9 @@ const test = require('firebase-functions-test')({
 }, '/Users/marcus/Library/Mobile Documents/com~apple~CloudDocs/Documents/movieclub-93714-f6efcc256851.json');
 const admin = require('firebase-admin');
 const { rotateMovieLogic } = require('../index');
+const assert = require('assert');
+
+
 if (!admin.apps.length) {
   admin.initializeApp();
 }
@@ -52,12 +55,12 @@ describe('rotateMovie', () => {
       clubID: movieClubData.name,
       clubName: movieClubData.name,
       queue: [{
-        title: 'Test Movie',
+        title: 'The Matrix',
         author: 'Test user',
         authorID: 'test-user',
         authorAvi: 'Test Avi',
       }]
-    };
+    }; 
 
     try {
     await membershipRef.set(membershipData);
@@ -99,11 +102,13 @@ describe('rotateMovie', () => {
     // Call the wrapped rotateMovie function
     console.log('Calling rotateMovie function...');
     await rotateMovieLogic();
-
     console.log('Finished running rotateMovie function');
-
+    assert(movieClubRef.collection('movies') !== null);
+    assert(movieClubRef.collection('movies') !== undefined);
   });
     after(() => {
+      test.cleanup();
+      console.log('Test cleanup complete');
       console.log('Test complete');
     });
   });

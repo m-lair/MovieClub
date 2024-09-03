@@ -3,6 +3,7 @@ const functions = require("firebase-functions");
 const fetch = require("node-fetch");
 // The Firebase Admin SDK to delete inactive users.
 const admin = require("firebase-admin");
+const { DocumentReference } = require("firebase-admin/firestore");
 if (!admin.apps.length) {
     admin.initializeApp();
 }
@@ -80,12 +81,22 @@ async function rotateMovieLogic() {
                 endDate: currentTimestamp + (1000 * 60 * 60 * 24 * 7)
             };     
             const movieRef = db.collection("movieclubs").doc(clubID).collection("movies").doc().set(movieData);     
+            try {
+            resetDateAdded(membershipRef);
+            } catch (error) {
+                console.error(`Error resetting dateAdded for membership with ID ${membershipRef.id}:`, error);
+            }
         });
 
         await Promise.all(promises);
     } catch (error) {
         console.error('Error rotating movies:', error);
     }
+}
+
+async function resetDateAdded(memberDoc) {
+    memberDoc.update({ dateAdded: admin.firestore.Timestamp.now() });
+
 }
 
 exports.rotateMovieLogic = rotateMovieLogic;
