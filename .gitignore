@@ -13,18 +13,7 @@ functions/package-lock.json
 functions/package-lock.json
 .DS_Store
 node_modulesx/
-
-
-
-
-
-
-
-
-
-
-
-
+.log
 
 
 
@@ -11401,3 +11390,6 @@ node_modulesx/
 
 functions/.runtimeconfig.json
 functions/firebase-debug.log
+functions/pubsub-debug.log
+functions/pubsub-debug.log
+functions/pubsub-debug.log

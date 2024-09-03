@@ -69,7 +69,7 @@ describe('rotateMovie', () => {
     // Movie Test Data
     const movieRef = movieClubRef.collection('movies').doc('test-movie');
     const movieData = {
-      title: 'Test Movie',
+      title: 'The Matrix',
       director: 'Test Director',
       plot: 'Test Plot',
     };
