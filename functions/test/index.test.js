@@ -6,6 +6,7 @@ const test = require('firebase-functions-test')({
 const admin = require('firebase-admin');
 const { rotateMovieLogic } = require('../index');
 const assert = require('assert');
+const populate = require('../PopulateTestData');
 
 
 if (!admin.apps.length) {
@@ -18,94 +19,28 @@ db.settings({ host: 'localhost:8080', ssl: false });
 
 describe('rotateMovie', () => {
   it('should rotate the movie every 24 hours', async () => {
-    console.log('Test Movie Club Data');
-    const movieClubRef = db.collection('movieclubs').doc('test-club');
-    const movieClubData = {
-      name: 'Test Club',
-      description: 'Test Description',
-      image: 'Test Image',
-      created: admin.firestore.Timestamp.fromDate(new Date()),
-      movieEndDate: admin.firestore.Timestamp.fromDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)),
-    };
-
-    try {
-    await movieClubRef.set(movieClubData);
-    console.log('movie club data set');
-    } catch (error) {
-      throw new Error(`Error setting movie club data: ${error}`);
-    }
-    // User Test Data
-    const userRef = db.collection('users').doc('test-user');
-    const userData = {
-      name: 'Test User',
-      id: 'test-user',
-      image: 'Test Image',
-      bio: 'Test Bio'
-    };
-
-    try {
-    await userRef.set(userData);
-    console.log('user data set');
-    } catch (error) {
-      throw new Error(`Error setting user data: ${error}`);
-    }
-    // Membership Test Data
-    const membershipRef = userRef.collection('memberships').doc("test-club");
-    const membershipData = {
-      clubID: movieClubData.name,
-      clubName: movieClubData.name,
-      queue: [{
-        title: 'The Matrix',
-        author: 'Test user',
-        authorID: 'test-user',
-        authorAvi: 'Test Avi',
-      }]
-    }; 
-
-    try {
-    await membershipRef.set(membershipData);
-    console.log('membership data set');
-    } catch (error) {
-      throw new Error(`Error setting membership data: ${error}`);
-    }
-
-    // Movie Test Data
-    const movieRef = movieClubRef.collection('movies').doc('test-movie');
-    const movieData = {
-      title: 'The Matrix',
-      director: 'Test Director',
-      plot: 'Test Plot',
-    };
-
     try{
-    await movieRef.set(movieData);
-    console.log('movie data set');
-    } catch (error) {
-      throw new Error(`Error setting movie data: ${error}`);
+     await populate.populateDefaultData(2);
+    }catch(error){
+        console.log(error);
     }
 
-    const memberRef = movieClubRef.collection('members').doc('test-user');
-    const memberData = {
-      name: 'Test User',
-      id: 'test-user',
-      avi: 'Test Image',
-      dateAdded: admin.firestore.Timestamp.fromDate(new Date())
-    };
-
-    try {
-    await memberRef.set(memberData);
-    console.log('member data set');
-    } catch (error) {
-      throw new Error(`Error setting member data: ${error}`);
-    }
-
+    const movieClubRef = await db.collection('movieclubs').get();
     // Call the wrapped rotateMovie function
     console.log('Calling rotateMovie function...');
     await rotateMovieLogic();
     console.log('Finished running rotateMovie function');
-    assert(movieClubRef.collection('movies') !== null);
-    assert(movieClubRef.collection('movies') !== undefined);
+    for( let club of movieClubRef.docs){
+        console.log(club.id);
+        assert(db.collection("movieclubs").doc(club.id).collection('movies') !== null);
+        assert(db.collection("movieclubs").doc(club.id).collection('movies') !== undefined);
+        assert(db.collection("movieclubs").doc(club.id).collection('movies').get() !== null);
+        assert(db.collection("movieclubs").doc(club.id).collection('movies').get() !== undefined);
+        assert((await db.collection("movieclubs").doc(club.id).collection('movies').get()).docs.length >= 2);
+    }
+    
   });
+
     after(() => {
       test.cleanup();
       console.log('Test cleanup complete');
