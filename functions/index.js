@@ -19,8 +19,6 @@ async function rotateMovieLogic() {
     const apiEndpoint = `http://www.omdbapi.com/?apikey=${functions.config().omdbapi.key}&r=json`;
     console.log('apiEndpoint: ' + apiEndpoint);
 
-    
-    
     try {
       console.log('getting snapshot');
       /*const snapshot = await db.collectionGroup("movieclubs")
@@ -120,3 +118,15 @@ async function rotateMovieLogic() {
 exports.rotateMovieLogic = rotateMovieLogic;
 
 exports.rotateMovie = functions.pubsub.schedule('every 24 hours').onRun(rotateMovieLogic);
+
+exports.createNewUser = functions.auth.user().onCreate(async (user) => {
+    console.log('Creating new user: ' + user.uid);
+    const userData = {
+        name: user.displayName ? user.displayName : 'no-name',
+        id: user.uid ? user.uid : 'no-id',
+        image: user.photoURL ? user.photoURL : 'no-image',
+    };
+    const db = admin.firestore();
+    db.collection("users").doc(user.uid).set(userData);
+    console.log('Created new user: ' + user.uid);
+});

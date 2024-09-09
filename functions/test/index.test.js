@@ -34,8 +34,6 @@ describe('rotateMovie', () => {
         console.log(club.id);
         assert(db.collection("movieclubs").doc(club.id).collection('movies') !== null);
         assert(db.collection("movieclubs").doc(club.id).collection('movies') !== undefined);
-        assert(db.collection("movieclubs").doc(club.id).collection('movies').get() !== null);
-        assert(db.collection("movieclubs").doc(club.id).collection('movies').get() !== undefined);
         assert((await db.collection("movieclubs").doc(club.id).collection('movies').get()).docs.length >= 2);
     }
     
