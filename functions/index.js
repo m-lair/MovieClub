@@ -3,10 +3,11 @@ const functions = require("firebase-functions");
 const fetch = require("node-fetch");
 // The Firebase Admin SDK to delete inactive users.
 const admin = require("firebase-admin");
+
 if (!admin.apps.length) {
     admin.initializeApp();
 }
-
+const db = admin.firestore();
 // Export the scheduled function for deployment
 exports.rotateMovie = functions.pubsub.schedule('every 24 hours').onRun(async () => {
     console.log('Rotating movie...');
@@ -14,7 +15,6 @@ exports.rotateMovie = functions.pubsub.schedule('every 24 hours').onRun(async ()
 });
 async function rotateMovieLogic() {
     console.log('Rotating movie logic...');
-    const db = admin.firestore();
     console.log('after getting db' + db);
     const apiEndpoint = `http://www.omdbapi.com/?apikey=${functions.config().omdbapi.key}&r=json`;
     console.log('apiEndpoint: ' + apiEndpoint);
@@ -119,14 +119,48 @@ exports.rotateMovieLogic = rotateMovieLogic;
 
 exports.rotateMovie = functions.pubsub.schedule('every 24 hours').onRun(rotateMovieLogic);
 
-exports.createNewUser = functions.auth.user().onCreate(async (user) => {
-    console.log('Creating new user: ' + user.uid);
-    const userData = {
-        name: user.displayName ? user.displayName : 'no-name',
-        id: user.uid ? user.uid : 'no-id',
-        image: user.photoURL ? user.photoURL : 'no-image',
-    };
-    const db = admin.firestore();
-    db.collection("users").doc(user.uid).set(userData);
-    console.log('Created new user: ' + user.uid);
-});
+exports.createUser = functions.https.onCall(async (data, context) => {
+
+    // need whole thing to be promised
+
+    // Check if the data contains the required fields
+    if (!data.email || !data.password || !data.displayName) {
+      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with email, password, and displayName.');
+    }
+  
+    try {
+      // Create the user in Firebase Authentication
+      try {
+      const userRecord = await admin.auth().createUser({
+        email: data.email,
+        password: data.password,
+        displayName: data.displayName
+      });
+      } catch (error) {
+        console.error('Error creating user:', error);
+        throw new functions.https.HttpsError('internal', 'Error creating user', error);
+      }
+      
+      // Prepare user data for Firestore
+      const userData = {
+        uid: userRecord.uid,
+        email: data.email,
+        displayName: data.displayName,
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
+      };
+
+      try {
+        // Add user data to Firestore
+        await admin.firestore().collection('users').doc(userRecord.uid).set(userData);
+      }catch (error) {
+        console.error('Error signing in user:', error);
+        throw new functions.https.HttpsError('internal', 'Error signing in user', error);
+      }
+  
+      // Return the user ID
+      return { uid: userRecord.uid };
+    } catch (error) {
+      console.error('Error creating new user:', error);
+      throw new functions.https.HttpsError('internal', 'Error creating new user', error);
+    }
+  });
