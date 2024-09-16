@@ -35,13 +35,14 @@ async function rotateMovieLogic() {
             // get movieclub from doc
             console.log('currentTimestamp: ' + currentTimestamp);
             console.log('movieEndDate: ' + doc.data().movieEndDate);
-            if(doc.data().movieEndDate > currentTimestamp){
-                console.log('movieEndDate > currentTimestamp');
-            }
+            if(doc.data().movieEndDate <= currentTimestamp){
+                console.log('movieEndDate < currentTimestamp');
+            
             const movieclubDoc =  await doc.ref.get();
 
             const clubInterval =  movieclubDoc.data().timeInterval;
             const futureDate = new Date(currentTimestamp.setDate(currentTimestamp.getDate() + clubInterval * 7));
+            console.log("futureDate: " + futureDate);
             if (!movieclubDoc.exists) {
                 throw new Error(`Movieclub with ID ${doc.id} does not exist.`);
             }
@@ -92,10 +93,12 @@ async function rotateMovieLogic() {
                 director: data.Director ? data.Director : 'No Director',
                 plot: data.Plot ? data.Plot : 'No Plot',
                 author: userData.name ? userData.name : 'no-name',
-                authorID: userData.id ? userData.id : 'no-id',
+                authorID: userDoc.id ? userDoc.id : 'no-id',
                 authorAvi: userData.image ? userData.image : 'no-image',
                 created: currentTimestamp,
+                poster: data.Poster ? data.Poster : 'no-image',
                 endDate: futureDate,
+                userName: userData.name ? userData.name : 'no-name',
             };   
 
             console.log('newMovieData: ' + newMovieData);
@@ -107,6 +110,7 @@ async function rotateMovieLogic() {
             } catch (error) {
                 console.error(`Error resetting dateAdded for membership with ID ${membershipRef.id}:`, error);
             }
+          }
         });
 
         await Promise.all(promises);
