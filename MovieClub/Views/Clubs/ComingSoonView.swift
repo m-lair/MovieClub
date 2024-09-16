@@ -32,7 +32,7 @@ struct ComingSoonView: View {
                             
                             if comingSoon[index].id == data.currentUser?.id ?? "" {
                                 NavigationLink(value: "EditMovies") {
-                                    Label("Edit Movies", systemImage: "pencil")
+                                    Label("Edit", systemImage: "pencil")
                                     
                                 }
                             }

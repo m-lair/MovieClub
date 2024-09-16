@@ -66,6 +66,7 @@ struct MovieRow: View {
            // print("in if")
             let firestoreMovie = FirestoreMovie(title: movie.title, poster: movie.poster, author: user.name, authorID: user.id ?? "", authorAvi: user.image ?? "")
             let movie = Movie(
+                created: Date(),
                 title: firestoreMovie.title,
                 poster: apiMovie.poster,
                 endDate: club.movieEndDate,

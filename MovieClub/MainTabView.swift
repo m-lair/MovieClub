@@ -23,7 +23,7 @@ struct MainTabView: View {
         TabView(selection: tabSelection()){
             Group {
                 NavigationStack(path: $clubsPath){
-                    HomePageView(navPath: $clubsPath, userClubs: data.userMovieClubs)
+                    HomePageView(navPath: $clubsPath)
                 }
                 .tabItem {
                     Label("", systemImage: "house.fill")
@@ -54,11 +54,6 @@ struct MainTabView: View {
             .toolbarBackground(.black, for: .tabBar)
             .toolbarBackground(.visible, for: .tabBar)
             
-        }
-        .onAppear {
-            Task {
-                await data.fetchUser()
-            }
         }
     }
 }

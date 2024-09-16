@@ -111,7 +111,7 @@ struct SignUpView: View {
                 Task {
                     //check if user exists first
                     
-                    try await data.createUser(user: User(email: email, bio: bio, name: name, password: password))
+                    try await data.createUser(email: email, password:password, displayName:name)
                     try await data.signIn(email: email, password: password)
                     dismiss()
                 }

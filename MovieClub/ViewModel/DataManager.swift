@@ -14,6 +14,9 @@ import UIKit
 import FirebaseStorage
 import Observation
 import SwiftUI
+import FirebaseMessaging
+import FirebaseFunctions
+
 
 @MainActor
 @Observable 
@@ -36,11 +39,13 @@ class DataManager: Identifiable {
     
     init(){
         Task {
+            print("auth curr user \(String(describing: Auth.auth().currentUser))")
             self.userSession = Auth.auth().currentUser
             db = Firestore.firestore()
-            //await fetchUser()
+            await fetchUser()
         }
     }
+    
     func addToComingSoon(clubID: String, userID: String, date: Date) async {
         //add member object
         do {
@@ -62,14 +67,21 @@ class DataManager: Identifiable {
         return db.collection("users")
     }
     
-    func createUser(user: User) async throws {
+    func createUser(email: String, password: String, displayName: String) async throws -> String {
         do {
-            let result = try await Auth.auth().createUser(withEmail: user.email, password: user.password)
-            self.userSession = result.user
-            let user = User(id: result.user.uid, email: user.email, bio: user.bio, name: user.name, image: user.image, password: user.password)
-            let encodeUser = try Firestore.Encoder().encode(user)
-            try await usersCollection().document(user.id ?? "").setData(encodeUser)
-            await fetchUser()
+            let functions = Functions.functions()
+            let result = try await functions.httpsCallable("createUser").call([
+                "email": email,
+                "password": password,
+                "displayName": displayName
+            ])
+            
+            guard let data = result.data as? [String: Any],
+                  let uid = data["uid"] as? String else {
+                throw NSError(domain: "UserService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response from server"])
+            }
+            
+            return uid
         } catch {
             throw error
         }
@@ -80,6 +92,8 @@ class DataManager: Identifiable {
         do{
             let result = try await Auth.auth().signIn(withEmail: email, password: password)
             self.userSession = result.user
+            print("signed in user \(result.user)")
+            
         } catch {
             throw error
         }
@@ -266,12 +280,13 @@ class DataManager: Identifiable {
                 print("User not found")
                 return
             }
+            print("user id: \(user.id)")
             let snapshot = try await usersCollection().document(user.id ?? "").collection("memberships").getDocuments()
             
             let documents = snapshot.documents
             
             let clubIDs = documents.compactMap { document in
-                print("document loop \(document.description)")
+                print("document loop \(document.documentID)")
                 return document.data()["clubID"] as? String ?? "error"
                 
             }
@@ -370,13 +385,17 @@ class DataManager: Identifiable {
         guard let snapshot = try? await movieClubCollection().document(clubID).getDocument() else {return nil}
         do {
             var movieClub = try snapshot.data(as: MovieClub.self)
-            let moviesSnapshot = try await movieClubCollection().document(clubID).collection("movies").order(by: "endDate" , descending: true).limit(to: 1).getDocuments()
+            print("decoded movieClub \(movieClub)")
+            let moviesSnapshot = try await movieClubCollection().document(clubID).collection("movies").order(by: "endDate" , descending: false).limit(to: 1).getDocuments()
+            print("snapshot count: \(moviesSnapshot.count)")
+       
             for document in moviesSnapshot.documents {
+                print("document data \(document.documentID)")
                 movieClub.movies = [try document.data(as: Movie.self)]
             }
             return movieClub
         } catch {
-            print("Error decoding movie club: \(error)")
+            print("Error decoding movie: \(error)")
         }
         return nil
     }
@@ -484,45 +503,39 @@ class DataManager: Identifiable {
      }
      } */
 
-    func fetchFirestoreMovie(club: MovieClub) async throws-> FirestoreMovie? {
+    func fetchFirestoreMovie(id: String) async throws-> FirestoreMovie? {
         var firestoreMovies: [FirestoreMovie] = []
-        let today = Date()
         do {
             let querySnapshot = try await movieClubCollection()
-                .document(club.id ?? "")
+                .document(id)
                 .collection("movies")
-                .whereField("endDate", isGreaterThan: today)
-                .order(by: "endDate", descending: true)
+                //.order(by: "created", descending: false)
                 .getDocuments()
-            print("document\(querySnapshot)")
-            firestoreMovies = try querySnapshot.documents.compactMap { document in
+            print(querySnapshot.documents)
+            
+            firestoreMovies = try querySnapshot.documents.compactMap {
+                document in
                 try document.data(as: FirestoreMovie.self)
             }
+            print("movie data \(firestoreMovies)")
         } catch {
             print("Error fetching Firestore movies: \(error)")
         }
-        if firestoreMovies.count > 0 {
-            return firestoreMovies[0]
-        }else{
-            do {
-                return try await fetchNextUp(club: club)
-            } catch {
-                print("error fetching next movie")
-            }
-        }
-        return nil
+
+        return firestoreMovies[0]
     }
     
     //fetch current playing by current end date that is greater than today
     //should only be one, everything else would be archive
     //if 0, iterate the list
     //query members
-    func fetchAndMergeMovieData(club: MovieClub) async throws -> Movie? {
+    func fetchAndMergeMovieData(id: String) async throws -> Movie? {
         do {
-            if let firestoreMovie = try await fetchFirestoreMovie(club: club){
+            if let firestoreMovie = try await fetchFirestoreMovie(id: id){
                 let apiMovie = try await fetchAPIMovie(title: firestoreMovie.title)
                 let combinedMovie = Movie(
                     id: firestoreMovie.id,
+                    created: Date(),
                     title: firestoreMovie.title,
                     poster: apiMovie.poster,
                     endDate: firestoreMovie.endDate!,
@@ -546,12 +559,10 @@ class DataManager: Identifiable {
     }
     //self.currentClub?.movies = movies
     //print("##### \(currentClub?.movies)")
-    func clearMoviesCache() {
-        self.movies = []
-    }
+
     
     func fetchUser() async {
-      //  print("in fetch user"
+      print("in fetch user")
       //  print("1")
         guard let uid = Auth.auth().currentUser?.uid else {return}
        // print("2")
@@ -563,8 +574,8 @@ class DataManager: Identifiable {
                 print(error)
             }
         let path = ("Users/profile_images/\(self.currentUser?.id ?? "")")
-        await self.currentUser?.image = getProfileImage(path: path)
-        
+        //await self.currentUser?.image = getProfileImage(path: path)
+        print("uid: \(uid)")
         
         if userMovieClubs.isEmpty {
             await fetchMovieClubsForUser()
@@ -674,7 +685,7 @@ extension MovieClub {
                                                   ownerID: "000123",
                                                   isPublic: true,
                                                   bannerUrl: "https://firebasestorage.googleapis.com:443/v0/b/movieclub-93714.appspot.com/o/Clubs%2FH71IficmTcmCGOnF4hrn%2F_banner.jpg?alt=media&token=7c5c6c53-c1a7-4a28-a1ba-8defd431c7fa",
-                                                  movies: [Movie(id: "001",
+                                                  movies: [Movie(id: "001", created: Date(),
                                                                  title: "The Matrix",
                                                                  poster: "https://m.media-amazon.com/images/M/MV5BOGUyZDUxZjEtMmIzMC00MzlmLTg4MGItZWJmMzBhZjE0Mjc1XkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
                                                                  endDate: Calendar.current.date(byAdding: .weekOfYear, value: 4, to: Date())!, author: "duhmarcus", authorID: "tUM5fRuYZSUs86ud8tydTqjKcC43", authorAvi: "https://firebasestorage.googleapis.com/v0/b/movieclub-93714.appspot.com/o/Users%2Fprofile_images%2FtUM5fRuYZSUs86ud8tydTqjKcC43.jpeg?alt=media&token=1abbcce9-e460-48b8-9770-04f2a75be20f")]),
