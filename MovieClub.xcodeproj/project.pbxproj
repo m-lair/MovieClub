@@ -360,6 +360,7 @@
 				2C87B2B12C6D08F300A49B2B /* ProfileDisplayView.swift in Sources */,
 				2C44751D2C4F4F1D0034204C /* EmptyMovieView.swift in Sources */,
 				2C8256C32BF1E90E00D2ED12 /* DiscoverView.swift in Sources */,
+				2CF654562C82AA93006F31A9 /* MainTabView.swift in Sources */,
 				2C4475192C4C0D6E0034204C /* ComingSoonView.swift in Sources */,
 				2C4474FA2C06DD670034204C /* InfoView.swift in Sources */,
 				2C4475022C06DE4F0034204C /* CommentView.swift in Sources */,
