@@ -12,7 +12,7 @@ struct ClubDetailView: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) var dismiss
     @Binding var navPath: NavigationPath
-    let movieClub: MovieClub
+    @State var movieClub: MovieClub
     @State var isPresentingEditView = false
     @State var movie: Movie?
     @State var comments: [Comment] = []
@@ -42,8 +42,9 @@ struct ClubDetailView: View {
                     data.currentClub = movieClub
                     do {
                         if let id = movieClub.id {
-                            self.movie = try await data.fetchAndMergeMovieData(club: movieClub)
+                            self.movie = try await data.fetchAndMergeMovieData(id: id)
                             if let movie = movie {
+                                movieClub.movies?.append(movie)
                                 self.comments = await data.fetchComments(movieClubId: movieClub.id!, movieId: movie.id ?? "")
                             }
                         }

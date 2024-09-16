@@ -13,14 +13,13 @@ import SwiftUI
 struct HomePageView: View {
     @Environment(DataManager.self) var data: DataManager
     @Binding var navPath: NavigationPath
-    let userClubs: [MovieClub]
     var body: some View {
         ZStack{
             Color.gray.ignoresSafeArea()
                 .overlay(Color.black.opacity(0.7))
             ScrollView{
                 VStack {
-                    if userClubs.count > 0 {
+                    if data.userMovieClubs.count > 0 {
                         ForEach(data.userMovieClubs) { movieClub in
                             NavigationLink(value: movieClub) {
                                 MovieClubCardView(movieClub: movieClub)
@@ -44,7 +43,6 @@ struct HomePageView: View {
                             Image(systemName: "bell.fill")
                         }
                     }
-                    
                 }
                 .navigationDestination(for: MovieClub.self) { club in
                     ClubDetailView(navPath: $navPath, movieClub: club)

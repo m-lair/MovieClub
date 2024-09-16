@@ -16,7 +16,11 @@ struct ComingSoonListView: View {
     var clubName: String {
         membership?.clubName ?? ""
     }
-    @State private var showSheet = false
+    @State private var showSheet = false {
+        didSet {
+            print("set showsheet \(showSheet.description)")
+        }
+    }
     @State private var selectedMovie: APIMovie?
     @State private var selectedIndex: Int = 0
     @State private var isAddingNewMovie = false
@@ -35,7 +39,7 @@ struct ComingSoonListView: View {
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 100, height: 100)
                         }else {
-                            ProgressView()
+                            Text("?")
                                 .frame(width: 100, height: 100)
                         }
                     }
@@ -57,10 +61,11 @@ struct ComingSoonListView: View {
                     if var membership = membership {
                         membership.queue[selectedIndex].title = newMovie.title
                         membership.queue[selectedIndex].poster = newMovie.poster
-                        self.membership = membership  // Reassign to update the state
-                        let _ = print("poster \(String(describing: membership.queue[selectedIndex].poster))")
+                        self.membership = membership  // Reassign to update
+                        showSheet = false
+                        //let _ = print("poster \(String(describing: membership.queue[selectedIndex].poster))")
                     }
-                    showSheet = false
+                    
                 }
             }
         }

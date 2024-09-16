@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2C0EDD892C516B51001D85C4 /* ComingSoonEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0EDD882C516B51001D85C4 /* ComingSoonEditView.swift */; };
+		2C1F09892C92054100BFBB47 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 2C1F09882C92054100BFBB47 /* FirebaseFunctions */; };
 		2C2FD1D72C7194E9008BC592 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 2C2FD1D62C7194E9008BC592 /* FirebaseMessaging */; };
 		2C2FD1D92C719B97008BC592 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2FD1D82C719B97008BC592 /* NotificationManager.swift */; };
 		2C4474F62BFCF3520034204C /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 2C4474F52BFCF3520034204C /* FirebaseStorage */; };
@@ -115,6 +116,7 @@
 				2C5DEC342BF1AE5D000EF232 /* FirebaseAuth in Frameworks */,
 				2C4474F62BFCF3520034204C /* FirebaseStorage in Frameworks */,
 				2C2FD1D72C7194E9008BC592 /* FirebaseMessaging in Frameworks */,
+				2C1F09892C92054100BFBB47 /* FirebaseFunctions in Frameworks */,
 				2C5DEC362BF1AE5D000EF232 /* FirebaseFirestore in Frameworks */,
 				2C5DEC382BF1AE5D000EF232 /* FirebaseFirestoreSwift in Frameworks */,
 			);
@@ -269,6 +271,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				2C1F09872C92017A00BFBB47 /* PBXTargetDependency */,
 				2C87B2B32C6DBF6600A49B2B /* PBXTargetDependency */,
 				2C87B2B52C6DBF6600A49B2B /* PBXTargetDependency */,
 				2C87B2B72C6DBF6600A49B2B /* PBXTargetDependency */,
@@ -281,6 +284,7 @@
 				2C5DEC372BF1AE5D000EF232 /* FirebaseFirestoreSwift */,
 				2C4474F52BFCF3520034204C /* FirebaseStorage */,
 				2C2FD1D62C7194E9008BC592 /* FirebaseMessaging */,
+				2C1F09882C92054100BFBB47 /* FirebaseFunctions */,
 			);
 			productName = MovieClub;
 			productReference = 2C5DEC1B2BF1AC6C000EF232 /* MovieClub.app */;
@@ -387,6 +391,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2C1F09872C92017A00BFBB47 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 2C1F09862C92017A00BFBB47 /* FirebaseFunctions */;
+		};
 		2C87B2B32C6DBF6600A49B2B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = 2C87B2B22C6DBF6600A49B2B /* FirebaseAuth */;
@@ -531,12 +539,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = MovieClub/MovieClub.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MovieClub/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 5Z6AC3LV9L;
+				DEVELOPMENT_TEAM = 5Z6AC3LV9L;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -552,7 +559,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "duhmarcus.Movie-Club";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = duhmarcus;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -565,12 +571,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = MovieClub/MovieClub.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MovieClub/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 5Z6AC3LV9L;
+				DEVELOPMENT_TEAM = 5Z6AC3LV9L;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -586,7 +591,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "duhmarcus.Movie-Club";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = duhmarcus;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -628,6 +632,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2C1F09862C92017A00BFBB47 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2C5DEC322BF1AE5D000EF232 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
+		};
+		2C1F09882C92054100BFBB47 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2C5DEC322BF1AE5D000EF232 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
+		};
 		2C2FD1D62C7194E9008BC592 /* FirebaseMessaging */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2C5DEC322BF1AE5D000EF232 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

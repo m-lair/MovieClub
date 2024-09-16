@@ -15,24 +15,15 @@ struct ComingSoonEditView: View {
     var body: some View {
         VStack {
             Text("Edit Your Queue")
-            if let member = data.queue {
+            if let user = data.currentUser {
                 HStack{
-                    Label(member.clubName, systemImage: "house")
-                    if let date = member.movieDate {
+                    Label(data.currentClub?.name ?? "", systemImage: "house")
+                    if let date = data.currentClub?.movieEndDate {
                         Label(String(date.formatted(date: .abbreviated, time: .omitted)), systemImage: "calendar")
                     }
                 }
                 .padding(.top)
                 .font(.title)
-                Label("Movie Queue", systemImage: "list.and.film")
-                ScrollView(.horizontal) {
-                    HStack {
-                        ForEach(0..<3) { i in
-                            //MoviePosterButtonView(i: i, member: member)
-                        }
-                        .padding(.top)
-                    }
-                }
             }
         }
     }
