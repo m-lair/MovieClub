@@ -13,22 +13,23 @@ struct ProfileDisplayView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        if let user = data.currentUser {
-            if editMode?.wrappedValue.isEditing == false {
-                Text(user.name)
-                    .font(.title)
-                Text(user.bio ?? "")
-                Spacer()
-                UserMembershipsView()
-                Spacer()
-                Button {
-                    data.signOut()
-                } label: {
-                    Text("Sign Out")
-                        .foregroundStyle(Color(.red))
-                        .padding()
+        VStack {
+            if let user = data.currentUser {
+                if editMode?.wrappedValue.isEditing == false {
+                    Text(user.name)
+                        .font(.title)
+                    Text(user.bio ?? "")
+                    Spacer()
+                    UserMembershipsView()
+                    Spacer()
+                    Button {
+                        data.signOut()
+                    } label: {
+                        Text("Sign Out")
+                            .foregroundStyle(Color(.red))
+                            .padding()
+                    }
                 }
-                .hidden()
             }
         }
     }

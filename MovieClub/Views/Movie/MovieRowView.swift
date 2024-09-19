@@ -15,7 +15,7 @@ struct MovieRow: View {
     @Environment(\.dismiss) var dismiss
     @State var movie: APIMovie
     var onSave: (APIMovie) -> Void
-    @State var sheetPresented = false
+    
     var body: some View {
         HStack {
             if movie.poster != "" {
@@ -59,41 +59,6 @@ struct MovieRow: View {
         }
     }
     //check to see if the club exists and then create it if not
-    @MainActor
-    private func addMovie(apiMovie: APIMovie) async {
-        //print("in add api movie \(apiMovie)")
-        if let user = data.currentUser, let club = data.currentClub {
-           // print("in if")
-            let firestoreMovie = FirestoreMovie(title: movie.title, poster: movie.poster, author: user.name, authorID: user.id ?? "", authorAvi: user.image ?? "")
-            let movie = Movie(
-                created: Date(),
-                title: firestoreMovie.title,
-                poster: apiMovie.poster,
-                endDate: club.movieEndDate,
-                author: firestoreMovie.author,
-                authorID: firestoreMovie.authorID,
-                authorAvi: firestoreMovie.authorAvi,
-                comments: firestoreMovie.comments,
-                plot: apiMovie.plot,
-                director: apiMovie.director)
-            
-                data.movies.append(movie)
-                data.addMovie(movie: movie)
-          /* saving this for updating the queue
-            do{
-                let snapshot = await data.usersCollection()
-                    .document(user.id ?? "").collection("memberships").document(clubID)
-                var queue = try await snapshot.getDocument().data(as: Membership.self)
-                queue.queue[index] = firesotoreMovie
-                let encodedQueue = try Firestore.Encoder().encode(queue)
-                try await snapshot.setData(encodedQueue)
-            } catch {
-                print("error getting details: \(error)")
-            }*/
-        }
-    }
-    
-    
 }
     
     

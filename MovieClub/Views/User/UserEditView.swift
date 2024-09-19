@@ -32,7 +32,6 @@ struct UserEditView: View {
                                }
                     }
                 }
-                
             }
         }
         .onChange(of: editMode?.wrappedValue) {
