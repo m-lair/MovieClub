@@ -27,8 +27,11 @@
     "mocha": "^10.7.3"
   },
   "_moduleAliases": {
+    "index": "./index",
+    "src": "./src",
     "firestore": "./src/firestore",
-    "utilities": "./src/utilities"
+    "utilities": "./src/utilities",
+    "mocks": "./test/mocks"
   },
   "private": true
 }
