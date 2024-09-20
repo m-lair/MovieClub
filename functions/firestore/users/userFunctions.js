@@ -1,6 +1,6 @@
 const functions = require("firebase-functions");
-const admin = require("firebase-admin");
-const { verifyRequiredFields } = require("./utilities")
+const { db } = require("firestore");
+const { verifyRequiredFields } = require("utilities")
 
 exports.createUser = functions.https.onCall(async (data, context) => {
 
@@ -24,7 +24,7 @@ exports.createUser = functions.https.onCall(async (data, context) => {
   }
 });
 
-async function createAdminUserAuthentication({email, password, displayName}) {
+async function createAdminUserAuthentication({ email, password, displayName }) {
   try {
     const userRecord = await admin.auth().createUser({
       email: data.email,
@@ -39,7 +39,7 @@ async function createAdminUserAuthentication({email, password, displayName}) {
   }
 }
 
-async function createUser(uid, {email, displayName}) {
+async function createUser(uid, { email, displayName }) {
   const userData = {
     uid: uid,
     email: email,
@@ -49,7 +49,7 @@ async function createUser(uid, {email, displayName}) {
 
   try {
     // Add user data to Firestore
-    await admin.firestore().collection('users').doc(userRecord.uid).set(userData);
+    await db.collection('users').doc(userRecord.uid).set(userData);
   } catch (error) {
     console.error('Error signing in user:', error);
     throw new functions.https.HttpsError('internal', 'Error signing in user', error);

@@ -1,11 +1,13 @@
+require('module-alias/register');
 const admin = require("firebase-admin");
 
 if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-const movies = require('./firestore/movieFunctions')
-const movie_clubs = require('./firestore/movieClubFunctions')
-const users = require('./firestore/userFunctions')
+const config = require('./config')
+const movies = require('./firestore/movieClubs/movies/movieFunctions')
+const movie_clubs = require('./firestore/movieClubs/movieClubFunctions')
+const users = require('./firestore/users/userFunctions')
 
-module.exports = { movies, movie_clubs, users } 
+module.exports = { movies, movie_clubs, users, config } 

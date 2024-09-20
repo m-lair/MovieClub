@@ -1,14 +1,13 @@
 const functions = require("firebase-functions");
 const fetch = require("node-fetch");
-// The Firebase Admin SDK to delete inactive users.
-const admin = require("firebase-admin");
+const { db } = require("firestore");
 
-const db = admin.firestore();
 // Export the scheduled function for deployment
 exports.rotateMovie = functions.pubsub.schedule('every 24 hours').onRun(async () => {
     console.log('Rotating movie...');
     await rotateMovieLogic();
 });
+
 async function rotateMovieLogic() {
     const currentTimestamp = new Date();
     const apiEndpoint = `http://www.omdbapi.com/?apikey=${functions.config().omdbapi.key}&r=json`;
