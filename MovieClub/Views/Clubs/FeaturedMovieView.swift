@@ -51,7 +51,7 @@ struct FeaturedMovieView: View {
                     }
                 }
             }
-            let url = URL(string: data.poster)
+            let url = URL(string: movie.poster ?? "")
             AsyncImage(url: url) { phase in
                 if let image = phase.image {
                     image

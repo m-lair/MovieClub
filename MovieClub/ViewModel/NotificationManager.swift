@@ -20,19 +20,24 @@ class NotificationManager{
         }
     }
     
-    func request() async{
+    func request() async {
         do {
-            try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound])
-             await getAuthStatus()
-        } catch{
-            print(error)
+            let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound])
+            hasPermission = granted
+            if !granted {
+                // Handle the case where the user denied permission
+                print("User denied notification permissions.")
+            }
+        } catch {
+            print("Failed to request authorization: \(error)")
         }
     }
+
     
     func getAuthStatus() async {
-        let status = await UNUserNotificationCenter.current().notificationSettings()
-        switch status.authorizationStatus {
-        case .authorized, .ephemeral, .provisional:
+        let settings = await UNUserNotificationCenter.current().notificationSettings()
+        switch settings.authorizationStatus {
+        case .authorized, .provisional, .ephemeral:
             hasPermission = true
         default:
             hasPermission = false

@@ -15,9 +15,7 @@ struct CommentDetailView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 VStack{
-                    CircularImageView(userID: comment.userID, size: 40)
-                    Text(comment.username)
-                        .font(.caption)
+                    CircularImageView(userID: comment.userID, size: 20)
                 }
                 Text(comment.text)
                     .font(.body)

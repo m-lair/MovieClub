@@ -93,28 +93,30 @@ class DataManager: Identifiable {
             let result = try await Auth.auth().signIn(withEmail: email, password: password)
             self.userSession = result.user
             print("signed in user \(result.user)")
+            await fetchUser()
             
         } catch {
             throw error
         }
     }
     
-    func uploadClubImage(image: UIImage, clubId: String) async -> String{
-        let storageRef = Storage.storage().reference().child("Clubs/\(clubId)/_banner.jpg")
-        if let imageData = image.jpegData(compressionQuality: 0.25) {
-            let metadata = StorageMetadata()
-            metadata.contentType = "image/jpeg"
-            do {
-                _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
-                let url = try await storageRef.downloadURL()
-                // Update clubss profile image URL
-                return url.absoluteString
-                
-            } catch {
-                print("Error uploading image: \(error.localizedDescription)")
-            }
+    enum UploadError: Error {
+        case invalidImageData
+    }
+
+    func uploadClubImage(image: UIImage, clubId: String) async throws -> String {
+        guard let imageData = image.jpegData(compressionQuality: 0.25) else {
+            throw UploadError.invalidImageData
         }
-        return ""
+
+        let storageRef = Storage.storage().reference().child("Clubs/\(clubId)/banner.jpg")
+        var metadata = StorageMetadata()
+        metadata.contentType = "image/jpeg"
+        
+        _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
+        let url = try await storageRef.downloadURL()
+        print("URL: \(url)")
+        return url.absoluteString
     }
     
     func joinClub(club: MovieClub) async {
@@ -309,18 +311,10 @@ class DataManager: Identifiable {
     }
     
     func createMovieClub(movieClub: MovieClub, movie: Movie?) async {
-        var urlString = ""
+        
+        print("movieclub bannerURL: \(movieClub.bannerUrl)")
         //just to be sure
-        self.currentClub = movieClub
             do {
-                //commit image data
-                if let banner = movieClub.banner, let id = movieClub.id {
-                    if let image = UIImage(data: banner) {
-                        urlString = await uploadClubImage(image: image, clubId: id)
-                    
-                    }
-                }
-                self.currentClub?.bannerUrl = urlString
                 //this is the future date for the owner, would be their 2nd movie
                 let futureOwnerMovieDate = Date()
                 if let timeIntervalFromToday = Calendar.current.date(byAdding: .weekOfYear, value: movieClub.timeInterval, to: futureOwnerMovieDate){
@@ -328,6 +322,7 @@ class DataManager: Identifiable {
                     let encodeClub = try Firestore.Encoder().encode(movieClub)
                     if let id = movieClub.id {
                         //commit club
+                        print("endcoded club \(encodeClub)")
                         try await movieClubCollection().document(id).setData(encodeClub)
                         //commit movie
                         // print("2: \(movieClub.movies?.first)"
