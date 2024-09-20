@@ -4,7 +4,7 @@ const test = require('firebase-functions-test')({
   projectId: 'movieclub-93714',
 }, '/Users/marcus/Library/Mobile Documents/com~apple~CloudDocs/Documents/movieclub-93714-f6efcc256851.json');
 const admin = require('firebase-admin');
-const { rotateMovieLogic } = require('../index');
+const { movies: { rotateMovieLogic } } = require('../index');
 const assert = require('assert');
 const populate = require('../PopulateTestData');
 
@@ -19,10 +19,10 @@ db.settings({ host: 'localhost:8080', ssl: false });
 
 describe('rotateMovie', () => {
   it('should rotate the movie every 24 hours', async () => {
-    try{
-     await populate.populateDefaultData(2);
-    }catch(error){
-        console.log(error);
+    try {
+      await populate.populateDefaultData(2);
+    } catch (error) {
+      console.log(error);
     }
 
     const movieClubRef = await db.collection('movieclubs').get();
@@ -30,18 +30,18 @@ describe('rotateMovie', () => {
     console.log('Calling rotateMovie function...');
     await rotateMovieLogic();
     console.log('Finished running rotateMovie function');
-    for( let club of movieClubRef.docs){
-        console.log(club.id);
-        assert(db.collection("movieclubs").doc(club.id).collection('movies') !== null);
-        assert(db.collection("movieclubs").doc(club.id).collection('movies') !== undefined);
-        assert((await db.collection("movieclubs").doc(club.id).collection('movies').get()).docs.length >= 2);
+    for (let club of movieClubRef.docs) {
+      console.log(club.id);
+      assert(db.collection("movieclubs").doc(club.id).collection('movies') !== null);
+      assert(db.collection("movieclubs").doc(club.id).collection('movies') !== undefined);
+      assert((await db.collection("movieclubs").doc(club.id).collection('movies').get()).docs.length >= 2);
     }
-    
+
   });
 
-    after(() => {
-      test.cleanup();
-      console.log('Test cleanup complete');
-      console.log('Test complete');
-    });
+  after(() => {
+    test.cleanup();
+    console.log('Test cleanup complete');
+    console.log('Test complete');
   });
+});
