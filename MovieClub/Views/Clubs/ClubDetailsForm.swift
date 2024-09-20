@@ -166,13 +166,13 @@ struct ClubDetailsForm: View {
                     print("urlString: \(urlString)")
                     let movieClub =
                     MovieClub(id: documentString, name: name,
-                              created: created, numMembers: 1,
+                              created: created, numMembers: 1, 
                               description: desc,
                               ownerName: data.currentUser?.name ?? "",
                               timeInterval: timeInterval,
                               movieEndDate: endDate,
-                              ownerID: data.currentUser?.id ?? "",
-                              isPublic: isPublic, bannerUrl: urlString)
+                              ownerID: data.currentUser?.id ?? "", 
+                              isPublic: isPublic, bannerUrl: urlString, numMovies: 1)
                     
                     let movie = Movie(created: Date(), title: apiMovie?.title ?? "", poster: apiMovie?.poster ?? "", endDate: endDate, author: data.currentUser?.name ?? "", authorID: data.currentUser?.id ?? "", authorAvi: data.currentUser?.image ?? "")
                     print("MovieClub \(movieClub)")

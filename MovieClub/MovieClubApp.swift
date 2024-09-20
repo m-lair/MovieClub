@@ -43,14 +43,35 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
 
        // Handle notification when user interacts with it
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-        let userInfo = response.notification.request.content.userInfo
+        _ = response.notification.request.content.userInfo
         // Handle navigation or other actions based on the notification's payload
-        
     }
+    
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-            if let fcm = Messaging.messaging().fcmToken {
+        if let fcm = Messaging.messaging().fcmToken {
+            print("fcm: \(fcm)")
+            saveFCMTokenToFirestore(fcm)
+        }
+    }
+    
+    func saveFCMTokenToFirestore(_ fcmToken: String) {
+        // Ensure the user is authenticated
+        guard let uid = Auth.auth().currentUser?.uid else {
+            print("User is not authenticated. Cannot save FCM token.")
+            return
+        }
+        
+        let db = Firestore.firestore()
+        let userRef = db.collection("users").document(uid)
+        
+        userRef.setData(["fcmToken": fcmToken], merge: true) { error in
+            if let error = error {
+                print("Error saving FCM token to Firestore: \(error.localizedDescription)")
+            } else {
+                print("FCM token successfully saved to Firestore")
             }
         }
+    }
 }
 
 
