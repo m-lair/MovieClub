@@ -1,7 +1,7 @@
 'use strict';
 const test = require('firebase-functions-test')({
   databaseURL: 'localhost:8080',
-  projectId: process.env("PROJECT_ID"),
+  projectId: process.env.PROJECT_ID,
 }, '/Users/marcus/Library/Mobile Documents/com~apple~CloudDocs/Documents/movieclub-93714-f6efcc256851.json');
 const { db, admin } = require('firestore');
 const { movies: { rotateMovieLogic } } = require('index');
