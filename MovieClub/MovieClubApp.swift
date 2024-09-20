@@ -4,7 +4,7 @@
 //
 //  Created by Marcus Lair on 5/12/24.
 //
-
+import Firebase
 import SwiftUI
 import Observation
 import FirebaseCore
@@ -15,6 +15,7 @@ import FirebaseFirestoreSwift
 import AuthenticationServices
 import FirebaseFirestore
 import FirebaseMessaging
+import FirebaseAnalytics
 
 
 
@@ -30,7 +31,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
                   UNUserNotificationCenter.current().requestAuthorization(
                     options: authOptions,
                     completionHandler: {_, _ in })
-
+        Analytics.setAnalyticsCollectionEnabled(true)
         return true
     }
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
@@ -73,7 +74,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         }
     }
 }
-
 
 
 

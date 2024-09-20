@@ -172,7 +172,10 @@ struct SignUpView: View {
     func handleAuthorization(_ authResults: ASAuthorization) {
         // Handle the authorization results
         if let appleIDCredential = authResults.credential as? ASAuthorizationAppleIDCredential {
-           let nonce = randomNonceString()
+            guard let nonce = currentNonce else {
+                fatalError("Invalid state: A nonce should have been set before the sign-in request.")
+            }
+
             
             guard let appleIDToken = appleIDCredential.identityToken else {
                 print("Unable to fetch identity token")
@@ -183,7 +186,7 @@ struct SignUpView: View {
                 return
             }
             
-            let credential = OAuthProvider.credential(withProviderID: "apple.com", idToken: idTokenString, rawNonce: nonce)
+            let credential = OAuthProvider.appleCredential(withIDToken: idTokenString, rawNonce: nonce, fullName: appleIDCredential.fullName)
             
             // Sign in with Firebase.
             Auth.auth().signIn(with: credential) { (authResult, error) in
@@ -192,7 +195,32 @@ struct SignUpView: View {
                     return
                 }
                 // User is signed in to Firebase with Apple.
-                print("Successfully signed in with Apple.")
+                guard let user = authResult?.user else {
+                    print("User not found")
+                    return
+                }
+                let uid = user.uid
+                let email = user.email ?? appleIDCredential.email ?? "No Email"
+                let displayName = user.displayName ?? "\(appleIDCredential.fullName?.givenName ?? "No Name")"
+                
+                let userData: [String: Any] = [
+                    "uid": uid,
+                    "email": email,
+                    "name": displayName,
+                    "signInProvider": "apple"
+                ]
+                
+                // Assuming you have Firestore set up in your DataManager
+                data.usersCollection().document(uid).setData(userData, merge: true) { err in
+                    if let err = err {
+                        print("Error writing user data to Firestore: \(err)")
+                    } else {
+                        print("User data successfully written to Firestore")
+                    }
+                }
+                
+                // Any other post-sign-in actions, like navigating the user to a new screen
+                print("Successfully signed in with Apple. User: \(user.uid)")
             }
         }
     }
