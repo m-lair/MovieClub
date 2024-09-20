@@ -27,8 +27,8 @@
     "mocha": "^10.7.3"
   },
   "_moduleAliases": {
-    "firestore": "functions/firestore",
-    "utilities": "functions/utilities"
+    "firestore": "./src/firestore",
+    "utilities": "./src/utilities"
   },
   "private": true
 }

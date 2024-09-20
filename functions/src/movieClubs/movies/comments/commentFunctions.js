@@ -1,6 +1,10 @@
 const { db } = require('firestore');
+const { verifyRequiredFields } = require("utilities")
 
 async function postComment(movieClubId, movieId, commentData) {
+    requiredFields = ["text", "userID", "username"]
+    verifyRequiredFields(commentData, requiredFields)
+
     try {
         // Reference to the specific movie's comments collection
         const commentsRef = db

@@ -1,6 +1,6 @@
 const functions = require("firebase-functions");
 const { db } = require("firestore");
-const { verifyRequiredFields } = require("utilities")
+const { verifyRequiredFields } = require("utilities");
 
 exports.createUser = functions.https.onCall(async (data, context) => {
 
@@ -27,9 +27,9 @@ exports.createUser = functions.https.onCall(async (data, context) => {
 async function createAdminUserAuthentication({ email, password, displayName }) {
   try {
     const userRecord = await admin.auth().createUser({
-      email: data.email,
-      password: data.password,
-      displayName: data.displayName
+      email: email,
+      password: password,
+      displayName: displayName
     });
 
     return userRecord.uid
