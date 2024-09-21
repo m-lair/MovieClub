@@ -3,7 +3,7 @@ const { db } = require("firestore");
 const { verifyRequiredFields } = require("utilities")
 
 exports.postComment = functions.https.onCall(async (data, context) => {
-    requiredFields = ["movieClubId", "movieId", "text", "userID", "username"]
+    const requiredFields = ["movieClubId", "movieId", "text", "userID", "username"]
     verifyRequiredFields(data, requiredFields)
 
     try {

@@ -11,7 +11,7 @@ exports.createUser = functions.https.onCall(async (data, context) => {
 
   try {
     // Create the user in Firebase Authentication
-    uid = await createAdminUserAuthentication(data)
+    const uid = await createAdminUserAuthentication(data)
 
     // Prepare user data for Firestore
     await createUser(uid, data)

@@ -1,38 +1,54 @@
-'use strict';
+"use strict";
 
-const assert = require('assert');
+const assert = require("assert");
 const { test } = require("test/testHelper")
-const { db } = require('firestore');
-const populate = require('mocks/PopulateTestData');
-const { movies: { rotateMovieLogic } } = require('index');
+const { db } = require("firestore");
+const { populateUserData } = require("mocks")
+const { movieClubs: { createMovieClub }, movies: { rotateMovieLogic } } = require("index");
 
-test.mockConfig({ omdbapi: { key: 'ab92d369' }});
+describe("createMovie", () => {
+  const wrapped = test.wrap(createMovieClub)
 
-describe('rotateMovie', () => {
-  it('should rotate the movie every 24 hours', async () => {
-    try {
-      await populate.populateDefaultData(2);
-    } catch (error) {
-      console.log(error);
-    }
+  let user;
+  let movieClubData;
+  let movieClub;
 
-    const movieClubRef = await db.collection('movieclubs').get();
-    // Call the wrapped rotateMovie function
-    console.log('Calling rotateMovie function...');
-    await rotateMovieLogic();
-    console.log('Finished running rotateMovie function');
-    for (let club of movieClubRef.docs) {
-      console.log(club.id);
-      assert(db.collection("movieclubs").doc(club.id).collection('movies') !== null);
-      assert(db.collection("movieclubs").doc(club.id).collection('movies') !== undefined);
-      assert((await db.collection("movieclubs").doc(club.id).collection('movies').get()).docs.length >= 2);
-    }
+  beforeEach(async () => {
+    user = await populateUserData();
 
+    movieClubData = {
+      name: "Test Club",
+      ownerID: user.id,
+      ownerName: user.name,
+      isPublic: true,
+      timeInterval: "test",
+      bannerUrl: "test",
+    };
   });
 
   after(() => {
     test.cleanup();
-    console.log('Test cleanup complete');
-    console.log('Test complete');
+  });
+
+  it("should create a new Movie Club", async () => {
+    movieClub = await wrapped(movieClubData)
+    const snap = await db.collection("movieclubs").doc(movieClub.id).get()
+    const movieClubDoc = snap.data();
+
+    assert(movieClubDoc.name == movieClubData.name);
+    assert(movieClubDoc.ownerID == movieClubData.ownerID);
+    assert(movieClubDoc.ownerName == movieClubData.ownerName);
+    assert(movieClubDoc.isPublic == movieClubData.isPublic);
+    assert(movieClubDoc.timeInterval == movieClubData.timeInterval);
+    assert(movieClubDoc.bannerUrl == movieClubData.bannerUrl);
+  });
+
+  it("should error without required fields", async () => {
+    try {
+      await wrapped({})
+      assert.fail('Expected error not thrown');
+    } catch (error) {
+      assert.match(error.message, /The function must be called with name, ownerID, ownerName, isPublic, timeInterval, bannerUrl./);
+    };
   });
 });
