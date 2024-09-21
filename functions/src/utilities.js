@@ -11,4 +11,10 @@ const verifyRequiredFields = (data, requiredFields) => {
     }
 }
 
-module.exports = { verifyRequiredFields }
+const logVerbose = (message) => {
+  if (process.env.LOG_LEVEL == "verbose") {
+    console.log(message)
+  }
+}
+
+module.exports = { logVerbose, verifyRequiredFields }
