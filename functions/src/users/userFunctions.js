@@ -4,11 +4,9 @@ const { verifyRequiredFields } = require("utilities");
 
 exports.createUser = functions.https.onCall(async (data, context) => {
 
-  const requiredFields = ['email', 'password', 'displayName'];
+  const requiredFields = ['email', 'displayName'];
   verifyRequiredFields(data, requiredFields)
-
-  // need whole thing to be promised
-
+  
   try {
     // Create the user in Firebase Authentication
     uid = await createAdminUserAuthentication(data)
@@ -26,13 +24,20 @@ exports.createUser = functions.https.onCall(async (data, context) => {
 
 async function createAdminUserAuthentication({ email, password, displayName }) {
   try {
-    const userRecord = await admin.auth().createUser({
-      email: email,
-      password: password,
-      displayName: displayName
-    });
-
-    return userRecord.uid
+      // Check if user already exists
+      // Client will create record if using alt signin method
+      if (auth.getUserByEmail(email)) {
+        const userRecord = auth.getUserByEmail(email);
+        return userRecord.uid
+      } 
+      // Create user using email and password
+      const userRecord = await admin.auth().createUser({
+        email: email,
+        password: password,
+        displayName: displayName
+      });
+      return userRecord.uid
+    
   } catch (error) {
     console.error('Error creating user:', error);
     throw new functions.https.HttpsError('internal', 'Error creating user', error);
