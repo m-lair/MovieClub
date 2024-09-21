@@ -1,27 +1,31 @@
-const { db } = require('firestore');
+const functions = require("firebase-functions");
+const { db } = require("firestore");
 const { verifyRequiredFields } = require("utilities")
 
-async function postComment(movieClubId, movieId, commentData) {
-    requiredFields = ["text", "userID", "username"]
-    verifyRequiredFields(commentData, requiredFields)
+exports.postComment = functions.https.onCall(async (data, context) => {
+    requiredFields = ["movieClubId", "movieId", "text", "userID", "username"]
+    verifyRequiredFields(data, requiredFields)
 
     try {
-        // Reference to the specific movie's comments collection
+        // Reference to the specific movie"s comments collection
         const commentsRef = db
-            .collection('movieclubs')
-            .doc(movieClubId)
-            .collection('movies')
-            .doc(movieId)
-            .collection('comments');
+            .collection("movieclubs")
+            .doc(data.movieClubId)
+            .collection("movies")
+            .doc(data.movieId)
+            .collection("comments");
 
-        // Add the comment to the 'comments' sub-collection
-        await commentsRef.add({
-            ...commentData,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
+        const commentData = {
+            userID: data.userID,
+            username: data.username,
+            text: data.text
+        }
 
-        console.log('Comment posted successfully!');
+        // Add the comment to the "comments" sub-collection
+        await commentsRef.add(commentData);
+
+        console.log("Comment posted successfully!");
     } catch (error) {
-        console.error('Error posting comment:', error);
+        console.error("Error posting comment:", error);
     }
-}
+})

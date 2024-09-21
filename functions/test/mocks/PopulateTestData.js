@@ -32,7 +32,6 @@ async function populateUserData(index) {
     } catch (error) {
         throw new Error(`Error setting user data: ${error}`);
     }
-
 };
 
 async function populateMovieClubData(index) {
@@ -119,4 +118,11 @@ async function populateMemberData(index) {
 
 }
 
-module.exports = { populateDefaultData }
+module.exports = {
+    populateDefaultData,
+    populateUserData,
+    populateMovieClubData,
+    populateMembershipData,
+    populateMovieData,
+    populateMemberData
+}

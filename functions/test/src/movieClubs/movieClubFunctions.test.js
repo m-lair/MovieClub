@@ -1,20 +1,12 @@
 'use strict';
-const test = require('firebase-functions-test')({
-  databaseURL: 'localhost:8080',
-  projectId: process.env.PROJECT_ID,
-}, '/Users/marcus/Library/Mobile Documents/com~apple~CloudDocs/Documents/movieclub-93714-f6efcc256851.json');
-const { db, admin } = require('firestore');
-const { movies: { rotateMovieLogic } } = require('index');
+
 const assert = require('assert');
-const populate = require('../../mocks/PopulateTestData');
+const { test } = require("test/testHelper")
+const { db } = require('firestore');
+const populate = require('mocks/PopulateTestData');
+const { movies: { rotateMovieLogic } } = require('index');
 
-
-if (!admin.apps.length) {
-  admin.initializeApp();
-}
-
-db.settings({ host: 'localhost:8080', ssl: false });
-//test.mockConfig({ omdbapi: { key: 'ab92d369' }});
+test.mockConfig({ omdbapi: { key: 'ab92d369' }});
 
 describe('rotateMovie', () => {
   it('should rotate the movie every 24 hours', async () => {
