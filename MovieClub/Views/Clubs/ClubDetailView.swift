@@ -53,7 +53,7 @@ struct ClubDetailView: View {
                     }
                 }
                 .toolbar{
-                    if movieClub.ownerID == data.currentUser?.id ?? "" {
+                    if movieClub.ownerId == data.currentUser?.id ?? "" {
                         Menu {
                             Button {
                                 // Do Nothing

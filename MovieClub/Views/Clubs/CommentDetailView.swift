@@ -15,15 +15,15 @@ struct CommentDetailView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 VStack{
-                    CircularImageView(userID: comment.userID, size: 20)
+                    CircularImageView(userId: comment.userId, size: 20)
                 }
                 Text(comment.text)
                     .font(.body)
             }
             .task{
-                let path = "/Users/profile_images/\(comment.userID)"
-                //print("comment.userID \(comment.userID)")
-                self.imageUrl = await data.getProfileImage(userID: comment.userID)
+                let path = "/Users/profile_images/\(comment.userId)"
+                //print("comment.userId \(comment.userId)")
+                self.imageUrl = await data.getProfileImage(userId: comment.userId)
             }
             .padding()
             .background(Color.gray.opacity(0.1))

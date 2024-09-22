@@ -21,7 +21,7 @@ struct NowPlayingView: View {
                 CommentsView()
                 
             }
-            CommentInputView(movieClub: club, movieID: movie?.id ?? "")
+            CommentInputView(movieClub: club, movieId: movie?.id ?? "")
                 .padding(.horizontal)
         }
     }

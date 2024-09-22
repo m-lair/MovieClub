@@ -1,46 +1,116 @@
-'use strict';
-const test = require('firebase-functions-test')({
-  databaseURL: 'localhost:8080',
-  projectId: process.env.PROJECT_ID,
-}, '/Users/marcus/Library/Mobile Documents/com~apple~CloudDocs/Documents/movieclub-93714-f6efcc256851.json');
-const { db, admin } = require('firestore');
-const { movies: { rotateMovieLogic } } = require('index');
-const assert = require('assert');
-const populate = require('../../mocks/PopulateTestData');
+"use strict";
 
+const assert = require("assert");
+const { test } = require("test/testHelper");
+const { db } = require("firestore");
+const { populateUserData, populateMovieClubData } = require("mocks");
+const { movieClubs: { createMovieClub, updateMovieClub }, movies: { rotateMovieLogic } } = require("index");
 
-if (!admin.apps.length) {
-  admin.initializeApp();
-}
+describe("createMovieClub", () => {
+  const wrapped = test.wrap(createMovieClub);
 
-db.settings({ host: 'localhost:8080', ssl: false });
-//test.mockConfig({ omdbapi: { key: 'ab92d369' }});
+  let user;
+  let movieClubData;
+  let movieClub;
 
-describe('rotateMovie', () => {
-  it('should rotate the movie every 24 hours', async () => {
-    try {
-      await populate.populateDefaultData(2);
-    } catch (error) {
-      console.log(error);
-    }
+  beforeEach(async () => {
+    user = await populateUserData();
 
-    const movieClubRef = await db.collection('movieclubs').get();
-    // Call the wrapped rotateMovie function
-    console.log('Calling rotateMovie function...');
-    await rotateMovieLogic();
-    console.log('Finished running rotateMovie function');
-    for (let club of movieClubRef.docs) {
-      console.log(club.id);
-      assert(db.collection("movieclubs").doc(club.id).collection('movies') !== null);
-      assert(db.collection("movieclubs").doc(club.id).collection('movies') !== undefined);
-      assert((await db.collection("movieclubs").doc(club.id).collection('movies').get()).docs.length >= 2);
-    }
-
+    movieClubData = {
+      name: "Test Club",
+      ownerId: user.id,
+      ownerName: user.name,
+      isPublic: true,
+      timeInterval: "test",
+      bannerUrl: "test",
+    };
   });
 
   after(() => {
     test.cleanup();
-    console.log('Test cleanup complete');
-    console.log('Test complete');
+  });
+
+  it("should create a new Movie Club", async () => {
+    movieClub = await wrapped(movieClubData)
+    const snap = await db.collection("movieclubs").doc(movieClub.id).get()
+    const movieClubDoc = snap.data();
+
+    assert(movieClubDoc.name == movieClubData.name);
+    assert(movieClubDoc.ownerId == movieClubData.ownerId);
+    assert(movieClubDoc.ownerName == movieClubData.ownerName);
+    assert(movieClubDoc.isPublic == movieClubData.isPublic);
+    assert(movieClubDoc.timeInterval == movieClubData.timeInterval);
+    assert(movieClubDoc.bannerUrl == movieClubData.bannerUrl);
+  });
+
+  it("should error without required fields", async () => {
+    try {
+      await wrapped({})
+      assert.fail('Expected error not thrown');
+    } catch (error) {
+      assert.match(error.message, /The function must be called with name, ownerId, ownerName, isPublic, timeInterval, bannerUrl./);
+    };
+  });
+});
+
+describe("updateMovieClub", () => {
+  const wrapped = test.wrap(updateMovieClub)
+
+  let user;
+  let movieClubData;
+  let movieClub;
+
+  beforeEach(async () => {
+    user = await populateUserData();
+    movieClub = await populateMovieClubData({ id: "1", ownerId: user.id, ownerName: user.name });
+    
+    movieClubData = {
+      movieClubId: movieClub.id,
+      name: "Updated Test Club",
+      ownerId: user.id,
+      ownerName: user.name,
+      isPublic: false,
+      timeInterval: "updated test interval",
+      bannerUrl: "updated test banner URL",
+    };
+  });
+
+  after(() => {
+    test.cleanup();
+  });
+
+  it("should update an existing Movie Club", async () => {
+    await wrapped(movieClubData)
+    const snap = await db.collection("movieclubs").doc(movieClub.id).get()
+    const movieClubDoc = snap.data();
+
+    assert(movieClubDoc.name == movieClubData.name);
+    assert(movieClubDoc.ownerId == movieClubData.ownerId);
+    assert(movieClubDoc.ownerName == movieClubData.ownerName);
+    assert(movieClubDoc.isPublic == movieClubData.isPublic);
+    assert(movieClubDoc.timeInterval == movieClubData.timeInterval);
+    assert(movieClubDoc.bannerUrl == movieClubData.bannerUrl);
+  });
+
+  it("should error without required fields", async () => {
+    try {
+      await wrapped({})
+      assert.fail('Expected error not thrown');
+    } catch (error) {
+      assert.match(error.message, /The function must be called with movieClubId, ownerId./);
+    };
+  });
+
+  it("should not allow a user who does not own the movie club to update it", async () => {
+    try {
+      await wrapped({
+        movieClubId: movieClub.id,
+        name: "Updated Test Club",
+        ownerId: "wrong-user-id",
+      })
+      assert.fail('Expected error not thrown');
+    } catch (error) {
+      assert.match(error.message, /ownerId does not match movieClub.ownerId/);
+    };
   });
 });

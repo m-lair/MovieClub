@@ -3,11 +3,13 @@
   "description": "Cloud Functions for Firebase",
   "scripts": {
     "serve": "firebase emulators:start --only functions",
+    "exec": "firebase emulators:exec --project=movieclub-93714 \"npm run test\"",
+    "stop": "npx kill-port 8080 9000",
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "test": "mocha --reporter spec"
+    "test": "mocha --reporter spec \"test/**/*.test.js\""
   },
   "engines": {
     "node": "20"
@@ -31,7 +33,8 @@
     "src": "./src",
     "firestore": "./src/firestore",
     "utilities": "./src/utilities",
-    "mocks": "./test/mocks"
+    "mocks": "./test/mocks",
+    "test": "./test"
   },
   "private": true
 }

@@ -3,13 +3,14 @@ const test = require('firebase-functions-test')({
     databaseURL: 'localhost:8080',
     projectId: process.env.PROJECT_ID,
 }, '/Users/marcus/Library/Mobile Documents/com~apple~CloudDocs/Documents/movieclub-93714-f6efcc256851.json');
+const { logVerbose } = require("utilities")
 
 const { db, admin } = require('firestore');
 
 async function populateDefaultData(count = 1) {
-    console.log('Populating default data...');
+    logVerbose('Populating default data...');
     for (let i = 0; i < count; i++) {
-        console.log(`Populating data for user ${i}`);
+        logVerbose(`Populating data for user ${i}`);
         await populateUserData(i);
         await populateMovieClubData(i);
         await populateMovieData(i);
@@ -32,11 +33,10 @@ async function populateUserData(index) {
     } catch (error) {
         throw new Error(`Error setting user data: ${error}`);
     }
-
 };
 
 async function populateMovieClubData(index) {
-    console.log('Populating movie club data...');
+    logVerbose('Populating movie club data...');
     const movieClubData = {
         name: `Test Club${index}`,
         description: 'Test Description',
@@ -47,21 +47,21 @@ async function populateMovieClubData(index) {
     const movieClubRef = db.collection('movieclubs').doc('test-club' + index);
     try {
         await movieClubRef.set(movieClubData);
-        console.log('Movie club data set');
+        logVerbose('Movie club data set');
     } catch (error) {
         throw new Error(`Error setting movie club data: ${error}`);
     }
 }
 
 async function populateMembershipData(index) {
-    console.log('Populating membership data...');
+    logVerbose('Populating membership data...');
     const membershipData = {
-        clubID: 'test-club' + index,
+        clubId: 'test-club' + index,
         clubName: 'Test Club' + index,
         queue: [{
             title: 'The Matrix',
             author: 'Test user' + index,
-            authorID: 'Test user' + index,
+            authorId: 'Test user' + index,
             authorAvi: 'Test Image',
             created: admin.firestore.Timestamp.fromDate(new Date()),
             endDate: admin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
@@ -71,20 +71,20 @@ async function populateMembershipData(index) {
     const membershipRef = db.collection('users').doc('test-user' + index).collection('memberships').doc('test-club' + index);
     try {
         await membershipRef.set(membershipData);
-        console.log('Membership data set');
+        logVerbose('Membership data set');
     } catch (error) {
         throw new Error(`Error setting membership data: ${error}`);
     }
 }
 
 async function populateMovieData(index) {
-    console.log('Populating movie data...');
+    logVerbose('Populating movie data...');
     const movieData = {
         title: 'Test Movie',
         director: 'Test Director',
         plot: 'Test Plot',
         author: 'Test user',
-        authorID: 'test-user',
+        authorId: 'test-user',
         authorAvi: 'Test Image',
         created: admin.firestore.Timestamp.fromDate(new Date()),
         endDate: admin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
@@ -93,14 +93,14 @@ async function populateMovieData(index) {
     const movieRef = db.collection('movieclubs').doc('test-club' + index).collection('movies').doc();
     try {
         await movieRef.set(movieData);
-        console.log('Movie data set');
+        logVerbose('Movie data set');
     } catch (error) {
         throw new Error(`Error setting movie data: ${error}`);
     }
 }
 
 async function populateMemberData(index) {
-    console.log('Populating member data...');
+    logVerbose('Populating member data...');
     const memberData = {
         name: 'Test user' + index,
         id: 'test-member',
@@ -110,7 +110,7 @@ async function populateMemberData(index) {
     for (const doc of memberRef) {
         try {
             doc.ref.collection('members').doc('test-user' + index).set(memberData);
-            console.log('Member data set');
+            logVerbose('Member data set');
         } catch (error) {
             throw new Error(`Error setting member data: ${error}`);
         }
@@ -119,4 +119,11 @@ async function populateMemberData(index) {
 
 }
 
-module.exports = { populateDefaultData }
+module.exports = {
+    populateDefaultData,
+    populateUserData,
+    populateMovieClubData,
+    populateMembershipData,
+    populateMovieData,
+    populateMemberData
+}

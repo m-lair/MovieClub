@@ -1,28 +1,26 @@
 const functions = require("firebase-functions");
-const { db } = require("firestore");
-const { verifyRequiredFields } = require("utilities");
+const { db, admin } = require("firestore");
+const { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyRequiredFields } = require("utilities");
 
 exports.createUser = functions.https.onCall(async (data, context) => {
-
-  const requiredFields = ['email', 'displayName'];
+  const requiredFields = ["email", "name"];
   verifyRequiredFields(data, requiredFields)
   
   try {
     // Create the user in Firebase Authentication
-    uid = await createAdminUserAuthentication(data)
+    const id = await createAdminUserAuthentication(data)
 
     // Prepare user data for Firestore
-    await createUser(uid, data)
+    await createUser(id, data)
 
     // Return the user ID
-    return { uid: uid };
+    return id;
   } catch (error) {
-    console.error('Error creating new user:', error);
-    throw new functions.https.HttpsError('internal', 'Error creating new user', error);
+    handleCatchHttpsError("Error creating user:", error)
   }
 });
 
-async function createAdminUserAuthentication({ email, password, displayName }) {
+async function createAdminUserAuthentication({ email, password, name }) {
   try {
       // Check if user already exists
       // Client will create record if using alt signin method
@@ -37,26 +35,46 @@ async function createAdminUserAuthentication({ email, password, displayName }) {
         displayName: displayName
       });
       return userRecord.uid
-    
   } catch (error) {
-    console.error('Error creating user:', error);
-    throw new functions.https.HttpsError('internal', 'Error creating user', error);
+    logError("Error creating admin user:", error)
+    throwHttpsError("internal", `createAdminUserAuthentication: ${error.message}`);
   }
 }
 
-async function createUser(uid, { email, displayName }) {
+async function createUser(id, data = { email, name, signInProvider }) {
   const userData = {
-    uid: uid,
+    id: id,
     email: email,
-    displayName: displayName,
+    name: name,
+    signInProvider: signInProvider,
     createdAt: admin.firestore.FieldValue.serverTimestamp()
   };
 
   try {
-    // Add user data to Firestore
-    await db.collection('users').doc(userRecord.uid).set(userData);
+    await db.collection("users").doc(userRecord.id).set(userData);
   } catch (error) {
-    console.error('Error signing in user:', error);
-    throw new functions.https.HttpsError('internal', 'Error signing in user', error);
+    logError("Error creating user:", error)
+    throwHttpsError("internal", `createUser: ${error.message}`, data);
   }
 }
+
+exports.updateUser = functions.https.onCall(async (data, context) => {
+  try {
+    const requiredFields = ["id"];
+    verifyRequiredFields(data, requiredFields);
+
+    const userData = {
+      ...(data.bio && { bio: data.bio }),
+      ...(data.email && { email: data.email }),
+      ...(data.image && { image: data.image }),
+      ...(data.name && { name: data.name }),
+      ...(data.signInProvider && { signInProvider: data.signInProvider }),
+    };
+
+    await db.collection("users").doc(data.id).update(userData);
+
+    logVerbose("User updated successfully!");
+  } catch (error) {
+    handleCatchHttpsError(`Error updating User ${data.id}`, error)
+  };
+});
