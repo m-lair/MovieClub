@@ -34,13 +34,13 @@ async function rotateMovieLogic() {
 
 async function processMovieClub(movieclubDoc, futureDate, apiEndpoint) {
   const movieclub = movieclubDoc.data();
-  const clubID = movieclubDoc.id;
+  const clubId = movieclubDoc.id;
   const nextUp = await movieclubDoc.ref.collection("members").orderBy("dateAdded", "asc").limit(1).get();
-  const userID = nextUp.docs[0].id;
-  const userDoc = await db.collection("users").doc(userID).get();
+  const userId = nextUp.docs[0].id;
+  const userDoc = await db.collection("users").doc(userId).get();
   const userData = userDoc.data();
 
-  const membershipRef = await userDoc.ref.collection("memberships").doc(clubID).get();
+  const membershipRef = await userDoc.ref.collection("memberships").doc(clubId).get();
   const membershipData = membershipRef.data();
   const movie = membershipData.queue[0];
 
@@ -55,7 +55,7 @@ async function processMovieClub(movieclubDoc, futureDate, apiEndpoint) {
     director: data.Director || 'No Director',
     plot: data.Plot || 'No Plot',
     author: userData.name || 'no-name',
-    authorID: userDoc.id || 'no-id',
+    authorId: userDoc.id || 'no-id',
     authorAvi: userData.image || 'no-image',
     created: new Date(),
     poster: data.Poster || 'no-image',
@@ -63,7 +63,7 @@ async function processMovieClub(movieclubDoc, futureDate, apiEndpoint) {
     userName: userData.name || 'no-name',
   };
 
-  await db.collection("movieclubs").doc(clubID).collection("movies").doc().set(newMovieData);
+  await db.collection("movieclubs").doc(clubId).collection("movies").doc().set(newMovieData);
   await nextUp.docs[0].ref.update({ dateAdded: new Date() });
   await movieclubDoc.ref.update({ movieEndDate: futureDate });
 }

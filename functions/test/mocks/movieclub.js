@@ -9,7 +9,7 @@ async function populateMovieClubData(params = {}) {
     name: params.name || "Test Club",
     description: params.description || "Test Description",
     image: params.image || "Test Image",
-    ownerID: params.ownerID || "test-user-id",
+    ownerId: params.ownerId || "test-user-id",
     ownerName: params.ownerName || "Test User",
     created: admin.firestore.Timestamp.fromDate(new Date()),
     movieEndDate: admin.firestore.Timestamp.fromDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)),

@@ -56,12 +56,12 @@ async function populateMovieClubData(index) {
 async function populateMembershipData(index) {
     logVerbose('Populating membership data...');
     const membershipData = {
-        clubID: 'test-club' + index,
+        clubId: 'test-club' + index,
         clubName: 'Test Club' + index,
         queue: [{
             title: 'The Matrix',
             author: 'Test user' + index,
-            authorID: 'Test user' + index,
+            authorId: 'Test user' + index,
             authorAvi: 'Test Image',
             created: admin.firestore.Timestamp.fromDate(new Date()),
             endDate: admin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
@@ -84,7 +84,7 @@ async function populateMovieData(index) {
         director: 'Test Director',
         plot: 'Test Plot',
         author: 'Test user',
-        authorID: 'test-user',
+        authorId: 'test-user',
         authorAvi: 'Test Image',
         created: admin.firestore.Timestamp.fromDate(new Date()),
         endDate: admin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),

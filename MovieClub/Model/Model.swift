@@ -80,8 +80,8 @@ struct OMDBSearchResponse: Codable {
 }
 
 struct Membership: Codable, Identifiable, Hashable {
-    @DocumentID var id: String?
-    var clubID: String
+    @DocumentId var id: String?
+    var clubId: String
     var clubName: String
     var queue: [FirestoreMovie]
     var movieDate: Date?
@@ -97,8 +97,8 @@ struct Membership: Codable, Identifiable, Hashable {
 }
 
 struct Member: Codable, Identifiable, Hashable {
-    @DocumentID var id: String?
-    var userID: String
+    @DocumentId var id: String?
+    var userId: String
     var userName: String
     var userAvi: String
     var selector: Bool = true
@@ -107,7 +107,7 @@ struct Member: Codable, Identifiable, Hashable {
     
     enum CodingKeys: String, CodingKey {
         case id
-        case userID
+        case userId
         case userName
         case userAvi
         case selector
@@ -125,7 +125,7 @@ class Movie: Identifiable, Codable {
     var avgRating: Double?
     var endDate: Date?
     var author: String
-    var authorID: String
+    var authorId: String
     var authorAvi: String
     var comments: [Comment]?
     var plot: String?
@@ -140,7 +140,7 @@ class Movie: Identifiable, Codable {
         case avgRating
         case endDate
         case author
-        case authorID
+        case authorId
         case authorAvi
         case comments
         case plot
@@ -155,7 +155,7 @@ class Movie: Identifiable, Codable {
          avgRating: Double? = nil,
          endDate: Date?,
          author: String,
-         authorID: String,
+         authorId: String,
          authorAvi: String,
          comments: [Comment]? = nil,
          plot: String? = nil,
@@ -168,7 +168,7 @@ class Movie: Identifiable, Codable {
         self.avgRating = avgRating
         self.endDate = endDate
         self.author = author
-        self.authorID = authorID
+        self.authorId = authorId
         self.authorAvi = authorAvi
         self.comments = comments
         self.plot = plot
@@ -185,7 +185,7 @@ class Movie: Identifiable, Codable {
         avgRating = try container.decodeIfPresent(Double.self, forKey: .avgRating)
         endDate = try container.decodeIfPresent(Date.self, forKey: .endDate)
         author = try container.decode(String.self, forKey: .author)
-        authorID = try container.decode(String.self, forKey: .authorID)
+        authorId = try container.decode(String.self, forKey: .authorId)
         authorAvi = try container.decode(String.self, forKey: .authorAvi)
         comments = try container.decodeIfPresent([Comment].self, forKey: .comments)
         plot = try container.decodeIfPresent(String.self, forKey: .plot)
@@ -202,7 +202,7 @@ class Movie: Identifiable, Codable {
         try container.encodeIfPresent(avgRating, forKey: .avgRating)
         try container.encodeIfPresent(endDate, forKey: .endDate)
         try container.encode(author, forKey: .author)
-        try container.encode(authorID, forKey: .authorID)
+        try container.encode(authorId, forKey: .authorId)
         try container.encode(authorAvi, forKey: .authorAvi)
         try container.encodeIfPresent(comments, forKey: .comments)
         try container.encodeIfPresent(plot, forKey: .plot)
@@ -224,8 +224,8 @@ extension Movie: Hashable {
 }
 
 struct Rating: Identifiable, Codable {
-    @DocumentID var id: String?
-    var userID: String
+    @DocumentId var id: String?
+    var userId: String
     var value: Double
 }
 
@@ -242,7 +242,7 @@ struct APIMovie: Codable, Equatable, Hashable, Identifiable {
             }
 
     enum CodingKeys: String, CodingKey {
-        case id = "imdbID"
+        case id = "imdbId"
         case title = "Title"
         case released = "Year"
         case director = "Director"
@@ -252,8 +252,8 @@ struct APIMovie: Codable, Equatable, Hashable, Identifiable {
 }
 
 struct Comment: Identifiable, Codable, Equatable, Hashable{
-    @DocumentID var id: String?
-    var userID: String
+    @DocumentId var id: String?
+    var userId: String
     var image: String? = ""
     var username: String
     var date: Date
@@ -266,7 +266,7 @@ struct Comment: Identifiable, Codable, Equatable, Hashable{
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
-        hasher.combine(userID)
+        hasher.combine(userId)
         hasher.combine(image)
         hasher.combine(date)
         hasher.combine(text)
@@ -284,13 +284,13 @@ struct FirestoreMovie: Identifiable, Codable, Equatable, Hashable {
         lhs.comments == rhs.comments
     }
     
-    @DocumentID var id: String?
+    @DocumentId var id: String?
     var title: String
     var poster: String?
     var endDate: Date?
     var avgRating: Double?
     var author: String
-    var authorID: String
+    var authorId: String
     var authorAvi: String
     var comments: [Comment]?
     
@@ -300,7 +300,7 @@ struct FirestoreMovie: Identifiable, Codable, Equatable, Hashable {
         hasher.combine(endDate)
         hasher.combine(avgRating)
         hasher.combine(author)
-        hasher.combine(authorID)
+        hasher.combine(authorId)
         hasher.combine(authorAvi)
         hasher.combine(comments)
     }
@@ -312,7 +312,7 @@ struct FirestoreMovie: Identifiable, Codable, Equatable, Hashable {
         case endDate
         case avgRating
         case author
-        case authorID
+        case authorId
         case authorAvi
         case comments
     }
@@ -328,7 +328,7 @@ class MovieClub: Identifiable, Codable {
     var ownerName: String
     var timeInterval: Int
     var movieEndDate: Date
-    var ownerID: String
+    var ownerId: String
     var isPublic: Bool
     var banner: Data?
     var bannerUrl: String?
@@ -345,7 +345,7 @@ class MovieClub: Identifiable, Codable {
         case ownerName
         case timeInterval
         case movieEndDate
-        case ownerID
+        case ownerId
         case isPublic
         case banner
         case bannerUrl
@@ -362,7 +362,7 @@ class MovieClub: Identifiable, Codable {
          ownerName: String,
          timeInterval: Int,
          movieEndDate: Date,
-         ownerID: String,
+         ownerId: String,
          isPublic: Bool,
          banner: Data? = nil,
          bannerUrl: String? = nil,
@@ -377,7 +377,7 @@ class MovieClub: Identifiable, Codable {
         self.ownerName = ownerName
         self.timeInterval = timeInterval
         self.movieEndDate = movieEndDate
-        self.ownerID = ownerID
+        self.ownerId = ownerId
         self.isPublic = isPublic
         self.banner = banner
         self.bannerUrl = bannerUrl
@@ -396,7 +396,7 @@ class MovieClub: Identifiable, Codable {
         ownerName = try container.decode(String.self, forKey: .ownerName)
         timeInterval = try container.decode(Int.self, forKey: .timeInterval)
         movieEndDate = try container.decode(Date.self, forKey: .movieEndDate)
-        ownerID = try container.decode(String.self, forKey: .ownerID)
+        ownerId = try container.decode(String.self, forKey: .ownerId)
         isPublic = try container.decode(Bool.self, forKey: .isPublic)
         banner = try container.decodeIfPresent(Data.self, forKey: .banner)
         bannerUrl = try container.decodeIfPresent(String.self, forKey: .bannerUrl)
@@ -415,7 +415,7 @@ class MovieClub: Identifiable, Codable {
         try container.encode(ownerName, forKey: .ownerName)
         try container.encode(timeInterval, forKey: .timeInterval)
         try container.encode(movieEndDate, forKey: .movieEndDate)
-        try container.encode(ownerID, forKey: .ownerID)
+        try container.encode(ownerId, forKey: .ownerId)
         try container.encode(isPublic, forKey: .isPublic)
         try container.encodeIfPresent(banner, forKey: .banner)
         try container.encodeIfPresent(bannerUrl, forKey: .bannerUrl)

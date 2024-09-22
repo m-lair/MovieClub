@@ -113,7 +113,7 @@ struct ClubDetailsForm: View {
                         Button {
                             Task{
                                 if let imageData = try await photoItem?.loadTransferable(type: Data.self) {
-                                    let documentString = data.db.collection("movieclubs").document().documentID
+                                    let documentString = data.db.collection("movieclubs").document().documentId
                                     print(documentString)
                                     sheetShowing = true
                                     
@@ -157,7 +157,7 @@ struct ClubDetailsForm: View {
     private func submit() async {
         do{
             if let image = try await photoItem?.loadTransferable(type: Data.self) {
-                let documentString = data.db.collection("movieclubs").document().documentID
+                let documentString = data.db.collection("movieclubs").document().documentId
                 if let imageData = UIImage(data: image) {
                     print(documentString)
                     
@@ -171,10 +171,10 @@ struct ClubDetailsForm: View {
                               ownerName: data.currentUser?.name ?? "",
                               timeInterval: timeInterval,
                               movieEndDate: endDate,
-                              ownerID: data.currentUser?.id ?? "", 
+                              ownerId: data.currentUser?.id ?? "", 
                               isPublic: isPublic, bannerUrl: urlString, numMovies: 1)
                     
-                    let movie = Movie(created: Date(), title: apiMovie?.title ?? "", poster: apiMovie?.poster ?? "", endDate: endDate, author: data.currentUser?.name ?? "", authorID: data.currentUser?.id ?? "", authorAvi: data.currentUser?.image ?? "")
+                    let movie = Movie(created: Date(), title: apiMovie?.title ?? "", poster: apiMovie?.poster ?? "", endDate: endDate, author: data.currentUser?.name ?? "", authorId: data.currentUser?.id ?? "", authorAvi: data.currentUser?.image ?? "")
                     print("MovieClub \(movieClub)")
 
                     await data.createMovieClub(movieClub: movieClub, movie: movie)

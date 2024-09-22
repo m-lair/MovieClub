@@ -3,9 +3,9 @@ const { db } = require("firestore");
 
 async function populateUserData(params = {}) {
   logVerbose("Populating User data...")
-  const testUserId = params.uid || "test-user-id";
+  const testUserId = params.id || "test-user-id";
   const testUserData = {
-    uid: testUserId,
+    id: testUserId,
     name: params.name || "Test User",
     image: params.image || "Test Image",
     bio: params.bio || "Test Bio",

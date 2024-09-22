@@ -171,22 +171,22 @@ struct SignUpView: View {
     @MainActor
     func handleAuthorization(_ authResults: ASAuthorization) {
         // Handle the authorization results
-        if let appleIDCredential = authResults.credential as? ASAuthorizationAppleIDCredential {
+        if let appleIdCredential = authResults.credential as? ASAuthorizationAppleIdCredential {
             guard let nonce = currentNonce else {
                 fatalError("Invalid state: A nonce should have been set before the sign-in request.")
             }
 
             
-            guard let appleIDToken = appleIDCredential.identityToken else {
+            guard let appleIdToken = appleIdCredential.identityToken else {
                 print("Unable to fetch identity token")
                 return
             }
-            guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
-                print("Unable to serialize token string from data: \(appleIDToken.debugDescription)")
+            guard let idTokenString = String(data: appleIdToken, encoding: .utf8) else {
+                print("Unable to serialize token string from data: \(appleIdToken.debugDescription)")
                 return
             }
             
-            let credential = OAuthProvider.appleCredential(withIDToken: idTokenString, rawNonce: nonce, fullName: appleIDCredential.fullName)
+            let credential = OAuthProvider.appleCredential(withIdToken: idTokenString, rawNonce: nonce, fullName: appleIdCredential.fullName)
             
             // Sign in with Firebase.
             Auth.auth().signIn(with: credential) { (authResult, error) in
@@ -200,8 +200,8 @@ struct SignUpView: View {
                     return
                 }
                 let uid = user.uid
-                let email = user.email ?? appleIDCredential.email ?? "No Email"
-                let displayName = user.displayName ?? "\(appleIDCredential.fullName?.givenName ?? "No Name")"
+                let email = user.email ?? appleIdCredential.email ?? "No Email"
+                let displayName = user.displayName ?? "\(appleIdCredential.fullName?.givenName ?? "No Name")"
                 
                 let userData: [String: Any] = [
                     "uid": uid,

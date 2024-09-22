@@ -4,7 +4,7 @@ const { handleCatchHttpsError, logVerbose, verifyRequiredFields } = require("uti
 
 exports.postComment = functions.https.onCall(async (data, context) => {
   try {
-    const requiredFields = ["movieClubId", "movieId", "text", "userID", "username"]
+    const requiredFields = ["movieClubId", "movieId", "text", "userId", "username"]
     verifyRequiredFields(data, requiredFields)
 
     const commentsRef = db
@@ -15,7 +15,7 @@ exports.postComment = functions.https.onCall(async (data, context) => {
       .collection("comments");
 
     const commentData = {
-      userID: data.userID,
+      userId: data.userId,
       username: data.username,
       text: data.text,
       created_at: admin.firestore.FieldValue.serverTimestamp()

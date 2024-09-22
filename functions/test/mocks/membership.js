@@ -6,12 +6,12 @@ async function populateMembershipData(params = {}) {
   const userId = params.userId || 'test-user';
   const movieClubId = params.movieClubId || 'test-club';
   const membershipData = {
-    clubID: params.clubID || 'test-club',
+    clubId: params.clubId || 'test-club',
     clubName: params.clubName || 'Test Club',
     queue: [{
       title: 'The Matrix',
       author: 'Test user',
-      authorID: 'Test user',
+      authorId: 'Test user',
       authorAvi: 'Test Image',
       created: admin.firestore.Timestamp.fromDate(new Date()),
       endDate: admin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),

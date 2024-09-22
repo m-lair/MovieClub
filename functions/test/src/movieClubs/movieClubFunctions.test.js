@@ -18,7 +18,7 @@ describe("createMovieClub", () => {
 
     movieClubData = {
       name: "Test Club",
-      ownerID: user.uid,
+      ownerId: user.id,
       ownerName: user.name,
       isPublic: true,
       timeInterval: "test",
@@ -36,7 +36,7 @@ describe("createMovieClub", () => {
     const movieClubDoc = snap.data();
 
     assert(movieClubDoc.name == movieClubData.name);
-    assert(movieClubDoc.ownerID == movieClubData.ownerID);
+    assert(movieClubDoc.ownerId == movieClubData.ownerId);
     assert(movieClubDoc.ownerName == movieClubData.ownerName);
     assert(movieClubDoc.isPublic == movieClubData.isPublic);
     assert(movieClubDoc.timeInterval == movieClubData.timeInterval);
@@ -48,7 +48,7 @@ describe("createMovieClub", () => {
       await wrapped({})
       assert.fail('Expected error not thrown');
     } catch (error) {
-      assert.match(error.message, /The function must be called with name, ownerID, ownerName, isPublic, timeInterval, bannerUrl./);
+      assert.match(error.message, /The function must be called with name, ownerId, ownerName, isPublic, timeInterval, bannerUrl./);
     };
   });
 });
@@ -62,12 +62,12 @@ describe("updateMovieClub", () => {
 
   beforeEach(async () => {
     user = await populateUserData();
-    movieClub = await populateMovieClubData({ id: "1", ownerID: user.uid, ownerName: user.name });
+    movieClub = await populateMovieClubData({ id: "1", ownerId: user.id, ownerName: user.name });
     
     movieClubData = {
       movieClubId: movieClub.id,
       name: "Updated Test Club",
-      ownerID: user.uid,
+      ownerId: user.id,
       ownerName: user.name,
       isPublic: false,
       timeInterval: "updated test interval",
@@ -85,7 +85,7 @@ describe("updateMovieClub", () => {
     const movieClubDoc = snap.data();
 
     assert(movieClubDoc.name == movieClubData.name);
-    assert(movieClubDoc.ownerID == movieClubData.ownerID);
+    assert(movieClubDoc.ownerId == movieClubData.ownerId);
     assert(movieClubDoc.ownerName == movieClubData.ownerName);
     assert(movieClubDoc.isPublic == movieClubData.isPublic);
     assert(movieClubDoc.timeInterval == movieClubData.timeInterval);
@@ -97,7 +97,7 @@ describe("updateMovieClub", () => {
       await wrapped({})
       assert.fail('Expected error not thrown');
     } catch (error) {
-      assert.match(error.message, /The function must be called with movieClubId, ownerID./);
+      assert.match(error.message, /The function must be called with movieClubId, ownerId./);
     };
   });
 
@@ -106,11 +106,11 @@ describe("updateMovieClub", () => {
       await wrapped({
         movieClubId: movieClub.id,
         name: "Updated Test Club",
-        ownerID: "wrong-user-id",
+        ownerId: "wrong-user-id",
       })
       assert.fail('Expected error not thrown');
     } catch (error) {
-      assert.match(error.message, /ownerID does not match movieClub.ownerID/);
+      assert.match(error.message, /ownerId does not match movieClub.ownerId/);
     };
   });
 });

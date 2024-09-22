@@ -15,7 +15,7 @@ describe("postComment", () => {
 
   beforeEach(async () => {
     user = await populateUserData();
-    movieClub = await populateMovieClubData({ id: "1", ownerID: user.uid, ownerName: user.name });
+    movieClub = await populateMovieClubData({ id: "1", ownerId: user.id, ownerName: user.name });
     movie = await populateMovieData({ id: "1", movieClubId: movieClub.id });
 
     text = "This is a test comment";
@@ -24,7 +24,7 @@ describe("postComment", () => {
       movieClubId: movieClub.id,
       movieId: movie.id,
       text: text,
-      userID: user.uid,
+      userId: user.id,
       username: user.name,
     };
 
@@ -42,7 +42,7 @@ describe("postComment", () => {
       .collection("movies")
       .doc(movie.id)
       .collection("comments")
-      .where("userID", "==", user.uid)
+      .where("userId", "==", user.id)
       .get();
 
     assert(snap.docs?.length > 0);
@@ -50,7 +50,7 @@ describe("postComment", () => {
     const commentDoc = snap.docs[0].data();
 
     assert(commentDoc.text == text);
-    assert(commentDoc.userID == user.uid);
+    assert(commentDoc.userId == user.id);
     assert(commentDoc.username == user.name);
   });
 
@@ -59,7 +59,7 @@ describe("postComment", () => {
       await wrapped({})
       assert.fail("Expected error not thrown");
     } catch (error) {
-      assert.match(error.message, /The function must be called with movieClubId, movieId, text, userID, username./);
+      assert.match(error.message, /The function must be called with movieClubId, movieId, text, userId, username./);
     };
   });
 });

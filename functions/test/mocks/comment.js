@@ -12,7 +12,7 @@ async function populateCommentData(params = {}) {
     id: id,
     image: params.image || "Test image",
     text: params.text || "Test text",
-    userID: params.username || "test-user-id",
+    userId: params.username || "test-user-id",
     username: params.username || "Test User",
     likes: params.likes || 0,
     date: admin.firestore.Timestamp.fromDate(new Date()),

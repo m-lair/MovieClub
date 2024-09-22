@@ -14,7 +14,7 @@ struct ComingSoonRowView: View {
     var body: some View {
         let _ = print("in row view")
         HStack{
-            CircularImageView(userID: member.userID, size: 30)
+            CircularImageView(userId: member.userId, size: 30)
             Text("\(member.userName)")
         }
     }

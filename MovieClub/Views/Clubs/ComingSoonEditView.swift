@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ComingSoonEditView: View {
     @Environment(DataManager.self) var data: DataManager
-    let userID: String
+    let userId: String
     @State var showSheet: Bool = false
     @State var index: Int = 0
     var body: some View {
@@ -35,7 +35,7 @@ struct ComingSoonEditView: View {
 
 ///-club
 /// -members
-///     -userID
+///     -userId
 ///     -username
 ///     -selector
 ///     -movieDate
@@ -45,7 +45,7 @@ struct ComingSoonEditView: View {
 ///-user
 /// -membership
 ///     -clubName
-///     -clubID
+///     -clubId
 ///     -queue
 ///     -movieDate
 ///

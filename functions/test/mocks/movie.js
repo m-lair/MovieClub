@@ -11,7 +11,7 @@ async function populateMovieData(params = {}) {
     director: params.director || "Test Director",
     plot: params.plot || "Test Plot",
     author: params.author || "Test user",
-    authorID: params.authorID || "test-user",
+    authorId: params.authorId || "test-user",
     authorAvi: params.authorAvi || "Test Image",
     created: admin.firestore.Timestamp.fromDate(new Date()),
     endDate: admin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),

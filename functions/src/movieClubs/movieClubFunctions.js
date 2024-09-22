@@ -5,7 +5,7 @@ const { db } = require("firestore");
 const { handleCatchHttpsError, logVerbose, verifyRequiredFields } = require("utilities");
 
 exports.createMovieClub = functions.https.onCall(async (data, context) => {
-  const requiredFields = ["name", "ownerID", "ownerName", "isPublic", "timeInterval", "bannerUrl"];
+  const requiredFields = ["name", "ownerId", "ownerName", "isPublic", "timeInterval", "bannerUrl"];
   verifyRequiredFields(data, requiredFields);
 
   try {
@@ -13,7 +13,7 @@ exports.createMovieClub = functions.https.onCall(async (data, context) => {
 
     const movieClubData = {
       name: data.name,
-      ownerID: data.ownerID,
+      ownerId: data.ownerId,
       ownerName: data.ownerName,
       isPublic: data.isPublic,
       timeInterval: data.timeInterval,
@@ -31,7 +31,7 @@ exports.createMovieClub = functions.https.onCall(async (data, context) => {
 });
 
 exports.updateMovieClub = functions.https.onCall(async (data, context) => {
-  const requiredFields = ["movieClubId", "ownerID"];
+  const requiredFields = ["movieClubId", "ownerId"];
   verifyRequiredFields(data, requiredFields);
 
   try {
@@ -43,15 +43,15 @@ exports.updateMovieClub = functions.https.onCall(async (data, context) => {
     // Is this a good way to check? Whats stopping someone from stealing the owner's user id
     // ie via a comment they posted and passing that through the request?
     // Should we allow users to change the owner of a Movie Club?
-    if (data.ownerID != movieClub.ownerID) {
-      throw new functions.https.HttpsError('permission-denied', 'ownerID does not match movieClub.ownerID');
+    if (data.ownerId != movieClub.ownerId) {
+      throw new functions.https.HttpsError('permission-denied', 'ownerId does not match movieClub.ownerId');
     };
 
     const updateOwnerId = data.updateOwnerId || false;
 
     const movieClubData = {
       ...(data.name && { name: data.name }),
-      ...(updateOwnerId && { ownerID: updateOwnerId }),
+      ...(updateOwnerId && { ownerId: updateOwnerId }),
       ...(data.ownerName && { ownerName: data.ownerName }),
       ...(data.isPublic != undefined && { isPublic: data.isPublic }),
       ...(data.timeInterval && { timeInterval: data.timeInterval }),

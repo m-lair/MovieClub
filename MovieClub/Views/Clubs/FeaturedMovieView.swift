@@ -71,8 +71,8 @@ struct FeaturedMovieView: View {
              */
         }
         .task{
-            let path = "/Users/profile_images/\(movie.authorID)"
-           // print("comment.userID \(comment.userID)")
+            let path = "/Users/profile_images/\(movie.authorId)"
+           // print("comment.userId \(comment.userId)")
             self.selectedByUrl = await data.getProfileImage(path: path)
         }
     }

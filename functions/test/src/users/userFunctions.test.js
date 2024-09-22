@@ -14,7 +14,7 @@ describe("createUser", () => {
 
   beforeEach(async () => {
     userData = {
-      uid: "test-user-id",
+      id: "test-user-id",
       name: "Test User",
       image: "Test Image",
       bio: "Test Bio",
@@ -31,7 +31,7 @@ describe("createUser", () => {
     const snap = await db.collection("users").doc(userId).get();
     const userDoc = snap.data();
 
-    assert(userDoc.uid == userData.uid);
+    assert(userDoc.id == userData.id);
     assert(userDoc.name == userData.name);
     assert(userDoc.image == userData.image);
     assert(userDoc.bio == userData.bio);
@@ -58,7 +58,7 @@ describe("updateUser", () => {
     user = await populateUserData();
     
     userData = {
-      uid: user.uid,
+      id: user.id,
       name: "Updated test User",
       image: "Updated test Image",
       bio: "Updated test Bio",
@@ -72,10 +72,10 @@ describe("updateUser", () => {
 
   it("should update an existing User", async () => {
     await wrapped(userData);
-    const snap = await db.collection("users").doc(user.uid).get();
+    const snap = await db.collection("users").doc(user.id).get();
     const userDoc = snap.data();
 
-    assert(userDoc.uid == userData.uid);
+    assert(userDoc.id == userData.id);
     assert(userDoc.name == userData.name);
     assert(userDoc.image == userData.image);
     assert(userDoc.bio == userData.bio);
@@ -87,7 +87,7 @@ describe("updateUser", () => {
       await wrapped({})
       assert.fail('Expected error not thrown');
     } catch (error) {
-      assert.match(error.message, /The function must be called with uid./);
+      assert.match(error.message, /The function must be called with id./);
     };
   });
 });

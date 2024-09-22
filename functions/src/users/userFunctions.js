@@ -11,13 +11,13 @@ exports.createUser = functions.https.onCall(async (data, context) => {
 
   try {
     // Create the user in Firebase Authentication
-    const uid = await createAdminUserAuthentication(data)
+    const id = await createAdminUserAuthentication(data)
 
     // Prepare user data for Firestore
-    await createUser(uid, data)
+    await createUser(id, data)
 
     // Return the user ID
-    return uid;
+    return id;
   } catch (error) {
     handleCatchHttpsError("Error creating user:", error)
   }
@@ -38,9 +38,9 @@ async function createAdminUserAuthentication({ email, password, name }) {
   }
 }
 
-async function createUser(uid, data = { email, name, signInProvider }) {
+async function createUser(id, data = { email, name, signInProvider }) {
   const userData = {
-    uid: uid,
+    id: id,
     email: email,
     name: name,
     signInProvider: signInProvider,
@@ -48,7 +48,7 @@ async function createUser(uid, data = { email, name, signInProvider }) {
   };
 
   try {
-    await db.collection("users").doc(userRecord.uid).set(userData);
+    await db.collection("users").doc(userRecord.id).set(userData);
   } catch (error) {
     logError("Error creating user:", error)
     throwHttpsError("internal", `createUser: ${error.message}`, data);
@@ -57,7 +57,7 @@ async function createUser(uid, data = { email, name, signInProvider }) {
 
 exports.updateUser = functions.https.onCall(async (data, context) => {
   try {
-    const requiredFields = ["uid"];
+    const requiredFields = ["id"];
     verifyRequiredFields(data, requiredFields);
 
     const userData = {
@@ -68,10 +68,10 @@ exports.updateUser = functions.https.onCall(async (data, context) => {
       ...(data.signInProvider && { signInProvider: data.signInProvider }),
     };
 
-    await db.collection("users").doc(data.uid).update(userData);
+    await db.collection("users").doc(data.id).update(userData);
 
     logVerbose("User updated successfully!");
   } catch (error) {
-    handleCatchHttpsError(`Error updating User ${data.uid}`, error)
+    handleCatchHttpsError(`Error updating User ${data.id}`, error)
   };
 });

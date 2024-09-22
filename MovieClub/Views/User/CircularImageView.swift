@@ -9,7 +9,7 @@ import SwiftUI
 import FirebaseStorage
 
 
-//TODO: you left off thinking it would be easiest to change some of the circle image logic to just get passed a userID and then do the fetch from here. so loop through, hstack a circleImage(userID: object.userID) and then do use that everywhere
+//TODO: you left off thinking it would be easiest to change some of the circle image logic to just get passed a userId and then do the fetch from here. so loop through, hstack a circleImage(userId: object.userId) and then do use that everywhere
 
 
 
@@ -21,7 +21,7 @@ struct CircularImageView: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.editMode) private var editMode
     @State var imageUrl: URL?
-    @State var userID: String?
+    @State var userId: String?
     var image: UIImage?
     var size: CGFloat? = 0
     var path: String? = ""
@@ -81,8 +81,8 @@ struct CircularImageView: View {
             }
         }
         .task{
-            if let userID = userID {
-                self.imageUrl = await URL(string: data.getProfileImage(userID: userID))
+            if let userId = userId {
+                self.imageUrl = await URL(string: data.getProfileImage(userId: userId))
             }
         }
     }

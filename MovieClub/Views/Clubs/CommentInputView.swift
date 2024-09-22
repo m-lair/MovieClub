@@ -11,7 +11,7 @@ struct CommentInputView: View {
     @Environment(DataManager.self) var data: DataManager
     @State private var commentText: String = ""
     var movieClub: MovieClub
-    @State var movieID: String
+    @State var movieId: String
     var body: some View {
         HStack {
             TextField("leave a comment", text: $commentText)
@@ -24,7 +24,7 @@ struct CommentInputView: View {
                     Task{
                         if commentText != "" && commentText.count > 0 {
                         await submitComment()
-                            data.comments =  await data.fetchComments(movieClubId: movieClub.id ?? "", movieId: movieID)
+                            data.comments =  await data.fetchComments(movieClubId: movieClub.id ?? "", movieId: movieId)
                         } else {
                             print("empty Text")
                         }
@@ -43,11 +43,11 @@ struct CommentInputView: View {
         }
         print("movie club ...")
        
-        let newComment = await Comment(id: nil, userID: data.currentUser?.id ?? "", image: profileImage, username: data.currentUser?.name ?? "Anonymous", date: Date(), text: commentText, likes: 0)
+        let newComment = await Comment(id: nil, userId: data.currentUser?.id ?? "", image: profileImage, username: data.currentUser?.name ?? "Anonymous", date: Date(), text: commentText, likes: 0)
         
         Task {
             print(newComment)
-            await data.postComment(comment: newComment, movieClubID: movieClub.id ?? "", movieID: movieID)
+            await data.postComment(comment: newComment, movieClubId: movieClub.id ?? "", movieId: movieId)
             commentText = ""
             
             
@@ -58,5 +58,5 @@ struct CommentInputView: View {
 
 
 #Preview {
-    CommentInputView(movieClub: MovieClub.TestData[0], movieID: "")
+    CommentInputView(movieClub: MovieClub.TestData[0], movieId: "")
 }
