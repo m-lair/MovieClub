@@ -47,9 +47,11 @@ exports.updateMovieClub = functions.https.onCall(async (data, context) => {
       throw new functions.https.HttpsError('permission-denied', 'ownerID does not match movieClub.ownerID');
     };
 
+    const updateOwnerId = data.updateOwnerId || false;
+
     const movieClubData = {
       ...(data.name && { name: data.name }),
-      ...(data.ownerID && { ownerID: data.ownerID }),
+      ...(updateOwnerId && { ownerID: updateOwnerId }),
       ...(data.ownerName && { ownerName: data.ownerName }),
       ...(data.isPublic != undefined && { isPublic: data.isPublic }),
       ...(data.timeInterval && { timeInterval: data.timeInterval }),
