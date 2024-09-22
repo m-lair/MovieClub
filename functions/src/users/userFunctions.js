@@ -26,8 +26,8 @@ async function createAdminUserAuthentication({ email, password, displayName }) {
   try {
       // Check if user already exists
       // Client will create record if using alt signin method
-      if (auth.getUserByEmail(email)) {
-        const userRecord = auth.getUserByEmail(email);
+      if (admin.auth.getUserByEmail(email)) {
+        const userRecord = admin.auth.getUserByEmail(email);
         return userRecord.uid
       } 
       // Create user using email and password
