@@ -1,4 +1,4 @@
-const { logVerbose } = require("utilities");
+const { logError, logVerbose } = require("utilities");
 const { db, admin } = require("firestore");
 
 async function populateMovieData(params = {}) {
@@ -22,7 +22,7 @@ async function populateMovieData(params = {}) {
     await movieRef.set(movieData);
     logVerbose("Movie data set");
   } catch (error) {
-    throw new Error(`Error setting movie data: ${error}`);
+    logError("Error setting movie data:", error);
   };
 
   return movieData;

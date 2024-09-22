@@ -1,13 +1,13 @@
 "use strict";
 
 const assert = require("assert");
-const { test } = require("test/testHelper")
+const { test } = require("test/testHelper");
 const { db } = require("firestore");
-const { populateUserData, populateMovieClubData } = require("mocks")
+const { populateUserData, populateMovieClubData } = require("mocks");
 const { movieClubs: { createMovieClub, updateMovieClub }, movies: { rotateMovieLogic } } = require("index");
 
-describe("createMovie", () => {
-  const wrapped = test.wrap(createMovieClub)
+describe("createMovieClub", () => {
+  const wrapped = test.wrap(createMovieClub);
 
   let user;
   let movieClubData;
@@ -18,7 +18,7 @@ describe("createMovie", () => {
 
     movieClubData = {
       name: "Test Club",
-      ownerID: user.id,
+      ownerID: user.uid,
       ownerName: user.name,
       isPublic: true,
       timeInterval: "test",
@@ -62,12 +62,12 @@ describe("updateMovieClub", () => {
 
   beforeEach(async () => {
     user = await populateUserData();
-    movieClub = await populateMovieClubData({ id: "1", ownerID: user.id, ownerName: user.name });
+    movieClub = await populateMovieClubData({ id: "1", ownerID: user.uid, ownerName: user.name });
     
     movieClubData = {
       movieClubId: movieClub.id,
       name: "Updated Test Club",
-      ownerID: user.id,
+      ownerID: user.uid,
       ownerName: user.name,
       isPublic: false,
       timeInterval: "updated test interval",

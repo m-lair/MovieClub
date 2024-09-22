@@ -1,4 +1,4 @@
-const { logVerbose } = require("utilities");
+const { logError, logVerbose } = require("utilities");
 const { db } = require("firestore");
 
 async function populateMemberData(params = {}) {
@@ -18,7 +18,7 @@ async function populateMemberData(params = {}) {
     await membersRef.set(memberData);
     logVerbose('Member data set');
   } catch (error) {
-    throw new Error(`Error setting member data: ${error}`);
+    logError("Error setting member data:", error);
   }
 }
 

@@ -1,5 +1,5 @@
 const { db } = require("firestore");
-const { logVerbose } = require("utilities");
+const { logError, logVerbose } = require("utilities");
 
 async function populateCommentData(params = {}) {
   logVerbose('Populating comment data...');
@@ -23,7 +23,7 @@ async function populateCommentData(params = {}) {
     await commentsRef.set(commentData);
     logVerbose('comment data set');
   } catch (error) {
-    throw new Error(`Error setting comment data: ${error}`);
+    logError("Error setting comment data:", error);
   }
 };
 

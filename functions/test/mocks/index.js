@@ -13,10 +13,10 @@ async function populateDefaultData(count = 1, params = {}) {
   for (let i = 0; i < count; i++) {
     logVerbose(`Populating data for user ${i}`);
     const user = await populateUserData({ id: `${i}`, ...params.user || {} });
-    const movieClub = await populateMovieClubData({ id: `${i}`, ownerID: user.id, ownerName: user.name, ...params.movieclub || {} });
+    const movieClub = await populateMovieClubData({ id: `${i}`, ownerID: user.uid, ownerName: user.name, ...params.movieclub || {} });
     const movie = await populateMovieData({ id: `${i}`, movieClubId: movieClub.id, ...params.movie || {} });
-    const membership = await populateMembershipData({ userId: user.id, clubID: movieClub.id, clubName: movieClub.name, ...params.membership || {} });
-    const member = await populateMemberData({ id: user.id, name: user.name, movieClubId: movieClub.id, ...params.member || {} });
+    const membership = await populateMembershipData({ userId: user.uid, clubID: movieClub.id, clubName: movieClub.name, ...params.membership || {} });
+    const member = await populateMemberData({ id: user.uid, name: user.name, movieClubId: movieClub.id, ...params.member || {} });
     const comment = await populateCommentData({ id: `${i}`, name: user.name, movieClubId: movieClub.id, movieId: movie.id, ...params.comment || {} });
 
     data.push({ user, movieClub, movie, membership, member, comment })

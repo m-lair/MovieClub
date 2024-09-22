@@ -2,7 +2,7 @@
 
 const functions = require("firebase-functions");
 const { db } = require("firestore");
-const { verifyRequiredFields } = require("utilities");
+const { handleCatchHttpsError, logVerbose, verifyRequiredFields } = require("utilities");
 
 exports.createMovieClub = functions.https.onCall(async (data, context) => {
   const requiredFields = ["name", "ownerID", "ownerName", "isPublic", "timeInterval", "bannerUrl"];
@@ -22,11 +22,11 @@ exports.createMovieClub = functions.https.onCall(async (data, context) => {
 
     const movieClub = await movieClubRef.add(movieClubData);
 
-    console.log("Movie Club created successfully!");
+    logVerbose("Movie Club created successfully!");
 
     return movieClub;
   } catch (error) {
-    console.error("Error creating Movie Club:", error);
+    handleCatchHttpsError("Error creating Movie Club:", error)
   };
 });
 
@@ -60,9 +60,8 @@ exports.updateMovieClub = functions.https.onCall(async (data, context) => {
 
     await movieClubRef.update(movieClubData);
 
-    console.log("Movie Club updated successfully!");
+    logVerbose("Movie Club updated successfully!");
   } catch (error) {
-    console.error("Error updating Movie Club:", error);
-    throw error
+    handleCatchHttpsError(`Error updating Movie Club ${data.movieClubId}:`, error)
   };
 });
