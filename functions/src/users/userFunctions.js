@@ -23,17 +23,20 @@ async function createAdminUserAuthentication({ email, password, name }) {
   try {
     // Check if user already exists
     // Client will create record if using alt signin method
-    if (admin.auth.getUserByEmail(email)) {
-      const userRecord = admin.auth.getUserByEmail(email);
+    let userRecord = await admin.auth().getUserByEmail(email);
+
+    if (userRecord) {
       return userRecord.uid
     }
 
     // Create user using email and password
-    const userRecord = await admin.auth().createUser({
+    userRecord = await admin.auth().createUser({
       email: email,
       password: password,
-      displayName: displayName
+      displayName: name
     });
+
+    console.log(userRecord)
 
     return userRecord.uid
   } catch (error) {
@@ -42,17 +45,19 @@ async function createAdminUserAuthentication({ email, password, name }) {
   }
 }
 
-async function createUser(id, data = { email, name, signInProvider }) {
+async function createUser(id, data) {
   const userData = {
     id: id,
-    email: email,
-    name: name,
-    signInProvider: signInProvider,
+    email: data.email,
+    name: data.name,
+    bio: data.bio || "",
+    image: data.image || "",
+    signInProvider: data.signInProvider || "",
     createdAt: admin.firestore.FieldValue.serverTimestamp()
   };
 
   try {
-    await db.collection("users").doc(userRecord.id).set(userData);
+    await db.collection("users").doc(id).set(userData);
   } catch (error) {
     logError("Error creating user:", error)
     throwHttpsError("internal", `createUser: ${error.message}`, data);

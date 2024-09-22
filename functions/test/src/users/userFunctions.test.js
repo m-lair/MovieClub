@@ -18,7 +18,8 @@ describe("createUser", () => {
       name: "Test User",
       image: "Test Image",
       bio: "Test Bio",
-      email: "test@email.com"
+      email: "test@email.com",
+      signInProvider: "apple"
     };
   });
 
