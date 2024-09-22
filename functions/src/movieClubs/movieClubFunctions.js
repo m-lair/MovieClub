@@ -5,10 +5,10 @@ const { db } = require("firestore");
 const { handleCatchHttpsError, logVerbose, verifyRequiredFields } = require("utilities");
 
 exports.createMovieClub = functions.https.onCall(async (data, context) => {
-  const requiredFields = ["name", "ownerId", "ownerName", "isPublic", "timeInterval", "bannerUrl"];
-  verifyRequiredFields(data, requiredFields);
-
   try {
+    const requiredFields = ["name", "ownerId", "ownerName", "isPublic", "timeInterval", "bannerUrl"];
+    verifyRequiredFields(data, requiredFields);
+
     const movieClubRef = db.collection("movieclubs");
 
     const movieClubData = {
@@ -31,10 +31,10 @@ exports.createMovieClub = functions.https.onCall(async (data, context) => {
 });
 
 exports.updateMovieClub = functions.https.onCall(async (data, context) => {
-  const requiredFields = ["movieClubId", "ownerId"];
-  verifyRequiredFields(data, requiredFields);
-
   try {
+    const requiredFields = ["movieClubId", "ownerId"];
+    verifyRequiredFields(data, requiredFields);
+
     const movieClubRef = db.collection("movieclubs").doc(data.movieClubId);
     const movieClubSnap = await movieClubRef.get();
     const movieClub = movieClubSnap.data();

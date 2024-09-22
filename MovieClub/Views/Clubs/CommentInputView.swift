@@ -38,18 +38,18 @@ struct CommentInputView: View {
     
     private func submitComment() async throws {
         guard
-            let userID = data.currentUser?.id,
-            let clubID = movieClub.id,
+            let userId = data.currentUser?.id,
+            let clubId = movieClub.id,
             let userName = data.currentUser?.name,
             let imageURL = data.currentUser?.image
         else { return }
         
         let functions = Functions.functions()
         let result = try await functions.httpsCallable("postComment").call([
-            "userID": userID,
+            "userId": userId,
             "userName": userName,
             "imageURL": imageURL,
-            "clubID": clubID,
+            "clubId": clubId,
             "text": commentText
         ])
     }
