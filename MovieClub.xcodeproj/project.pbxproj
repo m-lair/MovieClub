@@ -13,6 +13,7 @@
 		2C11FFD22C9D34B4004F54BC /* FirebaseAnalyticsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2C11FFD12C9D34B4004F54BC /* FirebaseAnalyticsSwift */; };
 		2C11FFD52C9D43A7004F54BC /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 2C11FFD42C9D43A7004F54BC /* FirebaseAnalyticsOnDeviceConversion */; };
 		2C11FFD72C9D4A23004F54BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2C11FFD62C9D4A23004F54BC /* GoogleService-Info.plist */; };
+		2C11FFD92C9E6107004F54BC /* AppleAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C11FFD82C9E6107004F54BC /* AppleAuth.swift */; };
 		2C1F09892C92054100BFBB47 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 2C1F09882C92054100BFBB47 /* FirebaseFunctions */; };
 		2C2FD1D72C7194E9008BC592 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 2C2FD1D62C7194E9008BC592 /* FirebaseMessaging */; };
 		2C2FD1D92C719B97008BC592 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2FD1D82C719B97008BC592 /* NotificationManager.swift */; };
@@ -66,6 +67,7 @@
 /* Begin PBXFileReference section */
 		2C0EDD882C516B51001D85C4 /* ComingSoonEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComingSoonEditView.swift; sourceTree = "<group>"; };
 		2C11FFD62C9D4A23004F54BC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		2C11FFD82C9E6107004F54BC /* AppleAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleAuth.swift; sourceTree = "<group>"; };
 		2C2FD1D82C719B97008BC592 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		2C4474F72C06DD310034204C /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		2C4474F92C06DD670034204C /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
@@ -244,6 +246,7 @@
 		2C5DEC3E2BF1B081000EF232 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				2C11FFD82C9E6107004F54BC /* AppleAuth.swift */,
 				2C5DEC412BF1B12D000EF232 /* DataManager.swift */,
 				2C2FD1D82C719B97008BC592 /* NotificationManager.swift */,
 			);
@@ -428,6 +431,7 @@
 				2C87B2A92C6B145400A49B2B /* CircularImageView.swift in Sources */,
 				2C4475172C4442680034204C /* NewMovieForm.swift in Sources */,
 				2C4475062C17CFFC0034204C /* CommentInputView.swift in Sources */,
+				2C11FFD92C9E6107004F54BC /* AppleAuth.swift in Sources */,
 				2C5DEC1F2BF1AC6C000EF232 /* MovieClubApp.swift in Sources */,
 				2CAEABA12C5C5C9300A0011A /* BlurredBackground.swift in Sources */,
 				2C8256B92BF1BC4A00D2ED12 /* MovieDetailView.swift in Sources */,

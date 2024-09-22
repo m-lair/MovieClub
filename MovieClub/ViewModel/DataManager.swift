@@ -42,7 +42,7 @@ class DataManager: Identifiable {
             print("auth curr user \(String(describing: Auth.auth().currentUser))")
             self.userSession = Auth.auth().currentUser
             db = Firestore.firestore()
-            await fetchUser()
+            try await fetchUser()
         }
     }
     
@@ -75,17 +75,17 @@ class DataManager: Identifiable {
                 "password": password,
                 "displayName": displayName
             ])
-            
             guard let data = result.data as? [String: Any],
                   let uid = data["uid"] as? String else {
                 throw NSError(domain: "UserService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response from server"])
             }
-            
             return uid
+            try await fetchUser()
         } catch {
             throw error
         }
     }
+    
     
     func signIn(email: String, password: String) async throws {
         print("in sign in")
@@ -93,7 +93,7 @@ class DataManager: Identifiable {
             let result = try await Auth.auth().signIn(withEmail: email, password: password)
             self.userSession = result.user
             print("signed in user \(result.user)")
-            await fetchUser()
+            try await fetchUser()
             
         } catch {
             throw error
@@ -232,19 +232,6 @@ class DataManager: Identifiable {
             } catch {
                 print("error getting membership")
             }
-        }
-    }
-    
-    func postComment(comment: Comment, movieClubId: String, movieId: String) async{
-        do {
-            let encodeComment = try Firestore.Encoder().encode(comment)
-            try await movieClubCollection().document(movieClubId)
-                .collection("movies").document(movieId)
-                .collection("comments").document().setData(encodeComment)
-            
-            print("Comment added successfully")
-        } catch {
-            print("Error adding comment: \(error.localizedDescription)")
         }
     }
     
@@ -556,22 +543,17 @@ class DataManager: Identifiable {
     //print("##### \(currentClub?.movies)")
 
     
-    func fetchUser() async {
+    func fetchUser() async throws {
       print("in fetch user")
-      //  print("1")
         guard let uid = Auth.auth().currentUser?.uid else {return}
-       // print("2")
         guard let snapshot = try? await usersCollection().document(uid).getDocument() else {return}
-            //print("Document data: \(snapshot.data())")
             do{
                 self.currentUser = try snapshot.data(as: User.self)
             }catch{
                 print(error)
             }
-        let path = ("Users/profile_images/\(self.currentUser?.id ?? "")")
-        //await self.currentUser?.image = getProfileImage(path: path)
-        print("uid: \(uid)")
-        
+        let path = ("Users/profile_images/\(uid)")
+              
         if userMovieClubs.isEmpty {
             await fetchMovieClubsForUser()
         }
@@ -648,7 +630,7 @@ class DataManager: Identifiable {
                 print(error)
             }
             print("fetching user")
-            await fetchUser()
+            try await fetchUser()
             
         }catch{
             throw error

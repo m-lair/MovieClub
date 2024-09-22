@@ -10,12 +10,12 @@ import Observation
 import FirebaseAuth
 import AuthenticationServices
 import CryptoKit
+import FirebaseFunctions
 
 
 struct SignUpView: View {
     @Environment(DataManager.self) private var data
     @Environment(\.dismiss) var dismiss
-    
     @State private var emailExists: Bool = false
     @State private var currentNonce: String? = nil
     @FocusState private var emailFieldFocused: Bool
@@ -43,22 +43,30 @@ struct SignUpView: View {
                 .fontDesign(.rounded)
                 .padding(.bottom, 50)
             
+            
             SignInWithAppleButton(.signIn) { request in
-                let nonce = randomNonceString()
-                currentNonce = nonce
+                // Use the AppleSignInManager to set up the Apple sign-in request
+                let nonce = AppleSignInManager.shared.startSignInWithAppleFlow()
+                
+                // Configure the request with scopes and nonce
                 request.requestedScopes = [.fullName, .email]
-                request.nonce = sha256(nonce)
+                request.nonce = nonce
             } onCompletion: { result in
-                switch result {
-                case .success(let authResults):
-                    handleAuthorization(authResults)
-                case .failure(let error):
-                    errorMessage = error.localizedDescription
+                // Handle the authorization result directly
+                AppleSignInManager.shared.handleAuthorization(result: result) { authResult in
+                    switch authResult {
+                    case .success:
+                        dismiss()
+                    case .failure(let error):
+                        // Show error message
+                        errorMessage = error.localizedDescription
+                    }
                 }
             }
             .signInWithAppleButtonStyle(.black)
             .frame(height: 45)
             .padding(.horizontal, 50)
+            
             
             
             Divider()
@@ -110,8 +118,7 @@ struct SignUpView: View {
             Button {
                 Task {
                     //check if user exists first
-                    
-                    try await data.createUser(email: email, password:password, displayName:name)
+                    _ = try await data.createUser(email: email, password:password, displayName:name)
                     try await data.signIn(email: email, password: password)
                     dismiss()
                 }
@@ -167,93 +174,6 @@ struct SignUpView: View {
                 }
             }
         }
-    }
-    @MainActor
-    func handleAuthorization(_ authResults: ASAuthorization) {
-        // Handle the authorization results
-        if let appleIdCredential = authResults.credential as? ASAuthorizationAppleIdCredential {
-            guard let nonce = currentNonce else {
-                fatalError("Invalid state: A nonce should have been set before the sign-in request.")
-            }
-
-            
-            guard let appleIdToken = appleIdCredential.identityToken else {
-                print("Unable to fetch identity token")
-                return
-            }
-            guard let idTokenString = String(data: appleIdToken, encoding: .utf8) else {
-                print("Unable to serialize token string from data: \(appleIdToken.debugDescription)")
-                return
-            }
-            
-            let credential = OAuthProvider.appleCredential(withIdToken: idTokenString, rawNonce: nonce, fullName: appleIdCredential.fullName)
-            
-            // Sign in with Firebase.
-            Auth.auth().signIn(with: credential) { (authResult, error) in
-                if let error = error {
-                    errorMessage = error.localizedDescription
-                    return
-                }
-                // User is signed in to Firebase with Apple.
-                guard let user = authResult?.user else {
-                    print("User not found")
-                    return
-                }
-                let uid = user.uid
-                let email = user.email ?? appleIdCredential.email ?? "No Email"
-                let displayName = user.displayName ?? "\(appleIdCredential.fullName?.givenName ?? "No Name")"
-                
-                let userData: [String: Any] = [
-                    "uid": uid,
-                    "email": email,
-                    "name": displayName,
-                    "signInProvider": "apple"
-                ]
-                
-                // Assuming you have Firestore set up in your DataManager
-                data.usersCollection().document(uid).setData(userData, merge: true) { err in
-                    if let err = err {
-                        print("Error writing user data to Firestore: \(err)")
-                    } else {
-                        print("User data successfully written to Firestore")
-                    }
-                }
-                
-                // Any other post-sign-in actions, like navigating the user to a new screen
-                print("Successfully signed in with Apple. User: \(user.uid)")
-            }
-        }
-    }
-    
-    private func randomNonceString(length: Int = 32) -> String {
-        precondition(length > 0)
-        var randomBytes = [UInt8](repeating: 0, count: length)
-        let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
-        if errorCode != errSecSuccess {
-            fatalError(
-                "Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)"
-            )
-        }
-        
-        let charset: [Character] =
-        Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
-        
-        let nonce = randomBytes.map { byte in
-            // Pick a random character from the set, wrapping around if needed.
-            charset[Int(byte) % charset.count]
-        }
-        
-        return String(nonce)
-    }
-    
-    private func sha256(_ input: String) -> String {
-        let inputData = Data(input.utf8)
-        let hashedData = SHA256.hash(data: inputData)
-        let hashString = hashedData.compactMap {
-            String(format: "%02x", $0)
-        }.joined()
-
-        return hashString
     }
 }
 

@@ -3,12 +3,9 @@ const { db, admin } = require("firestore");
 const { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyRequiredFields } = require("utilities");
 
 exports.createUser = functions.https.onCall(async (data, context) => {
-
   const requiredFields = ["email", "name"];
   verifyRequiredFields(data, requiredFields)
-
-  // need whole thing to be promised
-
+  
   try {
     // Create the user in Firebase Authentication
     const id = await createAdminUserAuthentication(data)
@@ -25,13 +22,19 @@ exports.createUser = functions.https.onCall(async (data, context) => {
 
 async function createAdminUserAuthentication({ email, password, name }) {
   try {
-    const userRecord = await admin.auth().createUser({
-      email: email,
-      password: password,
-      displayName: name
-    });
-
-    return userRecord.uid
+      // Check if user already exists
+      // Client will create record if using alt signin method
+      if (admin.auth.getUserByEmail(email)) {
+        const userRecord = admin.auth.getUserByEmail(email);
+        return userRecord.uid
+      } 
+      // Create user using email and password
+      const userRecord = await admin.auth().createUser({
+        email: email,
+        password: password,
+        displayName: displayName
+      });
+      return userRecord.uid
   } catch (error) {
     logError("Error creating admin user:", error)
     throwHttpsError("internal", `createAdminUserAuthentication: ${error.message}`);
