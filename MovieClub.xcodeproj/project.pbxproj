@@ -14,6 +14,8 @@
 		2C11FFD52C9D43A7004F54BC /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 2C11FFD42C9D43A7004F54BC /* FirebaseAnalyticsOnDeviceConversion */; };
 		2C11FFD72C9D4A23004F54BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2C11FFD62C9D4A23004F54BC /* GoogleService-Info.plist */; };
 		2C11FFD92C9E6107004F54BC /* AppleAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C11FFD82C9E6107004F54BC /* AppleAuth.swift */; };
+		2C11FFDB2CA13330004F54BC /* MovieModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C11FFDA2CA13330004F54BC /* MovieModel.swift */; };
+		2C11FFDD2CA13346004F54BC /* ClubModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C11FFDC2CA13341004F54BC /* ClubModel.swift */; };
 		2C1F09892C92054100BFBB47 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 2C1F09882C92054100BFBB47 /* FirebaseFunctions */; };
 		2C2FD1D72C7194E9008BC592 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 2C2FD1D62C7194E9008BC592 /* FirebaseMessaging */; };
 		2C2FD1D92C719B97008BC592 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2FD1D82C719B97008BC592 /* NotificationManager.swift */; };
@@ -68,6 +70,8 @@
 		2C0EDD882C516B51001D85C4 /* ComingSoonEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComingSoonEditView.swift; sourceTree = "<group>"; };
 		2C11FFD62C9D4A23004F54BC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2C11FFD82C9E6107004F54BC /* AppleAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleAuth.swift; sourceTree = "<group>"; };
+		2C11FFDA2CA13330004F54BC /* MovieModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieModel.swift; sourceTree = "<group>"; };
+		2C11FFDC2CA13341004F54BC /* ClubModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubModel.swift; sourceTree = "<group>"; };
 		2C2FD1D82C719B97008BC592 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		2C4474F72C06DD310034204C /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		2C4474F92C06DD670034204C /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
@@ -238,7 +242,9 @@
 		2C5DEC3D2BF1B06C000EF232 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				2C11FFDC2CA13341004F54BC /* ClubModel.swift */,
 				2C5DEC3F2BF1B0DB000EF232 /* Model.swift */,
+				2C11FFDA2CA13330004F54BC /* MovieModel.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -406,10 +412,10 @@
 				2CF654582C82AE41006F31A9 /* MainTabView.swift in Sources */,
 				2C8256C72BF2FE3400D2ED12 /* ClubDetailView.swift in Sources */,
 				2C5DEC422BF1B12D000EF232 /* DataManager.swift in Sources */,
+				2C11FFDB2CA13330004F54BC /* MovieModel.swift in Sources */,
 				2C87B2B12C6D08F300A49B2B /* ProfileDisplayView.swift in Sources */,
 				2C44751D2C4F4F1D0034204C /* EmptyMovieView.swift in Sources */,
 				2C8256C32BF1E90E00D2ED12 /* DiscoverView.swift in Sources */,
-				2CF654562C82AA93006F31A9 /* MainTabView.swift in Sources */,
 				2C4475192C4C0D6E0034204C /* ComingSoonView.swift in Sources */,
 				2C4474FA2C06DD670034204C /* InfoView.swift in Sources */,
 				2C4475022C06DE4F0034204C /* CommentView.swift in Sources */,
@@ -426,6 +432,7 @@
 				2C87B2A72C6B13C500A49B2B /* AviSelector.swift in Sources */,
 				2C8256B72BF1BC1E00D2ED12 /* MovieRowView.swift in Sources */,
 				2C44750F2C2A6C2D0034204C /* UserEditView.swift in Sources */,
+				2C11FFDD2CA13346004F54BC /* ClubModel.swift in Sources */,
 				2C5DEC7C2BF1B3F6000EF232 /* SignUpView.swift in Sources */,
 				2C5DEC7F2BF1B3F6000EF232 /* AddToCalendarView.swift in Sources */,
 				2C87B2A92C6B145400A49B2B /* CircularImageView.swift in Sources */,
