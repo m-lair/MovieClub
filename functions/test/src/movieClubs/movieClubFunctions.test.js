@@ -26,7 +26,7 @@ describe("createMovieClub", () => {
     };
   });
 
-  after(() => {
+  afterEach(() => {
     test.cleanup();
   });
 
@@ -75,7 +75,7 @@ describe("updateMovieClub", () => {
     };
   });
 
-  after(() => {
+  afterEach(() => {
     test.cleanup();
   });
 

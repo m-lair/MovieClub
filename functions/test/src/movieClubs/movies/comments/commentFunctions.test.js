@@ -31,7 +31,7 @@ describe("postComment", () => {
     await wrapped(commentData);
   });
 
-  after(() => {
+  afterEach(() => {
     test.cleanup();
   });
 

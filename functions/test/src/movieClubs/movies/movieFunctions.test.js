@@ -31,7 +31,7 @@ describe("rotateMovie", () => {
 
   });
 
-  after(() => {
+  afterEach(() => {
     test.cleanup();
     console.log("Test cleanup complete");
     console.log("Test complete");
