@@ -2,9 +2,9 @@
   "name": "functions",
   "description": "Cloud Functions for Firebase",
   "scripts": {
-    "serve": "firebase emulators:start --only functions",
+    "serve": "firebase emulators:start --project=movieclub-93714 --only auth,database,firestore,functions",
     "exec": "firebase emulators:exec --project=movieclub-93714 \"npm run test\"",
-    "stop": "npx kill-port 8080 9000",
+    "stop": "npx kill-port 8080 9000 9099",
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
