@@ -7,10 +7,10 @@ exports.createUser = functions.https.onCall(async (data, context) => {
     const requiredFields = ["email", "name"];
     verifyRequiredFields(data, requiredFields)
 
-    // Create the user in Firebase Authentication
-    const uid = await createAdminUserAuthentication(data)
+    // try to find an auth user by their email or create an auth record
+    const userRecord = await getAuthUserByEmail(data.email)
+    const uid = userRecord?.uid || await createUserAuthentication(data);
 
-    // Prepare user data for Firestore
     await createUser(uid, data)
 
     return uid;
@@ -19,29 +19,58 @@ exports.createUser = functions.https.onCall(async (data, context) => {
   }
 });
 
-async function createAdminUserAuthentication({ email, password, name }) {
+// For email lookup, you can only search the main (top level) email and not provider specific emails. 
+// For example, if a Facebook account with a different email facebookUser@example.com 
+// is linked to an existing user with email user@example.com, 
+// calling getUserByEmail("facebookUser@example.com") will yield no results 
+// whereas getUserByEmail("user@example.com") will return the expected user. 
+// In the case of the default "single account per email" setting, 
+// the first email used to sign in with will be used as the top level email unless modified afterwards. 
+// When "multiple accounts per email" is set, the main email is only set when a password user is created 
+// unless manually updated.
+
+async function getAuthUserByEmail(email) {
   try {
-    // Check if user already exists
-    // Client will create record if using alt signin method
-    let userRecord = await admin.auth().getUserByEmail(email);
+    return await admin.auth().getUserByEmail(email);
+  } catch (error) {
+    switch (error.code) {
+      case 'auth/user-not-found':
+        return null;
 
-    if (userRecord) {
-      return userRecord.uid
+      default:
+        throw error;
     }
+  }
+}
 
-    // Create user using email and password
+async function createUserAuthentication({ email, password, name }) {
+  try {
     userRecord = await admin.auth().createUser({
       email: email,
       password: password,
       displayName: name
     });
 
-    console.log(userRecord)
-
     return userRecord.uid
   } catch (error) {
-    logError("Error creating admin user:", error)
-    throwHttpsError("internal", `createAdminUserAuthentication: ${error.message}`);
+    // all error codes: https://firebase.google.com/docs/auth/admin/errors
+    switch (error.code) {
+      case 'auth/email-already-exists':
+        throwHttpsError("invalid-argument", error.message);
+
+      case 'auth/invalid-display-name':
+        throwHttpsError("invalid-argument", error.message);
+
+      case 'auth/invalid-email':
+        throwHttpsError("invalid-argument", error.message);
+
+      case 'auth/invalid-password':
+        throwHttpsError("invalid-argument", error.message);
+
+      default:
+        logError("Error creating admin user:", error)
+        throwHttpsError("internal", `userFunctions.createUserAuthentication: ${error.message}`);
+    }
   }
 }
 
