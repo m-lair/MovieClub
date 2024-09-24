@@ -4,10 +4,11 @@ const assert = require("assert");
 const { test } = require("test/testHelper");
 const { db } = require("firestore");
 const { populateUserData, populateMovieClubData, populateMovieData } = require("mocks");
-const { comments: { postComment } } = require("index");
+const { comments: { deleteComment, postComment } } = require("index");
 
-describe("postComment", () => {
-  const wrapped = test.wrap(postComment)
+describe("comment functions", () => {
+  const postWrapped = test.wrap(postComment);
+  const deleteWrapped = test.wrap(deleteComment);
 
   let user, movieClub, movie;
   let text;
@@ -17,7 +18,6 @@ describe("postComment", () => {
     user = await populateUserData();
     movieClub = await populateMovieClubData({ id: "1", ownerId: user.id, ownerName: user.name });
     movie = await populateMovieData({ id: "1", movieClubId: movieClub.id });
-
     text = "This is a test comment";
 
     commentData = {
@@ -27,39 +27,67 @@ describe("postComment", () => {
       userId: user.id,
       username: user.name,
     };
-
-    await wrapped(commentData);
   });
 
   afterEach(() => {
     test.cleanup();
   });
 
-  it("should create a new comment", async () => {
-    const snap = await db
-      .collection("movieclubs")
-      .doc(movieClub.id)
-      .collection("movies")
-      .doc(movie.id)
-      .collection("comments")
-      .where("userId", "==", user.id)
-      .get();
+  describe("postComment", () => {
+    it("should create a new comment", async () => {
+      await postWrapped(commentData);
 
-    assert(snap.docs?.length > 0);
+      const snap = await db
+        .collection("movieclubs")
+        .doc(movieClub.id)
+        .collection("movies")
+        .doc(movie.id)
+        .collection("comments")
+        .where("userId", "==", user.id)
+        .get();
 
-    const commentDoc = snap.docs[0].data();
+      assert(snap.docs?.length > 0);
 
-    assert(commentDoc.text == text);
-    assert(commentDoc.userId == user.id);
-    assert(commentDoc.username == user.name);
+      const commentDoc = snap.docs[0].data();
+      assert.strictEqual(commentDoc.text, text);
+      assert.strictEqual(commentDoc.userId, user.id);
+      assert.strictEqual(commentDoc.username, user.name);
+    });
+
+    it("should error without required fields", async () => {
+      try {
+        await postWrapped({});
+        assert.fail("Expected error not thrown");
+      } catch (error) {
+        assert.match(error.message, /The function must be called with movieClubId, movieId, text, userId, username./);
+      }
+    });
   });
 
-  it("should error without required fields", async () => {
-    try {
-      await wrapped({})
-      assert.fail("Expected error not thrown");
-    } catch (error) {
-      assert.match(error.message, /The function must be called with movieClubId, movieId, text, userId, username./);
-    };
+  describe("deleteComment", () => {
+    it("should delete a comment", async () => {
+      commentData.commentId = await postWrapped(commentData);
+      await deleteWrapped(commentData);
+
+      const snap = await db
+        .collection("movieclubs")
+        .doc(movieClub.id)
+        .collection("movies")
+        .doc(movie.id)
+        .collection("comments")
+        .doc(commentData.commentId)
+        .get()
+
+      assert.strictEqual(snap.data, undefined);
+    });
+
+    it("should error without required fields", async () => {
+      try {
+        await deleteWrapped({});
+        assert.fail("Expected error not thrown");
+      } catch (error) {
+        assert.match(error.message, /The function must be called with commentId, movieClubId, movieId/);
+      }
+    });
   });
 });

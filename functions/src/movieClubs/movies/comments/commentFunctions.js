@@ -21,10 +21,34 @@ exports.postComment = functions.https.onCall(async (data, context) => {
       created_at: admin.firestore.FieldValue.serverTimestamp()
     }
 
-    await commentsRef.add(commentData);
+    const commentDoc = await commentsRef.add(commentData);
 
     logVerbose("Comment posted successfully!");
+
+    return commentDoc.id;
   } catch (error) {
     handleCatchHttpsError("Error posting comment:", error)
   }
-})
+});
+
+exports.deleteComment = functions.https.onCall(async (data, context) => {
+  try {
+    const requiredFields = ["commentId", "movieClubId", "movieId"];
+    verifyRequiredFields(data, requiredFields);
+
+    const commentRef = db
+      .collection("movieclubs")
+      .doc(data.movieClubId)
+      .collection("movies")
+      .doc(data.movieId)
+      .collection("comments")
+      .doc(data.commentId);
+
+    // Delete the comment
+    await commentRef.delete();
+
+    logVerbose("Comment deleted successfully!");
+  } catch (error) {
+    handleCatchHttpsError("Error deleting comment:", error);
+  };
+});
