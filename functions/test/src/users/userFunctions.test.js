@@ -22,10 +22,6 @@ describe("createUser", () => {
     };
   });
 
-  afterEach(() => {
-    test.cleanup();
-  });
-
   it("should create a new User when email exists in auth via alt sign-in (ie apple/gmail)", async () => {
     userId = await wrapped(userData);
 
@@ -76,10 +72,6 @@ describe("updateUser", () => {
       bio: "Updated test Bio",
       email: "updatedTest@email.com"
     };
-  });
-
-  afterEach(() => {
-    test.cleanup();
   });
 
   it("should update an existing User", async () => {

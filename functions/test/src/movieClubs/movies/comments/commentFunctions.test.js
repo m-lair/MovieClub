@@ -29,10 +29,6 @@ describe("comment functions", () => {
     };
   });
 
-  afterEach(() => {
-    test.cleanup();
-  });
-
   describe("postComment", () => {
     it("should create a new comment", async () => {
       await postWrapped(commentData);
@@ -46,7 +42,7 @@ describe("comment functions", () => {
         .where("userId", "==", user.id)
         .get();
 
-      assert(snap.docs?.length > 0);
+      assert(snap.docs?.length == 1);
 
       const commentDoc = snap.docs[0].data();
       assert.strictEqual(commentDoc.text, text);
@@ -78,7 +74,7 @@ describe("comment functions", () => {
         .doc(commentData.commentId)
         .get()
 
-      assert.strictEqual(snap.data, undefined);
+      assert.strictEqual(snap.data(), undefined);
     });
 
     it("should error without required fields", async () => {

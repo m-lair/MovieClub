@@ -26,10 +26,6 @@ describe("createMovieClub", () => {
     };
   });
 
-  afterEach(() => {
-    test.cleanup();
-  });
-
   it("should create a new Movie Club", async () => {
     movieClub = await wrapped(movieClubData)
     const snap = await db.collection("movieclubs").doc(movieClub.id).get()
@@ -73,10 +69,6 @@ describe("updateMovieClub", () => {
       timeInterval: "updated test interval",
       bannerUrl: "updated test banner URL",
     };
-  });
-
-  afterEach(() => {
-    test.cleanup();
   });
 
   it("should update an existing Movie Club", async () => {
