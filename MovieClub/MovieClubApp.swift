@@ -42,7 +42,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         return [.banner, .sound, .badge]
     }
 
-       // Handle notification when user interacts with it
+    // Handle notification when user interacts with it
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         _ = response.notification.request.content.userInfo
         // Handle navigation or other actions based on the notification's payload

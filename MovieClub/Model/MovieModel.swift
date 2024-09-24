@@ -8,14 +8,14 @@
 import Foundation
 
 @Observable
-final class Movie: Identifiable, Codable {
+final class Movie: Identifiable, Decodable {
     var id: String?
     var created: Date?
     var title: String
     var poster: String?
     var avgRating: Double?
     var endDate: Date?
-    var author: String
+    var userName: String
     var userId: String
     var authorAvi: String
     var comments: [Comment]?
@@ -29,20 +29,21 @@ final class Movie: Identifiable, Codable {
          poster: String? = nil,
          avgRating: Double? = nil,
          endDate: Date?,
-         author: String,
+         userName: String,
          userId: String,
          authorAvi: String,
          comments: [Comment]? = nil,
          plot: String? = nil,
          director: String? = nil,
-         releaseYear: String? = nil) {
+         releaseYear: String? = nil
+    ) {
         self.id = id
         self.created = created
         self.title = title
         self.poster = poster
         self.avgRating = avgRating
         self.endDate = endDate
-        self.author = author
+        self.userName = userName
         self.userId = userId
         self.authorAvi = authorAvi
         self.comments = comments
@@ -50,10 +51,34 @@ final class Movie: Identifiable, Codable {
         self.director = director
         self.releaseYear = releaseYear
     }
-}
-
-// Extend Movie to conform to Hashable
-extension Movie: Hashable {
+    
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decodeIfPresent(String.self, forKey: .id)
+        created = try container.decodeIfPresent(Date.self, forKey: .created)
+        title = try container.decode(String.self, forKey: .title)
+        poster = try container.decodeIfPresent(String.self, forKey: .poster)
+        avgRating = try container.decodeIfPresent(Double.self, forKey: .avgRating)
+        endDate = try container.decodeIfPresent(Date.self, forKey: .endDate)
+        userName = try container.decode(String.self, forKey: .userName)
+        userId = try container.decode(String.self, forKey: .userId)
+        authorAvi = try container.decode(String.self, forKey: .authorAvi)
+        
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case created
+        case title
+        case poster
+        case avgRating
+        case endDate
+        case userName
+        case userId
+        case authorAvi
+    }
+    
+    
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
@@ -61,4 +86,5 @@ extension Movie: Hashable {
     static func == (lhs: Movie, rhs: Movie) -> Bool {
         lhs.id == rhs.id && lhs.title == rhs.title
     }
+    
 }

@@ -23,22 +23,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "78610133-9A96-4513-9025-78F873B1D263"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MovieClub/ViewModel/DataManager.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "534"
-            endingLineNumber = "534"
-            landmarkName = "fetchAndMergeMovieData(id:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "2D17F43B-5CAB-4893-A3FF-54DD0F531918"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -50,38 +34,6 @@
             endingLineNumber = "60"
             landmarkName = "body"
             landmarkType = "24">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "2E8A69E1-64D8-4C81-B779-BDBF88BC1688"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MovieClub/ViewModel/DataManager.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "352"
-            endingLineNumber = "352"
-            landmarkName = "addFirstMovie(club:movie:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "435CEC58-DB3D-4703-AFDB-6DBF71C9B029"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MovieClub/ViewModel/DataManager.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "354"
-            endingLineNumber = "354"
-            landmarkName = "addFirstMovie(club:movie:)"
-            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -116,12 +68,12 @@
             landmarkType = "14">
             <Locations>
                <Location
-                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 95849e392f3b92b3"
+                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 747c65ff1b4eff2e"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
                   symbolName = "property wrapper backing initializer of MovieClub.ComingSoonEditView.showSheet : Swift.Bool"
-                  moduleName = "MovieClub"
+                  moduleName = "MovieClub.debug.dylib"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/marcus/Developer/REPO/MovieClub/MovieClub/Views/Clubs/ComingSoonEditView.swift"
                   startingColumnNumber = "9223372036854775807"
@@ -130,12 +82,12 @@
                   endingLineNumber = "0">
                </Location>
                <Location
-                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 236c0bce6a0ee69d"
+                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - c294f0085e7b8b00"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
                   symbolName = "MovieClub.ComingSoonEditView.showSheet.getter : Swift.Bool"
-                  moduleName = "MovieClub"
+                  moduleName = "MovieClub.debug.dylib"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/marcus/Developer/REPO/MovieClub/MovieClub/Views/Clubs/ComingSoonEditView.swift"
                   startingColumnNumber = "9223372036854775807"
@@ -144,12 +96,12 @@
                   endingLineNumber = "0">
                </Location>
                <Location
-                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 9399d6f7d2d20cda"
+                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 72612d31e6a76147"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
                   symbolName = "MovieClub.ComingSoonEditView.showSheet.setter : Swift.Bool"
-                  moduleName = "MovieClub"
+                  moduleName = "MovieClub.debug.dylib"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/marcus/Developer/REPO/MovieClub/MovieClub/Views/Clubs/ComingSoonEditView.swift"
                   startingColumnNumber = "9223372036854775807"
@@ -158,12 +110,12 @@
                   endingLineNumber = "13">
                </Location>
                <Location
-                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 9092de18b7ad0ec9"
+                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 716a25de83d86354"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
                   symbolName = "MovieClub.ComingSoonEditView.showSheet.modify : Swift.Bool"
-                  moduleName = "MovieClub"
+                  moduleName = "MovieClub.debug.dylib"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/marcus/Developer/REPO/MovieClub/MovieClub/Views/Clubs/ComingSoonEditView.swift"
                   startingColumnNumber = "9223372036854775807"
@@ -172,26 +124,26 @@
                   endingLineNumber = "13">
                </Location>
                <Location
-                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 88066a383f50f970"
+                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 11f1f8564f442507"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
                   symbolName = "MovieClub.ComingSoonEditView.showSheet.modify : Swift.Bool with unmangled suffix &quot;.resume.0&quot;"
-                  moduleName = "MovieClub"
+                  moduleName = "MovieClub.debug.dylib"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/marcus/Developer/REPO/MovieClub/%3Ccompiler-generated%3E"
+                  urlString = "file:///%3Ccompiler-generated%3E"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "0"
                   endingLineNumber = "0">
                </Location>
                <Location
-                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 3d6a608011694412"
+                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - dc929b46251c298f"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
                   symbolName = "MovieClub.ComingSoonEditView.$showSheet.getter : SwiftUI.Binding&lt;Swift.Bool&gt;"
-                  moduleName = "MovieClub"
+                  moduleName = "MovieClub.debug.dylib"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/marcus/Developer/REPO/MovieClub/MovieClub/Views/Clubs/ComingSoonEditView.swift"
                   startingColumnNumber = "9223372036854775807"
@@ -200,110 +152,12 @@
                   endingLineNumber = "13">
                </Location>
                <Location
-                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 2f366ad0470fa29e"
+                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 379ccec2e7be6ee3"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "default argument 2 of MovieClub.ComingSoonEditView.init(data: SwiftUI.Environment&lt;MovieClub.DataManager&gt;, userID: Swift.String, showSheet: Swift.Bool, index: Swift.Int) -&gt; MovieClub.ComingSoonEditView"
-                  moduleName = "MovieClub"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/marcus/Developer/REPO/MovieClub/MovieClub/Views/Clubs/ComingSoonEditView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "0"
-                  endingLineNumber = "0">
-               </Location>
-               <Location
-                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 95849e392f3b92b3"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "property wrapper backing initializer of MovieClub.ComingSoonEditView.showSheet : Swift.Bool"
-                  moduleName = "MovieClub"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/marcus/Developer/REPO/MovieClub/MovieClub/Views/Clubs/ComingSoonEditView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "0"
-                  endingLineNumber = "0">
-               </Location>
-               <Location
-                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 236c0bce6a0ee69d"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "MovieClub.ComingSoonEditView.showSheet.getter : Swift.Bool"
-                  moduleName = "MovieClub"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/marcus/Developer/REPO/MovieClub/MovieClub/Views/Clubs/ComingSoonEditView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "0"
-                  endingLineNumber = "0">
-               </Location>
-               <Location
-                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 9399d6f7d2d20cda"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "MovieClub.ComingSoonEditView.showSheet.setter : Swift.Bool"
-                  moduleName = "MovieClub"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/marcus/Developer/REPO/MovieClub/MovieClub/Views/Clubs/ComingSoonEditView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "13"
-                  endingLineNumber = "13">
-               </Location>
-               <Location
-                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 9092de18b7ad0ec9"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "MovieClub.ComingSoonEditView.showSheet.modify : Swift.Bool"
-                  moduleName = "MovieClub"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/marcus/Developer/REPO/MovieClub/MovieClub/Views/Clubs/ComingSoonEditView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "13"
-                  endingLineNumber = "13">
-               </Location>
-               <Location
-                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 88066a383f50f970"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "MovieClub.ComingSoonEditView.showSheet.modify : Swift.Bool with unmangled suffix &quot;.resume.0&quot;"
-                  moduleName = "MovieClub"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/marcus/Developer/REPO/MovieClub/%3Ccompiler-generated%3E"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "0"
-                  endingLineNumber = "0">
-               </Location>
-               <Location
-                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 3d6a608011694412"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "MovieClub.ComingSoonEditView.$showSheet.getter : SwiftUI.Binding&lt;Swift.Bool&gt;"
-                  moduleName = "MovieClub"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/marcus/Developer/REPO/MovieClub/MovieClub/Views/Clubs/ComingSoonEditView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "13"
-                  endingLineNumber = "13">
-               </Location>
-               <Location
-                  uuid = "85E37A42-61EF-4E9F-A3C2-5188DAF91F6D - 2f366ad0470fa29e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "default argument 2 of MovieClub.ComingSoonEditView.init(data: SwiftUI.Environment&lt;MovieClub.DataManager&gt;, userID: Swift.String, showSheet: Swift.Bool, index: Swift.Int) -&gt; MovieClub.ComingSoonEditView"
-                  moduleName = "MovieClub"
+                  symbolName = "default argument 2 of MovieClub.ComingSoonEditView.init(data: SwiftUI.Environment&lt;MovieClub.DataManager&gt;, userId: Swift.String, showSheet: Swift.Bool, index: Swift.Int) -&gt; MovieClub.ComingSoonEditView"
+                  moduleName = "MovieClub.debug.dylib"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/marcus/Developer/REPO/MovieClub/MovieClub/Views/Clubs/ComingSoonEditView.swift"
                   startingColumnNumber = "9223372036854775807"
@@ -358,24 +212,24 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "56"
             endingLineNumber = "56"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            landmarkName = "messaging(_:didReceiveRegistrationToken:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "0C65C29A-1C1C-4A2E-A12B-ECFFAC4702F9"
+            uuid = "B649C493-18C4-4EF1-9D81-9A8D4BAF7F5B"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "MovieClub/Model/Model.swift"
+            filePath = "MovieClub/ViewModel/DataManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "289"
-            endingLineNumber = "289"
-            landmarkName = "FirestoreMovie"
-            landmarkType = "14">
+            startingLineNumber = "253"
+            endingLineNumber = "253"
+            landmarkName = "fetchMovieClub(clubId:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

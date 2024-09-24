@@ -34,7 +34,7 @@ struct FeaturedMovieView: View {
                                 .frame(width: 30, height: 30)
                         }
                     }
-                    Text(movie.author)
+                    Text(movie.userName)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -71,7 +71,7 @@ struct FeaturedMovieView: View {
              */
         }
         .task{
-            let path = "/Users/profile_images/\(movie.authorId)"
+            let path = "/Users/profile_images/\(movie.userId)"
            // print("comment.userId \(comment.userId)")
             self.selectedByUrl = await data.getProfileImage(path: path)
         }

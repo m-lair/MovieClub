@@ -8,14 +8,12 @@
 import SwiftUI
 
 struct BlurredBackgroundView: View {
-    @Environment(DataManager.self) var data: DataManager
+    let urlString: String
+    
     var body: some View {
         ZStack {
             Color(.black)
-                
-            
-            let url = URL(string: data.poster)
-            let _ = print("url: \(url)")
+            let url = URL(string: urlString)
             AsyncImage(url: url) { phase in
                 if let image = phase.image {
                     image
@@ -26,12 +24,9 @@ struct BlurredBackgroundView: View {
                         .overlay(
                             Color.black.opacity(0.3) // Semi-transparent overlay for "glass" effect
                         )
-
                 }// Ensure the background covers the entire screen
             }
         }
     }
 }
-#Preview {
-    BlurredBackgroundView()
-}
+

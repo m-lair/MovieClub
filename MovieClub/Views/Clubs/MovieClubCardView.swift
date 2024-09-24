@@ -71,10 +71,3 @@ struct MovieClubCardView: View {
     }
     
 }
-
-
-#Preview{
-   
-    MovieClubCardView(movieClub: MovieClub.TestData[0])
-        .environment(DataManager())
-}

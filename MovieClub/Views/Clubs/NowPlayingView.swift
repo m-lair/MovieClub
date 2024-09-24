@@ -8,20 +8,16 @@
 import SwiftUI
 
 struct NowPlayingView: View {
-    let movie: Movie?
+    let movie: Movie
     let comments: [Comment]
     let club: MovieClub
     var body: some View {
         VStack{
             ScrollView {
-                if let movie {
-                    FeaturedMovieView(movie: movie)
-                }
-                // Comments Section
+                FeaturedMovieView(movie: movie)
                 CommentsView()
-                
             }
-            CommentInputView(movieClub: club, movieId: movie?.id ?? "")
+            CommentInputView(movieClub: club, movieId: movie.id ?? "")
                 .padding(.horizontal)
         }
     }

@@ -113,7 +113,7 @@ struct ClubDetailsForm: View {
                         Button {
                             Task{
                                 if let imageData = try await photoItem?.loadTransferable(type: Data.self) {
-                                    let documentString = data.db.collection("movieclubs").document().documentId
+                                    let documentString = data.db.collection("movieclubs").document().documentID
                                     print(documentString)
                                     sheetShowing = true
                                     
@@ -153,30 +153,44 @@ struct ClubDetailsForm: View {
             }
         }
     }
+    
     @MainActor
     private func submit() async {
         do{
             if let image = try await photoItem?.loadTransferable(type: Data.self) {
-                let documentString = data.db.collection("movieclubs").document().documentId
+                let documentString = data.db.collection("movieclubs").document().documentID
                 if let imageData = UIImage(data: image) {
-                    print(documentString)
                     
+                    // will need to rewrite for cloud function
                     let urlString = try await data.uploadClubImage(image: imageData, clubId: documentString)
-        
-                    print("urlString: \(urlString)")
+                    
+                    guard
+                        let user = data.currentUser,
+                        let userId = user.id
+                    else {
+                        let alert = Alert(title: Text("Error"), message: Text("Please sign in to create a club"), dismissButton: .default(Text("OK")))
+                        return
+                    }
+                    
                     let movieClub =
                     MovieClub(id: documentString, name: name,
                               created: created, numMembers: 1, 
                               description: desc,
-                              ownerName: data.currentUser?.name ?? "",
+                              ownerName: user.name,
                               timeInterval: timeInterval,
                               movieEndDate: endDate,
-                              ownerId: data.currentUser?.id ?? "", 
+                              ownerId: userId,
                               isPublic: isPublic, bannerUrl: urlString, numMovies: 1)
                     
-                    let movie = Movie(created: Date(), title: apiMovie?.title ?? "", poster: apiMovie?.poster ?? "", endDate: endDate, author: data.currentUser?.name ?? "", authorId: data.currentUser?.id ?? "", authorAvi: data.currentUser?.image ?? "")
-                    print("MovieClub \(movieClub)")
-
+                    let movie =
+                    Movie(created: created,
+                          title: apiMovie?.title ?? "",
+                          poster: apiMovie?.poster ?? "",
+                          endDate: endDate,
+                          userName: user.name,
+                          userId: userId,
+                          authorAvi: user.image ?? "")
+                
                     await data.createMovieClub(movieClub: movieClub, movie: movie)
                     navPath.removeLast(navPath.count)
                 }
