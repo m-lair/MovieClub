@@ -39,7 +39,7 @@ class DataManager: Identifiable {
     
     init(){
         Task {
-            print("auth curr user \(String(describing: Auth.auth().currentUser))")
+            print("launching datamanager")
             self.userSession = Auth.auth().currentUser
             db = Firestore.firestore()
             try await fetchUser()
@@ -80,12 +80,10 @@ class DataManager: Identifiable {
                 throw NSError(domain: "UserService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response from server"])
             }
             return uid
-            try await fetchUser()
         } catch {
             throw error
         }
     }
-    
     
     func signIn(email: String, password: String) async throws {
         print("in sign in")
@@ -122,8 +120,6 @@ class DataManager: Identifiable {
     func joinClub(club: MovieClub) async {
         if let user = self.currentUser, let clubId = club.id {
             await addClubMember(clubId: clubId, user: user, date: Date())
-            await incrementMember(clubId: clubId)
-            await addClubRelationship(club: club)
         }
     }
     
@@ -139,40 +135,12 @@ class DataManager: Identifiable {
         }
     }
     
-    func leaveClub(club: MovieClub) async {
-        if let clubId = club.id, let userId = self.currentUser?.id {
-            do {
-                try await movieClubCollection().document(clubId).collection("memberships").document(userId).delete()
-                await decrementMember(clubId: clubId)
-                self.userMovieClubs.removeAll { $0.name == club.name}
-            }catch {
-                print(error)
-            }
-        }
-    }
-    
-    func decrementMember(clubId: String) async {
-        do{
-            try await movieClubCollection().document(clubId).updateData(["numMembers" : FieldValue.increment(-1.0)])
-        } catch {
-            print("unable to update number of members. User count may be incorrect")
-        }
-    }
-    
     func removeClubRelationship(clubId: String, userId: String) async {
         // cant figure out a better way to do this but we know the val wont be null
         do{
             try await usersCollection().document(userId).collection("memberships").document(clubId).delete()
         } catch {
             print("could not delete club membership: \(error)")
-        }
-    }
-    
-    func incrementMember(clubId: String) async {
-        do{
-            try await movieClubCollection().document(clubId).updateData(["numMembers" : FieldValue.increment(1.0)])
-        } catch {
-            print("unable to update number of members. User count may be incorrect")
         }
     }
     
@@ -192,104 +160,104 @@ class DataManager: Identifiable {
     }
     
     func getProfileImage(userId: String) async -> String {
-        let db = Firestore.firestore()
         do {
             // Fetch the document
             let document = try await usersCollection().document(userId).getDocument()
-            
             // Retrieve the `profileImageURL` field
-            if let url = document.get("image") as? String {
-                return url
-            } else {
-                print("profileImageURL not found in document")
+            guard let url = document.get("image") as? String else {
+                print("No image field in user document")
                 return ""
             }
+            return url
         } catch {
             print("Error fetching profile image URL: \(error)")
             return ""
         }
     }
     
-    func updateQueue(membership: Membership) async {
-        do{
-            let encodedMembership = try Firestore.Encoder().encode(membership)
-            try await usersCollection().document(currentUser?.id ?? "" ).collection("memberships").document(currentClub?.id ?? "").setData(encodedMembership)
-        }catch{
-            print("error updating queue \(error)")
-        }
-    }
-    
-    func loadQueue() async {
-       // print("clubId \(currentClub?.id)")
-      //  print("clubId \(currentUser?.id)")
-        if let clubId = self.currentClub?.id, let id = self.currentUser?.id  {
-            do {
-                let document = try await usersCollection().document(id).collection("memberships").document(clubId).getDocument()
-                if let member = try? document.data(as: Membership.self) {
-                   // print("#### Member object: \(member)")
-                    self.queue = member
-                }
-            } catch {
-                print("error getting membership")
-            }
-        }
-    }
-    
     func fetchComments(movieClubId: String, movieId: String) async -> [Comment]{
-       // print("in fetch comments")
-       // print("query clubId \(movieClubId) + movieId \(movieId)")
         do {
             let querySnapshot = try await movieClubCollection().document(movieClubId).collection("movies").document(movieId).collection("comments")
                 .order(by: "date", descending: true)
                 .getDocuments()
             let comments = querySnapshot.documents.compactMap { document in
-                //print("comment doc \(document)")
                 do {
                     return try document.data(as: Comment.self)
                 } catch {
-                    print("Error decoding document \(document.documentId): \(error)")
+                    print("Error decoding document \(document.documentID): \(error)")
                     return nil
                 }
             }
-          //  print("comments \(comments)")
-            
             self.comments = comments
             return comments
-            //  print("self.comments in method: \(self.comments)")
         } catch {
-            print("Error fetching comments: \(error.localizedDescription)")
+            print("Error fetching comments: \(error)")
         }
         return []
     }
     
-    func fetchMovieClubsForUser() async {
-        var clubList: [MovieClub] = []
-        do{
+    func fetchUserClubs() async {
+        do {
             guard let user = self.currentUser else {
-                print("User not found")
+                print("No user logged in")
                 return
             }
-            print("user id: \(user.id)")
-            let snapshot = try await usersCollection().document(user.id ?? "").collection("memberships").getDocuments()
-            
-            let documents = snapshot.documents
-            
-            let clubIds = documents.compactMap { document in
-                print("document loop \(document.documentId)")
-                return document.data()["clubId"] as? String ?? "error"
-                
-            }
-            
-            for clubId in clubIds {
-                print(clubId)
-                if let movieClub = await fetchMovieClub(clubId: clubId) {
-                    clubList.append(movieClub)
+
+            let snapshot = try await usersCollection().document(user.id ?? "")
+                .collection("memberships")
+                .getDocuments()
+
+            let clubIds = snapshot.documents.compactMap { $0.data()["clubId"] as? String }
+
+            let clubs = try await withThrowingTaskGroup(of: MovieClub?.self) { group in
+                for clubId in clubIds {
+                    group.addTask { [weak self] in
+                        guard let self = self else { return nil }
+                        return await self.fetchMovieClub(clubId: clubId)
+                    }
                 }
+
+                var clubList: [MovieClub] = []
+                for try await club in group {
+                    if let club = club {
+                        clubList.append(club)
+                    }
+                }
+                return clubList
             }
-            self.userMovieClubs = clubList
-        }catch{
-            print(error.localizedDescription)
+
+            self.userMovieClubs = clubs
+        } catch {
+            print("Error fetching user clubs: \(error)")
         }
+    }
+
+
+    
+    func fetchMovieClub(clubId: String) async -> MovieClub? {
+        guard
+            let snapshot = try? await movieClubCollection().document(clubId).getDocument()
+        else {
+            print("Can't find movie club: \(clubId)")
+            return nil
+        }
+        do {
+            let movieClub = try snapshot.data(as: MovieClub.self)
+            let moviesSnapshot = try await movieClubCollection()
+                .document(clubId)
+                .collection("movies")
+                .order(by: "endDate" , descending: false)
+                .limit(to: 1)
+                .getDocuments()
+            for document in moviesSnapshot.documents {
+                print("current movie in method \(document.data())")
+                movieClub.movies = [try document.data(as: Movie.self)]
+            }
+            return movieClub
+        } catch {
+            print("Error decoding movie: \(error)")
+        }
+        return nil
     }
     
     func addMovie(movie: Movie) {
@@ -299,87 +267,18 @@ class DataManager: Identifiable {
     
     func createMovieClub(movieClub: MovieClub, movie: Movie?) async {
         
-        print("movieclub bannerURL: \(movieClub.bannerUrl)")
-        //just to be sure
-            do {
-                //this is the future date for the owner, would be their 2nd movie
-                let futureOwnerMovieDate = Date()
-                if let timeIntervalFromToday = Calendar.current.date(byAdding: .weekOfYear, value: movieClub.timeInterval, to: futureOwnerMovieDate){
-                    //encode the club
-                    let encodeClub = try Firestore.Encoder().encode(movieClub)
-                    if let id = movieClub.id {
-                        //commit club
-                        print("endcoded club \(encodeClub)")
-                        try await movieClubCollection().document(id).setData(encodeClub)
-                        //commit movie
-                        // print("2: \(movieClub.movies?.first)"
-                        if let movie {
-                            await addFirstMovie(club: movieClub, movie: movie)
-                        }
-                        
-                        // dont need to change anything here
-                        await addClubRelationship(club: movieClub)
-                        //make sure owner date is being set
-                        await addClubMember(clubId: id, user: self.currentUser!, date: timeIntervalFromToday)
-                        self.userMovieClubs.append(movieClub)
-                        self.movies = []
-                        
-                    }
-                }
-            }catch{
-                print(error)
-            }
-    }
-    
-    func addFirstMovie(club: MovieClub, movie: Movie) async {
-       // print("Adding first movie: \(movie)")
-        if let clubId = club.id {
-            do {
-                let encodedMovie = try Firestore.Encoder().encode(movie)
-                print("encoded movie \(encodedMovie)")
-                try await  movieClubCollection().document(clubId).collection("movies").document().setData(encodedMovie)
-            }catch{
-                print(error)
-            }
+        
+        //save for cloud function refactor
+        /*
+        if let movie {
+            await addFirstMovie(club: movieClub, movie: movie)
         }
-    }
-    
-    func addClubRelationship(club: MovieClub) async {
-        // cant figure out a better way to do this but we know the val wont be null
-        do{
-            let emptyMovie = FirestoreMovie(title: "", poster: "", author: currentUser?.name ?? "", authorId: currentUser?.id ?? "", authorAvi: currentUser?.image ?? "")
-            let emptyQueueList = [emptyMovie, emptyMovie, emptyMovie]
-            if let id = club.id, id != ""{
-                //could set movie date here but might wait until they're closer to the next up
-                let membership = Membership(clubId: id, clubName: club.name, queue: emptyQueueList)
-                let encodeMembership = try Firestore.Encoder().encode(membership)
-                try await usersCollection().document(currentUser?.id ?? "").collection("memberships").document(id).setData(encodeMembership)
-            } else {
-                print("error occurred adding club")
-            }
-        } catch {
-            print("could not add club membership to user")
-        }
-    }
-    
-    func fetchMovieClub(clubId: String) async -> MovieClub? {
-        // print("in fetchMovieClub")
-        guard let snapshot = try? await movieClubCollection().document(clubId).getDocument() else {return nil}
-        do {
-            var movieClub = try snapshot.data(as: MovieClub.self)
-            print("decoded movieClub \(movieClub)")
-            let moviesSnapshot = try await movieClubCollection().document(clubId).collection("movies").order(by: "endDate" , descending: false).limit(to: 1).getDocuments()
-            print("snapshot count: \(moviesSnapshot.count)")
-       
-            for document in moviesSnapshot.documents {
-                print("document data \(document.documentId)")
-                movieClub.movies = [try document.data(as: Movie.self)]
-            }
-            return movieClub
-        } catch {
-            print("Error decoding movie: \(error)")
-        }
-        return nil
+        // dont need to change anything here
+        await addClubRelationship(club: movieClub)
+        //make sure owner date is being set
+        await addClubMember(clubId: id, user: self.currentUser!, date: timeIntervalFromToday)
+        self.userMovieClubs.append(movieClub)*/
+        
     }
     
     func fetchAPIMovie(title: String) async throws -> APIMovie {
@@ -407,155 +306,17 @@ class DataManager: Identifiable {
             throw URLError(.cannotParseResponse)
         }
     }
-    
-    func fetchNextUp(club: MovieClub) async throws -> FirestoreMovie? {
-        // get small list of members and store here
-        var members: [Member] = []
-        // initialize date/time
-        let today = Date()
-        //if club has an id, proceed
-        if let clubId = club.id {
-            do {
-                //get a max of 3 members in the roster/list
-                //sort by date added to the list, this date is refreshed after a users movie becomes
-                //current playing
-                let querySnapshot = try await movieClubCollection()
-                    .document(club.id ?? "")
-                    .collection("members")
-                    .whereField("selector", isEqualTo: true)
-                    .order(by: "dateAdded", descending: false)
-                    .limit(to: 3)
-                    .getDocuments()
-                // get next up members based on how long ago they joined club
-                // this date is sorting oldest to the top
-                members = try querySnapshot.documents.compactMap { document in
-                    try document.data(as: Member.self)
-                }
-                //this counter should be an easy way to handle most of the date manipulation.
-                //start at 1 since its used as a multiplyer
-                var counter = 1
-                for member in members {
-                    if let endDate = member.movieDate {
-                        let nextEndDate = Calendar.current.date(byAdding: .weekOfYear, value: club.timeInterval * counter, to: club.movieEndDate)
-                        // if the end date of the next users movie doesnt match the predicted next date based on the clubs current club interval, update the 3
-                        if endDate != nextEndDate {
-                            updateEndDates(memberId: member.id ?? "", club: club, counter: counter)
-                            // this will likely break
-                        } else {
-                            // if they do match, then cycle to next movie
-                            do {
-                                try await movieClubCollection().document(club.id ?? "").collection("members").document(member.userId).updateData(["dateAdded" : Date()])
-                                let snapshot = try await usersCollection().document(member.userId).collection("memberships").document(club.id ?? "").getDocument()
-                                let membership = try snapshot.data(as: Membership.self)
-                                let userQueue: [FirestoreMovie] = membership.queue
-                                for movie in userQueue {
-                                    //should probably change this to imdb id
-                                    let fireStoreMovies = try await movieClubCollection().document(clubId).collection("movies").whereField("title", isEqualTo: movie.title)
-                                        .whereField("dateEnded", isLessThan: Date()).getDocuments()
-                                    if fireStoreMovies.count == 0 {
-                                        return movie
-                                    }
-                                }
-                            }catch{
-                                print("unable to add user to list")
-                            }
-                        }
-                        counter += 1
-                    }
-                }
-            } catch {
-                print("Error fetching Firestore movies: \(error)")
-            }
-        }
-        return nil
-    }
-    
-    func updateEndDates(memberId: String, club: MovieClub, counter: Int) {
-        if let clubId = club.id {
-            movieClubCollection().document(clubId).collection("members").document(memberId).updateData(["movieEndDate": Calendar.current.date(byAdding: .weekOfYear, value: club.timeInterval * counter, to: club.movieEndDate) as Any])
-        }
-    }
-    
-    /*  func fetchMemberMovie(clubId: String, member: Member) async {
-     let userId = member.userId
-     do {
-     let snapshot = try await usersCollection().document(userId).collection("memberships").document(clubId).
-     }catch{
-     print(error)
-     }
-     } */
 
-    func fetchFirestoreMovie(id: String) async throws-> FirestoreMovie? {
-        var firestoreMovies: [FirestoreMovie] = []
-        do {
-            let querySnapshot = try await movieClubCollection()
-                .document(id)
-                .collection("movies")
-                //.order(by: "created", descending: false)
-                .getDocuments()
-            print(querySnapshot.documents)
-            
-            firestoreMovies = try querySnapshot.documents.compactMap {
-                document in
-                try document.data(as: FirestoreMovie.self)
-            }
-            print("movie data \(firestoreMovies)")
-        } catch {
-            print("Error fetching Firestore movies: \(error)")
-        }
-
-        return firestoreMovies[0]
-    }
-    
-    //fetch current playing by current end date that is greater than today
-    //should only be one, everything else would be archive
-    //if 0, iterate the list
-    //query members
-    func fetchAndMergeMovieData(id: String) async throws -> Movie? {
-        do {
-            if let firestoreMovie = try await fetchFirestoreMovie(id: id){
-                let apiMovie = try await fetchAPIMovie(title: firestoreMovie.title)
-                let combinedMovie = Movie(
-                    id: firestoreMovie.id,
-                    created: Date(),
-                    title: firestoreMovie.title,
-                    poster: apiMovie.poster,
-                    endDate: firestoreMovie.endDate!,
-                    author: firestoreMovie.author,
-                    authorId: firestoreMovie.authorId,
-                    authorAvi: firestoreMovie.authorAvi,
-                    comments: firestoreMovie.comments,
-                    plot: apiMovie.plot,
-                    director: apiMovie.director
-                )
-                //print(combinedMovie)
-                self.movies = []
-                self.movies.append(combinedMovie)
-                print("combined movie \(combinedMovie)")
-                return combinedMovie
-            }
-        }catch{
-            print(error)
-        }
-        return nil
-    }
-    //self.currentClub?.movies = movies
-    //print("##### \(currentClub?.movies)")
-
-    
     func fetchUser() async throws {
-      print("in fetch user")
+        print("fetching user \(Auth.auth().currentUser?.uid ?? "")")
         guard let uid = Auth.auth().currentUser?.uid else {return}
         guard let snapshot = try? await usersCollection().document(uid).getDocument() else {return}
-            do{
-                self.currentUser = try snapshot.data(as: User.self)
-            }catch{
-                print(error)
-            }
-        let path = ("Users/profile_images/\(uid)")
-              
-        if userMovieClubs.isEmpty {
-            await fetchMovieClubsForUser()
+        do{
+            self.currentUser = try snapshot.data(as: User.self)
+            print("current userId: \(self.currentUser?.id ?? "")")
+            await fetchUserClubs()
+        } catch {
+            print("error decoding ")
         }
     }
     
@@ -565,10 +326,9 @@ class DataManager: Identifiable {
         let metadata = StorageMetadata()
         metadata.contentType = "image/jpeg"
         do {
-            _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
+            try await storageRef.putDataAsync(imageData, metadata: metadata)
             let url = try await storageRef.downloadURL()
             try await usersCollection().document(currentUser?.id ?? "").updateData(["image" : url.absoluteString])
-            //update movies with new image
         }catch{
             throw error
         }
@@ -650,28 +410,3 @@ class DataManager: Identifiable {
         
     }
 }
-
-extension MovieClub {
-    static var TestData: [MovieClub] = [MovieClub(name: "FMFC Club",
-                                                  created: Date(),
-                                                  numMembers: 2,
-                                                  description: "FMFC",
-                                                  ownerName: "Duhmarcus",
-                                                  timeInterval: 4,
-                                                  movieEndDate: Calendar.current.date(byAdding: .weekOfYear, value: 4, to: Date())!,
-                                                  ownerId: "000123",
-                                                  isPublic: true,
-                                                  bannerUrl: "https://firebasestorage.googleapis.com:443/v0/b/movieclub-93714.appspot.com/o/Clubs%2FH71IficmTcmCGOnF4hrn%2F_banner.jpg?alt=media&token=7c5c6c53-c1a7-4a28-a1ba-8defd431c7fa",
-                                                  movies: [Movie(id: "001", created: Date(),
-                                                                 title: "The Matrix",
-                                                                 poster: "https://m.media-amazon.com/images/M/MV5BOGUyZDUxZjEtMmIzMC00MzlmLTg4MGItZWJmMzBhZjE0Mjc1XkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
-                                                                 endDate: Calendar.current.date(byAdding: .weekOfYear, value: 4, to: Date())!, author: "duhmarcus", authorId: "tUM5fRuYZSUs86ud8tydTqjKcC43", authorAvi: "https://firebasestorage.googleapis.com/v0/b/movieclub-93714.appspot.com/o/Users%2Fprofile_images%2FtUM5fRuYZSUs86ud8tydTqjKcC43.jpeg?alt=media&token=1abbcce9-e460-48b8-9770-04f2a75be20f")]),
-                                        MovieClub(name: "Test Title 2",
-                                                  created: Date(),
-                                                  numMembers: 1,
-                                                  description: "description",
-                                                  ownerName: "darius garius",
-                                                  timeInterval: 2, movieEndDate: Date(), ownerId: "1345",
-                                                  isPublic: true)]
-}
-

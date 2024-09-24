@@ -18,10 +18,14 @@ struct NewClubView: View {
     @State var clubList: [MovieClub] = []
     @State var btnDisabled: Bool = false
     var filteredClubs: [MovieClub] {
-        if searchText.isEmpty {
-            clubList
-        } else {
-            clubList.filter { $0.name.localizedStandardContains(searchText)}
+        guard !searchText.isEmpty else {
+            return clubList
+        }
+        return clubList.filter { club in
+            let isNameMatching = club.name.localizedStandardContains(searchText)
+            let isNotInUserMovieClubs = !data.userMovieClubs.contains { $0.id == club.id }
+            
+            return isNameMatching && isNotInUserMovieClubs
         }
     }
     var body: some View {
@@ -72,23 +76,16 @@ struct NewClubView: View {
         }
     }
 
-    func getClubList() async throws -> [MovieClub]{
-        var newList: [MovieClub] = []
-        do{
-            
-            let snapshot = try? await data.movieClubCollection().getDocuments()
-            let movieClubs = snapshot?.documents ?? []
-            for document in movieClubs {
-                let movieClub = try document.data(as: MovieClub.self)
-                if await !data.userMovieClubs.contains(movieClub) {
-                    newList.append(movieClub)
-                }
-                
+    func getClubList() async throws -> [MovieClub] {
+        do {
+            let snapshot = try await data.movieClubCollection().getDocuments()
+            return try snapshot.documents.map { document in
+                try document.data(as: MovieClub.self)
             }
-        }catch{
+        } catch {
             print("Error decoding movie club: \(error)")
+            return []
         }
-        return newList
     }
 }
     

@@ -52,9 +52,6 @@ struct HomePageView: View {
                 .navigationDestination(for: String.self) { value in
                     switch value {
                         
-                    case "EditMovies":
-                        ComingSoonListView()
-                        
                     case "NewClub":
                         NewClubView()
                         

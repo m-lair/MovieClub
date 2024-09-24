@@ -13,95 +13,85 @@ struct ClubDetailView: View {
     @Environment(\.dismiss) var dismiss
     @Binding var navPath: NavigationPath
     @State var movieClub: MovieClub
+    var movie: Movie {
+        return movieClub.movies[0]
+    }
     @State var isPresentingEditView = false
-    @State var movie: Movie?
     @State var comments: [Comment] = []
     @FocusState private var isCommentFieldFocused: Bool
     var body: some View {
         ZStack{
-            BlurredBackgroundView()
+            BlurredBackgroundView(urlString: movie.poster ?? "")
             VStack {
-                // Header Section
                 HeaderView(movieClub: movieClub)
-                if let movie {
-                    SwipeableView(contents: [
-                        AnyView(NowPlayingView(movie: movie, comments: comments, club: movieClub)),
-                        AnyView(ComingSoonView(club: movieClub))
-                    ])
-                    .padding(.horizontal)
-                }else{
-                    EmptyMovieView()
-                }
+                SwipeableView(contents: [
+                    AnyView(NowPlayingView(movie: movie, comments: comments, club: movieClub)),
+                    AnyView(ComingSoonView(club: movieClub))
+                    
+                ])
+                .padding(.horizontal)
             }
             .padding()
             Spacer()
                 .task{
-                    if let currId = data.currentClub?.id, let newId = movieClub.id{
-                        //do nothing but this will be a caching system eventually
+                    guard
+                        let movieId = movieClub.movies[0].id,
+                        let movieClubId = movieClub.id
+                    else {
+                        print("missing movieId or movieClubId")
+                        return
                     }
-                    data.currentClub = movieClub
-                    do {
-                        if let id = movieClub.id {
-                            self.movie = try await data.fetchAndMergeMovieData(id: id)
-                            if let movie = movie {
-                                movieClub.movies?.append(movie)
-                                self.comments = await data.fetchComments(movieClubId: movieClub.id!, movieId: movie.id ?? "")
-                            }
-                        }
-                    }catch{
-                        print(error)
+                    self.comments = await data.fetchComments(movieClubId: movieClubId, movieId: movieId)
+                }
+        }
+        .toolbar{
+            if movieClub.ownerId == data.currentUser?.id ?? "" {
+                Menu {
+                    Button {
+                        // Do Nothing
+                    } label: {
+                        Label("Report A Problem", systemImage: "exclamationmark.octagon")
                     }
-                }
-                .toolbar{
-                    if movieClub.ownerId == data.currentUser?.id ?? "" {
-                        Menu {
-                            Button {
-                                // Do Nothing
-                            } label: {
-                                Label("Report A Problem", systemImage: "exclamationmark.octagon")
-                            }
-                            Button {
-                                isPresentingEditView = true
-                            } label: {
-                                Label("Edit", systemImage: "pencil")
-                            }
-                            
-                            Button {
-                                Task{
-                                    await data.leaveClub(club: movieClub)
-                                    dismiss()
-                                }
-                            } label: {
-                                Label("Leave Club", systemImage: "trash")
-                            }
-                            .foregroundStyle(.red)
-                            
-                        } label: {
-                            Label("Menu", systemImage: "ellipsis")
-                        }
-                    } else {
-                        Menu {
-                            Button {
-                                Task{
-                                    await data.leaveClub(club: movieClub)
-                                    dismiss()
-                                }
-                            } label: {
-                                Label("Leave Club", systemImage: "trash")
-                            }
-                            .foregroundStyle(.red)
-                            
-                        } label: {
-                            Label("Menu", systemImage: "ellipsis")
-                        }
+                    Button {
+                        isPresentingEditView = true
+                    } label: {
+                        Label("Edit", systemImage: "pencil")
                     }
+                    
+                    Button {
+                        Task{
+                            dismiss()
+                        }
+                    } label: {
+                        Label("Leave Club", systemImage: "trash")
+                    }
+                    .foregroundStyle(.red)
+                    
+                } label: {
+                    Label("Menu", systemImage: "ellipsis")
                 }
-                .sheet(isPresented: $isPresentingEditView) {
-                    ClubDetailsForm(navPath: $navPath)
+            } else {
+                Menu {
+                    Button {
+                        Task{
+                            dismiss()
+                        }
+                    } label: {
+                        Label("Leave Club", systemImage: "trash")
+                    }
+                    .foregroundStyle(.red)
+                    
+                } label: {
+                    Label("Menu", systemImage: "ellipsis")
                 }
+            }
+        }
+        .sheet(isPresented: $isPresentingEditView) {
+            ClubDetailsForm(navPath: $navPath)
         }
     }
 }
+
 /*
 #Preview {
     ClubDetailView(movieClub: MovieClub.TestData[0])

@@ -20,9 +20,3 @@ struct HeaderView: View {
         // }
     }
 }
-
-
-
-#Preview {
-    HeaderView(movieClub: MovieClub.TestData[0])
-}
