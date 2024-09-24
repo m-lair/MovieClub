@@ -6,57 +6,51 @@
 //
 
 import SwiftUI
+import FirebaseFunctions
+import Firebase
 
 struct CommentInputView: View {
     @Environment(DataManager.self) var data: DataManager
     @State private var commentText: String = ""
     var movieClub: MovieClub
-    @State var movieID: String
+    @State var movieId: String
     var body: some View {
         HStack {
             TextField("leave a comment", text: $commentText)
                 .padding()
                 .background(Color(UIColor.systemGray6))
                 .cornerRadius(10)
-        
-                
-                Button("", systemImage: "arrow.up.circle.fill"){
-                    Task{
-                        if commentText != "" && commentText.count > 0 {
-                        await submitComment()
-                            data.comments =  await data.fetchComments(movieClubId: movieClub.id ?? "", movieId: movieID)
-                        } else {
-                            print("empty Text")
-                        }
-                        
+
+            Button("", systemImage: "arrow.up.circle.fill"){
+                Task{
+                    if commentText != "" && commentText.count > 0 {
+                       try await submitComment()
+                    } else {
+                        print("empty Text")
                     }
                 }
-                .foregroundColor(Color(uiColor: .systemBlue))
-                .font(.title)
             }
+            .ignoresSafeArea(.keyboard)
+            .foregroundColor(Color(uiColor: .systemBlue))
+            .font(.title)
+        }
     }
     
-    private func submitComment() async {
-        guard let profileImage = await data.currentUser?.image else {
-            print("no profile image")
-            return
-        }
-        print("movie club ...")
-       
-        let newComment = await Comment(id: nil, userID: data.currentUser?.id ?? "", image: profileImage, username: data.currentUser?.name ?? "Anonymous", date: Date(), text: commentText, likes: 0)
+    private func submitComment() async throws {
+        guard
+            let userId = data.currentUser?.id,
+            let clubId = movieClub.id,
+            let userName = data.currentUser?.name,
+            let imageURL = data.currentUser?.image
+        else { return }
         
-        Task {
-            print(newComment)
-            await data.postComment(comment: newComment, movieClubID: movieClub.id ?? "", movieID: movieID)
-            commentText = ""
-            
-            
-            
-        }
+        let functions = Functions.functions()
+        let result = try await functions.httpsCallable("postComment").call([
+            "userId": userId,
+            "userName": userName,
+            "imageURL": imageURL,
+            "clubId": clubId,
+            "text": commentText
+        ])
     }
-}
-
-
-#Preview {
-    CommentInputView(movieClub: MovieClub.TestData[0], movieID: "")
 }

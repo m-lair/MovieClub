@@ -12,7 +12,6 @@ struct AddMovieView: View {
     @Environment(\.dismiss) private var dismiss
     @State var searchText = ""
     @State var searchBar = true
-    @State var showQueue = false
     @State var selectedMovie: APIMovie?
     var onSave: (APIMovie) -> Void
     var date: Date?

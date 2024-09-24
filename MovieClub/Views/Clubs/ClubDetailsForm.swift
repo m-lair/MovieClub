@@ -108,12 +108,12 @@ struct ClubDetailsForm: View {
                 } header: {
                     Text("Club Settings")
                 }
-                Section {
+                Section{
                     VStack(alignment: .center){
                         Button {
                             Task{
                                 if let imageData = try await photoItem?.loadTransferable(type: Data.self) {
-                                    let documentString = data.db.collection("movieclubs").document().documentID
+                                    let documentString = data.db.collection("movieclubs").document().documentId
                                     print(documentString)
                                     sheetShowing = true
                                     
@@ -126,7 +126,8 @@ struct ClubDetailsForm: View {
                                     image
                                         .resizable()
                                         .aspectRatio(contentMode: .fit)
-                                        .frame(width: 200, height: 300)
+                                        
+                                        
                                 } else {
                                    // let _ = print("emptyView")
                                     Text("Choose First Movie...")
@@ -134,19 +135,20 @@ struct ClubDetailsForm: View {
                             }
                         }
                     }
+                   
                     .sheet(isPresented: $sheetShowing) {
                         AddMovieView() { movie in
                             apiMovie = movie
                         }
                     }
                 }
+                
                 Button{
                     Task{
                         await submit()
-                        navPath.removeLast(navPath.count)
                     }
                 }label:{
-                    Text("Next")
+                    Text("Create Club")
                 }
             }
         }
@@ -155,25 +157,28 @@ struct ClubDetailsForm: View {
     private func submit() async {
         do{
             if let image = try await photoItem?.loadTransferable(type: Data.self) {
-                let documentString = data.db.collection("movieclubs").document().documentID
+                let documentString = data.db.collection("movieclubs").document().documentId
                 if let imageData = UIImage(data: image) {
                     print(documentString)
-                    let urlString =  await data.uploadClubImage(image: imageData, clubId: documentString)
-                    var movieClub =
+                    
+                    let urlString = try await data.uploadClubImage(image: imageData, clubId: documentString)
+        
+                    print("urlString: \(urlString)")
+                    let movieClub =
                     MovieClub(id: documentString, name: name,
-                              created: created, numMembers: 1,
+                              created: created, numMembers: 1, 
                               description: desc,
                               ownerName: data.currentUser?.name ?? "",
                               timeInterval: timeInterval,
                               movieEndDate: endDate,
-                              ownerID: data.currentUser?.id ?? "",
-                              isPublic: isPublic, bannerUrl: urlString)
+                              ownerId: data.currentUser?.id ?? "", 
+                              isPublic: isPublic, bannerUrl: urlString, numMovies: 1)
                     
-                    let movie = Movie(created: Date(), title: apiMovie?.title ?? "", poster: apiMovie?.poster ?? "", endDate: endDate, author: data.currentUser?.name ?? "", authorID: data.currentUser?.id ?? "", authorAvi: data.currentUser?.image ?? "")
-                        print("MovieClub \(movieClub)")
-                        data.currentClub = movieClub
+                    let movie = Movie(created: Date(), title: apiMovie?.title ?? "", poster: apiMovie?.poster ?? "", endDate: endDate, author: data.currentUser?.name ?? "", authorId: data.currentUser?.id ?? "", authorAvi: data.currentUser?.image ?? "")
+                    print("MovieClub \(movieClub)")
+
                     await data.createMovieClub(movieClub: movieClub, movie: movie)
-                    
+                    navPath.removeLast(navPath.count)
                 }
             }
         }catch{

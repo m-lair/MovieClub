@@ -21,3 +21,5 @@ MovieClub.xcodeproj/xcuserdata/marcus.xcuserdatad/xcdebugger/Breakpoints_v2.xcbk
 MovieClub.xcodeproj/xcuserdata/marcus.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
 *.xcodeproj
 ./MovieClub.xcodeproj
+.vscode
+*.json

@@ -36,7 +36,7 @@ struct MainTabView: View {
                     DiscoverView()
                 }
                 .tabItem {
-                    Label("", systemImage: "magnifyingglass")
+                    Label("", systemImage: "movieclapper.fill")
                         .padding(.top)
                 }
                 .tag(Tab.discoverPath)

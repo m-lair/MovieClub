@@ -16,15 +16,11 @@ struct ComingSoonListView: View {
     var clubName: String {
         membership?.clubName ?? ""
     }
-    @State private var showSheet = false {
-        didSet {
-            print("set showsheet \(showSheet.description)")
-        }
-    }
+    @State private var showSheet = false
     @State private var selectedMovie: APIMovie?
     @State private var selectedIndex: Int = 0
-    @State private var isAddingNewMovie = false
     @State private var membership: Membership?
+    
     var body: some View {
         Text("Manage Your Queue for \(clubName)")
             .font(.title2)
@@ -48,24 +44,26 @@ struct ComingSoonListView: View {
                     Spacer()
                     Button {
                         // selectedMovie = movies[index]
+                        
                         selectedIndex = index
+                        let _ = print("showSheet before true \(showSheet)")
                         showSheet = true
+                        
                     } label: {
                         Image(systemName: "pencil")
                     }
                 }
             }
-            .sheet(isPresented: $showSheet) {
-                AddMovieView() { newMovie in
-                    let _ = print("NEW MOVIE: \(newMovie)")
-                    if var membership = membership {
-                        membership.queue[selectedIndex].title = newMovie.title
-                        membership.queue[selectedIndex].poster = newMovie.poster
-                        self.membership = membership  // Reassign to update
-                        showSheet = false
-                        //let _ = print("poster \(String(describing: membership.queue[selectedIndex].poster))")
-                    }
-                    
+            
+        }
+        .sheet(isPresented: $showSheet) {
+            AddMovieView() { newMovie in
+                let _ = print("NEW MOVIE: \(newMovie)")
+                if var membership = membership {
+                    membership.queue[selectedIndex].title = newMovie.title
+                    membership.queue[selectedIndex].poster = newMovie.poster
+                    self.membership = membership  // Reassign to update
+                    //let _ = print("poster \(String(describing: membership.queue[selectedIndex].poster))")
                 }
             }
         }
@@ -73,11 +71,6 @@ struct ComingSoonListView: View {
             Task{
                 await data.loadQueue()
                 await loadQueue()
-            }
-        }
-        .onChange(of: movies) {
-            Task {
-                //nothing now
             }
         }
         .toolbar{
