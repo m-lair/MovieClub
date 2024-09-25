@@ -6,7 +6,7 @@ const { db } = require("firestore");
 const { populateUserData, populateMovieClubData, populateMovieData } = require("mocks");
 const { comments: { deleteComment, postComment } } = require("index");
 
-describe("comment functions", () => {
+describe("Comment Functions", () => {
   const postWrapped = test.wrap(postComment);
   const deleteWrapped = test.wrap(deleteComment);
 
