@@ -109,6 +109,7 @@ extension DataManager {
         do {
             let result = try await functions.httpsCallable("comments-postComment").call(parameters)
         } catch {
+            print("Error: \(error)")
             throw CommentError.networkError(error)
         }
     }
