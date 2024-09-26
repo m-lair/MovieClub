@@ -23,7 +23,7 @@ struct NewClubView: View {
         }
         return clubList.filter { club in
             let isNameMatching = club.name.localizedStandardContains(searchText)
-            let isNotInUserMovieClubs = !data.userMovieClubs.contains { $0.id == club.id }
+            let isNotInUserMovieClubs = !data.userClubs.contains { $0.id == club.id }
             
             return isNameMatching && isNotInUserMovieClubs
         }
@@ -40,7 +40,7 @@ struct NewClubView: View {
                     Button {
                         Task{
                             await data.joinClub(club: club)
-                            data.userMovieClubs.append(club)
+                            data.userClubs.append(club)
                             btnDisabled = true
                             dismiss()
                         }

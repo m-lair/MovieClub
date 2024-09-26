@@ -11,9 +11,12 @@ import Firebase
 
 struct CommentInputView: View {
     @Environment(DataManager.self) var data: DataManager
+    @State var error: String = ""
+    @State var errorShowing: Bool = false
     @State private var commentText: String = ""
     var movieClub: MovieClub
     @State var movieId: String
+    
     var body: some View {
         HStack {
             TextField("leave a comment", text: $commentText)
@@ -34,23 +37,34 @@ struct CommentInputView: View {
             .foregroundColor(Color(uiColor: .systemBlue))
             .font(.title)
         }
+        .alert(error, isPresented: $errorShowing) {
+            Button("OK", role: .cancel) { }
+        }
     }
     
     private func submitComment() async throws {
         guard
             let userId = data.currentUser?.id,
             let clubId = movieClub.id,
-            let userName = data.currentUser?.name,
-            let imageURL = data.currentUser?.image
-        else { return }
-        
-        let functions = Functions.functions()
-        let result = try await functions.httpsCallable("postComment").call([
-            "userId": userId,
-            "userName": userName,
-            "imageURL": imageURL,
-            "clubId": clubId,
-            "text": commentText
-        ])
+            let userName = data.currentUser?.name
+        else {
+            errorShowing.toggle()
+            self.error = "Could not get user information"
+            return
+        }
+        let newComment = Comment(userId: userId, username: userName, date: Date(), text: commentText, likes: 0)
+        //could hand back result objects and contionally navigate based on fails
+        do {
+            try await data.postComment(movieClubId: clubId, movieId: movieId, comment: newComment)
+        } catch DataManager.PostCommentError.encodingFailed {
+            errorShowing.toggle()
+            self.error = "Could not encode comment"
+        } catch DataManager.PostCommentError.invalidResponse {
+            errorShowing.toggle()
+            self.error = "Invalid response from server"
+        } catch {
+            errorShowing.toggle()
+            self.error = "Unknown error"
+        }
     }
 }

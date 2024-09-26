@@ -19,8 +19,8 @@ struct HomePageView: View {
                 .overlay(Color.black.opacity(0.7))
             ScrollView{
                 VStack {
-                    if data.userMovieClubs.count > 0 {
-                        ForEach(data.userMovieClubs) { movieClub in
+                    if data.userClubs.count > 0 {
+                        ForEach(data.userClubs) { movieClub in
                             NavigationLink(value: movieClub) {
                                 MovieClubCardView(movieClub: movieClub)
                             }
@@ -45,7 +45,7 @@ struct HomePageView: View {
                     }
                 }
                 .navigationDestination(for: MovieClub.self) { club in
-                    ClubDetailView(navPath: $navPath, movieClub: club)
+                    ClubDetailView(navPath: $navPath, club: club)
                         .navigationTitle(club.name)
                         .navigationBarTitleDisplayMode(.inline)
                 }

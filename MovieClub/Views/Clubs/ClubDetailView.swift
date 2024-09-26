@@ -12,40 +12,28 @@ struct ClubDetailView: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) var dismiss
     @Binding var navPath: NavigationPath
-    @State var movieClub: MovieClub
-    var movie: Movie {
-        return movieClub.movies[0]
-    }
+    
+    @State var isLoading: Bool = true
+    let club: MovieClub
     @State var isPresentingEditView = false
-    @State var comments: [Comment] = []
-    @FocusState private var isCommentFieldFocused: Bool
     var body: some View {
         ZStack{
-            BlurredBackgroundView(urlString: movie.poster ?? "")
-            VStack {
-                HeaderView(movieClub: movieClub)
-                SwipeableView(contents: [
-                    AnyView(NowPlayingView(movie: movie, comments: comments, club: movieClub)),
-                    AnyView(ComingSoonView(club: movieClub))
-                    
-                ])
-                .padding(.horizontal)
-            }
-            .padding()
-            Spacer()
-                .task{
-                    guard
-                        let movieId = movieClub.movies[0].id,
-                        let movieClubId = movieClub.id
-                    else {
-                        print("missing movieId or movieClubId")
-                        return
+            if isLoading {
+                ProgressView()
+            } else {
+                BlurredBackgroundView(urlString: data.poster)
+                VStack {
+                    HeaderView(movieClub: club)
+                    if let movie = data.movie {
+                        NowPlayingView(movie: movie, club: club)
                     }
-                    self.comments = await data.fetchComments(movieClubId: movieClubId, movieId: movieId)
                 }
+                .padding()
+                Spacer()
+            }
         }
         .toolbar{
-            if movieClub.ownerId == data.currentUser?.id ?? "" {
+            if data.currentClub?.ownerId == data.currentUser?.id ?? "" {
                 Menu {
                     Button {
                         // Do Nothing
@@ -89,6 +77,20 @@ struct ClubDetailView: View {
         .sheet(isPresented: $isPresentingEditView) {
             ClubDetailsForm(navPath: $navPath)
         }
+        .task {
+            await loadClub()
+        }
+    }
+    private func loadClub() async {
+        isLoading = true
+        do {
+            print("movies \(club.movies)")
+            try await data.fetchClubDetails(club: club)
+            isLoading = false
+        } catch {
+            print("Error fetching club details: \(error)")
+        }
+        
     }
 }
 
