@@ -146,10 +146,8 @@ exports.updateUser = functions.https.onCall(async (data, context) => {
 
     const userData = {
       ...(data.bio && { bio: data.bio }),
-      ...(data.email && { email: data.email }),
       ...(data.image && { image: data.image }),
-      ...(data.name && { name: data.name }),
-      ...(data.signInProvider && { signInProvider: data.signInProvider }),
+      ...(data.name && { name: data.name })
     };
 
     await db.collection("users").doc(data.id).update(userData);

@@ -38,13 +38,14 @@ Returns:
 
 ```
 Params = {
-  email?: "string@email.com",
   name?: "string",
   bio?: "string",
   image?: "string/path",
   signInProvider?: "string"
 }
 ```
+
+### updateUserEmail
 
 ### deleteUser
 

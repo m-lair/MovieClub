@@ -186,8 +186,7 @@ describe("User Functions", () => {
         id: user.id,
         name: "Updated test User",
         image: "Updated test Image",
-        bio: "Updated test Bio",
-        email: "updatedTest@email.com"
+        bio: "Updated test Bio"
       };
     });
 
@@ -200,7 +199,6 @@ describe("User Functions", () => {
       assert(userDoc.name == userData.name);
       assert(userDoc.image == userData.image);
       assert(userDoc.bio == userData.bio);
-      assert(userDoc.email == userData.email);
     });
 
     it("should error without required fields", async () => {
