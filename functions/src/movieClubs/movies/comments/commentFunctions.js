@@ -18,7 +18,7 @@ exports.postComment = functions.https.onCall(async (data, context) => {
       userId: data.userId,
       username: data.username,
       text: data.text,
-      created_at: admin.firestore.FieldValue.serverTimestamp()
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
     }
 
     const commentDoc = await commentsRef.add(commentData);

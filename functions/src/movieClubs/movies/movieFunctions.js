@@ -3,10 +3,10 @@ const fetch = require("node-fetch");
 const { db } = require("firestore");
 
 // Export the scheduled function for deployment
-exports.rotateMovie = functions.pubsub.schedule('every 24 hours').onRun(async () => {
-  console.log('Rotating movie...');
-  await rotateMovieLogic();
-});
+// exports.rotateMovie = functions.pubsub.schedule('every 24 hours').onRun(async () => {
+//   console.log('Rotating movie...');
+//   await rotateMovieLogic();
+// });
 
 async function rotateMovieLogic() {
   const currentTimestamp = new Date();
@@ -70,4 +70,4 @@ async function processMovieClub(movieclubDoc, futureDate, apiEndpoint) {
 
 exports.rotateMovieLogic = rotateMovieLogic;
 
-exports.rotateMovie = functions.pubsub.schedule('every 24 hours').onRun(rotateMovieLogic);
+// exports.rotateMovie = functions.pubsub.schedule('every 24 hours').onRun(rotateMovieLogic);

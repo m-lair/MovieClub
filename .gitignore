@@ -1,13 +1,11 @@
 GoogleService-Info.plist
 MovieClub/MovieClub.entitlements
 .firebaserc
-firebase.json
 functions/.eslintrc.js
 MovieClub.xcodeproj/
 firestore-debug.log
 firestore.indexes.json
 firestore.rules
-functions/package-lock.json
 functions/package-lock.json
 .DS_Store
 node_modulesx/
@@ -22,4 +20,3 @@ MovieClub.xcodeproj/xcuserdata/marcus.xcuserdatad/xcdebugger/Breakpoints_v2.xcbk
 *.xcodeproj
 ./MovieClub.xcodeproj
 .vscode
-*.json

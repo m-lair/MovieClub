@@ -1,5 +1,7 @@
 node_modules/
+build/
 *.local
 .log
 .env
 *.log
+service-account.json
