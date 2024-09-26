@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 @Observable
 final class User: Identifiable, Decodable {
     var id: String?

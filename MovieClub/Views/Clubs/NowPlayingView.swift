@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct NowPlayingView: View {
+    @Environment(DataManager.self) private var data: DataManager
     let movie: Movie
-    let comments: [Comment]
     let club: MovieClub
     var body: some View {
         VStack{

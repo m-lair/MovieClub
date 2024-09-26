@@ -14,7 +14,7 @@ struct UserMembershipsView: View {
             VStack{
                 ScrollView(.horizontal) {
                     HStack{
-                        ForEach(data.userMovieClubs) { club in
+                        ForEach(data.userClubs) { club in
                             VStack{
                                 Text(club.name)
                                     .font(.title3)

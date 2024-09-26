@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CommentDetailView: View {
     @Environment(DataManager.self) private var data
-    @State var comment: Comment
+    let comment: Comment
     @State var imageUrl: String = ""
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -21,8 +21,6 @@ struct CommentDetailView: View {
                     .font(.body)
             }
             .task{
-                let path = "/Users/profile_images/\(comment.userId)"
-                //print("comment.userId \(comment.userId)")
                 self.imageUrl = await data.getProfileImage(userId: comment.userId)
             }
             .padding()

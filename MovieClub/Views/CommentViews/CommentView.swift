@@ -16,6 +16,9 @@ struct CommentsView: View {
                 
             }
         }
+        .task {
+            data.listenForComments()
+        }
     }
 }
 

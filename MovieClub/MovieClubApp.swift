@@ -50,7 +50,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         if let fcm = Messaging.messaging().fcmToken {
-            print("fcm: \(fcm)")
+            //print("fcm: \(fcm)")
             saveFCMTokenToFirestore(fcm)
         }
     }
