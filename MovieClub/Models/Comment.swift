@@ -11,7 +11,7 @@ final class Comment: Identifiable, Codable, Equatable, Hashable{
     var userId: String
     var image: String? = ""
     var username: String
-    var date: Date
+    var createdAt: Date
     var text: String
     var likes: Int
     
@@ -20,7 +20,7 @@ final class Comment: Identifiable, Codable, Equatable, Hashable{
         userId: String,
         image: String? = "",
         username: String,
-        date: Date,
+        createdAt: Date,
         text: String,
         likes: Int
     ) {
@@ -28,7 +28,7 @@ final class Comment: Identifiable, Codable, Equatable, Hashable{
         self.userId = userId
         self.image = image
         self.username = username
-        self.date = date
+        self.createdAt = createdAt
         self.text = text
         self.likes = likes
     }
@@ -39,7 +39,7 @@ final class Comment: Identifiable, Codable, Equatable, Hashable{
         userId = try container.decode(String.self, forKey: .userId)
         image = try container.decodeIfPresent(String.self, forKey: .image)
         username = try container.decode(String.self, forKey: .username)
-        date = try container.decode(Date.self, forKey: .date)
+        createdAt = try container.decode(Date.self, forKey: .createdAt)
         text = try container.decode(String.self, forKey: .text)
         likes = try container.decodeIfPresent(Int.self, forKey: .likes) ?? 0
     }
@@ -49,7 +49,7 @@ final class Comment: Identifiable, Codable, Equatable, Hashable{
         case userId
         case image
         case username
-        case date
+        case createdAt
         case text
         case likes
     }
@@ -64,7 +64,7 @@ final class Comment: Identifiable, Codable, Equatable, Hashable{
         hasher.combine(id)
         hasher.combine(userId)
         hasher.combine(image)
-        hasher.combine(date)
+        hasher.combine(createdAt)
         hasher.combine(text)
         hasher.combine(likes)
      
