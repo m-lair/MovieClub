@@ -2,96 +2,212 @@
 
 const assert = require("assert");
 const { test } = require("test/testHelper");
-const { db } = require("firestore");
+const { db, admin } = require("firestore");
 const { populateUserData } = require("mocks");
-const { users: { createUser, updateUser } } = require("index");
+const { users: { createUserWithEmail, createUserWithSignInProvider, updateUser } } = require("index");
 
-describe("createUser", () => {
-  const wrapped = test.wrap(createUser);
+describe("User Functions", () => {
+  describe("createUserWithEmail", () => {
+    const createUserWithEmailWrapped = test.wrap(createUserWithEmail);
 
-  let userId;
-  let userData;
+    let userId;
+    let userData;
 
-  beforeEach(async () => {
-    userData = {
-      name: "Test User",
-      image: "Test Image",
-      bio: "Test Bio",
-      email: "test@email.com",
-      signInProvider: "apple"
-    };
+    beforeEach(async () => {
+      userData = {
+        name: "Test User",
+        image: "Test Image",
+        bio: "Test Bio",
+        email: "test@email.com",
+        password: "test-password"
+      };
+    });
+
+    afterEach(async () => {
+      const result = await admin.auth().listUsers();
+      const users = result.users.map(user => user.uid);
+
+      await admin.auth().deleteUsers(users);
+    });
+
+    it("should create a new User with email, name and password", async () => {
+      userId = await createUserWithEmailWrapped(userData);
+
+      const snap = await db.collection("users").doc(userId).get();
+      const userDoc = snap.data();
+
+      assert(userDoc.name == userData.name);
+      assert(userDoc.image == userData.image);
+      assert(userDoc.bio == userData.bio);
+      assert(userDoc.email == userData.email);
+    });
+
+    it("should error when email already exists", async () => {
+      try {
+        await createUserWithEmailWrapped(userData);
+
+        userData.name = "Test User 2";
+        await createUserWithEmailWrapped(userData);
+
+        assert.fail("Expected error not thrown");
+      } catch (error) {
+        assert.match(error.message, /The email address is already in use by another account./);
+      };
+    });
+
+    it("should error when user name already exists", async () => {
+      try {
+        await createUserWithEmailWrapped(userData);
+
+        userData.email = "test2@email.com";
+        await createUserWithEmailWrapped(userData);
+
+        assert.fail("Expected error not thrown");
+      } catch (error) {
+        assert.match(error.message, /name Test User already exists./);
+      };
+    });
+
+    it("should error without required fields", async () => {
+      try {
+        await createUserWithEmailWrapped({})
+        assert.fail("Expected error not thrown");
+      } catch (error) {
+        assert.match(error.message, /The function must be called with email, name, password./);
+      };
+    });
   });
 
-  it("should create a new User when email exists in auth via alt sign-in (ie apple/gmail)", async () => {
-    userId = await wrapped(userData);
+  describe("createUserWithSignInProvider", () => {
+    const createUserWithSignInProviderWrapped = test.wrap(createUserWithSignInProvider);
 
-    const snap = await db.collection("users").doc(userId).get();
-    const userDoc = snap.data();
+    let userId;
+    let userData;
 
-    assert(userDoc.name == userData.name);
-    assert(userDoc.image == userData.image);
-    assert(userDoc.bio == userData.bio);
-    assert(userDoc.email == userData.email);
+    beforeEach(async () => {
+      userData = {
+        name: "Test User",
+        image: "Test Image",
+        bio: "Test Bio",
+        email: "test@email.com",
+        signInProvider: "apple"
+      };
+
+      await admin.auth().createUser({
+        email: userData.email,
+        password: userData.password,
+        displayName: userData.name
+      });
+    });
+
+    afterEach(async () => {
+      const result = await admin.auth().listUsers();
+      const users = result.users.map(user => user.uid);
+
+      await admin.auth().deleteUsers(users);
+    });
+
+    it("should create a new User when email exists in auth via alt sign-in (ie apple/gmail)", async () => {
+      userId = await createUserWithSignInProviderWrapped(userData);
+
+      const snap = await db.collection("users").doc(userId).get();
+      const userDoc = snap.data();
+
+      assert(userDoc.name == userData.name);
+      assert(userDoc.image == userData.image);
+      assert(userDoc.bio == userData.bio);
+      assert(userDoc.email == userData.email);
+    });
+
+    it("should error when email doesn't exist in auth", async () => {
+      try {
+        userData.email = "nonexistant@email.com"
+        await createUserWithSignInProviderWrapped(userData);
+
+        assert.fail("Expected error not thrown");
+      } catch (error) {
+        assert.match(error.message, /email does not exist/);
+      };
+    });
+
+    it("should error when email already exists", async () => {
+      try {
+        await createUserWithSignInProviderWrapped(userData);
+
+        userData.name = "Test User 2";
+        await createUserWithSignInProviderWrapped(userData);
+
+        assert.fail("Expected error not thrown");
+      } catch (error) {
+        assert.match(error.message, /email test@email.com already exists./);
+      };
+    });
+
+    it("should error when user name already exists", async () => {
+      try {
+        await createUserWithSignInProviderWrapped(userData);
+
+        userData.email = "test2@email.com";
+
+        await admin.auth().createUser({
+          email: userData.email,
+          password: userData.password,
+          displayName: userData.name
+        });
+
+        await createUserWithSignInProviderWrapped(userData);
+
+        assert.fail("Expected error not thrown");
+      } catch (error) {
+        assert.match(error.message, /name Test User already exists./);
+      };
+    });
+
+    it("should error without required fields", async () => {
+      try {
+        await createUserWithSignInProviderWrapped({})
+        assert.fail("Expected error not thrown");
+      } catch (error) {
+        assert.match(error.message, /The function must be called with email, name./);
+      };
+    });
   });
 
-  it("should create a new User when email doesn't exist in auth", async () => {
-    userId = await wrapped(userData);
+  describe("updateUser", () => {
+    const updateUserWrapped = test.wrap(updateUser);
 
-    const snap = await db.collection("users").doc(userId).get();
-    const userDoc = snap.data();
+    let user;
+    let userData;
 
-    assert(userDoc.name == userData.name);
-    assert(userDoc.image == userData.image);
-    assert(userDoc.bio == userData.bio);
-    assert(userDoc.email == userData.email);
-  });
+    beforeEach(async () => {
+      user = await populateUserData();
 
-  it("should error without required fields", async () => {
-    try {
-      await wrapped({})
-      assert.fail("Expected error not thrown");
-    } catch (error) {
-      assert.match(error.message, /The function must be called with email, name./);
-    };
-  });
-});
+      userData = {
+        id: user.id,
+        name: "Updated test User",
+        image: "Updated test Image",
+        bio: "Updated test Bio"
+      };
+    });
 
-describe("updateUser", () => {
-  const wrapped = test.wrap(updateUser);
+    it("should update an existing User", async () => {
+      await updateUserWrapped(userData);
+      const snap = await db.collection("users").doc(user.id).get();
+      const userDoc = snap.data();
 
-  let user;
-  let userData;
+      assert(userDoc.id == userData.id);
+      assert(userDoc.name == userData.name);
+      assert(userDoc.image == userData.image);
+      assert(userDoc.bio == userData.bio);
+    });
 
-  beforeEach(async () => {
-    user = await populateUserData();
-
-    userData = {
-      id: user.id,
-      name: "Updated test User",
-      image: "Updated test Image",
-      bio: "Updated test Bio",
-      email: "updatedTest@email.com"
-    };
-  });
-
-  it("should update an existing User", async () => {
-    await wrapped(userData);
-    const snap = await db.collection("users").doc(user.id).get();
-    const userDoc = snap.data();
-
-    assert(userDoc.id == userData.id);
-    assert(userDoc.name == userData.name);
-    assert(userDoc.image == userData.image);
-    assert(userDoc.bio == userData.bio);
-    assert(userDoc.email == userData.email);
-  });
-
-  it("should error without required fields", async () => {
-    try {
-      await wrapped({})
-      assert.fail("Expected error not thrown");
-    } catch (error) {
-      assert.match(error.message, /The function must be called with id./);
-    };
+    it("should error without required fields", async () => {
+      try {
+        await updateUserWrapped({})
+        assert.fail("Expected error not thrown");
+      } catch (error) {
+        assert.match(error.message, /The function must be called with id./);
+      };
+    });
   });
 });
