@@ -20,9 +20,11 @@ exports.createMovieClub = functions.https.onCall(async (data, context) => {
       bannerUrl: data.bannerUrl
     };
 
-    await movieClubRef.add(movieClubData);
+    const movieClub = await movieClubRef.add(movieClubData);
 
     logVerbose("Movie Club created successfully!");
+
+    return movieClub;
   } catch (error) {
     handleCatchHttpsError("Error creating Movie Club:", error)
   };
