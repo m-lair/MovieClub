@@ -2,16 +2,31 @@
 
 ## Users
 
-### createUser
+### createUserWithEmail
 
 ```
 Params = {
   email: "string@email.com",
   name: "string",
-  password?: "string",
+  password: "string",
   bio?: "string",
-  image?: "string/path",
-  signInProvider?: "string"
+  image?: "string/path"
+}
+
+Returns: 
+200 - "uid string"
+400 - code: "invalid-argument"
+```
+
+### createUserWithSignInProvider
+
+```
+Params = {
+  email: "string@email.com",
+  name: "string",
+  signInProvider: "string",
+  bio?: "string",
+  image?: "string/path"
 }
 
 Returns: 

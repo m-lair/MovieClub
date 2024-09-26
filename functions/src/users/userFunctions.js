@@ -2,20 +2,36 @@ const functions = require("firebase-functions");
 const { db, admin } = require("firestore");
 const { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyRequiredFields } = require("utilities");
 
-exports.createUser = functions.https.onCall(async (data, context) => {
+exports.createUserWithEmail = functions.https.onCall(async (data, context) => {
   try {
-    const requiredFields = ["email", "name"];
-    verifyRequiredFields(data, requiredFields)
+    const requiredFields = ["email", "name", "password"];
+    verifyRequiredFields(data, requiredFields);
 
-    // if the sign in provider is given, we've created the user already in auth and just need to retrieve the record
-    // Maybe we separate these into two different routes?
-    const userRecord = data.signInProvider ? await getAuthUserByEmail(data.email) : null;
-    const uid = userRecord?.uid || await createUserAuthentication(data);
-    await createUser(uid, data)
+    const uid = await createUserAuthentication(data);
+    await createUser(uid, data);
 
     return uid;
   } catch (error) {
-    handleCatchHttpsError("Error creating user:", error)
+    handleCatchHttpsError("Error creating user:", error);
+  }
+});
+
+exports.createUserWithSignInProvider = functions.https.onCall(async (data, context) => {
+  try {
+    const requiredFields = ["email", "name", "signInProvider"];
+    verifyRequiredFields(data, requiredFields);
+
+    const userRecord = await getAuthUserByEmail(data.email);
+
+    if (userRecord) {
+      await createUser(userRecord.uid, data)
+    } else {
+      throwHttpsError("invalid-argument", `createUserWithSignInProvider: email does not exist`, data);
+    }
+
+    return userRecord.uid;
+  } catch (error) {
+    handleCatchHttpsError("Error creating user:", error);
   }
 });
 
@@ -39,12 +55,12 @@ async function getAuthUserByEmail(email) {
 
       default:
         throw error;
-    }
-  }
-}
+    };
+  };
+};
 
 async function createUserAuthentication(data) {
-  const { email, password, name } = data
+  const { email, password, name } = data;
 
   try {
     userRecord = await admin.auth().createUser({
@@ -53,7 +69,7 @@ async function createUserAuthentication(data) {
       displayName: name
     });
 
-    return userRecord.uid
+    return userRecord.uid;
   } catch (error) {
     // all error codes: https://firebase.google.com/docs/auth/admin/errors
     switch (error.code) {
@@ -70,11 +86,11 @@ async function createUserAuthentication(data) {
         throwHttpsError("invalid-argument", error.message, data);
 
       default:
-        logError("Error creating admin user:", error)
+        logError("Error creating admin user:", error);
         throwHttpsError("internal", `createUserAuthentication: ${error.message}`, data);
-    }
-  }
-}
+    };
+  };
+};
 
 async function createUser(id, data) {
   const userData = {
@@ -89,12 +105,21 @@ async function createUser(id, data) {
 
   try {
     await db.runTransaction(async (t) => {
-      const userRef = db.collection("users").where('name', '==', data.name);
-      const query = await t.get(userRef);
+      const userRefByName = db.collection("users").where('name', '==', data.name);
+      const userRefByEmail = db.collection("users").where('email', '==', data.email);
 
-      if (query.docs.length > 0) {
+      const [queryByName, queryByEmail] = await Promise.all([
+        t.get(userRefByName),
+        t.get(userRefByEmail)
+      ]);
+
+      if (queryByName.docs.length > 0) {
         throwHttpsError("invalid-argument", `name ${data.name} already exists.`, data);
-      };
+      }
+
+      if (queryByEmail.docs.length > 0) {
+        throwHttpsError("invalid-argument", `email ${data.email} already exists.`, data);
+      }
 
       const newUserRef = db.collection("users").doc(id);
       t.set(newUserRef, userData);
@@ -105,7 +130,7 @@ async function createUser(id, data) {
         throwHttpsError("invalid-argument", error.message);
 
       case 'invalid-argument':
-        throw error
+        throw error;
 
       default:
         logError("Error creating user:", error);
@@ -131,6 +156,6 @@ exports.updateUser = functions.https.onCall(async (data, context) => {
 
     logVerbose("User updated successfully!");
   } catch (error) {
-    handleCatchHttpsError(`Error updating User ${data.id}`, error)
+    handleCatchHttpsError(`Error updating User ${data.id}`, error);
   };
 });
