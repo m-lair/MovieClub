@@ -52,14 +52,14 @@ struct CommentInputView: View {
             self.error = "Could not get user information"
             return
         }
-        let newComment = Comment(userId: userId, username: userName, date: Date(), text: commentText, likes: 0)
+        let newComment = Comment(userId: userId, username: userName, createdAt: Date(), text: commentText, likes: 0)
         //could hand back result objects and contionally navigate based on fails
         do {
             try await data.postComment(movieClubId: clubId, movieId: movieId, comment: newComment)
-        } catch DataManager.PostCommentError.encodingFailed {
+        } catch DataManager.CommentError.invalidData {
             errorShowing.toggle()
             self.error = "Could not encode comment"
-        } catch DataManager.PostCommentError.invalidResponse {
+        } catch DataManager.CommentError.networkError {
             errorShowing.toggle()
             self.error = "Invalid response from server"
         } catch {

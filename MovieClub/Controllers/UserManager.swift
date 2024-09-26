@@ -11,6 +11,16 @@ import FirebaseStorage
 
 extension DataManager {
     
+    // MARK: - Enums
+    
+    enum UserServiceError: Error {
+        case userNotFound
+        case unauthorized
+        case invalidData
+        case networkError(Error)
+        case unknownError
+    }
+    
     // MARK: - Fetch User
     
     func fetchUser() async throws {

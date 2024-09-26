@@ -12,6 +12,17 @@ import UIKit
 
 extension DataManager {
     
+    // MARK: - Enums
+    
+    enum ClubError: Error {
+        case clubAlreadyExists
+        case unauthorized
+        case invalidData
+        case networkError(Error)
+        case unknownError
+        
+    }
+    
     // MARK: - Create Movie Club
     
     func createMovieClub(movieClub: MovieClub, movie: Movie?) async {
@@ -89,10 +100,7 @@ extension DataManager {
     
     func fetchClubDetails(club: MovieClub) async throws {
         currentClub = club
-        print("club movies: \(club.movies)")
         movie = club.movies.first
-        print("movie details: \(movie?.id)")
-        listenForComments()
     }
     
     // MARK: - Join Club
