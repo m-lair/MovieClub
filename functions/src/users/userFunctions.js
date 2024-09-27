@@ -1,6 +1,6 @@
 const functions = require("firebase-functions");
 const { db, admin } = require("firestore");
-const { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyRequiredFields } = require("utilities");
+const { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyRequiredFields } = require("utilities/utilities");
 
 exports.createUserWithEmail = functions.https.onCall(async (data, context) => {
   try {
