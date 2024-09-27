@@ -1,7 +1,5 @@
 // @ts-nocheck
 
-import * as modules from "module-alias/register";
-
 import * as config from "../config";
 
 import * as comments from "./movieClubs/movies/comments/commentFunctions";
