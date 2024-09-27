@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import * as functions from "firebase-functions";
 import { firestore, firebaseAdmin } from "firestore";
 import {
@@ -436,3 +437,5 @@ exports.updateUser = functions.https.onCall(async (request: CallableRequest<Upda
   };
 });
 >>>>>>> 833179b (update to latest firebase-functions version)
+=======
+>>>>>>> 9d052da (working tests)

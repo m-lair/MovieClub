@@ -8,6 +8,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowJs": true,
+<<<<<<< HEAD
     "noUnusedLocals": true,
 <<<<<<< HEAD
 =======
@@ -16,6 +17,8 @@
 >>>>>>> 90bc2ee (working tests)
 =======
 >>>>>>> f475212 (remove unused locals)
+=======
+>>>>>>> 9d052da (working tests)
     "resolveJsonModule": true,
     "baseUrl": "./",
     "paths": {
