@@ -11,7 +11,7 @@ struct HeaderView: View {
     var movieClub: MovieClub
     
     var body: some View {
-        Text(movieClub.description ?? "")
+        Text(movieClub.desc ?? "")
             .font(.subheadline)
             .foregroundColor(.secondary)
         //HStack(spacing: 20) {

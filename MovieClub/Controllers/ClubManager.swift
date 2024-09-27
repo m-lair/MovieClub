@@ -139,10 +139,10 @@ extension DataManager {
     
     func uploadClubImage(image: UIImage, clubId: String) async throws -> String {
         guard let imageData = image.jpegData(compressionQuality: 0.25) else {
-            throw UploadError.invalidImageData
+            return ""
         }
         let storageRef = Storage.storage().reference().child("Clubs/\(clubId)/banner.jpg")
-        var metadata = StorageMetadata()
+        let metadata = StorageMetadata()
         metadata.contentType = "image/jpeg"
         _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
         let url = try await storageRef.downloadURL()

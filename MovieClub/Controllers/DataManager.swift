@@ -54,26 +54,23 @@ class DataManager: Identifiable {
         return db.collection("users")
     }
     
-    func handleError(_ error: Error) {
-        switch error {
-        case UploadError.invalidImageData:
-            print("Error: Invalid image data.")
-        case UploadError.fileTooLarge:
-            print("Error: The file size exceeds the limit.")
-        case UploadError.networkUnavailable:
-            print("Error: Please check your network connection.")
-        case UploadError.serverError(let message):
-            print("Server Error: \(message)")
-        default:
-            print("An unexpected error occurred: \(error)")
+    enum UploadError: LocalizedError {
+        case unauthorized
+        case functionError(code: FunctionsErrorCode, message: String)
+        case invalidResponse
+        case unknownError(Error)
+
+        var errorDescription: String? {
+            switch self {
+            case .unauthorized:
+                return "Unauthorized access."
+            case .functionError(let code, let message):
+                return "Function error (\(code.rawValue)): \(message)"
+            case .invalidResponse:
+                return "Invalid response from the server."
+            case .unknownError(let error):
+                return error.localizedDescription
+            }
         }
-    }
-    
-    enum UploadError: Error {
-        case invalidImageData
-        case fileTooLarge
-        case networkUnavailable
-        case serverError(String)
-        case unknown
     }
 }

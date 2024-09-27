@@ -118,7 +118,8 @@ struct SignUpView: View {
             Button {
                 Task {
                     //check if user exists first
-                    _ = try await data.createUser(email: email, password:password, displayName:name)
+                    let uid = try await data.createUser(email: email, password:password, displayName:name)
+                    print("created user: \(uid)")
                     try await data.signIn(email: email, password: password)
                     dismiss()
                 }

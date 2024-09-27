@@ -11,12 +11,25 @@ import FirebaseFunctions
 
 extension DataManager {
     
-    // MARK: - User Creation
+    // MARK: - Enums
+    enum AuthError: Error {
+        case invalidEmail
+        case invalidPassword
+        case invalidDisplayName
+        case invalidUser
+        case invalidToken
+        case invalidRefreshToken
+        case invalidTokenExpiration
+        case invalidTokenSignature
+        case invalidTokenIssuer
+    }
+    
+    // MARK: - New User Creation
     
     func createUser(email: String, password: String, displayName: String) async throws -> String {
         do {
             let functions = Functions.functions()
-            let result = try await functions.httpsCallable("createUser").call([
+            let result = try await functions.httpsCallable("createUserWithEmail").call([
                 "email": email,
                 "password": password,
                 "displayName": displayName

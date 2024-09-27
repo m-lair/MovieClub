@@ -175,7 +175,7 @@ struct ClubDetailsForm: View {
                     let movieClub =
                     MovieClub(id: documentString, name: name,
                               created: created, numMembers: 1, 
-                              description: desc,
+                              desc: desc,
                               ownerName: user.name,
                               timeInterval: timeInterval,
                               movieEndDate: endDate,

@@ -105,22 +105,10 @@ extension DataManager {
             "movieClubId": movieClubId,
             "movieId": movieId
         ]
-        print("data: \(parameters)")
-        do {
-            let result = try await functions.httpsCallable("comments-postComment").call(parameters)
-        } catch {
-            print("Error: \(error)")
-            throw CommentError.networkError(error)
+        let result = try await functions.httpsCallable("comments-postComment").call(parameters)
+        
+        if let data = result.data as? [String: Any] {
+            print("comment posted: \(data)")
         }
-    }
-
-    // Helper function to encode the comment into a dictionary
-    private func encodeCommentToDict(_ comment: Comment) throws -> [String: Any] {
-        let encoder = JSONEncoder()
-        let commentData = try encoder.encode(comment)
-        guard let commentDict = try JSONSerialization.jsonObject(with: commentData, options: .fragmentsAllowed) as? [String: Any] else {
-            throw CommentError.invalidData
-        }
-        return commentDict
     }
 }

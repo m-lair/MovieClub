@@ -210,6 +210,7 @@
 		2C11FFF42CA37FC1004F54BC /* Util */ = {
 			isa = PBXGroup;
 			children = (
+				2C11FFFF2CA3856B004F54BC /* AuthManager.swift */,
 				2C11FFF22CA37FC1004F54BC /* AppleAuth.swift */,
 				2C11FFF32CA37FC1004F54BC /* NotificationManager.swift */,
 			);
@@ -320,7 +321,6 @@
 				2C1100052CA386C8004F54BC /* CommentManager.swift */,
 				2C1100032CA3868C004F54BC /* MovieManager.swift */,
 				2C1100012CA385D8004F54BC /* ClubManager.swift */,
-				2C11FFFF2CA3856B004F54BC /* AuthManager.swift */,
 				2C5DEC412BF1B12D000EF232 /* DataManager.swift */,
 				2C11FFFD2CA38380004F54BC /* UserManager.swift */,
 			);

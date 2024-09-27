@@ -77,7 +77,6 @@ class AppleSignInManager: NSObject {
                             if let error = error {
                                 print("Error updating user profile: \(error.localizedDescription)")
                             }
-                        
                         }
                     }
                     

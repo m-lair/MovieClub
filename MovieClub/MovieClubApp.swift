@@ -16,8 +16,7 @@ import AuthenticationServices
 import FirebaseFirestore
 import FirebaseMessaging
 import FirebaseAnalytics
-
-
+import SwiftData
 
 class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication,
@@ -82,11 +81,15 @@ struct MovieClubApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @State private var notifmanager = NotificationManager()
     @State private var datamanager = DataManager()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(datamanager)
                 .environment(notifmanager)
+                .modelContainer(for: [Movie.self,
+                                      MovieClub.self,
+                                      Comment.self])
         }
         
     }

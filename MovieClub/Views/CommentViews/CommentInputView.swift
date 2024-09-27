@@ -46,10 +46,11 @@ struct CommentInputView: View {
         guard
             let userId = data.currentUser?.id,
             let clubId = movieClub.id,
-            let userName = data.currentUser?.name
+            let userName = data.currentUser?.name,
+            let movieId = data.movie?.id
         else {
             errorShowing.toggle()
-            self.error = "Could not get user information"
+            self.error = "Could not get all comment information"
             return
         }
         let newComment = Comment(userId: userId, username: userName, createdAt: Date(), text: commentText, likes: 0)
