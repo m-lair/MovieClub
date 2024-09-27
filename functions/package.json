@@ -10,7 +10,7 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "test": "mocha -r ts-node/register -r tsconfig-paths/register"
+    "test": "mocha -r ts-node/register -r tsconfig-paths/register --reporter spec \"test/**/*.test.js\""
   },
   "engines": {
     "node": "20"
@@ -37,6 +37,7 @@
     "firebase-functions-test": "^3.3.0",
     "firebase-tools": "^13.16.0",
     "jsdom-global": "^3.0.2",
+    "tsconfig-paths": "^4.2.0",
     "mocha": "^10.7.3",
     "sinon": "^19.0.2",
     "ts-node": "^10.9.2",
@@ -47,7 +48,7 @@
     "src": "./src",
     "index": "src/index",
     "firestore": "src/utilities/firestore",
-    "helpers": "src/utilities/helpers/",
+    "utilities": "src/utilities/",
     "mocks": "./test/mocks",
     "test": "./test"
   },
