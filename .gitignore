@@ -43,6 +43,10 @@ MovieClub.xcodeproj/*
 >>>>>>> d98a3c8 (working tests)
 =======
 .vscode
+<<<<<<< HEAD
 *.json
 MovieClub.xcodeproj/*
 >>>>>>> 3b24be2 (createWithEmail)
+=======
+MovieClub.xcodeproj/*
+>>>>>>> 9d052da (working tests)
