@@ -2,9 +2,9 @@
 
 "use strict";
 
-const functions = require("firebase-functions");
-const { firestore } = require("firestore");
-const { handleCatchHttpsError, logVerbose, verifyRequiredFields } = require("helpers");
+import * as functions from "firebase-functions";
+import { firestore } from "firestore";
+import { handleCatchHttpsError, logVerbose, verifyRequiredFields } from "helpers";
 
 exports.createMovieClub = functions.https.onCall(async (data, context) => {
   try {

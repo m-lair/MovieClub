@@ -1,8 +1,8 @@
 // @ts-nocheck
 
-const functions = require("firebase-functions");
-const { firestore, firebaseAdmin } = require("firestore");
-const { handleCatchHttpsError, logVerbose, verifyRequiredFields } = require("helpers");
+import * as functions from "firebase-functions";
+import { firestore, firebaseAdmin } from "firestore";
+import { handleCatchHttpsError, logVerbose, verifyRequiredFields } from "helpers";
 
 exports.postComment = functions.https.onCall(async (data, context) => {
   try {
