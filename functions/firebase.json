@@ -1,22 +1,33 @@
 {
-    "functions": {
-        "source": "./",
-        "predeploy": "npm --prefix functions run build"
-    },
-    "emulators": {
-      "auth": {
-        "port": 9099
-      },
-      "database": {
-        "port": 9000
-      },
-      "functions": {
-        "port": 5001
-      },
-      "firestore": {
-        "port": 8080
-      }
+  "functions": [
+    {
+      "source": "./",
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint",
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ],
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
     }
+  ],
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "database": {
+      "port": 9000
+    },
+    "functions": {
+      "port": 5001
+    },
+    "firestore": {
+      "port": 8080
+    }
+  }
 }
-
-  

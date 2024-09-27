@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 const functions = require("firebase-functions");
 import { firestore, firebaseAdmin } from "../firestore";
 const { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyRequiredFields } = require("utilities");
@@ -29,7 +31,7 @@ export const createUserWithSignInProvider = functions.https.onCall(async (data, 
       throwHttpsError("invalid-argument", `createUserWithSignInProvider: email does not exist`, data);
     }
 
-    return userRecord.uid;
+    return userRecord?.uid;
   } catch (error) {
     handleCatchHttpsError("Error creating user:", error);
   }

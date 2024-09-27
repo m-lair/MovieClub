@@ -22,4 +22,4 @@ if (fs.existsSync(serviceAccountPath)) {
 
 const firestore = firebaseAdmin.firestore();
 
-export { firebaseAdmin, firestore }
+export { firebaseAdmin, firestore };

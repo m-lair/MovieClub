@@ -1,8 +1,4 @@
 {
   "extends": "./tsconfig.json",   // Extend your main tsconfig
   "include": ["test/**/*"],       // Include your test files
-  "compilerOptions": {
-    "esModuleInterop": true,
-    "module": "CommonJS"          // Use CommonJS module for tests
-  }
 }

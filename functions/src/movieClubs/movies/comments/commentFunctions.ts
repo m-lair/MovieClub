@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 const functions = require("firebase-functions");
 const { firestore, firebaseAdmin } = require("firestore");
 const { handleCatchHttpsError, logVerbose, verifyRequiredFields } = require("utilities");

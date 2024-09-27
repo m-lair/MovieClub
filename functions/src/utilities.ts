@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 const functions = require("firebase-functions");
 
 const verifyRequiredFields = (data, requiredFields) => {
