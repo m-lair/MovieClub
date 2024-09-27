@@ -2,7 +2,7 @@
 
 const functions = require("firebase-functions");
 const { db } = require("firestore");
-const { handleCatchHttpsError, logVerbose, verifyRequiredFields } = require("utilities");
+const { handleCatchHttpsError, logVerbose, verifyRequiredFields } = require("utilities/utilities");
 
 exports.createMovieClub = functions.https.onCall(async (data, context) => {
   try {
