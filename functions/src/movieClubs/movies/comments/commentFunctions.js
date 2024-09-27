@@ -1,6 +1,6 @@
 const functions = require("firebase-functions");
 const { firestore, firebaseAdmin } = require("firestore");
-const { handleCatchHttpsError, logVerbose, verifyRequiredFields } = require("utilities/utilities");
+const { handleCatchHttpsError, logVerbose, verifyRequiredFields } = require("helpers");
 
 exports.postComment = functions.https.onCall(async (data, context) => {
   try {
