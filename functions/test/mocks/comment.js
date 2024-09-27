@@ -1,5 +1,5 @@
 const { firestore } = require("firestore");
-const { logError, logVerbose } = require("utilities");
+const { logError, logVerbose } = require("helpers");
 
 async function populateCommentData(params = {}) {
   logVerbose('Populating comment data...');

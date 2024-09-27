@@ -13,8 +13,8 @@
       "src": [
         "src"
       ],
-      "utilities": [
-        "src/utilities/utilities"
+      "helpers": [
+        "src/utilities/helpers"
       ],
       "index": [
         "index"

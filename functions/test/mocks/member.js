@@ -1,4 +1,4 @@
-const { logError, logVerbose } = require("utilities");
+const { logError, logVerbose } = require("helpers");
 const { firestore } = require("firestore");
 
 async function populateMemberData(params = {}) {

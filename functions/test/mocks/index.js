@@ -1,4 +1,4 @@
-const { logVerbose } = require("utilities")
+const { logVerbose } = require("helpers")
 const { populateCommentData } = require("./comment")
 const { populateMovieClubData } = require("./movieclub")
 const { populateMovieData } = require("./movie")

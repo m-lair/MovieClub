@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 const functions = require("firebase-functions");
 
 const verifyRequiredFields = (data, requiredFields) => {
@@ -34,4 +36,4 @@ const throwHttpsError = (cause, message, details = {}) => {
   throw new functions.https.HttpsError(cause, message, details);
 };
 
-module.exports = { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyRequiredFields };
+export { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyRequiredFields };
