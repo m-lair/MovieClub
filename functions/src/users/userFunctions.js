@@ -63,7 +63,7 @@ async function createUserAuthentication(data) {
   const { email, password, name } = data;
 
   try {
-    userRecord = await admin.auth().createUser({
+    const userRecord = await admin.auth().createUser({
       email: email,
       password: password,
       displayName: name

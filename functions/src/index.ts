@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 require("module-alias/register");
 
 import * as config from "../config";
