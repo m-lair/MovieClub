@@ -1,13 +1,13 @@
 "use strict";
 
 const assert = require("assert");
-const { test } = require("test/testHelper");
-const { db } = require("firestore");
+const { firebaseTest } = require("test/testHelper");
+const { firestore } = require("firestore");
 const { populateUserData, populateMovieClubData } = require("mocks");
 const { movieClubs: { createMovieClub, updateMovieClub }, movies: { rotateMovieLogic } } = require("index");
 
 describe("createMovieClub", () => {
-  const wrapped = test.wrap(createMovieClub);
+  const wrapped = firebaseTest.wrap(createMovieClub);
 
   let user;
   let movieClubData;
@@ -28,7 +28,7 @@ describe("createMovieClub", () => {
 
   it("should create a new Movie Club", async () => {
     movieClub = await wrapped(movieClubData)
-    const snap = await db.collection("movieclubs").doc(movieClub.id).get()
+    const snap = await firestore.collection("movieclubs").doc(movieClub.id).get()
     const movieClubDoc = snap.data();
 
     assert(movieClubDoc.name == movieClubData.name);
@@ -50,7 +50,7 @@ describe("createMovieClub", () => {
 });
 
 describe("updateMovieClub", () => {
-  const wrapped = test.wrap(updateMovieClub)
+  const wrapped = firebaseTest.wrap(updateMovieClub)
 
   let user;
   let movieClubData;
@@ -73,7 +73,7 @@ describe("updateMovieClub", () => {
 
   it("should update an existing Movie Club", async () => {
     await wrapped(movieClubData)
-    const snap = await db.collection("movieclubs").doc(movieClub.id).get()
+    const snap = await firestore.collection("movieclubs").doc(movieClub.id).get()
     const movieClubDoc = snap.data();
 
     assert(movieClubDoc.name == movieClubData.name);

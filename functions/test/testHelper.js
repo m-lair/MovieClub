@@ -1,4 +1,4 @@
-const test = require("firebase-functions-test")({
+const firebaseTest = require("firebase-functions-test")({
   projectId: process.env.PROJECT_ID,
   databaseURL: 'localhost:8080',
 });
@@ -21,7 +21,7 @@ beforeEach(async function() {
 });
 
 afterEach(() => {
-  test.cleanup();
+  firebaseTest.cleanup();
 });
 
-module.exports = { test, clearDb }
+module.exports = { firebaseTest, clearDb }

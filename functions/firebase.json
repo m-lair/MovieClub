@@ -1,6 +1,7 @@
 {
     "functions": {
-        "source": "./build"
+        "source": "./",
+        "predeploy": "npm --prefix functions run build"
     },
     "emulators": {
       "auth": {

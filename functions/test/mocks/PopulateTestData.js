@@ -5,7 +5,7 @@ const test = require('firebase-functions-test')({
 }, '/Users/marcus/Library/Mobile Documents/com~apple~CloudDocs/Documents/movieclub-93714-f6efcc256851.json');
 const { logVerbose } = require("utilities")
 
-const { db, admin } = require('firestore');
+const { firestore, firebaseAdmin } = require('firestore');
 
 async function populateDefaultData(count = 1) {
     logVerbose('Populating default data...');
@@ -29,7 +29,7 @@ async function populateUserData(index) {
         bio: 'Test Bio',
     };
     try {
-        await db.collection('users').doc(testUserId).set(testUserData);
+        await firestore.collection('users').doc(testUserId).set(testUserData);
     } catch (error) {
         throw new Error(`Error setting user data: ${error}`);
     }
@@ -41,10 +41,10 @@ async function populateMovieClubData(index) {
         name: `Test Club${index}`,
         description: 'Test Description',
         image: 'Test Image',
-        created: admin.firestore.Timestamp.fromDate(new Date()),
-        movieEndDate: admin.firestore.Timestamp.fromDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)),
+        created: firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
+        movieEndDate: firebaseAdmin.firestore.Timestamp.fromDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)),
     }
-    const movieClubRef = db.collection('movieclubs').doc('test-club' + index);
+    const movieClubRef = firestore.collection('movieclubs').doc('test-club' + index);
     try {
         await movieClubRef.set(movieClubData);
         logVerbose('Movie club data set');
@@ -63,12 +63,12 @@ async function populateMembershipData(index) {
             author: 'Test user' + index,
             authorId: 'Test user' + index,
             authorAvi: 'Test Image',
-            created: admin.firestore.Timestamp.fromDate(new Date()),
-            endDate: admin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
+            created: firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
+            endDate: firebaseAdmin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
         }]
     }
 
-    const membershipRef = db.collection('users').doc('test-user' + index).collection('memberships').doc('test-club' + index);
+    const membershipRef = firestore.collection('users').doc('test-user' + index).collection('memberships').doc('test-club' + index);
     try {
         await membershipRef.set(membershipData);
         logVerbose('Membership data set');
@@ -86,11 +86,11 @@ async function populateMovieData(index) {
         author: 'Test user',
         authorId: 'test-user',
         authorAvi: 'Test Image',
-        created: admin.firestore.Timestamp.fromDate(new Date()),
-        endDate: admin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
+        created: firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
+        endDate: firebaseAdmin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
     }
 
-    const movieRef = db.collection('movieclubs').doc('test-club' + index).collection('movies').doc();
+    const movieRef = firestore.collection('movieclubs').doc('test-club' + index).collection('movies').doc();
     try {
         await movieRef.set(movieData);
         logVerbose('Movie data set');
@@ -104,9 +104,9 @@ async function populateMemberData(index) {
     const memberData = {
         name: 'Test user' + index,
         id: 'test-member',
-        dateAdded: admin.firestore.Timestamp.fromDate(new Date()),
+        dateAdded: firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
     }
-    const memberRef = (await db.collection('movieclubs').get()).docs;
+    const memberRef = (await firestore.collection('movieclubs').get()).docs;
     for (const doc of memberRef) {
         try {
             doc.ref.collection('members').doc('test-user' + index).set(memberData);

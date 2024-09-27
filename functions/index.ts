@@ -1,10 +1,11 @@
 require("module-alias/register");
+import 'tsconfig-paths/register';
 
 const config = require("./config");
 
-const comments = require("./src/movieClubs/movies/comments/commentFunctions");
+import * as comments from "./src/movieClubs/movies/comments/commentFunctions";
 const movies = require("./src/movieClubs/movies/movieFunctions");
 const movieClubs = require("./src/movieClubs/movieClubFunctions");
 const users = require("./src/users/userFunctions");
 
-module.exports = { comments, config, movies, movieClubs, users };
+export { comments, config, movies, movieClubs, users };

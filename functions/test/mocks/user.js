@@ -1,5 +1,5 @@
 const { logError, logVerbose } = require("utilities");
-const { db } = require("firestore");
+const { firestore } = require("firestore");
 
 async function populateUserData(params = {}) {
   logVerbose("Populating User data...")
@@ -12,7 +12,7 @@ async function populateUserData(params = {}) {
     email: params.email || "test@email.com"
   };
   try {
-    await db.collection('users').doc(testUserId).set(testUserData);
+    await firestore.collection('users').doc(testUserId).set(testUserData);
     logVerbose("User data set");
   } catch (error) {
     logError("Error setting user data:", error);

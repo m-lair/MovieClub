@@ -1,5 +1,5 @@
 const { logError, logVerbose } = require("utilities");
-const { db } = require("firestore");
+const { firestore, firebaseAdmin } = require("firestore");
 
 async function populateMembershipData(params = {}) {
   logVerbose('Populating membership data...');
@@ -13,12 +13,12 @@ async function populateMembershipData(params = {}) {
       author: 'Test user',
       authorId: 'Test user',
       authorAvi: 'Test Image',
-      created: admin.firestore.Timestamp.fromDate(new Date()),
-      endDate: admin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
+      created: firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
+      endDate: firebaseAdmin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
     }]
   };
 
-  const membershipRef = db.collection('users').doc(userId).collection('memberships').doc(movieClubId);
+  const membershipRef = firestore.collection('users').doc(userId).collection('memberships').doc(movieClubId);
   try {
     await membershipRef.set(membershipData);
     logVerbose('Membership data set');

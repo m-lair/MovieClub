@@ -1,14 +1,14 @@
 "use strict";
 
 const assert = require("assert");
-const { test } = require("test/testHelper");
-const { db } = require("firestore");
+const { firebaseTest } = require("test/testHelper");
+const { firestore } = require("firestore");
 const { populateUserData, populateMovieClubData, populateMovieData } = require("mocks");
 const { comments: { deleteComment, postComment } } = require("index");
 
 describe("Comment Functions", () => {
-  const postWrapped = test.wrap(postComment);
-  const deleteWrapped = test.wrap(deleteComment);
+  const postWrapped = firebaseTest.wrap(postComment);
+  const deleteWrapped = firebaseTest.wrap(deleteComment);
 
   let user, movieClub, movie;
   let text;
@@ -33,7 +33,7 @@ describe("Comment Functions", () => {
     it("should create a new comment", async () => {
       await postWrapped(commentData);
 
-      const snap = await db
+      const snap = await firestore
         .collection("movieclubs")
         .doc(movieClub.id)
         .collection("movies")
@@ -65,7 +65,7 @@ describe("Comment Functions", () => {
       commentData.commentId = await postWrapped(commentData);
       await deleteWrapped(commentData);
 
-      const snap = await db
+      const snap = await firestore
         .collection("movieclubs")
         .doc(movieClub.id)
         .collection("movies")

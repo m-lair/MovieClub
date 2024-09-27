@@ -1,15 +1,15 @@
 "use strict";
 
 const functions = require("firebase-functions");
-const { db } = require("firestore");
+const { firestore } = require("firestore");
 const { handleCatchHttpsError, logVerbose, verifyRequiredFields } = require("utilities");
 
-exports.createMovieClub = functions.https.onCall(async (data, context) => {
+export const createMovieClub = functions.https.onCall(async (data, context) => {
   try {
     const requiredFields = ["name", "ownerId", "ownerName", "isPublic", "timeInterval", "bannerUrl"];
     verifyRequiredFields(data, requiredFields);
 
-    const movieClubRef = db.collection("movieclubs");
+    const movieClubRef = firestore.collection("movieclubs");
 
     const movieClubData = {
       name: data.name,
@@ -30,12 +30,12 @@ exports.createMovieClub = functions.https.onCall(async (data, context) => {
   };
 });
 
-exports.updateMovieClub = functions.https.onCall(async (data, context) => {
+export const updateMovieClub = functions.https.onCall(async (data, context) => {
   try {
     const requiredFields = ["movieClubId", "ownerId"];
     verifyRequiredFields(data, requiredFields);
 
-    const movieClubRef = db.collection("movieclubs").doc(data.movieClubId);
+    const movieClubRef = firestore.collection("movieclubs").doc(data.movieClubId);
     const movieClubSnap = await movieClubRef.get();
     const movieClub = movieClubSnap.data();
 

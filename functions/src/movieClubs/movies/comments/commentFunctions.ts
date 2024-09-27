@@ -1,13 +1,13 @@
 const functions = require("firebase-functions");
-const { db, admin } = require("firestore");
+const { firestore, firebaseAdmin } = require("firestore");
 const { handleCatchHttpsError, logVerbose, verifyRequiredFields } = require("utilities");
 
-exports.postComment = functions.https.onCall(async (data, context) => {
+export const postComment = functions.https.onCall(async (data, context) => {
   try {
     const requiredFields = ["movieClubId", "movieId", "text", "userId", "username"]
     verifyRequiredFields(data, requiredFields)
 
-    const commentsRef = db
+    const commentsRef = firestore
       .collection("movieclubs")
       .doc(data.movieClubId)
       .collection("movies")
@@ -18,7 +18,7 @@ exports.postComment = functions.https.onCall(async (data, context) => {
       userId: data.userId,
       username: data.username,
       text: data.text,
-      createdAt: admin.firestore.FieldValue.serverTimestamp()
+      createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp()
     }
 
     const commentDoc = await commentsRef.add(commentData);
@@ -31,12 +31,12 @@ exports.postComment = functions.https.onCall(async (data, context) => {
   }
 });
 
-exports.deleteComment = functions.https.onCall(async (data, context) => {
+export const deleteComment = functions.https.onCall(async (data, context) => {
   try {
     const requiredFields = ["commentId", "movieClubId", "movieId"];
     verifyRequiredFields(data, requiredFields);
 
-    const commentRef = db
+    const commentRef = firestore
       .collection("movieclubs")
       .doc(data.movieClubId)
       .collection("movies")
