@@ -2,7 +2,7 @@
 
 const assert = require("assert");
 const { test } = require("test/testHelper");
-const { db, admin } = require("firestore");
+const { firestore, firebaseAdmin } = require("firestore");
 const { populateUserData } = require("mocks");
 const { users: { createUserWithEmail, createUserWithSignInProvider, updateUser } } = require("index");
 
@@ -24,16 +24,16 @@ describe("User Functions", () => {
     });
 
     afterEach(async () => {
-      const result = await admin.auth().listUsers();
+      const result = await firebaseAdmin.auth().listUsers();
       const users = result.users.map(user => user.uid);
 
-      await admin.auth().deleteUsers(users);
+      await firebaseAdmin.auth().deleteUsers(users);
     });
 
     it("should create a new User with email, name and password", async () => {
       userId = await createUserWithEmailWrapped(userData);
 
-      const snap = await db.collection("users").doc(userId).get();
+      const snap = await firestore.collection("users").doc(userId).get();
       const userDoc = snap.data();
 
       assert(userDoc.name == userData.name);
@@ -93,7 +93,7 @@ describe("User Functions", () => {
         signInProvider: "apple"
       };
 
-      await admin.auth().createUser({
+      await firebaseAdmin.auth().createUser({
         email: userData.email,
         password: userData.password,
         displayName: userData.name
@@ -101,16 +101,16 @@ describe("User Functions", () => {
     });
 
     afterEach(async () => {
-      const result = await admin.auth().listUsers();
+      const result = await firebaseAdmin.auth().listUsers();
       const users = result.users.map(user => user.uid);
 
-      await admin.auth().deleteUsers(users);
+      await firebaseAdmin.auth().deleteUsers(users);
     });
 
     it("should create a new User when email exists in auth via alt sign-in (ie apple/gmail)", async () => {
       userId = await createUserWithSignInProviderWrapped(userData);
 
-      const snap = await db.collection("users").doc(userId).get();
+      const snap = await firestore.collection("users").doc(userId).get();
       const userDoc = snap.data();
 
       assert(userDoc.name == userData.name);
@@ -149,7 +149,7 @@ describe("User Functions", () => {
 
         userData.email = "test2@email.com";
 
-        await admin.auth().createUser({
+        await firebaseAdmin.auth().createUser({
           email: userData.email,
           password: userData.password,
           displayName: userData.name
@@ -192,7 +192,7 @@ describe("User Functions", () => {
 
     it("should update an existing User", async () => {
       await updateUserWrapped(userData);
-      const snap = await db.collection("users").doc(user.id).get();
+      const snap = await firestore.collection("users").doc(user.id).get();
       const userDoc = snap.data();
 
       assert(userDoc.id == userData.id);
