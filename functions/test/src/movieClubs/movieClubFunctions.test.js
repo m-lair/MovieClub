@@ -2,7 +2,7 @@
 
 const assert = require("assert");
 const { test } = require("test/testHelper");
-const { db } = require("firestore");
+const { firestore } = require("firestore");
 const { populateUserData, populateMovieClubData } = require("mocks");
 const { movieClubs: { createMovieClub, updateMovieClub }, movies: { rotateMovieLogic } } = require("index");
 
@@ -28,7 +28,7 @@ describe("createMovieClub", () => {
 
   it("should create a new Movie Club", async () => {
     movieClub = await wrapped(movieClubData)
-    const snap = await db.collection("movieclubs").doc(movieClub.id).get()
+    const snap = await firestore.collection("movieclubs").doc(movieClub.id).get()
     const movieClubDoc = snap.data();
 
     assert(movieClubDoc.name == movieClubData.name);
@@ -73,7 +73,7 @@ describe("updateMovieClub", () => {
 
   it("should update an existing Movie Club", async () => {
     await wrapped(movieClubData)
-    const snap = await db.collection("movieclubs").doc(movieClub.id).get()
+    const snap = await firestore.collection("movieclubs").doc(movieClub.id).get()
     const movieClubDoc = snap.data();
 
     assert(movieClubDoc.name == movieClubData.name);

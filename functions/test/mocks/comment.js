@@ -1,4 +1,4 @@
-const { db } = require("firestore");
+const { firestore } = require("firestore");
 const { logError, logVerbose } = require("utilities");
 
 async function populateCommentData(params = {}) {
@@ -18,7 +18,7 @@ async function populateCommentData(params = {}) {
     date: admin.firestore.Timestamp.fromDate(new Date()),
   };
 
-  const commentsRef = db.collection("movieclubs").doc(movieClubId).collection('movies').doc(movieId).collection('comments').doc(id)
+  const commentsRef = firestore.collection("movieclubs").doc(movieClubId).collection('movies').doc(movieId).collection('comments').doc(id)
   try {
     await commentsRef.set(commentData);
     logVerbose('comment data set');

@@ -1,5 +1,5 @@
 const { logError, logVerbose } = require("utilities");
-const { db, admin } = require("firestore");
+const { firestore, firebaseAdmin } = require("firestore");
 
 async function populateMovieData(params = {}) {
   logVerbose("Populating movie data...");
@@ -13,11 +13,11 @@ async function populateMovieData(params = {}) {
     author: params.author || "Test user",
     authorId: params.authorId || "test-user",
     authorAvi: params.authorAvi || "Test Image",
-    created: admin.firestore.Timestamp.fromDate(new Date()),
-    endDate: admin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
+    created: firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
+    endDate: firebaseAdmin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
   };
 
-  const movieRef = db.collection("movieclubs").doc(MoviceClubId).collection("movies").doc(movieId);
+  const movieRef = firestore.collection("movieclubs").doc(MoviceClubId).collection("movies").doc(movieId);
   try {
     await movieRef.set(movieData);
     logVerbose("Movie data set");

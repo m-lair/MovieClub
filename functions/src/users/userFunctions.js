@@ -1,5 +1,5 @@
 const functions = require("firebase-functions");
-const { db, admin } = require("firestore");
+const { firestore, firebaseAdmin } = require("firestore");
 const { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyRequiredFields } = require("utilities/utilities");
 
 exports.createUserWithEmail = functions.https.onCall(async (data, context) => {
@@ -47,7 +47,7 @@ exports.createUserWithSignInProvider = functions.https.onCall(async (data, conte
 
 async function getAuthUserByEmail(email) {
   try {
-    return await admin.auth().getUserByEmail(email);
+    return await firebaseAdmin.auth().getUserByEmail(email);
   } catch (error) {
     switch (error.code) {
       case 'auth/user-not-found':
@@ -63,7 +63,7 @@ async function createUserAuthentication(data) {
   const { email, password, name } = data;
 
   try {
-    const userRecord = await admin.auth().createUser({
+    const userRecord = await firebaseAdmin.auth().createUser({
       email: email,
       password: password,
       displayName: name
@@ -100,13 +100,13 @@ async function createUser(id, data) {
     bio: data.bio || "",
     image: data.image || "",
     signInProvider: data.signInProvider || "",
-    createdAt: admin.firestore.FieldValue.serverTimestamp()
+    createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp()
   };
 
   try {
-    await db.runTransaction(async (t) => {
-      const userRefByName = db.collection("users").where('name', '==', data.name);
-      const userRefByEmail = db.collection("users").where('email', '==', data.email);
+    await firestore.runTransaction(async (t) => {
+      const userRefByName = firestore.collection("users").where('name', '==', data.name);
+      const userRefByEmail = firestore.collection("users").where('email', '==', data.email);
 
       const [queryByName, queryByEmail] = await Promise.all([
         t.get(userRefByName),
@@ -121,7 +121,7 @@ async function createUser(id, data) {
         throwHttpsError("invalid-argument", `email ${data.email} already exists.`, data);
       }
 
-      const newUserRef = db.collection("users").doc(id);
+      const newUserRef = firestore.collection("users").doc(id);
       t.set(newUserRef, userData);
     });
   } catch (error) {
@@ -150,7 +150,7 @@ exports.updateUser = functions.https.onCall(async (data, context) => {
       ...(data.name && { name: data.name })
     };
 
-    await db.collection("users").doc(data.id).update(userData);
+    await firestore.collection("users").doc(data.id).update(userData);
 
     logVerbose("User updated successfully!");
   } catch (error) {

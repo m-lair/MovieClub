@@ -2,7 +2,7 @@
 
 const assert = require("assert");
 const { test } = require("test/testHelper");
-const { db } = require("firestore");
+const { firestore } = require("firestore");
 const { populateUserData, populateMovieClubData, populateMovieData } = require("mocks");
 const { comments: { deleteComment, postComment } } = require("index");
 
@@ -33,7 +33,7 @@ describe("Comment Functions", () => {
     it("should create a new comment", async () => {
       await postWrapped(commentData);
 
-      const snap = await db
+      const snap = await firestore
         .collection("movieclubs")
         .doc(movieClub.id)
         .collection("movies")
@@ -65,7 +65,7 @@ describe("Comment Functions", () => {
       commentData.commentId = await postWrapped(commentData);
       await deleteWrapped(commentData);
 
-      const snap = await db
+      const snap = await firestore
         .collection("movieclubs")
         .doc(movieClub.id)
         .collection("movies")
