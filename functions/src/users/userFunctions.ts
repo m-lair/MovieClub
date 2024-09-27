@@ -1,8 +1,8 @@
 // @ts-nocheck
 
-const functions = require("firebase-functions");
-const { firestore, firebaseAdmin } = require("firestore");
-const { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyRequiredFields } = require("helpers");
+import * as functions from "firebase-functions";
+import { firestore, firebaseAdmin } from "firestore";
+import { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyRequiredFields } from "helpers";
 
 exports.createUserWithEmail = functions.https.onCall(async (data, context) => {
   try {

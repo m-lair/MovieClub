@@ -1,6 +1,6 @@
 import firebaseAdmin from "firebase-admin";
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
 const serviceAccountPath = path.join(__dirname, "service-account.json");
 

@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-const functions = require("firebase-functions");
+import * as functions from "firebase-functions";
 
 const verifyRequiredFields = (data, requiredFields) => {
   const missingFields = requiredFields.filter(field => !data?.[field]);
