@@ -29,10 +29,9 @@ extension DataManager {
         guard let snapshot = try? await usersCollection().document(uid).getDocument() else { return }
         do {
             self.currentUser = try snapshot.data(as: User.self)
-            //print("Current userId: \(self.currentUser?.id ?? "")")
             await fetchUserClubs()
         } catch {
-            print("Error decoding user")
+            throw error
         }
     }
     
