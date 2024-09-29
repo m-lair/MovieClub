@@ -36,13 +36,17 @@ class DataManager: Identifiable {
     }
     var queue: Membership?
     var db: Firestore!
+    var auth: Auth!
+    
     
     init(){
         Task {
-            print("launching datamanager")
-            self.userSession = Auth.auth().currentUser
+            
             db = Firestore.firestore()
+            auth = Auth.auth()
+            self.userSession = auth.currentUser
             try await fetchUser()
+            
         }
     }
     

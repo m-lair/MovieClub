@@ -20,9 +20,12 @@ import SwiftData
 
 class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication,
-                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
         application.registerForRemoteNotifications()
-        FirebaseApp.configure()
+        // MARK: - Firebase Config
+        configureFirebase()
+        
+        // MARK: - Notifications Config
         Messaging.messaging().delegate = self
         
         UNUserNotificationCenter.current().delegate = self
@@ -33,6 +36,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         Analytics.setAnalyticsCollectionEnabled(true)
         return true
     }
+    
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
             Messaging.messaging().apnsToken = deviceToken
         }
