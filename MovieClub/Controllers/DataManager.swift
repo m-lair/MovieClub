@@ -49,31 +49,13 @@ class DataManager: Identifiable {
         }
     }
     
+    // MARK: - Collection References
+    
     func movieClubCollection() -> CollectionReference {
         return db.collection("movieclubs")
     }
     
     func usersCollection() -> CollectionReference {
         return db.collection("users")
-    }
-    
-    enum UploadError: LocalizedError {
-        case unauthorized
-        case functionError(code: FunctionsErrorCode, message: String)
-        case invalidResponse
-        case unknownError(Error)
-
-        var errorDescription: String? {
-            switch self {
-            case .unauthorized:
-                return "Unauthorized access."
-            case .functionError(let code, let message):
-                return "Function error (\(code.rawValue)): \(message)"
-            case .invalidResponse:
-                return "Invalid response from the server."
-            case .unknownError(let error):
-                return error.localizedDescription
-            }
-        }
     }
 }

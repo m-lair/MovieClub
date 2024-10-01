@@ -16,13 +16,13 @@ import FirebaseFunctions
 struct SignUpView: View {
     @Environment(DataManager.self) private var data
     @Environment(\.dismiss) var dismiss
-    @State private var emailExists: Bool = false
+    
     @State private var currentNonce: String? = nil
     @FocusState private var emailFieldFocused: Bool
     @State private var errorMessage: String = ""
-    @State private var labelhidden = 0.0
+    @State private var errorShowing: Bool = false
     private var btnDisabled: Bool {
-        if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword != password || emailExists) {
+        if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword != password ||  errorMessage != "") {
             return true
         } else {
             return false
@@ -70,11 +70,6 @@ struct SignUpView: View {
             
             
             Divider()
-            Text("Email already exists.")
-                .foregroundColor(.red)
-                .opacity(labelhidden)
-            
-            
             TextField("Name", text: $name)
                 .padding()
                 .background(Color.gray.opacity(0.1))
@@ -117,11 +112,9 @@ struct SignUpView: View {
             
             Button {
                 Task {
-                    //check if user exists first
-                    let uid = try await data.createUser(email: email, password:password, displayName:name)
-                    print("created user: \(uid)")
-                    try await data.signIn(email: email, password: password)
-                    dismiss()
+                    
+                    await submit()
+                    
                 }
             } label: {
                 switch btnDisabled {
@@ -155,7 +148,24 @@ struct SignUpView: View {
             }
             .foregroundStyle(.blue)
         }
+        .alert(errorMessage, isPresented: $errorShowing) {
+            Button("OK", role: .cancel) { }
+        }
         .padding()
+    }
+    
+    @MainActor func submit() async {
+        checkEmail()
+        if errorMessage == "" {
+            do{
+                checkEmail()
+                let uid = try await data.createUser(email: email, password:password, displayName:name)
+                try await data.signIn(email: email, password: password)
+                dismiss()
+            } catch {
+                errorMessage = ErrorManager().handleError(error: error)
+            }
+        }
     }
     
     @MainActor
@@ -163,15 +173,11 @@ struct SignUpView: View {
         data.usersCollection().whereField("email", isEqualTo: email).getDocuments { (querySnapshot, error) in
             if let error = error {
                 print("Error getting documents: \(error)")
-                emailExists = true
-                labelhidden = 100.0
+                errorShowing.toggle()
             } else {
                 if let snapshot = querySnapshot, !snapshot.isEmpty {
-                    emailExists = true
-                    labelhidden = 100.0
-                } else {
-                    emailExists = false
-                    labelhidden = 0.0
+                    errorMessage = "Email already exists"
+                    errorShowing.toggle()
                 }
             }
         }

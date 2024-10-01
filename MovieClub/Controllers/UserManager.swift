@@ -29,9 +29,14 @@ extension DataManager {
             print("User not logged in")
             return
         }
-        guard let snapshot = try? await usersCollection().document(uid).getDocument() else { return }
+        guard let snapshot = try? await usersCollection().document(uid).getDocument() else {
+            print("error getting user document")
+            currentUser = nil
+            userSession = nil
+            return
+        }
         do {
-            self.currentUser = try snapshot.data(as: User.self)
+            currentUser = try snapshot.data(as: User.self)
             await fetchUserClubs()
         } catch {
             throw error

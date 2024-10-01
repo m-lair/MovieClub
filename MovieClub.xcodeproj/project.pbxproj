@@ -13,6 +13,8 @@
 		2C1100042CA38690004F54BC /* MovieManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1100032CA3868C004F54BC /* MovieManager.swift */; };
 		2C1100062CA386CC004F54BC /* CommentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1100052CA386C8004F54BC /* CommentManager.swift */; };
 		2C1100362CA8C93E004F54BC /* Firebase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1100352CA8C936004F54BC /* Firebase.swift */; };
+		2C11003C2CAC3A01004F54BC /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C11003B2CAC3A01004F54BC /* ErrorView.swift */; };
+		2C11003E2CAC766B004F54BC /* ErrorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C11003D2CAC7667004F54BC /* ErrorManager.swift */; };
 		2C11FFCE2C9D2AED004F54BC /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 2C11FFCD2C9D2AED004F54BC /* FirebaseCrashlytics */; };
 		2C11FFD02C9D34B4004F54BC /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 2C11FFCF2C9D34B4004F54BC /* FirebaseAnalytics */; };
 		2C11FFD22C9D34B4004F54BC /* FirebaseAnalyticsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2C11FFD12C9D34B4004F54BC /* FirebaseAnalyticsSwift */; };
@@ -93,6 +95,8 @@
 		2C1100052CA386C8004F54BC /* CommentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentManager.swift; sourceTree = "<group>"; };
 		2C11002B2CA8C779004F54BC /* MovieClubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MovieClubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C1100352CA8C936004F54BC /* Firebase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firebase.swift; sourceTree = "<group>"; };
+		2C11003B2CAC3A01004F54BC /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
+		2C11003D2CAC7667004F54BC /* ErrorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorManager.swift; sourceTree = "<group>"; };
 		2C11FFD62C9D4A23004F54BC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2C11FFDA2CA13330004F54BC /* Movie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Movie.swift; sourceTree = "<group>"; };
 		2C11FFDC2CA13341004F54BC /* Club.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Club.swift; sourceTree = "<group>"; };
@@ -242,6 +246,7 @@
 		2C11FFF42CA37FC1004F54BC /* Util */ = {
 			isa = PBXGroup;
 			children = (
+				2C11003D2CAC7667004F54BC /* ErrorManager.swift */,
 				2C11FFFF2CA3856B004F54BC /* AuthManager.swift */,
 				2C11FFF22CA37FC1004F54BC /* AppleAuth.swift */,
 				2C11FFF32CA37FC1004F54BC /* NotificationManager.swift */,
@@ -380,6 +385,7 @@
 			children = (
 				2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */,
 				2C5DEC772BF1B3F6000EF232 /* AddToCalendarView.swift */,
+				2C11003B2CAC3A01004F54BC /* ErrorView.swift */,
 			);
 			path = ComponentViews;
 			sourceTree = "<group>";
@@ -545,6 +551,7 @@
 			files = (
 				2C0EDD892C516B51001D85C4 /* ComingSoonEditView.swift in Sources */,
 				2C11FFEB2CA37B8F004F54BC /* Member.swift in Sources */,
+				2C11003E2CAC766B004F54BC /* ErrorManager.swift in Sources */,
 				2C11FFE32CA274C1004F54BC /* Comment.swift in Sources */,
 				2C87B2BB2C6F1B4100A49B2B /* ComingSoonRowView.swift in Sources */,
 				2C8256962BF1B58C00D2ED12 /* ContentView.swift in Sources */,
@@ -553,6 +560,7 @@
 				2C5DEC822BF1B3F6000EF232 /* StarRatingView.swift in Sources */,
 				2C1100042CA38690004F54BC /* MovieManager.swift in Sources */,
 				2C11FFF02CA37F7D004F54BC /* MainTabView.swift in Sources */,
+				2C11003C2CAC3A01004F54BC /* ErrorView.swift in Sources */,
 				2C8256C52BF2FC2B00D2ED12 /* MovieClubCardView.swift in Sources */,
 				2C4475002C06DE3A0034204C /* FeaturedMovieView.swift in Sources */,
 				2C5DEC7E2BF1B3F6000EF232 /* HomePageView.swift in Sources */,
