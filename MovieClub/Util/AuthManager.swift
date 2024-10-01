@@ -28,18 +28,17 @@ extension DataManager {
     
     func createUser(email: String, password: String, displayName: String) async throws -> String {
         do {
+            print("params: \(email), \(password), \(displayName)")
             let functions = Functions.functions()
-            let result = try await functions.httpsCallable("createUserWithEmail").call([
+            let result = try await functions.httpsCallable("users-createUser").call([
                 "email": email,
                 "password": password,
-                "displayName": displayName
+                "name": displayName
             ])
-            guard let data = result.data as? [String: Any],
-                  let uid = data["uid"] as? String else {
-                throw NSError(domain: "UserService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response from server"])
-            }
+            let uid = result.data as! String
             return uid
         } catch {
+            print("Error \(error)")
             throw error
         }
     }
@@ -49,7 +48,7 @@ extension DataManager {
     func signIn(email: String, password: String) async throws {
         print("Signing in")
         do {
-            let result = try await Auth.auth().signIn(withEmail: email, password: password)
+            let result = try await auth.signIn(withEmail: email, password: password)
             self.userSession = result.user
             print("Signed in user \(result.user)")
             try await fetchUser()

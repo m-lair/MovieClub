@@ -60,11 +60,11 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     
     func saveFCMTokenToFirestore(_ fcmToken: String) {
         // Ensure the user is authenticated
-        guard let uid = Auth.auth().currentUser?.uid else {
+       /* guard let uid = Auth.auth().currentUser?.uid
+        else {
             print("User is not authenticated. Cannot save FCM token.")
             return
         }
-        
         let db = Firestore.firestore()
         let userRef = db.collection("users").document(uid)
         
@@ -74,7 +74,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
             } else {
                 print("FCM token successfully saved to Firestore")
             }
-        }
+        }*/
     }
 }
 
