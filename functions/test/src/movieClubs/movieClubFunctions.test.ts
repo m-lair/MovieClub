@@ -1,28 +1,34 @@
-"use strict";
-
 const assert = require("assert");
-const { test } = require("test/testHelper");
-const { firestore } = require("firestore");
-const { populateUserData, populateMovieClubData } = require("mocks");
-const { movieClubs: { createMovieClub, updateMovieClub }, movies: { rotateMovieLogic } } = require("index");
+import { test } from "test/testHelper";
+import { firestore } from "firestore";
+import { populateUserData, populateMovieClubData } from "mocks";
+import { movieClubs } from "index";
+import { MovieClubData, UpdateMovieClubData } from "src/movieClubs/movieClubTypes";
+import { UpdateUserData } from "src/users/userTypes";
+
+// @ts-ignore
+// TODO: Figure out why ts can't detect the export on this
+const { createMovieClub, updateMovieClub } = movieClubs;
 
 describe("createMovieClub", () => {
   const wrapped = test.wrap(createMovieClub);
 
-  let user;
-  let movieClubData;
+  let user: UpdateUserData;
+  let movieClubData: MovieClubData;
   let movieClub;
 
   beforeEach(async () => {
     user = await populateUserData();
 
     movieClubData = {
+      bannerUrl: "test",
+      description: "Test Description",
+      image: "Test Image",
+      isPublic: true,
       name: "Test Club",
       ownerId: user.id,
       ownerName: user.name,
-      isPublic: true,
       timeInterval: "test",
-      bannerUrl: "test",
     };
   });
 
@@ -31,19 +37,19 @@ describe("createMovieClub", () => {
     const snap = await firestore.collection("movieclubs").doc(movieClub.id).get()
     const movieClubDoc = snap.data();
 
-    assert(movieClubDoc.name == movieClubData.name);
-    assert(movieClubDoc.ownerId == movieClubData.ownerId);
-    assert(movieClubDoc.ownerName == movieClubData.ownerName);
-    assert(movieClubDoc.isPublic == movieClubData.isPublic);
-    assert(movieClubDoc.timeInterval == movieClubData.timeInterval);
-    assert(movieClubDoc.bannerUrl == movieClubData.bannerUrl);
+    assert(movieClubDoc?.name == movieClubData.name);
+    assert(movieClubDoc?.ownerId == movieClubData.ownerId);
+    assert(movieClubDoc?.ownerName == movieClubData.ownerName);
+    assert(movieClubDoc?.isPublic == movieClubData.isPublic);
+    assert(movieClubDoc?.timeInterval == movieClubData.timeInterval);
+    assert(movieClubDoc?.bannerUrl == movieClubData.bannerUrl);
   });
 
   it("should error without required fields", async () => {
     try {
       await wrapped({})
       assert.fail('Expected error not thrown');
-    } catch (error) {
+    } catch (error: any) {
       assert.match(error.message, /The function must be called with name, ownerId, ownerName, isPublic, timeInterval, bannerUrl./);
     };
   });
@@ -53,19 +59,21 @@ describe("updateMovieClub", () => {
   const wrapped = test.wrap(updateMovieClub)
 
   let user;
-  let movieClubData;
-  let movieClub;
+  let movieClubData: UpdateMovieClubData;
+  let movieClub: UpdateMovieClubData;
 
   beforeEach(async () => {
     user = await populateUserData();
     movieClub = await populateMovieClubData({ id: "1", ownerId: user.id, ownerName: user.name });
     
     movieClubData = {
-      movieClubId: movieClub.id,
+      id: movieClub.id,
+      description: "Updated Description",
+      isPublic: false,
+      image: "Updated Image",
       name: "Updated Test Club",
       ownerId: user.id,
       ownerName: user.name,
-      isPublic: false,
       timeInterval: "updated test interval",
       bannerUrl: "updated test banner URL",
     };
@@ -76,19 +84,21 @@ describe("updateMovieClub", () => {
     const snap = await firestore.collection("movieclubs").doc(movieClub.id).get()
     const movieClubDoc = snap.data();
 
-    assert(movieClubDoc.name == movieClubData.name);
-    assert(movieClubDoc.ownerId == movieClubData.ownerId);
-    assert(movieClubDoc.ownerName == movieClubData.ownerName);
-    assert(movieClubDoc.isPublic == movieClubData.isPublic);
-    assert(movieClubDoc.timeInterval == movieClubData.timeInterval);
-    assert(movieClubDoc.bannerUrl == movieClubData.bannerUrl);
+    assert(movieClubDoc?.bannerUrl == movieClubData.bannerUrl);
+    assert(movieClubDoc?.description == movieClubData.description);
+    assert(movieClubDoc?.image == movieClubData.image);
+    assert(movieClubDoc?.isPublic == movieClubData.isPublic);
+    assert(movieClubDoc?.name == movieClubData.name);
+    assert(movieClubDoc?.ownerId == movieClubData.ownerId);
+    assert(movieClubDoc?.ownerName == movieClubData.ownerName);
+    assert(movieClubDoc?.timeInterval == movieClubData.timeInterval);
   });
 
   it("should error without required fields", async () => {
     try {
       await wrapped({})
       assert.fail('Expected error not thrown');
-    } catch (error) {
+    } catch (error: any) {
       assert.match(error.message, /The function must be called with movieClubId, ownerId./);
     };
   });
@@ -101,7 +111,7 @@ describe("updateMovieClub", () => {
         ownerId: "wrong-user-id",
       })
       assert.fail('Expected error not thrown');
-    } catch (error) {
+    } catch (error: any) {
       assert.match(error.message, /ownerId does not match movieClub.ownerId/);
     };
   });

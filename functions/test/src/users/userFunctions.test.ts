@@ -3,10 +3,10 @@ import { test } from "test/testHelper";
 import { firestore, firebaseAdmin } from "firestore";
 import { populateUserData } from "mocks";
 import { users } from "index";
-import { UserData } from "src/users/userTypes";
+import { UpdateUserData } from "src/users/userTypes";
 
 // @ts-ignore
-// TODO: Figure out why ts can't detect the correct export on this
+// TODO: Figure out why ts can't detect the export on this
 const { createUserWithEmail, createUserWithSignInProvider, updateUser } = users;
 
 
@@ -180,7 +180,7 @@ describe("User Functions", () => {
   describe("updateUser", () => {
     const updateUserWrapped = test.wrap(updateUser);
 
-    let user: UserData;
+    let user: UpdateUserData;
     let userData: Record<string, any>;
 
     beforeEach(async () => {

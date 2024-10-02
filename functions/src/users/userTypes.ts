@@ -1,9 +1,11 @@
+import { firebaseAdmin } from "firestore";
+
 export interface UserData {
-  name: string;
-  email: string;
-  id?: string;
   bio?: string;
+  email: string;
   image?: string;
+  name: string;
+  createdAt?: string | firebaseAdmin.firestore.FieldValue;
 }
 
 export interface CreateUserWithEmailData extends UserData {
@@ -14,9 +16,6 @@ export interface CreateUserWithOAuthData extends UserData {
   signInProvider: string;
 };
 
-export interface UpdateUserData {
+export interface UpdateUserData extends UserData {
   id: string;
-  name?: string;
-  bio?: string;
-  image?: string;
 }
