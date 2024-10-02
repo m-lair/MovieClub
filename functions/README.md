@@ -1,3 +1,41 @@
+# Project Setup
+
+### Dependencies
+- Firebase CLI: https://firebase.google.com/docs/cli
+- Node: https://nodejs.org/en/download/package-manager
+- Typescript: https://www.typescriptlang.org/download/
+
+### Configure Firebase CLI
+
+```
+firebase login
+firebase use <project-id>
+```
+
+### Run Locally
+
+Copy service-account.json to functions/src/utilities
+
+`Terminal #1`
+```
+cd functions
+npm install
+tsc --watch
+```
+
+`Terminal #2`
+```
+cd lib
+npm install
+npm run serve
+```
+
+`Terminal #3`
+```
+cd functions
+npm run test
+```
+
 # Functions
 
 ## Users
