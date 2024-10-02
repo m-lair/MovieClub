@@ -17,7 +17,7 @@ final class MovieClub: Identifiable, Decodable, Hashable, Equatable {
     var desc: String?
     var ownerName: String
     var timeInterval: Int
-    var movieEndDate: Date
+    var movieEndDate: Date?
     var ownerId: String
     var isPublic: Bool
     var banner: Data?
@@ -34,7 +34,6 @@ final class MovieClub: Identifiable, Decodable, Hashable, Equatable {
         desc: String? = nil,
         ownerName: String,
         timeInterval: Int,
-        movieEndDate: Date,
         ownerId: String,
         isPublic: Bool,
         banner: Data? = nil,
@@ -50,7 +49,6 @@ final class MovieClub: Identifiable, Decodable, Hashable, Equatable {
         self.desc = desc
         self.ownerName = ownerName
         self.timeInterval = timeInterval
-        self.movieEndDate = movieEndDate
         self.ownerId = ownerId
         self.isPublic = isPublic
         self.banner = banner

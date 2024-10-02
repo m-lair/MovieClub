@@ -24,17 +24,18 @@ extension DataManager {
     // MARK: - Fetch User
     
     func fetchUser() async throws {
-        //print("Fetching user \(Auth.auth().currentUser?.uid ?? "")")
         guard let uid = auth.currentUser?.uid else {
             print("User not logged in")
             return
         }
+        
         guard let snapshot = try? await usersCollection().document(uid).getDocument() else {
             print("error getting user document")
             currentUser = nil
             userSession = nil
             return
         }
+        
         do {
             currentUser = try snapshot.data(as: User.self)
             await fetchUserClubs()

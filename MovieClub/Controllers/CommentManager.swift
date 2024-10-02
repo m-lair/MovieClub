@@ -59,7 +59,7 @@ extension DataManager {
             print("unable to listen for comments")
             return
         }
-        print("movieId: \(movieId), clubId: \(clubId)")
+        
         let commentsRef = movieClubCollection()
             .document(clubId)
             .collection("movies")
@@ -89,15 +89,37 @@ extension DataManager {
             }
         }
     }
+    
+    // MARK: - Delete Comment
+    
+    func deleteComment(movieClubId: String, movieId: String, commentId: String) async throws {
+        guard
+            let currentUser
+        else {
+            throw AuthError.invalidUser
+        }
+        
+        let parameters: [String: Any] = [
+            "movieClubId": movieClubId,
+            "movieId": movieId
+        ]
+        
+        do {
+            let result = try await functions.httpsCallable("comments-deleteComment").call(parameters)
+        } catch {
+            throw error
+        }
+    }
+    
+    // MARK: - Post Comment
 
     func postComment(movieClubId: String, movieId: String, comment: Comment) async throws {
-        let functions = Functions.functions()
-        if let currentUser = Auth.auth().currentUser {
-            print("User is signed in: \(currentUser.uid)")
-        } else {
-            print("No user is signed in.")
-            // Prompt user to sign in
+        guard
+            let currentUser
+        else {
+            throw AuthError.invalidUser
         }
+        
         let parameters: [String: Any] = [
             "text" : comment.text,
             "userId": comment.userId,
@@ -105,10 +127,11 @@ extension DataManager {
             "movieClubId": movieClubId,
             "movieId": movieId
         ]
-        let result = try await functions.httpsCallable("comments-postComment").call(parameters)
         
-        if let data = result.data as? [String: Any] {
-            print("comment posted: \(data)")
+        do {
+            let result = try await functions.httpsCallable("comments-postComment").call(parameters)
+        } catch {
+            throw error
         }
     }
 }

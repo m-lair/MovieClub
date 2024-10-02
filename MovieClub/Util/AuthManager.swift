@@ -28,7 +28,6 @@ extension DataManager {
     
     func createUser(email: String, password: String, displayName: String) async throws -> String {
         do {
-            //print("params: \(email), \(password), \(displayName)")
             let functions = Functions.functions()
             let result = try await functions.httpsCallable("users-createUser").call([
                 "email": email,
@@ -39,6 +38,26 @@ extension DataManager {
             return uid
         } catch {
             print("Error \(error)")
+            throw error
+        }
+    }
+    
+    // MARK: - Update User
+    
+    func updateUser(displayName: String) async throws {
+        guard let currentUser else {
+            throw AuthError.invalidUser
+        }
+        do {
+            let functions = Functions.functions()
+            let result = try await functions.httpsCallable("users-updateUser").call([
+                "id": currentUser.id,
+                "name": currentUser.name,
+                "email": currentUser.email,
+                "bio": currentUser.bio ?? "",
+            ])
+            print("Updated user \(result.data)")
+        } catch {
             throw error
         }
     }

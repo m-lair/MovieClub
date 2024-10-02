@@ -36,13 +36,15 @@ class DataManager: Identifiable {
     }
     var queue: Membership?
     var db: Firestore!
-   var auth: Auth!
+    var auth: Auth!
+    var functions: Functions!
     
     
     init(){
         Task {
             db = Firestore.firestore()
             auth = Auth.auth()
+            functions = Functions.functions()
             self.userSession = auth.currentUser
             try await fetchUser()
             
