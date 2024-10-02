@@ -1,7 +1,6 @@
 GoogleService-Info.plist
 MovieClub/MovieClub.entitlements
 .firebaserc
-firebase.json
 functions/.eslintrc.js
 MovieClub.xcodeproj/
 firestore-debug.log
