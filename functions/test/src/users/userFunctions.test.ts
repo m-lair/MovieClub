@@ -1,5 +1,5 @@
 const assert = require("assert");
-import { test } from "test/testHelper";
+import { firebaseTest } from "test/testHelper";
 import { firestore, firebaseAdmin } from "firestore";
 import { users } from "index";
 import { CreateUserWithEmailData, CreateUserWithOAuthData, UpdateUserData } from "src/users/userTypes";
@@ -11,7 +11,7 @@ const { createUserWithEmail, createUserWithSignInProvider, updateUser } = users;
 
 describe("User Functions", () => {
   describe("createUserWithEmail", () => {
-    const createUserWithEmailWrapped = test.wrap(createUserWithEmail);
+    const createUserWithEmailWrapped = firebaseTest.wrap(createUserWithEmail);
 
     let userId: string;
     let userData: CreateUserWithEmailData;
@@ -82,7 +82,7 @@ describe("User Functions", () => {
   });
 
   describe("createUserWithSignInProvider", () => {
-    const createUserWithSignInProviderWrapped = test.wrap(createUserWithSignInProvider);
+    const createUserWithSignInProviderWrapped = firebaseTest.wrap(createUserWithSignInProvider);
 
     let userId: string;
     let userData: CreateUserWithOAuthData;
@@ -175,7 +175,7 @@ describe("User Functions", () => {
   });
 
   describe("updateUser", () => {
-    const updateUserWrapped = test.wrap(updateUser);
+    const updateUserWrapped = firebaseTest.wrap(updateUser);
 
     let user: UserDataMock;
     let userData: UpdateUserData;
