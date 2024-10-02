@@ -32,5 +32,12 @@
     },
   },
   "compileOnSave": true,
-  "include": ["src/**/*", "package.json", "firebase.json", "index.ts", "src/utilities/service-account.json"]
+  "include": [
+    "src/**/*",
+    "package.json",
+    "firebase.json",
+    "index.ts",
+    "src/utilities/service-account.json",
+    "test/**/*"
+  ]
 }

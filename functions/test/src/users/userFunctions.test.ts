@@ -1,17 +1,21 @@
-"use strict";
-
 const assert = require("assert");
-const { test } = require("test/testHelper");
-const { firestore, firebaseAdmin } = require("firestore");
-const { populateUserData } = require("mocks");
-const { users: { createUserWithEmail, createUserWithSignInProvider, updateUser } } = require("index");
+import { test } from "test/testHelper";
+import { firestore, firebaseAdmin } from "firestore";
+import { populateUserData } from "mocks";
+import { users } from "index";
+import { UserData } from "src/users/userTypes";
+
+// @ts-ignore
+// TODO: Figure out why ts can't detect the correct export on this
+const { createUserWithEmail, createUserWithSignInProvider, updateUser } = users;
+
 
 describe("User Functions", () => {
   describe("createUserWithEmail", () => {
     const createUserWithEmailWrapped = test.wrap(createUserWithEmail);
 
-    let userId;
-    let userData;
+    let userId: string;
+    let userData: Record<string, any>;
 
     beforeEach(async () => {
       userData = {
@@ -36,10 +40,10 @@ describe("User Functions", () => {
       const snap = await firestore.collection("users").doc(userId).get();
       const userDoc = snap.data();
 
-      assert(userDoc.name == userData.name);
-      assert(userDoc.image == userData.image);
-      assert(userDoc.bio == userData.bio);
-      assert(userDoc.email == userData.email);
+      assert(userDoc?.name == userData.name);
+      assert(userDoc?.image == userData.image);
+      assert(userDoc?.bio == userData.bio);
+      assert(userDoc?.email == userData.email);
     });
 
     it("should error when email already exists", async () => {
@@ -50,7 +54,7 @@ describe("User Functions", () => {
         await createUserWithEmailWrapped(userData);
 
         assert.fail("Expected error not thrown");
-      } catch (error) {
+      } catch (error: any) {
         assert.match(error.message, /The email address is already in use by another account./);
       };
     });
@@ -63,7 +67,7 @@ describe("User Functions", () => {
         await createUserWithEmailWrapped(userData);
 
         assert.fail("Expected error not thrown");
-      } catch (error) {
+      } catch (error: any) {
         assert.match(error.message, /name Test User already exists./);
       };
     });
@@ -72,7 +76,7 @@ describe("User Functions", () => {
       try {
         await createUserWithEmailWrapped({})
         assert.fail("Expected error not thrown");
-      } catch (error) {
+      } catch (error: any) {
         assert.match(error.message, /The function must be called with email, name, password./);
       };
     });
@@ -81,8 +85,8 @@ describe("User Functions", () => {
   describe("createUserWithSignInProvider", () => {
     const createUserWithSignInProviderWrapped = test.wrap(createUserWithSignInProvider);
 
-    let userId;
-    let userData;
+    let userId: string;
+    let userData: Record<string, any>;;
 
     beforeEach(async () => {
       userData = {
@@ -113,10 +117,10 @@ describe("User Functions", () => {
       const snap = await firestore.collection("users").doc(userId).get();
       const userDoc = snap.data();
 
-      assert(userDoc.name == userData.name);
-      assert(userDoc.image == userData.image);
-      assert(userDoc.bio == userData.bio);
-      assert(userDoc.email == userData.email);
+      assert(userDoc?.name == userData.name);
+      assert(userDoc?.image == userData.image);
+      assert(userDoc?.bio == userData.bio);
+      assert(userDoc?.email == userData.email);
     });
 
     it("should error when email doesn't exist in auth", async () => {
@@ -125,7 +129,7 @@ describe("User Functions", () => {
         await createUserWithSignInProviderWrapped(userData);
 
         assert.fail("Expected error not thrown");
-      } catch (error) {
+      } catch (error: any) {
         assert.match(error.message, /email does not exist/);
       };
     });
@@ -138,7 +142,7 @@ describe("User Functions", () => {
         await createUserWithSignInProviderWrapped(userData);
 
         assert.fail("Expected error not thrown");
-      } catch (error) {
+      } catch (error: any) {
         assert.match(error.message, /email test@email.com already exists./);
       };
     });
@@ -158,7 +162,7 @@ describe("User Functions", () => {
         await createUserWithSignInProviderWrapped(userData);
 
         assert.fail("Expected error not thrown");
-      } catch (error) {
+      } catch (error: any) {
         assert.match(error.message, /name Test User already exists./);
       };
     });
@@ -167,7 +171,7 @@ describe("User Functions", () => {
       try {
         await createUserWithSignInProviderWrapped({})
         assert.fail("Expected error not thrown");
-      } catch (error) {
+      } catch (error: any) {
         assert.match(error.message, /The function must be called with email, name./);
       };
     });
@@ -176,8 +180,8 @@ describe("User Functions", () => {
   describe("updateUser", () => {
     const updateUserWrapped = test.wrap(updateUser);
 
-    let user;
-    let userData;
+    let user: UserData;
+    let userData: Record<string, any>;
 
     beforeEach(async () => {
       user = await populateUserData();
@@ -192,20 +196,21 @@ describe("User Functions", () => {
 
     it("should update an existing User", async () => {
       await updateUserWrapped(userData);
-      const snap = await firestore.collection("users").doc(user.id).get();
+      const userId = user.id || "";
+      const snap = await firestore.collection("users").doc(userId).get();
       const userDoc = snap.data();
 
-      assert(userDoc.id == userData.id);
-      assert(userDoc.name == userData.name);
-      assert(userDoc.image == userData.image);
-      assert(userDoc.bio == userData.bio);
+      assert(userDoc?.id == userData.id);
+      assert(userDoc?.name == userData.name);
+      assert(userDoc?.image == userData.image);
+      assert(userDoc?.bio == userData.bio);
     });
 
     it("should error without required fields", async () => {
       try {
         await updateUserWrapped({})
         assert.fail("Expected error not thrown");
-      } catch (error) {
+      } catch (error: any) {
         assert.match(error.message, /The function must be called with id./);
       };
     });
