@@ -80,15 +80,28 @@ describe("Comment Functions", () => {
         movieId: movie.id,
       };
 
-      const comment = await populateCommentData({ movieClub: movieClub.id, movieId: movie.id, userId: user.id, username: user.name });
+      const comment = await populateCommentData({ movieClubId: movieClub.id, movieId: movie.id, userId: user.id, username: user.name });
 
       commentData.id = comment.id;
     });
 
     it("should delete a comment", async () => {
+      let snap;
+
+      snap = await firestore
+        .collection("movieclubs")
+        .doc(movieClub.id)
+        .collection("movies")
+        .doc(movie.id)
+        .collection("comments")
+        .doc(commentData.id)
+        .get()
+
+      assert.strictEqual(snap.data()?.id, commentData.id);
+
       await deleteWrapped(commentData);
 
-      const snap = await firestore
+      snap = await firestore
         .collection("movieclubs")
         .doc(movieClub.id)
         .collection("movies")
@@ -116,7 +129,7 @@ describe("Comment Functions", () => {
           .doc(commentData.id)
           .get()
 
-        assert.strictEqual(snap.data(), undefined);
+        assert.strictEqual(snap.data()?.id, commentData.id)
       }
     });
   });

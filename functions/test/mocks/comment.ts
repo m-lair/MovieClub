@@ -2,14 +2,22 @@ import { firestore, firebaseAdmin } from "firestore";
 import { logError, logVerbose } from "helpers";
 import { CommentData, PostCommentData } from "src/movieClubs/movies/comments/commentTypes";
 
-interface CommentMock extends CommentData {
+export interface CommentMock {
   id: string;
-}
-interface PostCommentMock extends PostCommentData, CommentMock {
+  image: string;
+  text: string;
+  userId: string;
+  username: string;
   likes: number;
+  createdAt: string | firebaseAdmin.firestore.FieldValue;
 }
 
-async function populateCommentData(params: PostCommentMock): Promise<CommentMock | undefined> {
+type CommentMockParams = Partial<CommentMock> & {
+  movieClubId?: string;
+  movieId?: string;
+};
+
+export async function populateCommentData(params: CommentMockParams = {}): Promise<CommentMock> {
   logVerbose('Populating comment data...');
   const movieClubId = params.movieClubId || "test-club-id";
   const movieId = params.movieId || "test-movie-id";
@@ -25,15 +33,13 @@ async function populateCommentData(params: PostCommentMock): Promise<CommentMock
     createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
   };
 
-  const commentsRef = firestore.collection("movieclubs").doc(movieClubId).collection('movies').doc(movieId).collection('comments').doc(id)
+  const commentsRef = firestore.collection("movieclubs").doc(movieClubId).collection('movies').doc(movieId).collection('comments').doc(id);
   try {
     await commentsRef.set(commentData);
     logVerbose('comment data set');
-
-    return commentData
   } catch (error) {
     logError("Error setting comment data:", error);
-  }
-};
+  };
 
-module.exports = { populateCommentData };
+  return commentData;
+};
