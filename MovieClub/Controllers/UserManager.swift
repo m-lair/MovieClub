@@ -11,18 +11,36 @@ import FirebaseStorage
 
 extension DataManager {
     
+    // MARK: - Enums
+    
+    enum UserServiceError: Error {
+        case userNotFound
+        case unauthorized
+        case invalidData
+        case networkError(Error)
+        case unknownError
+    }
+    
     // MARK: - Fetch User
     
     func fetchUser() async throws {
-        //print("Fetching user \(Auth.auth().currentUser?.uid ?? "")")
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        guard let snapshot = try? await usersCollection().document(uid).getDocument() else { return }
+        guard let uid = auth.currentUser?.uid else {
+            print("User not logged in")
+            return
+        }
+        
+        guard let snapshot = try? await usersCollection().document(uid).getDocument() else {
+            print("error getting user document")
+            currentUser = nil
+            userSession = nil
+            return
+        }
+        
         do {
-            self.currentUser = try snapshot.data(as: User.self)
-            //print("Current userId: \(self.currentUser?.id ?? "")")
+            currentUser = try snapshot.data(as: User.self)
             await fetchUserClubs()
         } catch {
-            print("Error decoding user")
+            throw error
         }
     }
     

@@ -8,12 +8,14 @@
 import SwiftUI
 import AuthenticationServices
 import Observation
+import FirebaseAuth
 
 struct LoginView: View {
     
     @Environment(DataManager.self) private var data
     @Environment(\.dismiss) private var dismiss
-    @State private var errorMessage: String = ""
+    @State var error: String = ""
+    @State var errorShowing: Bool = false
     @State private var userEmail = ""
     @State private var userPwd = ""
     private var btnDisabled: Bool {
@@ -34,7 +36,7 @@ struct LoginView: View {
                     .fontDesign(.rounded)
                     .padding(.bottom, 50)
                 
-                Text(errorMessage)
+                Text(error)
                     .foregroundStyle(.red)
                 
                 TextField("Username", text: $userEmail)
@@ -53,30 +55,16 @@ struct LoginView: View {
                 
                 Button {
                     Task{
-                        do{
-                            try await data.signIn(email: userEmail, password: userPwd)
-                        } catch {
-                            errorMessage = error.localizedDescription
-                        }
+                        try await handleSignIn()
                     }
                 } label: {
-                    switch btnDisabled{
-                    case true:
-                        Text("Sign In")
-                            .foregroundColor(.white)
-                            .frame(width: 200, height: 50)
-                            .background(Color.gray)
-                            .cornerRadius(8)
-                    case false:
-                        Text("Sign In")
-                            .foregroundColor(.white)
-                            .frame(width: 200, height: 50)
-                            .background(Color.blue)
-                            .cornerRadius(8)
-                    }
+                    Text("Sign In")
+                        .foregroundColor(.white)
+                        .frame(width: 200, height: 50)
+                        .background(btnDisabled ? Color.gray : Color.blue)
+                        .cornerRadius(8)
                 }
                 .disabled(btnDisabled)
-                
                 Spacer()
                 NavigationLink {
                     SignUpView()
@@ -91,10 +79,40 @@ struct LoginView: View {
                     .font(.system(size: 14))
                 }
             }
-            .padding()
+        }
+        .alert(error, isPresented: $errorShowing) {
+            Button("OK", role: .cancel) { }
+        }
+    }
+    
+    func handleSignIn() async throws {
+        if userEmail.isEmpty || userPwd.isEmpty {
+            error = "Please enter an email and password."
+            errorShowing.toggle()
+            return
+        }
+        print("Signing in...")
+        do {
+            try await data.signIn(email: userEmail, password: userPwd)
+            print("Signed in successfully.")
+        } catch let error as NSError {
+            switch error.userInfo[AuthErrorUserInfoNameKey] as? String {
+            case "ERROR_INVALID_EMAIL":
+                self.error = "Please enter a valid email."
+            case "ERROR_WRONG_PASSWORD":
+                self.error = "Incorrect password."
+            case "ERROR_USER_NOT_FOUND":
+                self.error = "User not found."
+            case "ERROR_USER_DISABLED":
+                self.error = "User disabled."
+            default:
+                self.error = "Error signing in: \(error)"
+            }
+            errorShowing.toggle()
         }
     }
 }
+
     
 #Preview {
     LoginView()

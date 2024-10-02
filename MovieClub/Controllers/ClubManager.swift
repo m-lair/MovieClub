@@ -12,31 +12,61 @@ import UIKit
 
 extension DataManager {
     
+    // MARK: - Enums
+    
+    enum ClubError: Error {
+        case clubAlreadyExists
+        case unauthorized
+        case invalidData
+        case networkError(Error)
+        case unknownError
+        
+    }
+    
     // MARK: - Create Movie Club
     
-    func createMovieClub(movieClub: MovieClub, movie: Movie?) async {
-        // Placeholder for future implementation
-        /*
-        if let movie {
-            await addFirstMovie(club: movieClub, movie: movie)
+    func createMovieClub(movieClub: MovieClub) async throws {
+        do {
+            let result = try await  functions.httpsCallable("movieClubs-createMovieClub").call([
+                "name": movieClub.name,
+                "ownerId": movieClub.ownerId,
+                "ownerName": movieClub.ownerName,
+                "isPublic": movieClub.isPublic,
+                "timeInterval": movieClub.timeInterval,
+                "bannerUrl": movieClub.bannerUrl ?? ""
+            ])
+        } catch {
+            throw error
         }
-        await addClubRelationship(club: movieClub)
-        await addClubMember(clubId: id, user: self.currentUser!, date: timeIntervalFromToday)
-        self.userMovieClubs.append(movieClub)
-        */
+    }
+    
+    // MARK: - Update Movie Club
+    
+    func updateMovieClub(movieClub: MovieClub) async throws {
+        do {
+            let result = try await  functions.httpsCallable("movieClubs-updateMovieClub").call([
+                "id": movieClub.id,
+                "name": movieClub.name,
+                "ownerId": movieClub.ownerId,
+                "ownerName": movieClub.ownerName
+            ])
+        } catch {
+            throw error
+        }
     }
     
     // MARK: - Fetch User Clubs
     
     func fetchUserClubs() async {
         do {
-            guard let user = self.currentUser else {
+            guard let user = currentUser else {
                 print("No user logged in")
                 return
             }
             let snapshot = try await usersCollection().document(user.id ?? "")
                 .collection("memberships")
                 .getDocuments()
+            
             let clubIds = snapshot.documents.compactMap { $0.data()["clubId"] as? String }
             let clubs = try await withThrowingTaskGroup(of: MovieClub?.self) { group in
                 for clubId in clubIds {
@@ -45,6 +75,7 @@ extension DataManager {
                         return await self.fetchMovieClub(clubId: clubId)
                     }
                 }
+                
                 var clubList: [MovieClub] = []
                 for try await club in group {
                     if let club = club {
@@ -89,10 +120,7 @@ extension DataManager {
     
     func fetchClubDetails(club: MovieClub) async throws {
         currentClub = club
-        print("club movies: \(club.movies)")
         movie = club.movies.first
-        print("movie details: \(movie?.id)")
-        listenForComments()
     }
     
     // MARK: - Join Club
@@ -102,8 +130,6 @@ extension DataManager {
             await addClubMember(clubId: clubId, user: user, date: Date())
         }
     }
-    
-    // MARK: - Add Club Member
     
     func addClubMember(clubId: String, user: User, date: Date) async {
         do {
@@ -131,10 +157,10 @@ extension DataManager {
     
     func uploadClubImage(image: UIImage, clubId: String) async throws -> String {
         guard let imageData = image.jpegData(compressionQuality: 0.25) else {
-            throw UploadError.invalidImageData
+            return ""
         }
         let storageRef = Storage.storage().reference().child("Clubs/\(clubId)/banner.jpg")
-        var metadata = StorageMetadata()
+        let metadata = StorageMetadata()
         metadata.contentType = "image/jpeg"
         _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
         let url = try await storageRef.downloadURL()

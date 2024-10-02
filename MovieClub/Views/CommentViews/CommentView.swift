@@ -11,12 +11,13 @@ struct CommentsView: View {
     @Environment(DataManager.self) private var data: DataManager
     var body: some View {
         LazyVStack(alignment: .leading) {
+            let _ = print("commments \(data.comments.count)")
             ForEach(data.comments) { comment in
                 CommentDetailView(comment: comment)
                 
             }
         }
-        .task {
+        .onAppear {
             data.listenForComments()
         }
     }

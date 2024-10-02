@@ -16,14 +16,16 @@ import AuthenticationServices
 import FirebaseFirestore
 import FirebaseMessaging
 import FirebaseAnalytics
-
-
+import SwiftData
 
 class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication,
-                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
         application.registerForRemoteNotifications()
-        FirebaseApp.configure()
+        // MARK: - Firebase Config
+        configureFirebase()
+        
+        // MARK: - Notifications Config
         Messaging.messaging().delegate = self
         
         UNUserNotificationCenter.current().delegate = self
@@ -34,6 +36,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         Analytics.setAnalyticsCollectionEnabled(true)
         return true
     }
+    
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
             Messaging.messaging().apnsToken = deviceToken
         }
@@ -57,11 +60,11 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     
     func saveFCMTokenToFirestore(_ fcmToken: String) {
         // Ensure the user is authenticated
-        guard let uid = Auth.auth().currentUser?.uid else {
+       /* guard let uid = Auth.auth().currentUser?.uid
+        else {
             print("User is not authenticated. Cannot save FCM token.")
             return
         }
-        
         let db = Firestore.firestore()
         let userRef = db.collection("users").document(uid)
         
@@ -71,7 +74,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
             } else {
                 print("FCM token successfully saved to Firestore")
             }
-        }
+        }*/
     }
 }
 
@@ -82,11 +85,15 @@ struct MovieClubApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @State private var notifmanager = NotificationManager()
     @State private var datamanager = DataManager()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(datamanager)
                 .environment(notifmanager)
+                .modelContainer(for: [Movie.self,
+                                      MovieClub.self,
+                                      Comment.self])
         }
         
     }

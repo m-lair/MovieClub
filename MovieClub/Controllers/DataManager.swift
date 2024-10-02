@@ -36,15 +36,22 @@ class DataManager: Identifiable {
     }
     var queue: Membership?
     var db: Firestore!
+    var auth: Auth!
+    var functions: Functions!
+    
     
     init(){
         Task {
-            print("launching datamanager")
-            self.userSession = Auth.auth().currentUser
             db = Firestore.firestore()
+            auth = Auth.auth()
+            functions = Functions.functions()
+            self.userSession = auth.currentUser
             try await fetchUser()
+            
         }
     }
+    
+    // MARK: - Collection References
     
     func movieClubCollection() -> CollectionReference {
         return db.collection("movieclubs")
@@ -52,28 +59,5 @@ class DataManager: Identifiable {
     
     func usersCollection() -> CollectionReference {
         return db.collection("users")
-    }
-    
-    func handleError(_ error: Error) {
-        switch error {
-        case UploadError.invalidImageData:
-            print("Error: Invalid image data.")
-        case UploadError.fileTooLarge:
-            print("Error: The file size exceeds the limit.")
-        case UploadError.networkUnavailable:
-            print("Error: Please check your network connection.")
-        case UploadError.serverError(let message):
-            print("Server Error: \(message)")
-        default:
-            print("An unexpected error occurred: \(error)")
-        }
-    }
-    
-    enum UploadError: Error {
-        case invalidImageData
-        case fileTooLarge
-        case networkUnavailable
-        case serverError(String)
-        case unknown
     }
 }

@@ -6,17 +6,18 @@
 //
 
 import Foundation
+import SwiftData
 
-@Observable
-final class MovieClub: Identifiable, Decodable, Hashable {
+@Model
+final class MovieClub: Identifiable, Decodable, Hashable, Equatable {
     var id: String?
     var name: String
     var created: Date
     var numMembers: Int? = 1
-    var description: String?
+    var desc: String?
     var ownerName: String
     var timeInterval: Int
-    var movieEndDate: Date
+    var movieEndDate: Date?
     var ownerId: String
     var isPublic: Bool
     var banner: Data?
@@ -30,10 +31,9 @@ final class MovieClub: Identifiable, Decodable, Hashable {
         name: String,
         created: Date = Date(),
         numMembers: Int,
-        description: String? = nil,
+        desc: String? = nil,
         ownerName: String,
         timeInterval: Int,
-        movieEndDate: Date,
         ownerId: String,
         isPublic: Bool,
         banner: Data? = nil,
@@ -46,10 +46,9 @@ final class MovieClub: Identifiable, Decodable, Hashable {
         self.name = name
         self.created = created
         self.numMembers = numMembers
-        self.description = description
+        self.desc = desc
         self.ownerName = ownerName
         self.timeInterval = timeInterval
-        self.movieEndDate = movieEndDate
         self.ownerId = ownerId
         self.isPublic = isPublic
         self.banner = banner
@@ -65,7 +64,7 @@ final class MovieClub: Identifiable, Decodable, Hashable {
         name = try container.decode(String.self, forKey: .name)
         created = try container.decode(Date.self, forKey: .created)
         numMembers = try container.decode(Int.self, forKey: .numMembers)
-        description = try container.decodeIfPresent(String.self, forKey: .description)
+        desc = try container.decodeIfPresent(String.self, forKey: .desc)
         ownerName = try container.decode(String.self, forKey: .ownerName)
         timeInterval = try container.decode(Int.self, forKey: .timeInterval)
         movieEndDate = try container.decode(Date.self, forKey: .movieEndDate)
@@ -81,7 +80,7 @@ final class MovieClub: Identifiable, Decodable, Hashable {
         case name
         case created
         case numMembers
-        case description
+        case desc = "description"
         case ownerName
         case timeInterval
         case movieEndDate

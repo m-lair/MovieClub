@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import SwiftData
 
-@Observable
-final class Movie: Identifiable, Decodable {
+@Model
+final class Movie: Identifiable, Decodable, Equatable {
     var id: String?
     var created: Date?
     var title: String
@@ -84,7 +85,7 @@ final class Movie: Identifiable, Decodable {
     }
     
     static func == (lhs: Movie, rhs: Movie) -> Bool {
-        lhs.id == rhs.id && lhs.title == rhs.title
+       return lhs.id == rhs.id && lhs.title == rhs.title
     }
     
 }

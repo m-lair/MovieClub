@@ -13,6 +13,7 @@ struct ClubDetailsForm: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) private var dismiss
     @Binding var navPath: NavigationPath
+    
     @State private var apiMovie: APIMovie?
     @State private var searchText = ""
     @State private var searchBar = true
@@ -24,17 +25,14 @@ struct ClubDetailsForm: View {
     @State private var selectedOwnerIndex = 0
     @State private var timeInterval: Int = 2
     @State private var screenWidth = UIScreen.main.bounds.size.width
-    var created = Date()
-    private var endDate: Date {
-        return Calendar.current.date(byAdding: .weekOfYear, value: timeInterval, to: created) ?? Date()
-    }
+   
     let weeks: [Int] = [1,2,3,4]
     @State private var desc = ""
     @State private var showPicker = false
     var body: some View {
         VStack{
             Form {
-                Section {
+                Section("General"){
                     HStack{
                         VStack {
                             TextField("Name", text: $name)
@@ -46,10 +44,8 @@ struct ClubDetailsForm: View {
                                 .foregroundColor(.secondary)
                         }
                     }
-                }header: {
-                    Text("General Info")
                 }
-                Section{
+                Section("Banner"){
                     HStack{
                         Button{
                             showPicker = true
@@ -89,11 +85,9 @@ struct ClubDetailsForm: View {
                         }
                     }
                     .photosPicker(isPresented: $showPicker, selection: $photoItem)
-                } header: {
-                    Text("Club Banner")
                 }
                 .listRowInsets(EdgeInsets())
-                Section {
+                Section("Settings") {
                     Toggle("Public Club", isOn: $isPublic)
                     HStack {
                         Text("Week Interval")
@@ -105,10 +99,8 @@ struct ClubDetailsForm: View {
                         }
                         .pickerStyle(.segmented)
                     }
-                } header: {
-                    Text("Club Settings")
                 }
-                Section{
+                /*Section{
                     VStack(alignment: .center){
                         Button {
                             Task{
@@ -135,13 +127,12 @@ struct ClubDetailsForm: View {
                             }
                         }
                     }
-                   
                     .sheet(isPresented: $sheetShowing) {
                         AddMovieView() { movie in
                             apiMovie = movie
                         }
                     }
-                }
+                }*/
                 
                 Button{
                     Task{
@@ -157,44 +148,45 @@ struct ClubDetailsForm: View {
     @MainActor
     private func submit() async {
         do{
-            if let image = try await photoItem?.loadTransferable(type: Data.self) {
-                let documentString = data.db.collection("movieclubs").document().documentID
-                if let imageData = UIImage(data: image) {
-                    
-                    // will need to rewrite for cloud function
-                    let urlString = try await data.uploadClubImage(image: imageData, clubId: documentString)
-                    
-                    guard
-                        let user = data.currentUser,
-                        let userId = user.id
-                    else {
-                        let alert = Alert(title: Text("Error"), message: Text("Please sign in to create a club"), dismissButton: .default(Text("OK")))
-                        return
-                    }
-                    
-                    let movieClub =
-                    MovieClub(id: documentString, name: name,
-                              created: created, numMembers: 1, 
-                              description: desc,
-                              ownerName: user.name,
-                              timeInterval: timeInterval,
-                              movieEndDate: endDate,
-                              ownerId: userId,
-                              isPublic: isPublic, bannerUrl: urlString, numMovies: 1)
-                    
-                    let movie =
-                    Movie(created: created,
-                          title: apiMovie?.title ?? "",
-                          poster: apiMovie?.poster ?? "",
-                          endDate: endDate,
-                          userName: user.name,
-                          userId: userId,
-                          authorAvi: user.image ?? "")
+            /*if let image = try await photoItem?.loadTransferable(type: Data.self) {
+             
+             let documentString = data.db.collection("movieclubs").document().documentID
+             if let imageData = UIImage(data: image) {
+             
+             // will need to rewrite for cloud function
+             let urlString = try await data.uploadClubImage(image: imageData, clubId: documentString)
+             */
+            guard
+                let user = data.currentUser,
+                let userId = user.id
+            else {
                 
-                    await data.createMovieClub(movieClub: movieClub, movie: movie)
-                    navPath.removeLast(navPath.count)
-                }
+                return
             }
+            
+            let movieClub =
+            MovieClub(name: name,
+                      numMembers: 1,
+                      desc: desc,
+                      ownerName: user.name,
+                      timeInterval: timeInterval,
+                      ownerId: userId,
+                      isPublic: isPublic,
+                      bannerUrl: "",
+                      numMovies: 1)
+            
+            /*let movie =
+             Movie(created: created,
+             title: apiMovie?.title ?? "",
+             poster: apiMovie?.poster ?? "",
+             endDate: endDate,
+             userName: user.name,
+             userId: userId,
+             authorAvi: user.image ?? "")*/
+            
+            try await data.createMovieClub(movieClub: movieClub)
+            navPath.removeLast(navPath.count)
+            
         }catch{
             print("error submitting club \(error)")
         }

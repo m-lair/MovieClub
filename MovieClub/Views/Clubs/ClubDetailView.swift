@@ -84,7 +84,6 @@ struct ClubDetailView: View {
     private func loadClub() async {
         isLoading = true
         do {
-            print("movies \(club.movies)")
             try await data.fetchClubDetails(club: club)
             isLoading = false
         } catch {

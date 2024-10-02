@@ -5,8 +5,10 @@
 //  Created by Marcus Lair on 9/23/24.
 //
 import Foundation
+import SwiftData
 
-final class Comment: Identifiable, Codable, Equatable, Hashable{
+@Model
+final class Comment: Identifiable, Decodable, Equatable, Hashable{
     var id: String?
     var userId: String
     var image: String? = ""
@@ -56,7 +58,7 @@ final class Comment: Identifiable, Codable, Equatable, Hashable{
     
     
     static func == (lhs: Comment, rhs: Comment) -> Bool {
-        return lhs.id == rhs.id && lhs.username == rhs.username
+        return lhs.id == rhs.id && lhs.userId == rhs.userId
     }
     
     
