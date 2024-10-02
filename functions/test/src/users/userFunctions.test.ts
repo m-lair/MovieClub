@@ -1,9 +1,9 @@
 const assert = require("assert");
 import { test } from "test/testHelper";
 import { firestore, firebaseAdmin } from "firestore";
-import { populateUserData } from "mocks";
 import { users } from "index";
 import { CreateUserWithEmailData, CreateUserWithOAuthData, UpdateUserData } from "src/users/userTypes";
+import { populateUserData, UserDataMock } from "test/mocks/user";
 
 // @ts-ignore
 // TODO: Figure out why ts can't detect the export on this
@@ -177,11 +177,11 @@ describe("User Functions", () => {
   describe("updateUser", () => {
     const updateUserWrapped = test.wrap(updateUser);
 
-    let user: UpdateUserData;
-    let userData: Record<string, any>;
+    let user: UserDataMock;
+    let userData: UpdateUserData;
 
     beforeEach(async () => {
-      user = await populateUserData();
+      user = await populateUserData({});
 
       userData = {
         id: user.id,
