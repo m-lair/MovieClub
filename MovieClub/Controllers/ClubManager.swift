@@ -27,13 +27,14 @@ extension DataManager {
     
     func createMovieClub(movieClub: MovieClub) async throws {
         do {
-            let result = try await  functions.httpsCallable("movieClubs-createMovieClub").call([
+            print("Creating movie club...\(movieClub.isPublic)")
+            _ = try await  functions.httpsCallable("movieClubs-createMovieClub").call([
                 "name": movieClub.name,
                 "ownerId": movieClub.ownerId,
                 "ownerName": movieClub.ownerName,
-                "isPublic": movieClub.isPublic,
-                "timeInterval": movieClub.timeInterval,
-                "bannerUrl": movieClub.bannerUrl ?? ""
+                "isPublic": String(movieClub.isPublic),
+                "timeInterval": String(movieClub.timeInterval),
+                "bannerUrl": "no-image"
             ])
         } catch {
             throw error
@@ -44,7 +45,7 @@ extension DataManager {
     
     func updateMovieClub(movieClub: MovieClub) async throws {
         do {
-            let result = try await  functions.httpsCallable("movieClubs-updateMovieClub").call([
+            _ = try await  functions.httpsCallable("movieClubs-updateMovieClub").call([
                 "id": movieClub.id,
                 "name": movieClub.name,
                 "ownerId": movieClub.ownerId,

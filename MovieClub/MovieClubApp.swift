@@ -93,7 +93,8 @@ struct MovieClubApp: App {
                 .environment(notifmanager)
                 .modelContainer(for: [Movie.self,
                                       MovieClub.self,
-                                      Comment.self])
+                                      Comment.self,
+                                      User.self])
         }
         
     }

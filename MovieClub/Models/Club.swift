@@ -90,6 +90,7 @@ final class MovieClub: Identifiable, Decodable, Hashable, Equatable {
         case bannerUrl
         case numMovies
     }
+    
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }

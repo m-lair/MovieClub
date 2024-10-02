@@ -14,6 +14,9 @@ struct ClubDetailsForm: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var navPath: NavigationPath
     
+    @State private var errorMessage: String = ""
+    @State private var errorShowing: Bool = false
+    
     @State private var apiMovie: APIMovie?
     @State private var searchText = ""
     @State private var searchBar = true
@@ -69,24 +72,16 @@ struct ClubDetailsForm: View {
                             }
                         }
                     }
-                    .onChange(of: photoItem) {
-                        Task {
-                            do {
-                                if let loaded = try await photoItem?.loadTransferable(type: Image.self) {
-                                    showPicker = false
-                                    banner = loaded
-                                    
-                                } else {
-                                    print("Failed")
-                                }
-                            }catch{
-                                print("couldnt get photo \(error)")
-                            }
-                        }
-                    }
-                    .photosPicker(isPresented: $showPicker, selection: $photoItem)
+                    
                 }
-                .listRowInsets(EdgeInsets())
+                .onChange(of: photoItem) {
+                    Task{
+                        await loadBanner()
+                    }
+                }
+                .photosPicker(isPresented: $showPicker, selection: $photoItem)
+                
+                
                 Section("Settings") {
                     Toggle("Public Club", isOn: $isPublic)
                     HStack {
@@ -143,6 +138,26 @@ struct ClubDetailsForm: View {
                 }
             }
         }
+        .alert(errorMessage, isPresented: $errorShowing) {
+            Button("OK", role: .cancel) { }
+        }
+    }
+    
+    private func loadBanner() async {
+
+            do {
+                if let loaded = try await photoItem?.loadTransferable(type: Image.self) {
+                    showPicker = false
+                    banner = loaded
+                } else {
+                    errorMessage = "Failed to load image"
+                    errorShowing = true
+                }
+            } catch {
+                errorMessage = error.localizedDescription
+                errorShowing = true
+            }
+        
     }
     
     @MainActor
