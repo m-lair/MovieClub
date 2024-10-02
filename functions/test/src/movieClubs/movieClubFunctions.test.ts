@@ -1,5 +1,5 @@
 const assert = require("assert");
-import { test } from "test/testHelper";
+import { firebaseTest } from "test/testHelper";
 import { firestore } from "firestore";
 import { movieClubs } from "index";
 import { MovieClubData, UpdateMovieClubData } from "src/movieClubs/movieClubTypes";
@@ -12,7 +12,7 @@ import { MovieClubMock } from "test/mocks/movieclub";
 const { createMovieClub, updateMovieClub } = movieClubs;
 
 describe("createMovieClub", () => {
-  const wrapped = test.wrap(createMovieClub);
+  const wrapped = firebaseTest.wrap(createMovieClub);
 
   let user: UserDataMock;
   let movieClubData: MovieClubData;
@@ -59,7 +59,7 @@ describe("createMovieClub", () => {
 });
 
 describe("updateMovieClub", () => {
-  const wrapped = test.wrap(updateMovieClub)
+  const wrapped = firebaseTest.wrap(updateMovieClub)
 
   let user: UserDataMock;
   let movieClubData: UpdateMovieClubData;
