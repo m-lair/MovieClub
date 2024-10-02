@@ -1,7 +1,8 @@
-const { logError, logVerbose } = require("helpers");
-const { firestore } = require("firestore");
+import { logError, logVerbose } from "helpers";
+import { firestore } from "firestore";
+import { UserData } from "src/users/userTypes";
 
-async function populateUserData(params = {}) {
+async function populateUserData(params: UserData): Promise<UserData> {
   logVerbose("Populating User data...")
   const testUserId = params.id || "test-user-id";
   const testUserData = {

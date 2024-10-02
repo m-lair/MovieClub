@@ -10,19 +10,19 @@ const verifyRequiredFields = (data, requiredFields) => {
   };
 };
 
-const logVerbose = (message) => {
+const logVerbose = (message: string) => {
   if (process.env.LOG_LEVEL == "verbose") {
     console.log(message);
   };
 };
 
-const logError = (message, error) => {
+const logError = (message: string, error) => {
   if (process.env.ERROR_LEVEL == "verbose") {
     console.error(message, error);
   };
 };
 
-const handleCatchHttpsError = (message, error) => {
+const handleCatchHttpsError = (message: string, error) => {
   logError(message, error);
 
   if (error instanceof functions.https.HttpsError) {
@@ -32,7 +32,7 @@ const handleCatchHttpsError = (message, error) => {
   };
 };
 
-const throwHttpsError = (cause, message, details = {}) => {
+const throwHttpsError = (cause: functions.https.FunctionsErrorCode, message: string, details = {}) : functions.auth.HttpsError => {
   throw new functions.https.HttpsError(cause, message, details);
 };
 
