@@ -1,5 +1,5 @@
 const assert = require("assert");
-import { test } from "test/testHelper";
+import { firebaseTest } from "test/testHelper";
 import { firestore } from "firestore";
 import { populateUserData, populateMovieClubData, populateMovieData, populateCommentData } from "mocks";
 import { comments } from "index";
@@ -12,8 +12,8 @@ import { DeleteCommentData, PostCommentData } from "src/movieClubs/movies/commen
 const { deleteComment, postComment } = comments
 
 describe("Comment Functions", () => {
-  const postWrapped = test.wrap(postComment);
-  const deleteWrapped = test.wrap(deleteComment);
+  const postWrapped = firebaseTest.wrap(postComment);
+  const deleteWrapped = firebaseTest.wrap(deleteComment);
 
   let user: UpdateUserData;
   let movieClub: UpdateMovieClubData;
