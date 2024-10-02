@@ -3,19 +3,18 @@ import { test } from "test/testHelper";
 import { firestore, firebaseAdmin } from "firestore";
 import { populateUserData } from "mocks";
 import { users } from "index";
-import { UpdateUserData } from "src/users/userTypes";
+import { CreateUserWithEmailData, CreateUserWithOAuthData, UpdateUserData } from "src/users/userTypes";
 
 // @ts-ignore
 // TODO: Figure out why ts can't detect the export on this
 const { createUserWithEmail, createUserWithSignInProvider, updateUser } = users;
-
 
 describe("User Functions", () => {
   describe("createUserWithEmail", () => {
     const createUserWithEmailWrapped = test.wrap(createUserWithEmail);
 
     let userId: string;
-    let userData: Record<string, any>;
+    let userData: CreateUserWithEmailData;
 
     beforeEach(async () => {
       userData = {
@@ -86,7 +85,7 @@ describe("User Functions", () => {
     const createUserWithSignInProviderWrapped = test.wrap(createUserWithSignInProvider);
 
     let userId: string;
-    let userData: Record<string, any>;;
+    let userData: CreateUserWithOAuthData;
 
     beforeEach(async () => {
       userData = {
@@ -99,7 +98,6 @@ describe("User Functions", () => {
 
       await firebaseAdmin.auth().createUser({
         email: userData.email,
-        password: userData.password,
         displayName: userData.name
       });
     });
@@ -155,7 +153,6 @@ describe("User Functions", () => {
 
         await firebaseAdmin.auth().createUser({
           email: userData.email,
-          password: userData.password,
           displayName: userData.name
         });
 
