@@ -7,6 +7,7 @@
 
 ### Configure Firebase CLI
 
+Copy service-account.json to functions/src/utilities
 ```
 firebase login
 firebase use <project-id>
@@ -14,7 +15,6 @@ firebase use <project-id>
 
 ### Run Locally
 
-Copy service-account.json to functions/src/utilities
 
 `Terminal #1`
 ```
