@@ -2,7 +2,7 @@ import { logError, logVerbose } from "helpers";
 import { firestore, firebaseAdmin } from "firestore";
 import { UpdateMovieClubData } from "src/movieClubs/movieClubTypes";
 
-async function populateMovieClubData(params: UpdateMovieClubData): Promise<UpdateMovieClubData> {
+async function populateMovieClubData(params: UpdateMovieClubData): Promise<UpdateMovieClubData | undefined> {
   logVerbose("Populating movie club data...");
   const testMoviceClubId = params.id || "Test Club";
   const movieClubData: UpdateMovieClubData = {
@@ -23,11 +23,11 @@ async function populateMovieClubData(params: UpdateMovieClubData): Promise<Updat
   try {
     await movieClubRef.set(movieClubData);
     logVerbose("Movie club data set");
+
+    return movieClubData;
   } catch (error) {
     logError("Error setting movie club data:", error);
   };
-
-  return movieClubData;
-}
+};
 
 module.exports = { populateMovieClubData };

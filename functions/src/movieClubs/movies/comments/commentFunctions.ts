@@ -1,10 +1,9 @@
-// @ts-nocheck
-
 import * as functions from "firebase-functions";
 import { firestore, firebaseAdmin } from "firestore";
 import { handleCatchHttpsError, logVerbose, verifyRequiredFields } from "helpers";
+import { DeleteCommentData, PostCommentData } from "./commentTypes";
 
-exports.postComment = functions.https.onCall(async (data, context) => {
+exports.postComment = functions.https.onCall(async (data: PostCommentData, context) => {
   try {
     const requiredFields = ["movieClubId", "movieId", "text", "userId", "username"]
     verifyRequiredFields(data, requiredFields)
@@ -20,6 +19,8 @@ exports.postComment = functions.https.onCall(async (data, context) => {
       userId: data.userId,
       username: data.username,
       text: data.text,
+      likes: 0,
+      image: data.image || "",
       createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp()
     }
 
@@ -33,9 +34,9 @@ exports.postComment = functions.https.onCall(async (data, context) => {
   }
 });
 
-exports.deleteComment = functions.https.onCall(async (data, context) => {
+exports.deleteComment = functions.https.onCall(async (data: DeleteCommentData, context) => {
   try {
-    const requiredFields = ["commentId", "movieClubId", "movieId"];
+    const requiredFields = ["id", "movieClubId", "movieId"];
     verifyRequiredFields(data, requiredFields);
 
     const commentRef = firestore
@@ -44,7 +45,7 @@ exports.deleteComment = functions.https.onCall(async (data, context) => {
       .collection("movies")
       .doc(data.movieId)
       .collection("comments")
-      .doc(data.commentId);
+      .doc(data.id);
 
     // Delete the comment
     await commentRef.delete();
