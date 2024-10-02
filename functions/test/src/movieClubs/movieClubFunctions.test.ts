@@ -1,10 +1,11 @@
 const assert = require("assert");
 import { test } from "test/testHelper";
 import { firestore } from "firestore";
-import { populateUserData, populateMovieClubData } from "mocks";
 import { movieClubs } from "index";
 import { MovieClubData, UpdateMovieClubData } from "src/movieClubs/movieClubTypes";
-import { UpdateUserData } from "src/users/userTypes";
+import { populateMovieClubData } from "mocks";
+import { populateUserData, UserDataMock } from "test/mocks/user";
+import { MovieClubMock } from "test/mocks/movieclub";
 
 // @ts-ignore
 // TODO: Figure out why ts can't detect the export on this
@@ -13,12 +14,14 @@ const { createMovieClub, updateMovieClub } = movieClubs;
 describe("createMovieClub", () => {
   const wrapped = test.wrap(createMovieClub);
 
-  let user: UpdateUserData;
+  let user: UserDataMock;
   let movieClubData: MovieClubData;
-  let movieClub;
+  let movieClub: UpdateMovieClubData;
 
   beforeEach(async () => {
     user = await populateUserData();
+    const userId = user.id || "test-user-id";
+    const username = user.name || "test-user-name";
 
     movieClubData = {
       bannerUrl: "test",
@@ -26,8 +29,8 @@ describe("createMovieClub", () => {
       image: "Test Image",
       isPublic: true,
       name: "Test Club",
-      ownerId: user.id,
-      ownerName: user.name,
+      ownerId: userId,
+      ownerName: username,
       timeInterval: "test",
     };
   });
@@ -58,9 +61,9 @@ describe("createMovieClub", () => {
 describe("updateMovieClub", () => {
   const wrapped = test.wrap(updateMovieClub)
 
-  let user: UpdateUserData;
+  let user: UserDataMock;
   let movieClubData: UpdateMovieClubData;
-  let movieClub: UpdateMovieClubData;
+  let movieClub: MovieClubMock;
 
   beforeEach(async () => {
     user = await populateUserData();
