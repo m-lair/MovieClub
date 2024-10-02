@@ -1,25 +1,25 @@
-// @ts-nocheck
-
-"use strict";
-
 import * as functions from "firebase-functions";
-import { firestore } from "firestore";
+import { firestore, firebaseAdmin } from "firestore";
 import { handleCatchHttpsError, logVerbose, verifyRequiredFields } from "helpers";
+import { MovieClubData, UpdateMovieClubData } from "./movieClubTypes";
 
-exports.createMovieClub = functions.https.onCall(async (data, context) => {
+exports.createMovieClub = functions.https.onCall(async (data: MovieClubData, context) => {
   try {
-    const requiredFields = ["name", "ownerId", "ownerName", "isPublic", "timeInterval", "bannerUrl"];
+    const requiredFields = ["bannerUrl", "description", "image", "isPublic", "name", "ownerId", "ownerName", "timeInterval"];
     verifyRequiredFields(data, requiredFields);
 
     const movieClubRef = firestore.collection("movieclubs");
 
-    const movieClubData = {
+    const movieClubData: MovieClubData = {
+      bannerUrl: data.bannerUrl,
+      description: data.description,
+      image: data.image,
+      isPublic: data.isPublic,
       name: data.name,
       ownerId: data.ownerId,
       ownerName: data.ownerName,
-      isPublic: data.isPublic,
       timeInterval: data.timeInterval,
-      bannerUrl: data.bannerUrl
+      createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp()
     };
 
     const movieClub = await movieClubRef.add(movieClubData);
@@ -32,38 +32,26 @@ exports.createMovieClub = functions.https.onCall(async (data, context) => {
   };
 });
 
-exports.updateMovieClub = functions.https.onCall(async (data, context) => {
+exports.updateMovieClub = functions.https.onCall(async (data: UpdateMovieClubData, context) => {
   try {
-    const requiredFields = ["movieClubId", "ownerId"];
+    const requiredFields = ["id", "ownerId"];
     verifyRequiredFields(data, requiredFields);
 
-    const movieClubRef = firestore.collection("movieclubs").doc(data.movieClubId);
-    const movieClubSnap = await movieClubRef.get();
-    const movieClub = movieClubSnap.data();
-
-    // TODO
-    // Is this a good way to check? Whats stopping someone from stealing the owner's user id
-    // ie via a comment they posted and passing that through the request?
-    // Should we allow users to change the owner of a Movie Club?
-    if (data.ownerId != movieClub.ownerId) {
-      throw new functions.https.HttpsError('permission-denied', 'ownerId does not match movieClub.ownerId');
-    };
-
-    const updateOwnerId = data.updateOwnerId || false;
+    const movieClubRef = firestore.collection("movieclubs").doc(data.id);
 
     const movieClubData = {
-      ...(data.name && { name: data.name }),
-      ...(updateOwnerId && { ownerId: updateOwnerId }),
-      ...(data.ownerName && { ownerName: data.ownerName }),
-      ...(data.isPublic != undefined && { isPublic: data.isPublic }),
-      ...(data.timeInterval && { timeInterval: data.timeInterval }),
       ...(data.bannerUrl && { bannerUrl: data.bannerUrl }),
+      ...(data.description && { description: data.description }),
+      ...(data.image && { image: data.image }),
+      ...(data.isPublic != undefined && { isPublic: data.isPublic }),
+      ...(data.name && { name: data.name }),
+      ...(data.timeInterval && { timeInterval: data.timeInterval })
     };
 
     await movieClubRef.update(movieClubData);
 
     logVerbose("Movie Club updated successfully!");
   } catch (error) {
-    handleCatchHttpsError(`Error updating Movie Club ${data.movieClubId}:`, error)
+    handleCatchHttpsError(`Error updating Movie Club ${data.id}:`, error)
   };
 });
