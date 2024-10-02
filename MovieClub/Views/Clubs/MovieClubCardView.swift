@@ -29,10 +29,11 @@ struct MovieClubCardView: View {
                     } else {
                         Image(systemName: "house.fill")
                             .resizable()
-                            .scaledToFill()
+                            .scaledToFit()
                             .padding(-20) /// expand the blur a bit to cover the edges
                             .clipped() /// prevent blur overflow
                             .frame(maxWidth: (screenWidth - 20))
+                            .opacity(0.5)
                     }
                 }
             }
@@ -69,11 +70,4 @@ struct MovieClubCardView: View {
         }
     }
     
-}
-
-
-#Preview{
-   
-    MovieClubCardView(movieClub: MovieClub.TestData[0])
-        .environment(DataManager())
 }

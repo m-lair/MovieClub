@@ -23,7 +23,6 @@ struct SwipeableView: View {
             HStack(spacing: 4) {
                 ForEach(0..<contents.count, id: \.self) { index in
                     contents[index]
-                        .frame(width: geometry.size.width - 2)
                 }
             }
             .frame(width: geometry.size.width * CGFloat(contents.count), alignment: .leading)

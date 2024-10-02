@@ -16,7 +16,7 @@ struct ContentView: View {
             if isLoading {
                 ProgressView()
             }else{
-                if data.userSession != nil {
+                if data.userSession != nil && data.currentUser != nil {
                     MainTabView()
                 } else {
                     LoginView()

@@ -11,7 +11,7 @@ struct HeaderView: View {
     var movieClub: MovieClub
     
     var body: some View {
-        Text(movieClub.description ?? "")
+        Text(movieClub.desc ?? "")
             .font(.subheadline)
             .foregroundColor(.secondary)
         //HStack(spacing: 20) {
@@ -19,10 +19,4 @@ struct HeaderView: View {
         // InfoView(imageName: "film", count: movieClub.numMovies, label: "Movies")
         // }
     }
-}
-
-
-
-#Preview {
-    HeaderView(movieClub: MovieClub.TestData[0])
 }

@@ -34,7 +34,7 @@ struct FeaturedMovieView: View {
                                 .frame(width: 30, height: 30)
                         }
                     }
-                    Text(movie.author)
+                    Text(movie.userName)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -51,7 +51,7 @@ struct FeaturedMovieView: View {
                     }
                 }
             }
-            let url = URL(string: data.poster)
+            let url = URL(string: movie.poster ?? "")
             AsyncImage(url: url) { phase in
                 if let image = phase.image {
                     image
@@ -71,8 +71,7 @@ struct FeaturedMovieView: View {
              */
         }
         .task{
-            let path = "/Users/profile_images/\(movie.authorID)"
-           // print("comment.userID \(comment.userID)")
+            let path = "/Users/profile_images/\(movie.userId)"
             self.selectedByUrl = await data.getProfileImage(path: path)
         }
     }
