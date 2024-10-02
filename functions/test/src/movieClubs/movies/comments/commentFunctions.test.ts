@@ -1,35 +1,45 @@
-"use strict";
-
 const assert = require("assert");
-const { test } = require("test/testHelper");
-const { firestore } = require("firestore");
-const { populateUserData, populateMovieClubData, populateMovieData } = require("mocks");
-const { comments: { deleteComment, postComment } } = require("index");
+import { test } from "test/testHelper";
+import { firestore } from "firestore";
+import { populateUserData, populateMovieClubData, populateMovieData, populateCommentData } from "mocks";
+import { comments } from "index";
+import { UpdateUserData } from "src/users/userTypes";
+import { UpdateMovieClubData } from "src/movieClubs/movieClubTypes";
+import { DeleteCommentData, PostCommentData } from "src/movieClubs/movies/comments/commentTypes";
+
+// @ts-ignore
+// TODO: Figure out why ts can't detect the export on this
+const { deleteComment, postComment } = comments
 
 describe("Comment Functions", () => {
   const postWrapped = test.wrap(postComment);
   const deleteWrapped = test.wrap(deleteComment);
 
-  let user, movieClub, movie;
-  let text;
-  let commentData;
+  let user: UpdateUserData;
+  let movieClub: UpdateMovieClubData;
+  let movie: any;
+  let text: string;
 
   beforeEach(async () => {
     user = await populateUserData();
     movieClub = await populateMovieClubData({ id: "1", ownerId: user.id, ownerName: user.name });
     movie = await populateMovieData({ id: "1", movieClubId: movieClub.id });
     text = "This is a test comment";
-
-    commentData = {
-      movieClubId: movieClub.id,
-      movieId: movie.id,
-      text: text,
-      userId: user.id,
-      username: user.name,
-    };
   });
 
   describe("postComment", () => {
+    let commentData: PostCommentData;
+
+    beforeEach(async () => {
+      commentData = {
+        movieClubId: movieClub.id,
+        movieId: movie.id,
+        text: text,
+        userId: user.id,
+        username: user.name,
+      };
+    });
+
     it("should create a new comment", async () => {
       await postWrapped(commentData);
 
@@ -54,15 +64,28 @@ describe("Comment Functions", () => {
       try {
         await postWrapped({});
         assert.fail("Expected error not thrown");
-      } catch (error) {
+      } catch (error: any) {
         assert.match(error.message, /The function must be called with movieClubId, movieId, text, userId, username./);
       }
     });
   });
 
   describe("deleteComment", () => {
+    let commentData: DeleteCommentData;
+
+    beforeEach(async () => {
+      commentData = {
+        id: "",
+        movieClubId: movieClub.id,
+        movieId: movie.id,
+      };
+
+      const comment = await populateCommentData({ movieClub: movieClub.id, movieId: movie.id, userId: user.id, username: user.name });
+
+      commentData.id = comment.id;
+    });
+
     it("should delete a comment", async () => {
-      commentData.commentId = await postWrapped(commentData);
       await deleteWrapped(commentData);
 
       const snap = await firestore
@@ -71,7 +94,7 @@ describe("Comment Functions", () => {
         .collection("movies")
         .doc(movie.id)
         .collection("comments")
-        .doc(commentData.commentId)
+        .doc(commentData.id)
         .get()
 
       assert.strictEqual(snap.data(), undefined);
@@ -81,8 +104,19 @@ describe("Comment Functions", () => {
       try {
         await deleteWrapped({});
         assert.fail("Expected error not thrown");
-      } catch (error) {
-        assert.match(error.message, /The function must be called with commentId, movieClubId, movieId/);
+      } catch (error: any) {
+        assert.match(error.message, /The function must be called with id, movieClubId, movieId/);
+
+        const snap = await firestore
+          .collection("movieclubs")
+          .doc(movieClub.id)
+          .collection("movies")
+          .doc(movie.id)
+          .collection("comments")
+          .doc(commentData.id)
+          .get()
+
+        assert.strictEqual(snap.data(), undefined);
       }
     });
   });
