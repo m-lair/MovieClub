@@ -106,7 +106,7 @@ async function createUser(id: string, data: CreateUserData): Promise<void> {
     bio: data.bio || "",
     image: data.image || "",
     signInProvider: data.signInProvider || "",
-    createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp()
+    createdAt: Date.now()
   };
 
   try {

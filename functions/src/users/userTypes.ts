@@ -4,7 +4,7 @@ export interface UserData {
   bio?: string;
   image?: string;
   name: string;
-  createdAt?: string | firebaseAdmin.firestore.FieldValue;
+  createdAt?: number;
 }
 
 export interface CreateUserWithEmailData extends UserData {

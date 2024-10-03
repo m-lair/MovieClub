@@ -11,7 +11,7 @@ export interface MovieClubMock {
   ownerId: string;
   ownerName: string;
   timeInterval: string;
-  createdAt: string | firebaseAdmin.firestore.FieldValue;
+  createdAt: number;
 }
 
 type MovieClubMockParams = Partial<MovieClubMock>;
@@ -29,7 +29,7 @@ export async function populateMovieClubData(params: MovieClubMockParams = {}): P
     ownerId: params.ownerId || "test-user-id",
     ownerName: params.ownerName || "Test User",
     timeInterval: params.timeInterval || "",
-    createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
+    createdAt: Date.now(),
     // movieEndDate: firebaseAdmin.firestore.Timestamp.fromDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)),
   };
 

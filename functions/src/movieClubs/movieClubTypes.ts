@@ -9,7 +9,7 @@ export interface MovieClubData {
   ownerId: string;
   ownerName: string;
   timeInterval: string;
-  createdAt?: string | firebaseAdmin.firestore.FieldValue;
+  createdAt?: number;
 }
 
 export interface UpdateMovieClubData extends MovieClubData {
