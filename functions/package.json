@@ -47,7 +47,7 @@
     "src": "./src",
     "index": "src/index",
     "firestore": "src/utilities/firestore",
-    "helpers": "src/utilities/helpers/",
+    "helpers": "src/utilities/helpers",
     "mocks": "./test/mocks",
     "test": "./test"
   },
