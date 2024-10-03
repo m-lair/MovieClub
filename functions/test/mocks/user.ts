@@ -7,7 +7,7 @@ export interface UserDataMock {
   email: string;
   image: string;
   name: string;
-  createdAt: string | firebaseAdmin.firestore.FieldValue;
+  createdAt: number;
 };
 
 type UserDataMockParams = Partial<UserDataMock>;
@@ -21,7 +21,7 @@ export async function populateUserData(params: UserDataMockParams = {}): Promise
     email: params.email || "test@email.com",
     image: params.image || "Test Image",
     name: params.name || "Test User",
-    createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp()
+    createdAt: Date.now()
   };
   try {
     await firestore.collection('users').doc(testUserId).set(testUserData);
