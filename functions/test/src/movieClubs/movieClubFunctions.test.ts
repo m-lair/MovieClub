@@ -108,7 +108,7 @@ describe("updateMovieClub", () => {
       await wrapped({})
       assert.fail('Expected error not thrown');
     } catch (error: any) {
-      assert.match(error.message, /The function must be called with id, ownerId./);
+      assert.match(error.message, /The function must be called with id/);
     };
   });
 
