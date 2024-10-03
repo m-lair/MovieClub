@@ -1,5 +1,5 @@
 import { logError, logVerbose } from "helpers";
-import { firestore, firebaseAdmin } from "firestore";
+import { firestore } from "firestore";
 
 export interface UserDataMock {
   id: string;
