@@ -55,9 +55,9 @@ describe("Comment Functions", () => {
       assert(snap.docs?.length == 1);
 
       const commentDoc = snap.docs[0].data();
-      assert.strictEqual(commentDoc.text, text);
-      assert.strictEqual(commentDoc.userId, user.id);
-      assert.strictEqual(commentDoc.username, user.name);
+      assert.equal(commentDoc.text, text);
+      assert.equal(commentDoc.userId, user.id);
+      assert.equal(commentDoc.username, user.name);
     });
 
     it("should error without required fields", async () => {
@@ -97,7 +97,7 @@ describe("Comment Functions", () => {
         .doc(commentData.id)
         .get()
 
-      assert.strictEqual(snap.data()?.id, commentData.id);
+      assert.equal(snap.data()?.id, commentData.id);
 
       await deleteWrapped(commentData);
 
@@ -110,7 +110,7 @@ describe("Comment Functions", () => {
         .doc(commentData.id)
         .get()
 
-      assert.strictEqual(snap.data(), undefined);
+      assert.equal(snap.data(), undefined);
     });
 
     it("should error without required fields", async () => {
@@ -129,7 +129,7 @@ describe("Comment Functions", () => {
           .doc(commentData.id)
           .get()
 
-        assert.strictEqual(snap.data()?.id, commentData.id)
+        assert.equal(snap.data()?.id, commentData.id)
       }
     });
   });
