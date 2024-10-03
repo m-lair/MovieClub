@@ -25,7 +25,7 @@ tsc --watch
 
 `Terminal #2`
 ```
-cd lib
+cd functions/lib
 npm install
 npm run serve
 ```
@@ -107,7 +107,6 @@ Params = {
 ```
 Params = {
   movieClubId: "string",
-  ownerId: "string",
   ownerName?: "string",
   name?: "string",
   isPublic?: boolean,
