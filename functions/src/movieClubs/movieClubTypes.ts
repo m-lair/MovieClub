@@ -4,6 +4,7 @@ export interface MovieClubData {
   image: string;
   isPublic: boolean;
   name: string;
+  numMembers: number;
   ownerId: string;
   ownerName: string;
   timeInterval: string;
