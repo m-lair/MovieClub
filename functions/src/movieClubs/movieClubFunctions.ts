@@ -35,7 +35,7 @@ exports.createMovieClub = functions.https.onCall(async (data: MovieClubData, con
 
 exports.updateMovieClub = functions.https.onCall(async (data: UpdateMovieClubData, context) => {
   try {
-    const requiredFields = ["id", "ownerId"];
+    const requiredFields = ["id"];
     verifyRequiredFields(data, requiredFields);
 
     const movieClubRef = firestore.collection("movieclubs").doc(data.id);
