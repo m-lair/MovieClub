@@ -1,4 +1,0 @@
-{
-  "extends": "./tsconfig.json",   // Extend your main tsconfig
-  "include": ["test/**/*"],       // Include your test files
-}
