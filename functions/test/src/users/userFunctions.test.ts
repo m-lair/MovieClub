@@ -115,10 +115,10 @@ describe("User Functions", () => {
       const snap = await firestore.collection("users").doc(userId).get();
       const userDoc = snap.data();
 
-      assert(userDoc?.name == userData.name);
-      assert(userDoc?.image == userData.image);
-      assert(userDoc?.bio == userData.bio);
-      assert(userDoc?.email == userData.email);
+      assert.equal(userDoc?.name, userData.name);
+      assert.equal(userDoc?.image, userData.image);
+      assert.equal(userDoc?.bio, userData.bio);
+      assert.equal(userDoc?.email, userData.email);
     });
 
     it("should error when email doesn't exist in auth", async () => {
@@ -197,10 +197,10 @@ describe("User Functions", () => {
       const snap = await firestore.collection("users").doc(userId).get();
       const userDoc = snap.data();
 
-      assert(userDoc?.id == userData.id);
-      assert(userDoc?.name == userData.name);
-      assert(userDoc?.image == userData.image);
-      assert(userDoc?.bio == userData.bio);
+      assert.equal(userDoc?.id, userData.id);
+      assert.equal(userDoc?.name, userData.name);
+      assert.equal(userDoc?.image, userData.image);
+      assert.equal(userDoc?.bio, userData.bio);
     });
 
     it("should error without required fields", async () => {
