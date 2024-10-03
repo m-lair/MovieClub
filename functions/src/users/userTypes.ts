@@ -1,5 +1,3 @@
-import { firebaseAdmin } from "firestore";
-
 export interface UserData {
   bio?: string;
   image?: string;
