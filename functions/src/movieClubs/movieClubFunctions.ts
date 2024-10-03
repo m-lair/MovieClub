@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions";
-import { firestore, firebaseAdmin } from "firestore";
+import { firestore } from "firestore";
 import { handleCatchHttpsError, logVerbose, verifyRequiredFields } from "helpers";
 import { MovieClubData, UpdateMovieClubData } from "./movieClubTypes";
 

@@ -1,5 +1,3 @@
-import { firebaseAdmin } from "firestore";
-
 export interface MovieClubData {
   bannerUrl: string;
   description: string;
