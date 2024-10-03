@@ -8,6 +8,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowJs": true,
+    "noUnusedLocals": true,
     "resolveJsonModule": true,
     "baseUrl": "./",
     "paths": {

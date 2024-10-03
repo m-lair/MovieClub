@@ -1,6 +1,5 @@
-import { firestore, firebaseAdmin } from "firestore";
+import { firestore } from "firestore";
 import { logError, logVerbose } from "helpers";
-import { CommentData, PostCommentData } from "src/movieClubs/movies/comments/commentTypes";
 
 export interface CommentMock {
   id: string;
