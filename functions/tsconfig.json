@@ -9,6 +9,13 @@
     "esModuleInterop": true,
     "allowJs": true,
     "noUnusedLocals": true,
+<<<<<<< HEAD
+=======
+    "esModuleInterop": true,
+    "allowJs": true,
+>>>>>>> 90bc2ee (working tests)
+=======
+>>>>>>> f475212 (remove unused locals)
     "resolveJsonModule": true,
     "baseUrl": "./",
     "paths": {
