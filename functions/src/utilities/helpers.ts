@@ -32,7 +32,7 @@ const handleCatchHttpsError = (message: string, error) => {
   };
 };
 
-const throwHttpsError = (cause: functions.https.FunctionsErrorCode, message: string, details = {}) : functions.auth.HttpsError => {
+const throwHttpsError = (cause: functions.https.FunctionsErrorCode, message: string, details = {}): functions.auth.HttpsError => {
   throw new functions.https.HttpsError(cause, message, details);
 };
 

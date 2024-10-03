@@ -72,7 +72,7 @@ describe("updateMovieClub", () => {
   beforeEach(async () => {
     user = await populateUserData();
     movieClub = await populateMovieClubData({ id: "1", ownerId: user.id, ownerName: user.name });
-    
+
     movieClubData = {
       id: movieClub.id,
       description: "Updated Description",
