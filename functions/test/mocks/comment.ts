@@ -9,7 +9,7 @@ export interface CommentMock {
   userId: string;
   username: string;
   likes: number;
-  createdAt: string | firebaseAdmin.firestore.FieldValue;
+  createdAt: number;
 }
 
 type CommentMockParams = Partial<CommentMock> & {
@@ -30,7 +30,7 @@ export async function populateCommentData(params: CommentMockParams = {}): Promi
     userId: params.username || "test-user-id",
     username: params.username || "Test User",
     likes: params.likes || 0,
-    createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
+    createdAt: Date.now(),
   };
 
   const commentsRef = firestore.collection("movieclubs").doc(movieClubId).collection('movies').doc(movieId).collection('comments').doc(id);

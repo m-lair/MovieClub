@@ -21,7 +21,7 @@ exports.postComment = functions.https.onCall(async (data: PostCommentData, conte
       text: data.text,
       likes: 0,
       image: data.image || "",
-      createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp()
+      createdAt: Date.now()
     }
 
     const commentDoc = await commentsRef.add(commentData);

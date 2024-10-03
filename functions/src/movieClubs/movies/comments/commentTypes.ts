@@ -6,7 +6,7 @@ export interface CommentData {
   username: string;
   image?: string;
   likes?: number;
-  createdAt?: string | firebaseAdmin.firestore.FieldValue;
+  createdAt?: number;
 }
 
 interface CommentDataAssociations {

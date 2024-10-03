@@ -19,7 +19,7 @@ exports.createMovieClub = functions.https.onCall(async (data: MovieClubData, con
       ownerId: data.ownerId,
       ownerName: data.ownerName,
       timeInterval: data.timeInterval,
-      createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp()
+      createdAt: Date.now()
     };
 
     const movieClub = await movieClubRef.add(movieClubData);
