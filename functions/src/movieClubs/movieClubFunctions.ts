@@ -16,6 +16,7 @@ exports.createMovieClub = functions.https.onCall(async (data: MovieClubData, con
       image: data.image,
       isPublic: data.isPublic,
       name: data.name,
+      numMembers: 1,
       ownerId: data.ownerId,
       ownerName: data.ownerName,
       timeInterval: data.timeInterval,

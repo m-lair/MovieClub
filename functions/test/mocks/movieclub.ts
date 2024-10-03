@@ -1,5 +1,5 @@
 import { logError, logVerbose } from "helpers";
-import { firestore, firebaseAdmin } from "firestore";
+import { firestore } from "firestore";
 
 export interface MovieClubMock {
   id: string;
@@ -8,6 +8,7 @@ export interface MovieClubMock {
   image: string;
   isPublic: boolean;
   name: string;
+  numMembers: number;
   ownerId: string;
   ownerName: string;
   timeInterval: string;
@@ -26,6 +27,7 @@ export async function populateMovieClubData(params: MovieClubMockParams = {}): P
     image: params.image || "Test Image",
     isPublic: (params.isPublic != undefined) && params.isPublic,
     name: params.name || "Test Club",
+    numMembers: params.numMembers || 1,
     ownerId: params.ownerId || "test-user-id",
     ownerName: params.ownerName || "Test User",
     timeInterval: params.timeInterval || "",

@@ -29,6 +29,7 @@ describe("createMovieClub", () => {
       image: "Test Image",
       isPublic: true,
       name: "Test Club",
+      numMembers: 1,
       ownerId: userId,
       ownerName: username,
       timeInterval: "test",
@@ -40,12 +41,15 @@ describe("createMovieClub", () => {
     const snap = await firestore.collection("movieclubs").doc(movieClub.id).get()
     const movieClubDoc = snap.data();
 
+    assert(movieClubDoc?.bannerUrl == movieClubData.bannerUrl);
+    assert(movieClubDoc?.description == movieClubData.description);
+    assert(movieClubDoc?.image == movieClubData.image);
+    assert(movieClubDoc?.isPublic == movieClubData.isPublic);
     assert(movieClubDoc?.name == movieClubData.name);
+    assert(movieClubDoc?.numMembers == movieClubData.numMembers);
     assert(movieClubDoc?.ownerId == movieClubData.ownerId);
     assert(movieClubDoc?.ownerName == movieClubData.ownerName);
-    assert(movieClubDoc?.isPublic == movieClubData.isPublic);
     assert(movieClubDoc?.timeInterval == movieClubData.timeInterval);
-    assert(movieClubDoc?.bannerUrl == movieClubData.bannerUrl);
   });
 
   it("should error without required fields", async () => {
@@ -75,6 +79,7 @@ describe("updateMovieClub", () => {
       isPublic: false,
       image: "Updated Image",
       name: "Updated Test Club",
+      numMembers: 2,
       ownerId: user.id,
       ownerName: user.name,
       timeInterval: "updated test interval",
@@ -92,6 +97,7 @@ describe("updateMovieClub", () => {
     assert(movieClubDoc?.image == movieClubData.image);
     assert(movieClubDoc?.isPublic == movieClubData.isPublic);
     assert(movieClubDoc?.name == movieClubData.name);
+    assert.notEqual(movieClubDoc?.numMembers, movieClubData.numMembers);
     assert(movieClubDoc?.ownerId == movieClubData.ownerId);
     assert(movieClubDoc?.ownerName == movieClubData.ownerName);
     assert(movieClubDoc?.timeInterval == movieClubData.timeInterval);
