@@ -3,7 +3,7 @@ export const firebaseTest = require("firebase-functions-test")({
   databaseURL: 'localhost:8080',
 });
 
-export async function clearDb() {
+async function clearDb() {
   try{
     await fetch(
       `http://localhost:8080/emulator/v1/projects/${process.env.PROJECT_ID}/databases/(default)/documents`,
