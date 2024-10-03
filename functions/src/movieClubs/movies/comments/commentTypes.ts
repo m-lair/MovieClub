@@ -1,5 +1,3 @@
-import { firebaseAdmin } from "firestore";
-
 export interface CommentData {
   text: string;
   userId: string;
