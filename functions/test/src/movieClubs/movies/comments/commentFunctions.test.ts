@@ -65,7 +65,11 @@ describe("Comment Functions", () => {
     });
 
     it("should create a new comment", async () => {
+<<<<<<< HEAD
       await postWrapped({ data: commentData, auth: auth });
+=======
+      await postWrapped({ data: commentData });
+>>>>>>> 833179b (update to latest firebase-functions version)
 
       const snap = await firestore
         .collection(MOVIE_CLUBS)
@@ -86,8 +90,12 @@ describe("Comment Functions", () => {
 
     it("should error if the user isn't a member of the Movie Club", async () => {
       try {
+<<<<<<< HEAD
         auth.uid = "wrong-user";
         await postWrapped({ data: commentData, auth: auth });
+=======
+        await postWrapped({ data: {} });
+>>>>>>> 833179b (update to latest firebase-functions version)
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(error.message, /You are not a member of this Movie Club./);
@@ -150,7 +158,11 @@ describe("Comment Functions", () => {
 
       assert.equal(snap.data()?.id, commentData.id);
 
+<<<<<<< HEAD
       await deleteWrapped({ data: commentData, auth: auth });
+=======
+      await deleteWrapped({ data: commentData });
+>>>>>>> 833179b (update to latest firebase-functions version)
 
       snap = await firestore
         .collection(MOVIE_CLUBS)
@@ -166,8 +178,12 @@ describe("Comment Functions", () => {
 
     it("should error with wrong user", async () => {
       try {
+<<<<<<< HEAD
         auth.uid = "wrong-uid";
         await deleteWrapped({ data: commentData, auth: auth });
+=======
+        await deleteWrapped({ data: {} });
+>>>>>>> 833179b (update to latest firebase-functions version)
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(
