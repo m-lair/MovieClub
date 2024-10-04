@@ -41,7 +41,7 @@ describe("Comment Functions", () => {
     });
 
     it("should create a new comment", async () => {
-      await postWrapped(commentData);
+      await postWrapped({ data: commentData });
 
       const snap = await firestore
         .collection("movieclubs")
@@ -62,7 +62,7 @@ describe("Comment Functions", () => {
 
     it("should error without required fields", async () => {
       try {
-        await postWrapped({});
+        await postWrapped({ data: {} });
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(error.message, /The function must be called with movieClubId, movieId, text, userId, username./);
@@ -99,7 +99,7 @@ describe("Comment Functions", () => {
 
       assert.equal(snap.data()?.id, commentData.id);
 
-      await deleteWrapped(commentData);
+      await deleteWrapped({ data: commentData });
 
       snap = await firestore
         .collection("movieclubs")
@@ -115,7 +115,7 @@ describe("Comment Functions", () => {
 
     it("should error without required fields", async () => {
       try {
-        await deleteWrapped({});
+        await deleteWrapped({ data: {} });
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(error.message, /The function must be called with id, movieClubId, movieId/);

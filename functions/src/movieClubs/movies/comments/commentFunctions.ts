@@ -2,25 +2,26 @@ import * as functions from "firebase-functions";
 import { firestore } from "firestore";
 import { handleCatchHttpsError, logVerbose, verifyRequiredFields } from "helpers";
 import { DeleteCommentData, PostCommentData } from "./commentTypes";
+import { CallableRequest } from "firebase-functions/https";
 
-exports.postComment = functions.https.onCall(async (data: PostCommentData, context) => {
+exports.postComment = functions.https.onCall(async (request: CallableRequest<PostCommentData>) => {
   try {
     const requiredFields = ["movieClubId", "movieId", "text", "userId", "username"]
-    verifyRequiredFields(data, requiredFields)
+    verifyRequiredFields(request.data, requiredFields)
 
     const commentsRef = firestore
       .collection("movieclubs")
-      .doc(data.movieClubId)
+      .doc(request.data.movieClubId)
       .collection("movies")
-      .doc(data.movieId)
+      .doc(request.data.movieId)
       .collection("comments");
 
     const commentData = {
-      userId: data.userId,
-      username: data.username,
-      text: data.text,
+      userId: request.data.userId,
+      username: request.data.username,
+      text: request.data.text,
       likes: 0,
-      image: data.image || "",
+      image: request.data.image || "",
       createdAt: Date.now()
     }
 
@@ -34,18 +35,18 @@ exports.postComment = functions.https.onCall(async (data: PostCommentData, conte
   }
 });
 
-exports.deleteComment = functions.https.onCall(async (data: DeleteCommentData, context) => {
+exports.deleteComment = functions.https.onCall(async (request: CallableRequest<DeleteCommentData>) => {
   try {
     const requiredFields = ["id", "movieClubId", "movieId"];
-    verifyRequiredFields(data, requiredFields);
+    verifyRequiredFields(request.data, requiredFields);
 
     const commentRef = firestore
       .collection("movieclubs")
-      .doc(data.movieClubId)
+      .doc(request.data.movieClubId)
       .collection("movies")
-      .doc(data.movieId)
+      .doc(request.data.movieId)
       .collection("comments")
-      .doc(data.id);
+      .doc(request.data.id);
 
     // Delete the comment
     await commentRef.delete();
