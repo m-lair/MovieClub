@@ -19,7 +19,9 @@ describe("createMovieClub", () => {
   let movieClub: UpdateMovieClubData;
 
   beforeEach(async () => {
-    user = await populateUserData();
+    const userMock = await populateUserData();
+    user = userMock.user;
+
     const userId = user.id || "test-user-id";
     const username = user.name || "test-user-name";
 
@@ -70,7 +72,9 @@ describe("updateMovieClub", () => {
   let movieClub: MovieClubMock;
 
   beforeEach(async () => {
-    user = await populateUserData();
+    const userMock = await populateUserData();
+    user = userMock.user;
+    
     movieClub = await populateMovieClubData({ id: "1", ownerId: user.id, ownerName: user.name });
 
     movieClubData = {

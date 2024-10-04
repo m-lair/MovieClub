@@ -21,7 +21,9 @@ describe("Comment Functions", () => {
   let text: string;
 
   beforeEach(async () => {
-    user = await populateUserData();
+    const userMock = await populateUserData();
+    user = userMock.user;
+    
     movieClub = await populateMovieClubData({ id: "1", ownerId: user.id, ownerName: user.name });
     movie = await populateMovieData({ id: "1", movieClubId: movieClub.id });
     text = "This is a test comment";

@@ -4,10 +4,12 @@ import { firestore, firebaseAdmin } from "firestore";
 import { users } from "index";
 import { CreateUserWithEmailData, CreateUserWithOAuthData, UpdateUserData } from "src/users/userTypes";
 import { populateUserData, UserDataMock } from "test/mocks/user";
+import { MovieClubMock, populateMovieClubData } from "test/mocks/movieclub";
+import { AuthData } from "firebase-functions/tasks";
 
 // @ts-ignore
 // TODO: Figure out why ts can't detect the export on this
-const { createUserWithEmail, createUserWithSignInProvider, updateUser } = users;
+const { createUserWithEmail, createUserWithSignInProvider, joinMovieClub, updateUser } = users;
 
 describe("User Functions", () => {
   describe("createUserWithEmail", () => {
@@ -24,13 +26,6 @@ describe("User Functions", () => {
         email: "test@email.com",
         password: "test-password"
       };
-    });
-
-    afterEach(async () => {
-      const result = await firebaseAdmin.auth().listUsers();
-      const users = result.users.map(user => user.uid);
-
-      await firebaseAdmin.auth().deleteUsers(users);
     });
 
     it("should create a new User with email, name and password", async () => {
@@ -100,13 +95,6 @@ describe("User Functions", () => {
         email: userData.email,
         displayName: userData.name
       });
-    });
-
-    afterEach(async () => {
-      const result = await firebaseAdmin.auth().listUsers();
-      const users = result.users.map(user => user.uid);
-
-      await firebaseAdmin.auth().deleteUsers(users);
     });
 
     it("should create a new User when email exists in auth via alt sign-in (ie apple/gmail)", async () => {
@@ -181,7 +169,8 @@ describe("User Functions", () => {
     let userData: UpdateUserData;
 
     beforeEach(async () => {
-      user = await populateUserData({});
+      const userMock = await populateUserData();
+      user = userMock.user;
 
       userData = {
         id: user.id,
@@ -209,6 +198,66 @@ describe("User Functions", () => {
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(error.message, /The function must be called with id./);
+      };
+    });
+  });
+
+  describe("joinMovieClub", () => {
+    const joinMovieClubWrapped = firebaseTest.wrap(joinMovieClub);
+
+    let user: UserDataMock;
+    let movieClub: MovieClubMock;
+    let auth: AuthData;
+
+    beforeEach(async () => {
+      const { user: userMock, auth: authMock } = await populateUserData();
+      user = userMock;
+      auth = authMock!;
+
+      movieClub = await populateMovieClubData()
+    });
+
+    it("should create a User Membership collection", async () => {
+      await joinMovieClubWrapped({ data: { movieClubId: movieClub.id }, auth: auth })
+
+      const userMembership = await firestore
+        .collection("users")
+        .doc(user.id)
+        .collection("memberships")
+        .doc(movieClub.id)
+        .get()
+
+      assert.equal(userMembership.id, movieClub.id)
+    });
+
+    it("should create a Movie Club Member collection", async () => {
+      await joinMovieClubWrapped({ data: { movieClubId: movieClub.id }, auth: auth })
+
+      const movieClubMember = await firestore
+        .collection("movieClubs")
+        .doc(movieClub.id)
+        .collection("members")
+        .doc(user.id)
+        .get()
+
+      assert.equal(movieClubMember.id, user.id)
+    });
+
+    it("should error without required fields", async () => {
+      try {
+        await joinMovieClubWrapped({ data: {}, auth: auth })
+        assert.fail("Expected error not thrown");
+      } catch (error: any) {
+        assert.match(error.message, /The function must be called with movieClubId./);
+      };
+    });
+
+    it("should error without auth", async () => {
+      try {
+        await joinMovieClubWrapped({ data: {}, auth: undefined })
+        assert.fail("Expected error not thrown");
+      } catch (error: any) {
+        assert.match(error.message, /auth object is undefined./);
       };
     });
   });

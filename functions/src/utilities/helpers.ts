@@ -1,8 +1,7 @@
-// @ts-nocheck
-
 import * as functions from "firebase-functions";
+import { AuthData } from "firebase-functions/tasks";
 
-const verifyRequiredFields = (data, requiredFields) => {
+export const verifyRequiredFields = (data: Record<string, any>, requiredFields: Array<string>) => {
   const missingFields = requiredFields.filter(field => !data?.[field]);
 
   if (missingFields.length > 0) {
@@ -10,19 +9,27 @@ const verifyRequiredFields = (data, requiredFields) => {
   };
 };
 
-const logVerbose = (message: string) => {
+export const verifyAuth = (auth: AuthData | undefined): AuthData => {
+  if (!auth){
+    throwHttpsError("unauthenticated", "auth object is undefined.");
+  }
+
+  return auth!;
+};
+
+export const logVerbose = (message: string) => {
   if (process.env.LOG_LEVEL == "verbose") {
     console.log(message);
   };
 };
 
-const logError = (message: string, error) => {
+export const logError = (message: string, error: any) => {
   if (process.env.ERROR_LEVEL == "verbose") {
     console.error(message, error);
   };
 };
 
-const handleCatchHttpsError = (message: string, error) => {
+export const handleCatchHttpsError = (message: string, error: any) => {
   logError(message, error);
 
   if (error instanceof functions.https.HttpsError) {
@@ -32,8 +39,6 @@ const handleCatchHttpsError = (message: string, error) => {
   };
 };
 
-const throwHttpsError = (cause: functions.https.FunctionsErrorCode, message: string, details = {}): functions.auth.HttpsError => {
+export const throwHttpsError = (cause: functions.https.FunctionsErrorCode, message: string, details = {}): functions.https.HttpsError => {
   throw new functions.https.HttpsError(cause, message, details);
 };
-
-export { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyRequiredFields };
