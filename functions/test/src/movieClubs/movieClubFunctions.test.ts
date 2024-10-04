@@ -37,7 +37,7 @@ describe("createMovieClub", () => {
   });
 
   it("should create a new Movie Club", async () => {
-    movieClub = await wrapped(movieClubData)
+    movieClub = await wrapped({ data: movieClubData })
     const snap = await firestore.collection("movieclubs").doc(movieClub.id).get()
     const movieClubDoc = snap.data();
 
@@ -54,7 +54,7 @@ describe("createMovieClub", () => {
 
   it("should error without required fields", async () => {
     try {
-      await wrapped({})
+      await wrapped({ data: {} })
       assert.fail('Expected error not thrown');
     } catch (error: any) {
       assert.match(error.message, /The function must be called with bannerUrl, description, image, isPublic, name, ownerId, ownerName, timeInterval./);
@@ -88,7 +88,7 @@ describe("updateMovieClub", () => {
   });
 
   it("should update an existing Movie Club", async () => {
-    await wrapped(movieClubData)
+    await wrapped({ data: movieClubData })
     const snap = await firestore.collection("movieclubs").doc(movieClub.id).get()
     const movieClubDoc = snap.data();
 
@@ -105,7 +105,7 @@ describe("updateMovieClub", () => {
 
   it("should error without required fields", async () => {
     try {
-      await wrapped({})
+      await wrapped({ data: {} })
       assert.fail('Expected error not thrown');
     } catch (error: any) {
       assert.match(error.message, /The function must be called with id/);
@@ -115,9 +115,11 @@ describe("updateMovieClub", () => {
   it.skip("should not allow a user who does not own the movie club to update it", async () => {
     try {
       await wrapped({
-        movieClubId: movieClub.id,
-        name: "Updated Test Club",
-        ownerId: "wrong-user-id",
+        data: {
+          movieClubId: movieClub.id,
+          name: "Updated Test Club",
+          ownerId: "wrong-user-id",
+        }
       })
       assert.fail('Expected error not thrown');
     } catch (error: any) {

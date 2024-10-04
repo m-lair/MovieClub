@@ -2,16 +2,17 @@ import * as functions from "firebase-functions";
 import { firestore, firebaseAdmin } from "firestore";
 import { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyRequiredFields } from "helpers";
 import { CreateUserWithEmailData, CreateUserWithOAuthData, UpdateUserData } from "./userTypes";
+import { CallableRequest } from "firebase-functions/https";
 
-exports.createUserWithEmail = functions.https.onCall(async (data: CreateUserWithEmailData, context) => {
+exports.createUserWithEmail = functions.https.onCall(async (request: CallableRequest<CreateUserWithEmailData>) => {
   try {
     const requiredFields = ["email", "name", "password"];
-    verifyRequiredFields(data, requiredFields);
+    verifyRequiredFields(request.data, requiredFields);
 
-    const uid = await createUserAuthentication(data);
+    const uid = await createUserAuthentication(request.data);
 
     if (uid) {
-      await createUser(uid, data);
+      await createUser(uid, request.data);
     }
 
     return uid;
@@ -20,17 +21,17 @@ exports.createUserWithEmail = functions.https.onCall(async (data: CreateUserWith
   }
 });
 
-exports.createUserWithSignInProvider = functions.https.onCall(async (data: CreateUserWithOAuthData, context) => {
+exports.createUserWithSignInProvider = functions.https.onCall(async (request: CallableRequest<CreateUserWithOAuthData>) => {
   try {
     const requiredFields = ["email", "name", "signInProvider"];
-    verifyRequiredFields(data, requiredFields);
+    verifyRequiredFields(request.data, requiredFields);
 
-    const userRecord = await getAuthUserByEmail(data.email);
+    const userRecord = await getAuthUserByEmail(request.data.email);
 
     if (userRecord) {
-      await createUser(userRecord.uid, data)
+      await createUser(userRecord.uid, request.data)
     } else {
-      throwHttpsError("invalid-argument", `createUserWithSignInProvider: email does not exist`, data);
+      throwHttpsError("invalid-argument", `createUserWithSignInProvider: email does not exist`, request.data);
     }
 
     return userRecord?.uid;
@@ -145,21 +146,21 @@ async function createUser(id: string, data: CreateUserData): Promise<void> {
   };
 };
 
-exports.updateUser = functions.https.onCall(async (data: UpdateUserData, context): Promise<void> => {
+exports.updateUser = functions.https.onCall(async (request: CallableRequest<UpdateUserData>): Promise<void> => {
   try {
     const requiredFields = ["id"];
-    verifyRequiredFields(data, requiredFields);
+    verifyRequiredFields(request.data, requiredFields);
 
     const userData = {
-      ...(data.bio && { bio: data.bio }),
-      ...(data.image && { image: data.image }),
-      ...(data.name && { name: data.name })
+      ...(request.data.bio && { bio: request.data.bio }),
+      ...(request.data.image && { image: request.data.image }),
+      ...(request.data.name && { name: request.data.name })
     };
 
-    await firestore.collection("users").doc(data.id).update(userData);
+    await firestore.collection("users").doc(request.data.id).update(userData);
 
     logVerbose("User updated successfully!");
   } catch (error: any) {
-    handleCatchHttpsError(`Error updating User ${data.id}`, error);
+    handleCatchHttpsError(`Error updating User ${request.data.id}`, error);
   };
 });

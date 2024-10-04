@@ -34,7 +34,7 @@ describe("User Functions", () => {
     });
 
     it("should create a new User with email, name and password", async () => {
-      userId = await createUserWithEmailWrapped(userData);
+      userId = await createUserWithEmailWrapped({ data: userData });
 
       const snap = await firestore.collection("users").doc(userId).get();
       const userDoc = snap.data();
@@ -47,10 +47,10 @@ describe("User Functions", () => {
 
     it("should error when email already exists", async () => {
       try {
-        await createUserWithEmailWrapped(userData);
+        await createUserWithEmailWrapped({ data: userData });
 
         userData.name = "Test User 2";
-        await createUserWithEmailWrapped(userData);
+        await createUserWithEmailWrapped({ data: userData });
 
         assert.fail("Expected error not thrown");
       } catch (error: any) {
@@ -60,10 +60,10 @@ describe("User Functions", () => {
 
     it("should error when user name already exists", async () => {
       try {
-        await createUserWithEmailWrapped(userData);
+        await createUserWithEmailWrapped({ data: userData });
 
         userData.email = "test2@email.com";
-        await createUserWithEmailWrapped(userData);
+        await createUserWithEmailWrapped({ data: userData });
 
         assert.fail("Expected error not thrown");
       } catch (error: any) {
@@ -73,7 +73,7 @@ describe("User Functions", () => {
 
     it("should error without required fields", async () => {
       try {
-        await createUserWithEmailWrapped({})
+        await createUserWithEmailWrapped({ data: {} })
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(error.message, /The function must be called with email, name, password./);
@@ -110,7 +110,7 @@ describe("User Functions", () => {
     });
 
     it("should create a new User when email exists in auth via alt sign-in (ie apple/gmail)", async () => {
-      userId = await createUserWithSignInProviderWrapped(userData);
+      userId = await createUserWithSignInProviderWrapped({ data: userData });
 
       const snap = await firestore.collection("users").doc(userId).get();
       const userDoc = snap.data();
@@ -124,7 +124,7 @@ describe("User Functions", () => {
     it("should error when email doesn't exist in auth", async () => {
       try {
         userData.email = "nonexistant@email.com"
-        await createUserWithSignInProviderWrapped(userData);
+        await createUserWithSignInProviderWrapped({ data: userData });
 
         assert.fail("Expected error not thrown");
       } catch (error: any) {
@@ -134,10 +134,10 @@ describe("User Functions", () => {
 
     it("should error when email already exists", async () => {
       try {
-        await createUserWithSignInProviderWrapped(userData);
+        await createUserWithSignInProviderWrapped({ data: userData });
 
         userData.name = "Test User 2";
-        await createUserWithSignInProviderWrapped(userData);
+        await createUserWithSignInProviderWrapped({ data: userData });
 
         assert.fail("Expected error not thrown");
       } catch (error: any) {
@@ -147,7 +147,7 @@ describe("User Functions", () => {
 
     it("should error when user name already exists", async () => {
       try {
-        await createUserWithSignInProviderWrapped(userData);
+        await createUserWithSignInProviderWrapped({ data: userData });
 
         userData.email = "test2@email.com";
 
@@ -156,7 +156,7 @@ describe("User Functions", () => {
           displayName: userData.name
         });
 
-        await createUserWithSignInProviderWrapped(userData);
+        await createUserWithSignInProviderWrapped({ data: userData });
 
         assert.fail("Expected error not thrown");
       } catch (error: any) {
@@ -166,7 +166,7 @@ describe("User Functions", () => {
 
     it("should error without required fields", async () => {
       try {
-        await createUserWithSignInProviderWrapped({})
+        await createUserWithSignInProviderWrapped({ data: {} })
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(error.message, /The function must be called with email, name./);
@@ -192,7 +192,7 @@ describe("User Functions", () => {
     });
 
     it("should update an existing User", async () => {
-      await updateUserWrapped(userData);
+      await updateUserWrapped({ data: userData });
       const userId = user.id || "";
       const snap = await firestore.collection("users").doc(userId).get();
       const userDoc = snap.data();
@@ -205,7 +205,7 @@ describe("User Functions", () => {
 
     it("should error without required fields", async () => {
       try {
-        await updateUserWrapped({})
+        await updateUserWrapped({ data: {} })
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(error.message, /The function must be called with id./);
