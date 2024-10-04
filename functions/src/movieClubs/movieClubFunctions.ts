@@ -2,24 +2,25 @@ import * as functions from "firebase-functions";
 import { firestore } from "firestore";
 import { handleCatchHttpsError, logVerbose, verifyRequiredFields } from "helpers";
 import { MovieClubData, UpdateMovieClubData } from "./movieClubTypes";
+import { CallableRequest } from "firebase-functions/https";
 
-exports.createMovieClub = functions.https.onCall(async (data: MovieClubData, context) => {
+exports.createMovieClub = functions.https.onCall(async (request: CallableRequest<MovieClubData>) => {
   try {
     const requiredFields = ["bannerUrl", "description", "image", "isPublic", "name", "ownerId", "ownerName", "timeInterval"];
-    verifyRequiredFields(data, requiredFields);
+    verifyRequiredFields(request.data, requiredFields);
 
     const movieClubRef = firestore.collection("movieclubs");
 
     const movieClubData: MovieClubData = {
-      bannerUrl: data.bannerUrl,
-      description: data.description,
-      image: data.image,
-      isPublic: data.isPublic,
-      name: data.name,
+      bannerUrl: request.data.bannerUrl,
+      description: request.data.description,
+      image: request.data.image,
+      isPublic: request.data.isPublic,
+      name: request.data.name,
       numMembers: 1,
-      ownerId: data.ownerId,
-      ownerName: data.ownerName,
-      timeInterval: data.timeInterval,
+      ownerId: request.data.ownerId,
+      ownerName: request.data.ownerName,
+      timeInterval: request.data.timeInterval,
       createdAt: Date.now()
     };
 
@@ -33,26 +34,26 @@ exports.createMovieClub = functions.https.onCall(async (data: MovieClubData, con
   };
 });
 
-exports.updateMovieClub = functions.https.onCall(async (data: UpdateMovieClubData, context) => {
+exports.updateMovieClub = functions.https.onCall(async (request: CallableRequest<UpdateMovieClubData>) => {
   try {
     const requiredFields = ["id"];
-    verifyRequiredFields(data, requiredFields);
+    verifyRequiredFields(request.data, requiredFields);
 
-    const movieClubRef = firestore.collection("movieclubs").doc(data.id);
+    const movieClubRef = firestore.collection("movieclubs").doc(request.data.id);
 
     const movieClubData = {
-      ...(data.bannerUrl && { bannerUrl: data.bannerUrl }),
-      ...(data.description && { description: data.description }),
-      ...(data.image && { image: data.image }),
-      ...(data.isPublic != undefined && { isPublic: data.isPublic }),
-      ...(data.name && { name: data.name }),
-      ...(data.timeInterval && { timeInterval: data.timeInterval })
+      ...(request.data.bannerUrl && { bannerUrl: request.data.bannerUrl }),
+      ...(request.data.description && { description: request.data.description }),
+      ...(request.data.image && { image: request.data.image }),
+      ...(request.data.isPublic != undefined && { isPublic: request.data.isPublic }),
+      ...(request.data.name && { name: request.data.name }),
+      ...(request.data.timeInterval && { timeInterval: request.data.timeInterval })
     };
 
     await movieClubRef.update(movieClubData);
 
     logVerbose("Movie Club updated successfully!");
   } catch (error) {
-    handleCatchHttpsError(`Error updating Movie Club ${data.id}:`, error)
+    handleCatchHttpsError(`Error updating Movie Club ${request.data.id}:`, error)
   };
 });
