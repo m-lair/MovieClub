@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
 import { firestore, firebaseAdmin } from "firestore";
-import { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyRequiredFields } from "helpers";
-import { CreateUserWithEmailData, CreateUserWithOAuthData, UpdateUserData } from "./userTypes";
+import { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyAuth, verifyRequiredFields } from "helpers";
+import { CreateUserWithEmailData, CreateUserWithOAuthData, JoinMovieClubData, UpdateUserData } from "./userTypes";
 import { CallableRequest } from "firebase-functions/https";
 
 exports.createUserWithEmail = functions.https.onCall(async (request: CallableRequest<CreateUserWithEmailData>) => {
@@ -162,5 +162,36 @@ exports.updateUser = functions.https.onCall(async (request: CallableRequest<Upda
     logVerbose("User updated successfully!");
   } catch (error: any) {
     handleCatchHttpsError(`Error updating User ${request.data.id}`, error);
+  };
+});
+
+exports.joinMovieClub = functions.https.onCall(async (request: CallableRequest<JoinMovieClubData>): Promise<void> => {
+  try {
+    const { data, auth } = request;
+
+    const { uid } = verifyAuth(auth);
+
+    const requiredFields = ["movieClubId"];
+    verifyRequiredFields(data, requiredFields);
+
+    const userMembershipsRef = firestore
+      .collection("users")
+      .doc(uid)
+      .collection("memberships")
+      .doc(data.movieClubId);
+
+    await userMembershipsRef.set({});
+
+    const movieClubMemberRef = firestore
+      .collection("movieClubs")
+      .doc(data.movieClubId)
+      .collection("members")
+      .doc(uid);
+
+    await movieClubMemberRef.set({});
+
+    logVerbose("User updated successfully!");
+  } catch (error: any) {
+    handleCatchHttpsError(`Error joining movie club`, error);
   };
 });
