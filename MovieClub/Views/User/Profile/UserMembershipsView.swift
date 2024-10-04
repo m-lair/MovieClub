@@ -18,7 +18,7 @@ struct UserMembershipsView: View {
                             VStack{
                                 Text(club.name)
                                     .font(.title3)
-                                if let url = URL(string: club.movies[0].poster ?? "") {
+                                if let url = URL(string: club.movies?[0].poster ?? "") {
                                     AsyncImage(url: url) { phase in
                                         if let image = phase.image {
                                             image

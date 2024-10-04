@@ -187,8 +187,7 @@ struct ClubDetailsForm: View {
                       timeInterval: timeInterval,
                       ownerId: userId,
                       isPublic: isPublic,
-                      bannerUrl: "",
-                      numMovies: 1)
+                      bannerUrl: "no-image")
             
             /*let movie =
              Movie(created: created,
@@ -199,13 +198,13 @@ struct ClubDetailsForm: View {
              userId: userId,
              authorAvi: user.image ?? "")*/
             
-            try await data.createMovieClub(movieClub: movieClub)
+            let result = try await data.createMovieClub(movieClub: movieClub)
+            print("result: \(result)")
             navPath.removeLast(navPath.count)
             
         }catch{
             print("error submitting club \(error)")
         }
     }
-    
 }
 

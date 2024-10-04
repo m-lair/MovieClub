@@ -8,6 +8,7 @@
 import Foundation
 import FirebaseFirestore
 import FirebaseStorage
+import FirebaseFunctions
 import UIKit
 
 extension DataManager {
@@ -26,17 +27,14 @@ extension DataManager {
     // MARK: - Create Movie Club
     
     func createMovieClub(movieClub: MovieClub) async throws {
+        let createMovieClub:
+        Callable<MovieClub, MovieClub> =
+        functions.httpsCallable("movieClubs-createMovieClub")
         do {
-            print("Creating movie club...\(movieClub.isPublic)")
-            _ = try await  functions.httpsCallable("movieClubs-createMovieClub").call([
-                "name": movieClub.name,
-                "ownerId": movieClub.ownerId,
-                "ownerName": movieClub.ownerName,
-                "isPublic": String(movieClub.isPublic),
-                "timeInterval": String(movieClub.timeInterval),
-                "bannerUrl": "no-image"
-            ])
-        } catch {
+            let club = try await createMovieClub.call(movieClub)
+            print("club \(club)")
+        } catch let error as NSError{
+            print(error)
             throw error
         }
     }
@@ -121,7 +119,7 @@ extension DataManager {
     
     func fetchClubDetails(club: MovieClub) async throws {
         currentClub = club
-        movie = club.movies.first
+        movie = club.movies?.first
     }
     
     // MARK: - Join Club

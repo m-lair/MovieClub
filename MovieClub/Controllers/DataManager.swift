@@ -45,7 +45,6 @@ class DataManager: Identifiable {
             db = Firestore.firestore()
             auth = Auth.auth()
             functions = Functions.functions()
-            self.userSession = auth.currentUser
             try await fetchUser()
             
         }
