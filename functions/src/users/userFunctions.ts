@@ -1,22 +1,26 @@
-const functions = require("firebase-functions");
-const { db, admin } = require("firestore");
-const { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyRequiredFields } = require("utilities");
+import * as functions from "firebase-functions";
+import { firestore, firebaseAdmin } from "firestore";
+import { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyRequiredFields } from "helpers";
+import { CreateUserWithEmailData, CreateUserWithOAuthData, UpdateUserData } from "./userTypes";
 
-exports.createUserWithEmail = functions.https.onCall(async (data, context) => {
+exports.createUserWithEmail = functions.https.onCall(async (data: CreateUserWithEmailData, context) => {
   try {
     const requiredFields = ["email", "name", "password"];
     verifyRequiredFields(data, requiredFields);
 
     const uid = await createUserAuthentication(data);
-    await createUser(uid, data);
+
+    if (uid) {
+      await createUser(uid, data);
+    }
 
     return uid;
-  } catch (error) {
+  } catch (error: any) {
     handleCatchHttpsError("Error creating user:", error);
   }
 });
 
-exports.createUserWithSignInProvider = functions.https.onCall(async (data, context) => {
+exports.createUserWithSignInProvider = functions.https.onCall(async (data: CreateUserWithOAuthData, context) => {
   try {
     const requiredFields = ["email", "name", "signInProvider"];
     verifyRequiredFields(data, requiredFields);
@@ -29,8 +33,8 @@ exports.createUserWithSignInProvider = functions.https.onCall(async (data, conte
       throwHttpsError("invalid-argument", `createUserWithSignInProvider: email does not exist`, data);
     }
 
-    return userRecord.uid;
-  } catch (error) {
+    return userRecord?.uid;
+  } catch (error: any) {
     handleCatchHttpsError("Error creating user:", error);
   }
 });
@@ -45,10 +49,10 @@ exports.createUserWithSignInProvider = functions.https.onCall(async (data, conte
 // When "multiple accounts per email" is set, the main email is only set when a password user is created 
 // unless manually updated.
 
-async function getAuthUserByEmail(email) {
+async function getAuthUserByEmail(email: string) {
   try {
-    return await admin.auth().getUserByEmail(email);
-  } catch (error) {
+    return await firebaseAdmin.auth().getUserByEmail(email);
+  } catch (error: any) {
     switch (error.code) {
       case 'auth/user-not-found':
         return null;
@@ -59,18 +63,18 @@ async function getAuthUserByEmail(email) {
   };
 };
 
-async function createUserAuthentication(data) {
+async function createUserAuthentication(data: CreateUserWithEmailData): Promise<string | undefined> {
   const { email, password, name } = data;
 
   try {
-    userRecord = await admin.auth().createUser({
+    const userRecord = await firebaseAdmin.auth().createUser({
       email: email,
       password: password,
       displayName: name
     });
 
     return userRecord.uid;
-  } catch (error) {
+  } catch (error: any) {
     // all error codes: https://firebase.google.com/docs/auth/admin/errors
     switch (error.code) {
       case 'auth/email-already-exists':
@@ -92,7 +96,9 @@ async function createUserAuthentication(data) {
   };
 };
 
-async function createUser(id, data) {
+type CreateUserData = CreateUserWithEmailData & { signInProvider?: never } | CreateUserWithOAuthData;
+
+async function createUser(id: string, data: CreateUserData): Promise<void> {
   const userData = {
     id: id,
     email: data.email,
@@ -100,13 +106,13 @@ async function createUser(id, data) {
     bio: data.bio || "",
     image: data.image || "",
     signInProvider: data.signInProvider || "",
-    createdAt: admin.firestore.FieldValue.serverTimestamp()
+    createdAt: Date.now()
   };
 
   try {
-    await db.runTransaction(async (t) => {
-      const userRefByName = db.collection("users").where('name', '==', data.name);
-      const userRefByEmail = db.collection("users").where('email', '==', data.email);
+    await firestore.runTransaction(async (t) => {
+      const userRefByName = firestore.collection("users").where('name', '==', data.name);
+      const userRefByEmail = firestore.collection("users").where('email', '==', data.email);
 
       const [queryByName, queryByEmail] = await Promise.all([
         t.get(userRefByName),
@@ -121,10 +127,10 @@ async function createUser(id, data) {
         throwHttpsError("invalid-argument", `email ${data.email} already exists.`, data);
       }
 
-      const newUserRef = db.collection("users").doc(id);
+      const newUserRef = firestore.collection("users").doc(id);
       t.set(newUserRef, userData);
     });
-  } catch (error) {
+  } catch (error: any) {
     switch (error.code) {
       case 'auth/invalid-password':
         throwHttpsError("invalid-argument", error.message);
@@ -139,7 +145,7 @@ async function createUser(id, data) {
   };
 };
 
-exports.updateUser = functions.https.onCall(async (data, context) => {
+exports.updateUser = functions.https.onCall(async (data: UpdateUserData, context): Promise<void> => {
   try {
     const requiredFields = ["id"];
     verifyRequiredFields(data, requiredFields);
@@ -150,10 +156,10 @@ exports.updateUser = functions.https.onCall(async (data, context) => {
       ...(data.name && { name: data.name })
     };
 
-    await db.collection("users").doc(data.id).update(userData);
+    await firestore.collection("users").doc(data.id).update(userData);
 
     logVerbose("User updated successfully!");
-  } catch (error) {
+  } catch (error: any) {
     handleCatchHttpsError(`Error updating User ${data.id}`, error);
   };
 });

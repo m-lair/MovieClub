@@ -1,17 +1,20 @@
-"use strict";
-
 const assert = require("assert");
-const { test } = require("test/testHelper");
-const { db, admin } = require("firestore");
-const { populateUserData } = require("mocks");
-const { users: { createUserWithEmail, createUserWithSignInProvider, updateUser } } = require("index");
+import { firebaseTest } from "test/testHelper";
+import { firestore, firebaseAdmin } from "firestore";
+import { users } from "index";
+import { CreateUserWithEmailData, CreateUserWithOAuthData, UpdateUserData } from "src/users/userTypes";
+import { populateUserData, UserDataMock } from "test/mocks/user";
+
+// @ts-ignore
+// TODO: Figure out why ts can't detect the export on this
+const { createUserWithEmail, createUserWithSignInProvider, updateUser } = users;
 
 describe("User Functions", () => {
   describe("createUserWithEmail", () => {
-    const createUserWithEmailWrapped = test.wrap(createUserWithEmail);
+    const createUserWithEmailWrapped = firebaseTest.wrap(createUserWithEmail);
 
-    let userId;
-    let userData;
+    let userId: string;
+    let userData: CreateUserWithEmailData;
 
     beforeEach(async () => {
       userData = {
@@ -24,22 +27,22 @@ describe("User Functions", () => {
     });
 
     afterEach(async () => {
-      const result = await admin.auth().listUsers();
+      const result = await firebaseAdmin.auth().listUsers();
       const users = result.users.map(user => user.uid);
 
-      await admin.auth().deleteUsers(users);
+      await firebaseAdmin.auth().deleteUsers(users);
     });
 
     it("should create a new User with email, name and password", async () => {
       userId = await createUserWithEmailWrapped(userData);
 
-      const snap = await db.collection("users").doc(userId).get();
+      const snap = await firestore.collection("users").doc(userId).get();
       const userDoc = snap.data();
 
-      assert(userDoc.name == userData.name);
-      assert(userDoc.image == userData.image);
-      assert(userDoc.bio == userData.bio);
-      assert(userDoc.email == userData.email);
+      assert(userDoc?.name == userData.name);
+      assert(userDoc?.image == userData.image);
+      assert(userDoc?.bio == userData.bio);
+      assert(userDoc?.email == userData.email);
     });
 
     it("should error when email already exists", async () => {
@@ -50,7 +53,7 @@ describe("User Functions", () => {
         await createUserWithEmailWrapped(userData);
 
         assert.fail("Expected error not thrown");
-      } catch (error) {
+      } catch (error: any) {
         assert.match(error.message, /The email address is already in use by another account./);
       };
     });
@@ -63,7 +66,7 @@ describe("User Functions", () => {
         await createUserWithEmailWrapped(userData);
 
         assert.fail("Expected error not thrown");
-      } catch (error) {
+      } catch (error: any) {
         assert.match(error.message, /name Test User already exists./);
       };
     });
@@ -72,17 +75,17 @@ describe("User Functions", () => {
       try {
         await createUserWithEmailWrapped({})
         assert.fail("Expected error not thrown");
-      } catch (error) {
+      } catch (error: any) {
         assert.match(error.message, /The function must be called with email, name, password./);
       };
     });
   });
 
   describe("createUserWithSignInProvider", () => {
-    const createUserWithSignInProviderWrapped = test.wrap(createUserWithSignInProvider);
+    const createUserWithSignInProviderWrapped = firebaseTest.wrap(createUserWithSignInProvider);
 
-    let userId;
-    let userData;
+    let userId: string;
+    let userData: CreateUserWithOAuthData;
 
     beforeEach(async () => {
       userData = {
@@ -93,30 +96,29 @@ describe("User Functions", () => {
         signInProvider: "apple"
       };
 
-      await admin.auth().createUser({
+      await firebaseAdmin.auth().createUser({
         email: userData.email,
-        password: userData.password,
         displayName: userData.name
       });
     });
 
     afterEach(async () => {
-      const result = await admin.auth().listUsers();
+      const result = await firebaseAdmin.auth().listUsers();
       const users = result.users.map(user => user.uid);
 
-      await admin.auth().deleteUsers(users);
+      await firebaseAdmin.auth().deleteUsers(users);
     });
 
     it("should create a new User when email exists in auth via alt sign-in (ie apple/gmail)", async () => {
       userId = await createUserWithSignInProviderWrapped(userData);
 
-      const snap = await db.collection("users").doc(userId).get();
+      const snap = await firestore.collection("users").doc(userId).get();
       const userDoc = snap.data();
 
-      assert(userDoc.name == userData.name);
-      assert(userDoc.image == userData.image);
-      assert(userDoc.bio == userData.bio);
-      assert(userDoc.email == userData.email);
+      assert.equal(userDoc?.name, userData.name);
+      assert.equal(userDoc?.image, userData.image);
+      assert.equal(userDoc?.bio, userData.bio);
+      assert.equal(userDoc?.email, userData.email);
     });
 
     it("should error when email doesn't exist in auth", async () => {
@@ -125,7 +127,7 @@ describe("User Functions", () => {
         await createUserWithSignInProviderWrapped(userData);
 
         assert.fail("Expected error not thrown");
-      } catch (error) {
+      } catch (error: any) {
         assert.match(error.message, /email does not exist/);
       };
     });
@@ -138,7 +140,7 @@ describe("User Functions", () => {
         await createUserWithSignInProviderWrapped(userData);
 
         assert.fail("Expected error not thrown");
-      } catch (error) {
+      } catch (error: any) {
         assert.match(error.message, /email test@email.com already exists./);
       };
     });
@@ -149,16 +151,15 @@ describe("User Functions", () => {
 
         userData.email = "test2@email.com";
 
-        await admin.auth().createUser({
+        await firebaseAdmin.auth().createUser({
           email: userData.email,
-          password: userData.password,
           displayName: userData.name
         });
 
         await createUserWithSignInProviderWrapped(userData);
 
         assert.fail("Expected error not thrown");
-      } catch (error) {
+      } catch (error: any) {
         assert.match(error.message, /name Test User already exists./);
       };
     });
@@ -167,20 +168,20 @@ describe("User Functions", () => {
       try {
         await createUserWithSignInProviderWrapped({})
         assert.fail("Expected error not thrown");
-      } catch (error) {
+      } catch (error: any) {
         assert.match(error.message, /The function must be called with email, name./);
       };
     });
   });
 
   describe("updateUser", () => {
-    const updateUserWrapped = test.wrap(updateUser);
+    const updateUserWrapped = firebaseTest.wrap(updateUser);
 
-    let user;
-    let userData;
+    let user: UserDataMock;
+    let userData: UpdateUserData;
 
     beforeEach(async () => {
-      user = await populateUserData();
+      user = await populateUserData({});
 
       userData = {
         id: user.id,
@@ -192,20 +193,21 @@ describe("User Functions", () => {
 
     it("should update an existing User", async () => {
       await updateUserWrapped(userData);
-      const snap = await db.collection("users").doc(user.id).get();
+      const userId = user.id || "";
+      const snap = await firestore.collection("users").doc(userId).get();
       const userDoc = snap.data();
 
-      assert(userDoc.id == userData.id);
-      assert(userDoc.name == userData.name);
-      assert(userDoc.image == userData.image);
-      assert(userDoc.bio == userData.bio);
+      assert.equal(userDoc?.id, userData.id);
+      assert.equal(userDoc?.name, userData.name);
+      assert.equal(userDoc?.image, userData.image);
+      assert.equal(userDoc?.bio, userData.bio);
     });
 
     it("should error without required fields", async () => {
       try {
         await updateUserWrapped({})
         assert.fail("Expected error not thrown");
-      } catch (error) {
+      } catch (error: any) {
         assert.match(error.message, /The function must be called with id./);
       };
     });

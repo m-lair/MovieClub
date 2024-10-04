@@ -1,6 +1,6 @@
 const functions = require("firebase-functions");
 const fetch = require("node-fetch");
-const { db } = require("firestore");
+const { firestore } = require("firestore");
 
 // Export the scheduled function for deployment
 exports.rotateMovie = functions.pubsub.schedule('every 24 hours').onRun(async () => {
@@ -15,7 +15,7 @@ async function rotateMovieLogic() {
   const promises = [];
 
   try {
-    const snapshot = await db.collectionGroup("movieclubs").get();
+    const snapshot = await firestore.collectionGroup("movieclubs").get();
     snapshot.docs.forEach(doc => {
       const movieclub = doc.data();
       const clubInterval = movieclub.timeInterval;
@@ -37,7 +37,7 @@ async function processMovieClub(movieclubDoc, futureDate, apiEndpoint) {
   const clubId = movieclubDoc.id;
   const nextUp = await movieclubDoc.ref.collection("members").orderBy("dateAdded", "asc").limit(1).get();
   const userId = nextUp.docs[0].id;
-  const userDoc = await db.collection("users").doc(userId).get();
+  const userDoc = await firestore.collection("users").doc(userId).get();
   const userData = userDoc.data();
 
   const membershipRef = await userDoc.ref.collection("memberships").doc(clubId).get();
@@ -63,7 +63,7 @@ async function processMovieClub(movieclubDoc, futureDate, apiEndpoint) {
     userName: userData.name || 'no-name',
   };
 
-  await db.collection("movieclubs").doc(clubId).collection("movies").doc().set(newMovieData);
+  await firestore.collection("movieclubs").doc(clubId).collection("movies").doc().set(newMovieData);
   await nextUp.docs[0].ref.update({ dateAdded: new Date() });
   await movieclubDoc.ref.update({ movieEndDate: futureDate });
 }

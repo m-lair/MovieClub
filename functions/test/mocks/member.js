@@ -1,5 +1,5 @@
-const { logError, logVerbose } = require("utilities");
-const { db } = require("firestore");
+const { logError, logVerbose } = require("helpers");
+const { firestore } = require("firestore");
 
 async function populateMemberData(params = {}) {
   logVerbose('Populating member data...');
@@ -10,10 +10,10 @@ async function populateMemberData(params = {}) {
   const memberData = {
     name: name,
     id: id,
-    dateAdded: admin.firestore.Timestamp.fromDate(new Date()),
+    dateAdded: firestore.Timestamp.fromDate(new Date()),
   }
 
-  const membersRef = db.collection("movieclubs").doc(movieClubId).collection('members').doc(id)
+  const membersRef = firestore.collection("movieclubs").doc(movieClubId).collection('members').doc(id)
   try {
     await membersRef.set(memberData);
     logVerbose('Member data set');

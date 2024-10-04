@@ -1,13 +1,14 @@
-const functions = require("firebase-functions");
-const { db, admin } = require("firestore");
-const { handleCatchHttpsError, logVerbose, verifyRequiredFields } = require("utilities");
+import * as functions from "firebase-functions";
+import { firestore } from "firestore";
+import { handleCatchHttpsError, logVerbose, verifyRequiredFields } from "helpers";
+import { DeleteCommentData, PostCommentData } from "./commentTypes";
 
-exports.postComment = functions.https.onCall(async (data, context) => {
+exports.postComment = functions.https.onCall(async (data: PostCommentData, context) => {
   try {
     const requiredFields = ["movieClubId", "movieId", "text", "userId", "username"]
     verifyRequiredFields(data, requiredFields)
 
-    const commentsRef = db
+    const commentsRef = firestore
       .collection("movieclubs")
       .doc(data.movieClubId)
       .collection("movies")
@@ -18,7 +19,9 @@ exports.postComment = functions.https.onCall(async (data, context) => {
       userId: data.userId,
       username: data.username,
       text: data.text,
-      created_at: admin.firestore.FieldValue.serverTimestamp()
+      likes: 0,
+      image: data.image || "",
+      createdAt: Date.now()
     }
 
     const commentDoc = await commentsRef.add(commentData);
@@ -31,18 +34,18 @@ exports.postComment = functions.https.onCall(async (data, context) => {
   }
 });
 
-exports.deleteComment = functions.https.onCall(async (data, context) => {
+exports.deleteComment = functions.https.onCall(async (data: DeleteCommentData, context) => {
   try {
-    const requiredFields = ["commentId", "movieClubId", "movieId"];
+    const requiredFields = ["id", "movieClubId", "movieId"];
     verifyRequiredFields(data, requiredFields);
 
-    const commentRef = db
+    const commentRef = firestore
       .collection("movieclubs")
       .doc(data.movieClubId)
       .collection("movies")
       .doc(data.movieId)
       .collection("comments")
-      .doc(data.commentId);
+      .doc(data.id);
 
     // Delete the comment
     await commentRef.delete();
