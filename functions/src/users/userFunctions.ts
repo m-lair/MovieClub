@@ -24,18 +24,22 @@ exports.createUserWithEmail = functions.https.onCall(async (request: CallableReq
 
 exports.createUserWithSignInProvider = functions.https.onCall(async (request: CallableRequest<CreateUserWithOAuthData>) => {
   try {
-    const requiredFields = ["email", "name", "signInProvider"];
-    verifyRequiredFields(request.data, requiredFields);
+    const { data, auth } = request;
 
-    const userRecord = await getAuthUserByEmail(request.data.email);
+    const { uid, token: { email } } = verifyAuth(auth);
+    
+    const requiredFields = ["name", "signInProvider"];
+    verifyRequiredFields(data, requiredFields);
+
+    const userRecord = await getAuthUserByEmail(email!);
 
     if (userRecord) {
-      await createUser(userRecord.uid, request.data)
+      await createUser(uid, data)
     } else {
-      throwHttpsError("invalid-argument", `createUserWithSignInProvider: email does not exist`, request.data);
+      throwHttpsError("invalid-argument", `createUserWithSignInProvider: email does not exist`, data);
     }
 
-    return userRecord?.uid;
+    return uid;
   } catch (error: any) {
     handleCatchHttpsError("Error creating user:", error);
   }
@@ -149,20 +153,21 @@ async function createUser(id: string, data: CreateUserData): Promise<void> {
 
 exports.updateUser = functions.https.onCall(async (request: CallableRequest<UpdateUserData>): Promise<void> => {
   try {
-    const requiredFields = ["id"];
-    verifyRequiredFields(request.data, requiredFields);
+    const { data, auth } = request;
+
+    const { uid } = verifyAuth(auth);
 
     const userData = {
-      ...(request.data.bio && { bio: request.data.bio }),
-      ...(request.data.image && { image: request.data.image }),
-      ...(request.data.name && { name: request.data.name })
+      ...(data.bio && { bio: data.bio }),
+      ...(data.image && { image: data.image }),
+      ...(data.name && { name: data.name })
     };
 
-    await firestore.collection(USERS).doc(request.data.id).update(userData);
+    await firestore.collection(USERS).doc(uid).update(userData);
 
     logVerbose("User updated successfully!");
   } catch (error: any) {
-    handleCatchHttpsError(`Error updating User ${request.data.id}`, error);
+    handleCatchHttpsError(`Error updating User ${request.auth?.uid}`, error);
   };
 });
 

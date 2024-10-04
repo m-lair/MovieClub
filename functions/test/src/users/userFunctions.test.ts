@@ -82,24 +82,19 @@ describe("User Functions", () => {
 
     let userId: string;
     let userData: CreateUserWithOAuthData;
+    let auth: AuthData;
 
     beforeEach(async () => {
-      userData = {
-        name: "Test User",
-        image: "Test Image",
-        bio: "Test Bio",
-        email: "test@email.com",
-        signInProvider: "apple"
-      };
-
-      await firebaseAdmin.auth().createUser({
-        email: userData.email,
-        displayName: userData.name
-      });
+      const { user: userDataMock, auth: authMock } = await populateUserData({ createUser: false });
+      auth = authMock;
+      userData = userDataMock;
     });
 
     it("should create a new User when email exists in auth via alt sign-in (ie apple/gmail)", async () => {
-      userId = await createUserWithSignInProviderWrapped({ data: userData });
+      userId = await createUserWithSignInProviderWrapped({ data: userData, auth: auth });
+
+      console.log(userId)
+      console.log(auth.uid)
 
       const snap = await firestore.collection(USERS).doc(userId).get();
       const userDoc = snap.data();
@@ -113,7 +108,7 @@ describe("User Functions", () => {
     it("should error when email doesn't exist in auth", async () => {
       try {
         userData.email = "nonexistant@email.com"
-        await createUserWithSignInProviderWrapped({ data: userData });
+        await createUserWithSignInProviderWrapped({ data: userData, auth: auth });
 
         assert.fail("Expected error not thrown");
       } catch (error: any) {
@@ -123,10 +118,10 @@ describe("User Functions", () => {
 
     it("should error when email already exists", async () => {
       try {
-        await createUserWithSignInProviderWrapped({ data: userData });
+        await createUserWithSignInProviderWrapped({ data: userData, auth: auth });
 
         userData.name = "Test User 2";
-        await createUserWithSignInProviderWrapped({ data: userData });
+        await createUserWithSignInProviderWrapped({ data: userData, auth: auth });
 
         assert.fail("Expected error not thrown");
       } catch (error: any) {
@@ -136,7 +131,7 @@ describe("User Functions", () => {
 
     it("should error when user name already exists", async () => {
       try {
-        await createUserWithSignInProviderWrapped({ data: userData });
+        await createUserWithSignInProviderWrapped({ data: userData, auth: auth });
 
         userData.email = "test2@email.com";
 
@@ -145,7 +140,7 @@ describe("User Functions", () => {
           displayName: userData.name
         });
 
-        await createUserWithSignInProviderWrapped({ data: userData });
+        await createUserWithSignInProviderWrapped({ data: userData, auth: auth });
 
         assert.fail("Expected error not thrown");
       } catch (error: any) {
@@ -155,7 +150,7 @@ describe("User Functions", () => {
 
     it("should error without required fields", async () => {
       try {
-        await createUserWithSignInProviderWrapped({ data: {} })
+        await createUserWithSignInProviderWrapped({ data: {}, auth: auth })
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(error.message, /The function must be called with email, name./);
@@ -168,10 +163,12 @@ describe("User Functions", () => {
 
     let user: UserDataMock;
     let userData: UpdateUserData;
+    let auth: AuthData;
 
     beforeEach(async () => {
-      const userMock = await populateUserData();
-      user = userMock.user;
+      const { user: userMock, auth: authMock } = await populateUserData();
+      user = userMock;
+      auth = authMock;
 
       userData = {
         id: user.id,
@@ -182,7 +179,7 @@ describe("User Functions", () => {
     });
 
     it("should update an existing User", async () => {
-      await updateUserWrapped({ data: userData });
+      await updateUserWrapped({ data: userData, auth: auth });
       const userId = user.id || "";
       const snap = await firestore.collection(USERS).doc(userId).get();
       const userDoc = snap.data();
@@ -195,10 +192,10 @@ describe("User Functions", () => {
 
     it("should error without required fields", async () => {
       try {
-        await updateUserWrapped({ data: {} })
+        await updateUserWrapped({ data: {}, auth: auth })
         assert.fail("Expected error not thrown");
       } catch (error: any) {
-        assert.match(error.message, /The function must be called with id./);
+        assert.match(error.message, /At least one field must be updated./);
       };
     });
   });
@@ -214,7 +211,7 @@ describe("User Functions", () => {
     beforeEach(async () => {
       const { user: userMock, auth: authMock } = await populateUserData();
       user = userMock;
-      auth = authMock!;
+      auth = authMock;
 
       movieClub = await populateMovieClubData();
 
