@@ -9,6 +9,7 @@ import {
 } from "helpers";
 import { DeleteCommentData, PostCommentData } from "./commentTypes";
 import { CallableRequest } from "firebase-functions/https";
+<<<<<<< HEAD
 import {
   COMMENTS,
   MEMBERSHIPS,
@@ -66,6 +67,28 @@ exports.postComment = functions.https.onCall(
       return commentDoc.id;
     } catch (error) {
       handleCatchHttpsError("Error posting comment:", error);
+=======
+
+exports.postComment = functions.https.onCall(async (request: CallableRequest<PostCommentData>) => {
+  try {
+    const requiredFields = ["movieClubId", "movieId", "text", "userId", "username"]
+    verifyRequiredFields(request.data, requiredFields)
+
+    const commentsRef = firestore
+      .collection("movieclubs")
+      .doc(request.data.movieClubId)
+      .collection("movies")
+      .doc(request.data.movieId)
+      .collection("comments");
+
+    const commentData = {
+      userId: request.data.userId,
+      username: request.data.username,
+      text: request.data.text,
+      likes: 0,
+      image: request.data.image || "",
+      createdAt: Date.now()
+>>>>>>> 833179b (update to latest firebase-functions version)
     }
   },
 );
@@ -80,6 +103,7 @@ exports.deleteComment = functions.https.onCall(
       const requiredFields = ["id", "movieClubId", "movieId"];
       verifyRequiredFields(request.data, requiredFields);
 
+<<<<<<< HEAD
       const commentRef = firestore
         .collection(MOVIE_CLUBS)
         .doc(data.movieClubId)
@@ -90,6 +114,20 @@ exports.deleteComment = functions.https.onCall(
 
       const commentSnap = await commentRef.get();
       const commentData = commentSnap.data();
+=======
+exports.deleteComment = functions.https.onCall(async (request: CallableRequest<DeleteCommentData>) => {
+  try {
+    const requiredFields = ["id", "movieClubId", "movieId"];
+    verifyRequiredFields(request.data, requiredFields);
+
+    const commentRef = firestore
+      .collection("movieclubs")
+      .doc(request.data.movieClubId)
+      .collection("movies")
+      .doc(request.data.movieId)
+      .collection("comments")
+      .doc(request.data.id);
+>>>>>>> 833179b (update to latest firebase-functions version)
 
       if (commentData === undefined || commentData.userId !== uid) {
         throwHttpsError(

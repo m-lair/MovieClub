@@ -47,11 +47,16 @@ describe("createMovieClub", () => {
   });
 
   it("should create a new Movie Club", async () => {
+<<<<<<< HEAD
     movieClub = await wrapped({ data: movieClubData, auth: auth });
     const snap = await firestore
       .collection(MOVIE_CLUBS)
       .doc(movieClub.id)
       .get();
+=======
+    movieClub = await wrapped({ data: movieClubData })
+    const snap = await firestore.collection("movieclubs").doc(movieClub.id).get()
+>>>>>>> 833179b (update to latest firebase-functions version)
     const movieClubDoc = snap.data();
 
     assert.equal(movieClubDoc?.bannerUrl, movieClubData.bannerUrl);
@@ -67,8 +72,13 @@ describe("createMovieClub", () => {
 
   it("should error without required fields", async () => {
     try {
+<<<<<<< HEAD
       await wrapped({ data: {}, auth: auth });
       assert.fail("Expected error not thrown");
+=======
+      await wrapped({ data: {} })
+      assert.fail('Expected error not thrown');
+>>>>>>> 833179b (update to latest firebase-functions version)
     } catch (error: any) {
       assert.match(
         error.message,
@@ -121,11 +131,16 @@ describe("updateMovieClub", () => {
   });
 
   it("should update an existing Movie Club", async () => {
+<<<<<<< HEAD
     await wrapped({ data: movieClubData, auth: auth });
     const snap = await firestore
       .collection(MOVIE_CLUBS)
       .doc(movieClub.id)
       .get();
+=======
+    await wrapped({ data: movieClubData })
+    const snap = await firestore.collection("movieclubs").doc(movieClub.id).get()
+>>>>>>> 833179b (update to latest firebase-functions version)
     const movieClubDoc = snap.data();
 
     assert.equal(movieClubDoc?.bannerUrl, movieClubData.bannerUrl);
@@ -141,9 +156,14 @@ describe("updateMovieClub", () => {
 
   it("should error if user doesn't own the club", async () => {
     try {
+<<<<<<< HEAD
       auth.uid = "wrong-uid";
       await wrapped({ data: movieClubData, auth: auth });
       assert.fail("Expected error not thrown");
+=======
+      await wrapped({ data: {} })
+      assert.fail('Expected error not thrown');
+>>>>>>> 833179b (update to latest firebase-functions version)
     } catch (error: any) {
       assert.match(
         error.message,
@@ -154,8 +174,19 @@ describe("updateMovieClub", () => {
 
   it("should error without required fields", async () => {
     try {
+<<<<<<< HEAD
       await wrapped({ data: {}, auth: auth });
       assert.fail("Expected error not thrown");
+=======
+      await wrapped({
+        data: {
+          movieClubId: movieClub.id,
+          name: "Updated Test Club",
+          ownerId: "wrong-user-id",
+        }
+      })
+      assert.fail('Expected error not thrown');
+>>>>>>> 833179b (update to latest firebase-functions version)
     } catch (error: any) {
       assert.match(error.message, /The function must be called with id./);
     }
