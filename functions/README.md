@@ -60,7 +60,6 @@ Returns:
 
 ```
 Params = {
-  email: "string@email.com",
   name: "string",
   signInProvider: "string",
   bio?: "string",
@@ -78,8 +77,7 @@ Returns:
 Params = {
   name?: "string",
   bio?: "string",
-  image?: "string/path",
-  signInProvider?: "string"
+  image?: "string/path"
 }
 ```
 
