@@ -39,6 +39,7 @@ describe("User Functions", () => {
       assert(userDoc?.image == userData.image);
       assert(userDoc?.bio == userData.bio);
       assert(userDoc?.email == userData.email);
+      assert(userDoc?.signInProvider == "password");
     });
 
     it("should error when email already exists", async () => {
@@ -151,7 +152,7 @@ describe("User Functions", () => {
         await createUserWithSignInProviderWrapped({ data: {}, auth: auth })
         assert.fail("Expected error not thrown");
       } catch (error: any) {
-        assert.match(error.message, /The function must be called with name, signInProvider./);
+        assert.match(error.message, /The function must be called with name./);
       };
     });
 

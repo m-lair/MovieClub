@@ -7,13 +7,15 @@ import { MEMBERS, MEMBERSHIPS, MOVIE_CLUBS, USERS } from "src/utilities/collecti
 
 exports.createUserWithEmail = functions.https.onCall(async (request: CallableRequest<CreateUserWithEmailData>) => {
   try {
+    const {data} = request;
     const requiredFields = ["email", "name", "password"];
     verifyRequiredFields(request.data, requiredFields);
 
     const uid = await createUserAuthentication(request.data);
+    data.signInProvider = "password";
 
     if (uid) {
-      await createUser(uid, request.data);
+      await createUser(uid, data);
     }
 
     return uid;
@@ -26,12 +28,13 @@ exports.createUserWithSignInProvider = functions.https.onCall(async (request: Ca
   try {
     const { data, auth } = request;
 
-    const { uid, token: { email } } = verifyAuth(auth);
-    
-    const requiredFields = ["name", "signInProvider"];
+    const { uid, token: { email, firebase: { sign_in_provider } } } = verifyAuth(auth);
+
+    const requiredFields = ["name"];
     verifyRequiredFields(data, requiredFields);
 
     const userRecord = await getAuthUserByEmail(email!);
+    data.signInProvider = sign_in_provider;
 
     if (userRecord) {
       await createUser(uid, data)

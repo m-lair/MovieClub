@@ -35,7 +35,7 @@ export async function populateUserData(params: UserDataMockParams = {}): Promise
     image: params.image || "Test Image",
     name: params.name || "Test User",
     password: params.password || "TestPassword",
-    signInProvider: params.signInProvider || "TestSignInProvider",
+    signInProvider: params.signInProvider || "password",
     createdAt: Date.now()
   };
 
