@@ -1,18 +1,31 @@
 import * as functions from "firebase-functions";
 import { firestore } from "firestore";
-import { handleCatchHttpsError, logVerbose, verifyAuth, verifyRequiredFields } from "helpers";
+import { handleCatchHttpsError, logVerbose, throwHttpsError, verifyAuth, verifyRequiredFields } from "helpers";
 import { DeleteCommentData, PostCommentData } from "./commentTypes";
 import { CallableRequest } from "firebase-functions/https";
-import { COMMENTS, MOVIE_CLUBS, MOVIES } from "src/utilities/collectionNames";
+import { COMMENTS, MEMBERSHIPS, MOVIE_CLUBS, MOVIES, USERS } from "src/utilities/collectionNames";
 
 exports.postComment = functions.https.onCall(async (request: CallableRequest<PostCommentData>) => {
   try {
     const { data, auth } = request;
 
     const { uid } = verifyAuth(auth);
-    
+
     const requiredFields = ["movieClubId", "movieId", "text", "username"]
     verifyRequiredFields(data, requiredFields)
+
+    const membershipRef = firestore
+      .collection(USERS)
+      .doc(uid)
+      .collection(MEMBERSHIPS)
+      .doc(data.movieClubId);
+
+    const membershipSnap = await membershipRef.get();
+    const membershipData = membershipSnap.data();
+
+    if (membershipData === undefined) {
+      throwHttpsError("permission-denied", "You are not a member of this Movie Club.");
+    };
 
     const commentsRef = firestore
       .collection(MOVIE_CLUBS)
@@ -44,7 +57,7 @@ exports.deleteComment = functions.https.onCall(async (request: CallableRequest<D
   try {
     const { data, auth } = request;
 
-    verifyAuth(auth);
+    const { uid } = verifyAuth(auth);
 
     const requiredFields = ["id", "movieClubId", "movieId"];
     verifyRequiredFields(request.data, requiredFields);
@@ -57,9 +70,15 @@ exports.deleteComment = functions.https.onCall(async (request: CallableRequest<D
       .collection(COMMENTS)
       .doc(data.id);
 
-    await commentRef.delete();
+    const commentSnap = await commentRef.get();
+    const commentData = commentSnap.data();
 
-    logVerbose("Comment deleted successfully!");
+    if (commentData === undefined || commentData.userId !== uid) {
+      throwHttpsError("permission-denied", "You cannot delete a comment that you don't own.");
+    } else {
+      await commentRef.delete();
+      logVerbose("Comment deleted successfully!");
+    };
   } catch (error) {
     handleCatchHttpsError("Error deleting comment:", error);
   };
