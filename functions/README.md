@@ -91,7 +91,6 @@ Params = {
 
 ```
 Params = {
-  ownerId: "string",
   ownerName: "string",
   name: "string",
   isPublic: boolean,

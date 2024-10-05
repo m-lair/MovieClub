@@ -93,9 +93,6 @@ describe("User Functions", () => {
     it("should create a new User when email exists in auth via alt sign-in (ie apple/gmail)", async () => {
       userId = await createUserWithSignInProviderWrapped({ data: userData, auth: auth });
 
-      console.log(userId)
-      console.log(auth.uid)
-
       const snap = await firestore.collection(USERS).doc(userId).get();
       const userDoc = snap.data();
 
