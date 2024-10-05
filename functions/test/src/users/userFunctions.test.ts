@@ -6,6 +6,7 @@ import { CreateUserWithEmailData, CreateUserWithOAuthData, JoinMovieClubData, Up
 import { populateUserData, UserDataMock } from "test/mocks/user";
 import { MovieClubMock, populateMovieClubData } from "test/mocks/movieclub";
 import { AuthData } from "firebase-functions/tasks";
+import { MEMBERS, MEMBERSHIPS, MOVIE_CLUBS, USERS } from "src/utilities/collectionNames";
 
 // @ts-ignore
 // TODO: Figure out why ts can't detect the export on this
@@ -31,7 +32,7 @@ describe("User Functions", () => {
     it("should create a new User with email, name and password", async () => {
       userId = await createUserWithEmailWrapped({ data: userData });
 
-      const snap = await firestore.collection("users").doc(userId).get();
+      const snap = await firestore.collection(USERS).doc(userId).get();
       const userDoc = snap.data();
 
       assert(userDoc?.name == userData.name);
@@ -100,7 +101,7 @@ describe("User Functions", () => {
     it("should create a new User when email exists in auth via alt sign-in (ie apple/gmail)", async () => {
       userId = await createUserWithSignInProviderWrapped({ data: userData });
 
-      const snap = await firestore.collection("users").doc(userId).get();
+      const snap = await firestore.collection(USERS).doc(userId).get();
       const userDoc = snap.data();
 
       assert.equal(userDoc?.name, userData.name);
@@ -183,7 +184,7 @@ describe("User Functions", () => {
     it("should update an existing User", async () => {
       await updateUserWrapped({ data: userData });
       const userId = user.id || "";
-      const snap = await firestore.collection("users").doc(userId).get();
+      const snap = await firestore.collection(USERS).doc(userId).get();
       const userDoc = snap.data();
 
       assert.equal(userDoc?.id, userData.id);
@@ -229,9 +230,9 @@ describe("User Functions", () => {
       await joinMovieClubWrapped({ data: membershipData, auth: auth })
 
       const userMembershipSnap = await firestore
-        .collection("users")
+        .collection(USERS)
         .doc(user.id)
-        .collection("memberships")
+        .collection(MEMBERSHIPS)
         .doc(movieClub.id)
         .get()
 
@@ -246,9 +247,9 @@ describe("User Functions", () => {
       await joinMovieClubWrapped({ data: membershipData, auth: auth })
 
       const movieClubMemberSnap = await firestore
-        .collection("movieClubs")
+        .collection(MOVIE_CLUBS)
         .doc(movieClub.id)
-        .collection("members")
+        .collection(MEMBERS)
         .doc(user.id)
         .get()
 
@@ -260,7 +261,7 @@ describe("User Functions", () => {
         assert(movieClubMember?.createdAt)
     });
 
-    it.only("should error if movie club is not public", async () => {
+    it("should error if movie club is not public", async () => {
       try {
         movieClub = await populateMovieClubData({ isPublic: false });
         membershipData.movieClubId = movieClub.id

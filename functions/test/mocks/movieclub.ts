@@ -1,5 +1,6 @@
 import { logError, logVerbose } from "helpers";
 import { firestore } from "firestore";
+import { MOVIE_CLUBS } from "src/utilities/collectionNames";
 
 export interface MovieClubMock {
   id: string;
@@ -20,12 +21,14 @@ type MovieClubMockParams = Partial<MovieClubMock>;
 export async function populateMovieClubData(params: MovieClubMockParams = {}): Promise<MovieClubMock> {
   logVerbose("Populating movie club data...");
   const testMoviceClubId = params.id || "Test Club";
+  const { isPublic = true } = params;
+
   const movieClubData: MovieClubMock = {
     id: testMoviceClubId,
     bannerUrl: params.bannerUrl || "Test Banner Url",
     description: params.description || "Test Description",
     image: params.image || "Test Image",
-    isPublic: (params.isPublic != undefined) && params.isPublic,
+    isPublic: isPublic,
     name: params.name || "Test Club",
     numMembers: params.numMembers || 1,
     ownerId: params.ownerId || "test-user-id",
@@ -35,7 +38,7 @@ export async function populateMovieClubData(params: MovieClubMockParams = {}): P
     // movieEndDate: firebaseAdmin.firestore.Timestamp.fromDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)),
   };
 
-  const movieClubRef = firestore.collection("movieClubs").doc(testMoviceClubId);
+  const movieClubRef = firestore.collection(MOVIE_CLUBS).doc(testMoviceClubId);
   try {
     await movieClubRef.set(movieClubData);
     logVerbose("Movie club data set");
