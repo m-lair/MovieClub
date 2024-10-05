@@ -21,4 +21,7 @@ export interface UpdateUserData extends UserData {
 
 export interface JoinMovieClubData {
   movieClubId: string;
+  movieClubName: string;
+  image: string;
+  username: string;
 }

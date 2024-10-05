@@ -35,7 +35,7 @@ export async function populateMovieClubData(params: MovieClubMockParams = {}): P
     // movieEndDate: firebaseAdmin.firestore.Timestamp.fromDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)),
   };
 
-  const movieClubRef = firestore.collection("movieclubs").doc(testMoviceClubId);
+  const movieClubRef = firestore.collection("movieClubs").doc(testMoviceClubId);
   try {
     await movieClubRef.set(movieClubData);
     logVerbose("Movie club data set");
