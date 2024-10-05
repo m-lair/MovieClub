@@ -8,6 +8,7 @@ import { UpdateMovieClubData } from "src/movieClubs/movieClubTypes";
 import { DeleteCommentData, PostCommentData } from "src/movieClubs/movies/comments/commentTypes";
 import { COMMENTS, MOVIE_CLUBS, MOVIES } from "src/utilities/collectionNames";
 import { AuthData } from "firebase-functions/tasks";
+import { populateMembershipData } from "test/mocks/membership";
 
 // @ts-ignore
 // TODO: Figure out why ts can't detect the export on this
@@ -31,6 +32,7 @@ describe("Comment Functions", () => {
     movieClub = await populateMovieClubData({ id: "1", ownerId: user.id, ownerName: user.name });
     movie = await populateMovieData({ id: "1", movieClubId: movieClub.id });
     text = "This is a test comment";
+    await populateMembershipData({ userId: user.id, movieClubId: movieClub.id })
   });
 
   describe("postComment", () => {
@@ -64,6 +66,16 @@ describe("Comment Functions", () => {
       assert.equal(commentDoc.text, text);
       assert.equal(commentDoc.userId, user.id);
       assert.equal(commentDoc.username, user.name);
+    });
+
+    it("should error if the user isn't a member of the Movie Club", async () => {
+      try {
+        auth.uid = "wrong-user";
+        await postWrapped({ data: commentData, auth: auth });
+        assert.fail("Expected error not thrown");
+      } catch (error: any) {
+        assert.match(error.message, /You are not a member of this Movie Club./);
+      };
     });
 
     it("should error without required fields", async () => {
@@ -126,6 +138,27 @@ describe("Comment Functions", () => {
         .get();
 
       assert.equal(snap.data(), undefined);
+    });
+
+    it("should error with wrong user", async () => {
+      try {
+        auth.uid = "wrong-uid"
+        await deleteWrapped({ data: commentData, auth: auth });
+        assert.fail("Expected error not thrown");
+      } catch (error: any) {
+        assert.match(error.message, /You cannot delete a comment that you don't own./);
+
+        const snap = await firestore
+          .collection(MOVIE_CLUBS)
+          .doc(movieClub.id)
+          .collection(MOVIES)
+          .doc(movie.id)
+          .collection(COMMENTS)
+          .doc(commentData.id)
+          .get();
+
+        assert.equal(snap.data()?.id, commentData.id)
+      };
     });
 
     it("should error without required fields", async () => {

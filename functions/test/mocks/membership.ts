@@ -9,7 +9,7 @@ export interface MembershipMock {
 export interface MembershipMockParams {
   userId: string;
   movieClubId: string;
-  movieClubName: string;
+  movieClubName?: string;
   createMembership?: boolean;
 };
 
@@ -34,7 +34,7 @@ export async function populateMembershipData(params: MembershipMockParams) {
     logVerbose('Membership data set');
   } catch (error) {
     logError("Error setting membership data:", error);
-  }
+  };
 
   return membershipData
 };
