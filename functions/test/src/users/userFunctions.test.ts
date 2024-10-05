@@ -2,7 +2,7 @@ const assert = require("assert");
 import { firebaseTest } from "test/testHelper";
 import { firestore, firebaseAdmin } from "firestore";
 import { users } from "index";
-import { CreateUserWithEmailData, CreateUserWithOAuthData, UpdateUserData } from "src/users/userTypes";
+import { CreateUserWithEmailData, CreateUserWithOAuthData, JoinMovieClubData, UpdateUserData } from "src/users/userTypes";
 import { populateUserData, UserDataMock } from "test/mocks/user";
 import { MovieClubMock, populateMovieClubData } from "test/mocks/movieclub";
 import { AuthData } from "firebase-functions/tasks";
@@ -207,6 +207,7 @@ describe("User Functions", () => {
 
     let user: UserDataMock;
     let movieClub: MovieClubMock;
+    let membershipData: JoinMovieClubData;
     let auth: AuthData;
 
     beforeEach(async () => {
@@ -214,33 +215,61 @@ describe("User Functions", () => {
       user = userMock;
       auth = authMock!;
 
-      movieClub = await populateMovieClubData()
+      movieClub = await populateMovieClubData();
+
+      membershipData = {
+        image: "Test Image",
+        movieClubId: movieClub.id,
+        movieClubName: movieClub.name,
+        username: user.name,
+      }
     });
 
     it("should create a User Membership collection", async () => {
-      await joinMovieClubWrapped({ data: { movieClubId: movieClub.id }, auth: auth })
+      await joinMovieClubWrapped({ data: membershipData, auth: auth })
 
-      const userMembership = await firestore
+      const userMembershipSnap = await firestore
         .collection("users")
         .doc(user.id)
         .collection("memberships")
         .doc(movieClub.id)
         .get()
 
-      assert.equal(userMembership.id, movieClub.id)
+      const userMembership = userMembershipSnap.data();
+
+      assert.equal(userMembershipSnap.id, movieClub.id)
+      assert.equal(userMembership?.movieClubName, movieClub.name)
+      assert(userMembership?.createdAt)
     });
 
     it("should create a Movie Club Member collection", async () => {
-      await joinMovieClubWrapped({ data: { movieClubId: movieClub.id }, auth: auth })
+      await joinMovieClubWrapped({ data: membershipData, auth: auth })
 
-      const movieClubMember = await firestore
+      const movieClubMemberSnap = await firestore
         .collection("movieClubs")
         .doc(movieClub.id)
         .collection("members")
         .doc(user.id)
         .get()
 
-      assert.equal(movieClubMember.id, user.id)
+        const movieClubMember = movieClubMemberSnap.data();
+
+        assert.equal(movieClubMemberSnap.id, user.id)
+        assert.equal(movieClubMember?.image, membershipData.image)
+        assert.equal(movieClubMember?.username, user.name)
+        assert(movieClubMember?.createdAt)
+    });
+
+    it.only("should error if movie club is not public", async () => {
+      try {
+        movieClub = await populateMovieClubData({ isPublic: false });
+        membershipData.movieClubId = movieClub.id
+
+        await joinMovieClubWrapped({ data: membershipData, auth: auth })
+        assert.fail("Expected error not thrown");
+      } catch (error: any) {
+        assert.match(error.message, /The Movie Club is not publicly joinable./);
+      };
     });
 
     it("should error without required fields", async () => {
@@ -248,7 +277,7 @@ describe("User Functions", () => {
         await joinMovieClubWrapped({ data: {}, auth: auth })
         assert.fail("Expected error not thrown");
       } catch (error: any) {
-        assert.match(error.message, /The function must be called with movieClubId./);
+        assert.match(error.message, /The function must be called with image, movieClubId, movieClubName, username./);
       };
     });
 

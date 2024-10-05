@@ -171,8 +171,19 @@ exports.joinMovieClub = functions.https.onCall(async (request: CallableRequest<J
 
     const { uid } = verifyAuth(auth);
 
-    const requiredFields = ["movieClubId"];
+    const requiredFields = ["image", "movieClubId", "movieClubName", "username"];
     verifyRequiredFields(data, requiredFields);
+
+    const movieClubRef = await firestore
+      .collection("movieClubs")
+      .doc(data.movieClubId)
+      .get()
+
+      const movieClubData = movieClubRef.data()
+
+    if (movieClubData !== undefined && !movieClubData.isPublic) {
+      throwHttpsError("permission-denied", "The Movie Club is not publicly joinable.");
+    }
 
     const userMembershipsRef = firestore
       .collection("users")
@@ -180,7 +191,10 @@ exports.joinMovieClub = functions.https.onCall(async (request: CallableRequest<J
       .collection("memberships")
       .doc(data.movieClubId);
 
-    await userMembershipsRef.set({});
+    await userMembershipsRef.set({
+      movieClubName: data.movieClubName,
+      createdAt: Date.now()
+    });
 
     const movieClubMemberRef = firestore
       .collection("movieClubs")
@@ -188,7 +202,11 @@ exports.joinMovieClub = functions.https.onCall(async (request: CallableRequest<J
       .collection("members")
       .doc(uid);
 
-    await movieClubMemberRef.set({});
+    await movieClubMemberRef.set({
+      image: data.image,
+      username: data.username,
+      createdAt: Date.now()
+    });
 
     logVerbose("User updated successfully!");
   } catch (error: any) {
