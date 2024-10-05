@@ -3,6 +3,7 @@ import { firestore, firebaseAdmin } from "firestore";
 import { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyAuth, verifyRequiredFields } from "helpers";
 import { CreateUserWithEmailData, CreateUserWithOAuthData, JoinMovieClubData, UpdateUserData } from "./userTypes";
 import { CallableRequest } from "firebase-functions/https";
+import { MEMBERS, MEMBERSHIPS, MOVIE_CLUBS, USERS } from "src/utilities/collectionNames";
 
 exports.createUserWithEmail = functions.https.onCall(async (request: CallableRequest<CreateUserWithEmailData>) => {
   try {
@@ -112,8 +113,8 @@ async function createUser(id: string, data: CreateUserData): Promise<void> {
 
   try {
     await firestore.runTransaction(async (t) => {
-      const userRefByName = firestore.collection("users").where('name', '==', data.name);
-      const userRefByEmail = firestore.collection("users").where('email', '==', data.email);
+      const userRefByName = firestore.collection(USERS).where('name', '==', data.name);
+      const userRefByEmail = firestore.collection(USERS).where('email', '==', data.email);
 
       const [queryByName, queryByEmail] = await Promise.all([
         t.get(userRefByName),
@@ -128,7 +129,7 @@ async function createUser(id: string, data: CreateUserData): Promise<void> {
         throwHttpsError("invalid-argument", `email ${data.email} already exists.`, data);
       }
 
-      const newUserRef = firestore.collection("users").doc(id);
+      const newUserRef = firestore.collection(USERS).doc(id);
       t.set(newUserRef, userData);
     });
   } catch (error: any) {
@@ -157,7 +158,7 @@ exports.updateUser = functions.https.onCall(async (request: CallableRequest<Upda
       ...(request.data.name && { name: request.data.name })
     };
 
-    await firestore.collection("users").doc(request.data.id).update(userData);
+    await firestore.collection(USERS).doc(request.data.id).update(userData);
 
     logVerbose("User updated successfully!");
   } catch (error: any) {
@@ -175,20 +176,22 @@ exports.joinMovieClub = functions.https.onCall(async (request: CallableRequest<J
     verifyRequiredFields(data, requiredFields);
 
     const movieClubRef = await firestore
-      .collection("movieClubs")
+      .collection(MOVIE_CLUBS)
       .doc(data.movieClubId)
       .get()
 
-      const movieClubData = movieClubRef.data()
+    const movieClubData = movieClubRef.data()
+
+    console.log(movieClubData?.isPublic)
 
     if (movieClubData !== undefined && !movieClubData.isPublic) {
       throwHttpsError("permission-denied", "The Movie Club is not publicly joinable.");
     }
 
     const userMembershipsRef = firestore
-      .collection("users")
+      .collection(USERS)
       .doc(uid)
-      .collection("memberships")
+      .collection(MEMBERSHIPS)
       .doc(data.movieClubId);
 
     await userMembershipsRef.set({
@@ -197,9 +200,9 @@ exports.joinMovieClub = functions.https.onCall(async (request: CallableRequest<J
     });
 
     const movieClubMemberRef = firestore
-      .collection("movieClubs")
+      .collection(MOVIE_CLUBS)
       .doc(data.movieClubId)
-      .collection("members")
+      .collection(MEMBERS)
       .doc(uid);
 
     await movieClubMemberRef.set({

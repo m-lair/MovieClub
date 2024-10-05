@@ -3,13 +3,14 @@ import { firestore } from "firestore";
 import { handleCatchHttpsError, logVerbose, verifyRequiredFields } from "helpers";
 import { MovieClubData, UpdateMovieClubData } from "./movieClubTypes";
 import { CallableRequest } from "firebase-functions/https";
+import { MOVIE_CLUBS } from "src/utilities/collectionNames";
 
 exports.createMovieClub = functions.https.onCall(async (request: CallableRequest<MovieClubData>) => {
   try {
     const requiredFields = ["bannerUrl", "description", "image", "isPublic", "name", "ownerId", "ownerName", "timeInterval"];
     verifyRequiredFields(request.data, requiredFields);
 
-    const movieClubRef = firestore.collection("movieclubs");
+    const movieClubRef = firestore.collection(MOVIE_CLUBS);
 
     const movieClubData: MovieClubData = {
       bannerUrl: request.data.bannerUrl,
@@ -39,7 +40,7 @@ exports.updateMovieClub = functions.https.onCall(async (request: CallableRequest
     const requiredFields = ["id"];
     verifyRequiredFields(request.data, requiredFields);
 
-    const movieClubRef = firestore.collection("movieclubs").doc(request.data.id);
+    const movieClubRef = firestore.collection(MOVIE_CLUBS).doc(request.data.id);
 
     const movieClubData = {
       ...(request.data.bannerUrl && { bannerUrl: request.data.bannerUrl }),

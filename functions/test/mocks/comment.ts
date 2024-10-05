@@ -1,5 +1,6 @@
 import { firestore } from "firestore";
 import { logError, logVerbose } from "helpers";
+import { COMMENTS, MOVIE_CLUBS, MOVIES } from "src/utilities/collectionNames";
 
 export interface CommentMock {
   id: string;
@@ -32,7 +33,7 @@ export async function populateCommentData(params: CommentMockParams = {}): Promi
     createdAt: Date.now(),
   };
 
-  const commentsRef = firestore.collection("movieclubs").doc(movieClubId).collection('movies').doc(movieId).collection('comments').doc(id);
+  const commentsRef = firestore.collection(MOVIE_CLUBS).doc(movieClubId).collection(MOVIES).doc(movieId).collection(COMMENTS).doc(id);
   try {
     await commentsRef.set(commentData);
     logVerbose('comment data set');
