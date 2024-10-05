@@ -129,7 +129,6 @@ Params = {
   movieClubId: "string",
   movieId: "string",
   text: "string",
-  userId: "string",
   username: boolean
 }
 
