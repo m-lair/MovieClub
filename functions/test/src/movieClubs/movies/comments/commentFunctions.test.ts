@@ -7,6 +7,7 @@ import { UpdateUserData } from "src/users/userTypes";
 import { UpdateMovieClubData } from "src/movieClubs/movieClubTypes";
 import { DeleteCommentData, PostCommentData } from "src/movieClubs/movies/comments/commentTypes";
 import { COMMENTS, MOVIE_CLUBS, MOVIES } from "src/utilities/collectionNames";
+import { AuthData } from "firebase-functions/tasks";
 
 // @ts-ignore
 // TODO: Figure out why ts can't detect the export on this
@@ -17,6 +18,7 @@ describe("Comment Functions", () => {
   const deleteWrapped = firebaseTest.wrap(deleteComment);
 
   let user: UpdateUserData;
+  let auth: AuthData;
   let movieClub: UpdateMovieClubData;
   let movie: any;
   let text: string;
@@ -24,7 +26,8 @@ describe("Comment Functions", () => {
   beforeEach(async () => {
     const userMock = await populateUserData();
     user = userMock.user;
-    
+    auth = userMock.auth;
+
     movieClub = await populateMovieClubData({ id: "1", ownerId: user.id, ownerName: user.name });
     movie = await populateMovieData({ id: "1", movieClubId: movieClub.id });
     text = "This is a test comment";
@@ -44,7 +47,7 @@ describe("Comment Functions", () => {
     });
 
     it("should create a new comment", async () => {
-      await postWrapped({ data: commentData });
+      await postWrapped({ data: commentData, auth: auth });
 
       const snap = await firestore
         .collection(MOVIE_CLUBS)
@@ -65,11 +68,20 @@ describe("Comment Functions", () => {
 
     it("should error without required fields", async () => {
       try {
+        await postWrapped({ data: {}, auth: auth });
+        assert.fail("Expected error not thrown");
+      } catch (error: any) {
+        assert.match(error.message, /The function must be called with movieClubId, movieId, text, username./);
+      };
+    });
+
+    it("should error without auth", async () => {
+      try {
         await postWrapped({ data: {} });
         assert.fail("Expected error not thrown");
       } catch (error: any) {
-        assert.match(error.message, /The function must be called with movieClubId, movieId, text, userId, username./);
-      }
+        assert.match(error.message, /auth object is undefined./);
+      };
     });
   });
 
@@ -98,11 +110,11 @@ describe("Comment Functions", () => {
         .doc(movie.id)
         .collection(COMMENTS)
         .doc(commentData.id)
-        .get()
+        .get();
 
       assert.equal(snap.data()?.id, commentData.id);
 
-      await deleteWrapped({ data: commentData });
+      await deleteWrapped({ data: commentData, auth: auth });
 
       snap = await firestore
         .collection(MOVIE_CLUBS)
@@ -111,14 +123,14 @@ describe("Comment Functions", () => {
         .doc(movie.id)
         .collection(COMMENTS)
         .doc(commentData.id)
-        .get()
+        .get();
 
       assert.equal(snap.data(), undefined);
     });
 
     it("should error without required fields", async () => {
       try {
-        await deleteWrapped({ data: {} });
+        await deleteWrapped({ data: {}, auth: auth });
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(error.message, /The function must be called with id, movieClubId, movieId/);
@@ -130,10 +142,30 @@ describe("Comment Functions", () => {
           .doc(movie.id)
           .collection(COMMENTS)
           .doc(commentData.id)
-          .get()
+          .get();
 
         assert.equal(snap.data()?.id, commentData.id)
-      }
+      };
+    });
+
+    it("should error without auth", async () => {
+      try {
+        await deleteWrapped({ data: {} });
+        assert.fail("Expected error not thrown");
+      } catch (error: any) {
+        assert.match(error.message, /auth object is undefined./);
+
+        const snap = await firestore
+          .collection(MOVIE_CLUBS)
+          .doc(movieClub.id)
+          .collection(MOVIES)
+          .doc(movie.id)
+          .collection(COMMENTS)
+          .doc(commentData.id)
+          .get();
+
+        assert.equal(snap.data()?.id, commentData.id)
+      };
     });
   });
 });

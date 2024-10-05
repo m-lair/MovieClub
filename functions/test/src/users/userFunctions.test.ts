@@ -154,6 +154,15 @@ describe("User Functions", () => {
         assert.match(error.message, /The function must be called with name, signInProvider./);
       };
     });
+
+    it("should error without auth", async () => {
+      try {
+        await createUserWithSignInProviderWrapped({ data: {} })
+        assert.fail("Expected error not thrown");
+      } catch (error: any) {
+        assert.match(error.message, /auth object is undefined./);
+      };
+    });
   });
 
   describe("updateUser", () => {
@@ -194,6 +203,15 @@ describe("User Functions", () => {
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(error.message, /At least one field must be updated./);
+      };
+    });
+
+    it("should error without auth", async () => {
+      try {
+        await updateUserWrapped({ data: {} })
+        assert.fail("Expected error not thrown");
+      } catch (error: any) {
+        assert.match(error.message, /auth object is undefined./);
       };
     });
   });
@@ -248,12 +266,12 @@ describe("User Functions", () => {
         .doc(user.id)
         .get()
 
-        const movieClubMember = movieClubMemberSnap.data();
+      const movieClubMember = movieClubMemberSnap.data();
 
-        assert.equal(movieClubMemberSnap.id, user.id)
-        assert.equal(movieClubMember?.image, membershipData.image)
-        assert.equal(movieClubMember?.username, user.name)
-        assert(movieClubMember?.createdAt)
+      assert.equal(movieClubMemberSnap.id, user.id)
+      assert.equal(movieClubMember?.image, membershipData.image)
+      assert.equal(movieClubMember?.username, user.name)
+      assert(movieClubMember?.createdAt)
     });
 
     it("should error if movie club is not public", async () => {
@@ -279,7 +297,7 @@ describe("User Functions", () => {
 
     it("should error without auth", async () => {
       try {
-        await joinMovieClubWrapped({ data: {}, auth: undefined })
+        await joinMovieClubWrapped({ data: {} })
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(error.message, /auth object is undefined./);

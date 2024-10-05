@@ -1,28 +1,32 @@
 import * as functions from "firebase-functions";
 import { firestore } from "firestore";
-import { handleCatchHttpsError, logVerbose, verifyRequiredFields } from "helpers";
+import { handleCatchHttpsError, logVerbose, verifyAuth, verifyRequiredFields } from "helpers";
 import { DeleteCommentData, PostCommentData } from "./commentTypes";
 import { CallableRequest } from "firebase-functions/https";
 import { COMMENTS, MOVIE_CLUBS, MOVIES } from "src/utilities/collectionNames";
 
 exports.postComment = functions.https.onCall(async (request: CallableRequest<PostCommentData>) => {
   try {
-    const requiredFields = ["movieClubId", "movieId", "text", "userId", "username"]
-    verifyRequiredFields(request.data, requiredFields)
+    const { data, auth } = request;
+
+    const { uid } = verifyAuth(auth);
+    
+    const requiredFields = ["movieClubId", "movieId", "text", "username"]
+    verifyRequiredFields(data, requiredFields)
 
     const commentsRef = firestore
       .collection(MOVIE_CLUBS)
-      .doc(request.data.movieClubId)
+      .doc(data.movieClubId)
       .collection(MOVIES)
-      .doc(request.data.movieId)
+      .doc(data.movieId)
       .collection(COMMENTS);
 
     const commentData = {
-      userId: request.data.userId,
-      username: request.data.username,
-      text: request.data.text,
+      userId: uid,
+      username: data.username,
+      text: data.text,
       likes: 0,
-      image: request.data.image || "",
+      image: data.image || "",
       createdAt: Date.now()
     }
 
@@ -38,18 +42,21 @@ exports.postComment = functions.https.onCall(async (request: CallableRequest<Pos
 
 exports.deleteComment = functions.https.onCall(async (request: CallableRequest<DeleteCommentData>) => {
   try {
+    const { data, auth } = request;
+
+    verifyAuth(auth);
+
     const requiredFields = ["id", "movieClubId", "movieId"];
     verifyRequiredFields(request.data, requiredFields);
 
     const commentRef = firestore
       .collection(MOVIE_CLUBS)
-      .doc(request.data.movieClubId)
+      .doc(data.movieClubId)
       .collection(MOVIES)
-      .doc(request.data.movieId)
+      .doc(data.movieId)
       .collection(COMMENTS)
-      .doc(request.data.id);
+      .doc(data.id);
 
-    // Delete the comment
     await commentRef.delete();
 
     logVerbose("Comment deleted successfully!");
