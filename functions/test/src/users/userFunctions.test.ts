@@ -107,7 +107,8 @@ describe("User Functions", () => {
 
     it("should error when email doesn't exist in auth", async () => {
       try {
-        userData.email = "nonexistant@email.com"
+        auth.token.email = "nonexistant@email.com"
+
         await createUserWithSignInProviderWrapped({ data: userData, auth: auth });
 
         assert.fail("Expected error not thrown");
@@ -153,7 +154,7 @@ describe("User Functions", () => {
         await createUserWithSignInProviderWrapped({ data: {}, auth: auth })
         assert.fail("Expected error not thrown");
       } catch (error: any) {
-        assert.match(error.message, /The function must be called with email, name./);
+        assert.match(error.message, /The function must be called with name, signInProvider./);
       };
     });
   });
