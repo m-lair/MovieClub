@@ -187,8 +187,6 @@ exports.joinMovieClub = functions.https.onCall(async (request: CallableRequest<J
 
     const movieClubData = movieClubRef.data()
 
-    console.log(movieClubData?.isPublic)
-
     if (movieClubData !== undefined && !movieClubData.isPublic) {
       throwHttpsError("permission-denied", "The Movie Club is not publicly joinable.");
     }
