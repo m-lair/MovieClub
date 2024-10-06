@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Model
-final class MovieClub: Identifiable, Codable, Hashable, Equatable {
+final class MovieClub: Identifiable, Decodable, Hashable, Equatable {
     var id: String?
     var name: String
     var created: Date
@@ -30,6 +30,7 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         id: String? = nil,
         name: String,
         created: Date = Date(),
+        numMembers: Int,
         desc: String? = nil,
         ownerName: String,
         timeInterval: Int,
@@ -44,6 +45,7 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         self.id = id
         self.name = name
         self.created = created
+        self.numMembers = numMembers
         self.desc = desc
         self.ownerName = ownerName
         self.timeInterval = timeInterval
@@ -71,13 +73,6 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         bannerUrl = try container.decodeIfPresent(String.self, forKey: .bannerUrl)
         numMovies = try container.decode(Int.self, forKey: .numMovies)
         movies = []
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(id, forKey: .id)
-        try container.encode(name, forKey: .name)
-        try container.encode(created, forKey: .created)
     }
     
     enum CodingKeys: String, CodingKey {

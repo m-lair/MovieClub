@@ -84,11 +84,7 @@ describe("User Functions", () => {
 
     it("should error without required fields", async () => {
       try {
-<<<<<<< HEAD
         await createUserWithEmailWrapped({ data: {} });
-=======
-        await createUserWithEmailWrapped({ data: {} })
->>>>>>> 833179b (update to latest firebase-functions version)
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(
@@ -118,14 +114,10 @@ describe("User Functions", () => {
     });
 
     it("should create a new User when email exists in auth via alt sign-in (ie apple/gmail)", async () => {
-<<<<<<< HEAD
       userId = await createUserWithSignInProviderWrapped({
         data: userData,
         auth: auth,
       });
-=======
-      userId = await createUserWithSignInProviderWrapped({ data: userData });
->>>>>>> 833179b (update to latest firebase-functions version)
 
       const snap = await firestore.collection(USERS).doc(userId).get();
       const userDoc = snap.data();
@@ -139,17 +131,12 @@ describe("User Functions", () => {
 
     it("should error when email doesn't exist in auth", async () => {
       try {
-<<<<<<< HEAD
         auth.token.email = "nonexistant@email.com";
 
         await createUserWithSignInProviderWrapped({
           data: userData,
           auth: auth,
         });
-=======
-        userData.email = "nonexistant@email.com"
-        await createUserWithSignInProviderWrapped({ data: userData });
->>>>>>> 833179b (update to latest firebase-functions version)
 
         assert.fail("Expected error not thrown");
       } catch (error: any) {
@@ -159,7 +146,6 @@ describe("User Functions", () => {
 
     it("should error when email already exists", async () => {
       try {
-<<<<<<< HEAD
         await createUserWithSignInProviderWrapped({
           data: userData,
           auth: auth,
@@ -170,12 +156,6 @@ describe("User Functions", () => {
           data: userData,
           auth: auth,
         });
-=======
-        await createUserWithSignInProviderWrapped({ data: userData });
-
-        userData.name = "Test User 2";
-        await createUserWithSignInProviderWrapped({ data: userData });
->>>>>>> 833179b (update to latest firebase-functions version)
 
         assert.fail("Expected error not thrown");
       } catch (error: any) {
@@ -185,14 +165,10 @@ describe("User Functions", () => {
 
     it("should error when user name already exists", async () => {
       try {
-<<<<<<< HEAD
         await createUserWithSignInProviderWrapped({
           data: userData,
           auth: auth,
         });
-=======
-        await createUserWithSignInProviderWrapped({ data: userData });
->>>>>>> 833179b (update to latest firebase-functions version)
 
         userData.email = "test2@email.com";
 
@@ -201,14 +177,10 @@ describe("User Functions", () => {
           displayName: userData.name,
         });
 
-<<<<<<< HEAD
         await createUserWithSignInProviderWrapped({
           data: userData,
           auth: auth,
         });
-=======
-        await createUserWithSignInProviderWrapped({ data: userData });
->>>>>>> 833179b (update to latest firebase-functions version)
 
         assert.fail("Expected error not thrown");
       } catch (error: any) {
@@ -218,11 +190,7 @@ describe("User Functions", () => {
 
     it("should error without required fields", async () => {
       try {
-<<<<<<< HEAD
         await createUserWithSignInProviderWrapped({ data: {}, auth: auth });
-=======
-        await createUserWithSignInProviderWrapped({ data: {} })
->>>>>>> 833179b (update to latest firebase-functions version)
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(error.message, /The function must be called with name./);
@@ -260,11 +228,7 @@ describe("User Functions", () => {
     });
 
     it("should update an existing User", async () => {
-<<<<<<< HEAD
       await updateUserWrapped({ data: userData, auth: auth });
-=======
-      await updateUserWrapped({ data: userData });
->>>>>>> 833179b (update to latest firebase-functions version)
       const userId = user.id || "";
       const snap = await firestore.collection(USERS).doc(userId).get();
       const userDoc = snap.data();
@@ -277,11 +241,7 @@ describe("User Functions", () => {
 
     it("should error without required fields", async () => {
       try {
-<<<<<<< HEAD
         await updateUserWrapped({ data: {}, auth: auth });
-=======
-        await updateUserWrapped({ data: {} })
->>>>>>> 833179b (update to latest firebase-functions version)
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(error.message, /At least one field must be updated./);

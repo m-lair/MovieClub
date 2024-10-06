@@ -52,23 +52,7 @@
     "src": "./src",
     "index": "src/index",
     "firestore": "src/utilities/firestore",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     "helpers": "src/utilities/helpers",
-=======
-    "utilities": "src/utilities/",
->>>>>>> 90bc2ee (working tests)
-=======
-    "utilities": "src/utilities/",
->>>>>>> d98a3c8 (working tests)
-=======
-    "helpers": "src/utilities/helpers",
->>>>>>> 7be0e44 (remove slash from helpers alias)
-=======
-    "utilities": "src/utilities/",
->>>>>>> 9d052da (working tests)
     "mocks": "./test/mocks",
     "test": "./test"
   },
