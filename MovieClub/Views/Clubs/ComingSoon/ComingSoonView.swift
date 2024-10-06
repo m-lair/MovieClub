@@ -25,7 +25,7 @@ struct ComingSoonView: View {
                     HStack{
                         ComingSoonRowView(member: comingSoon[index])
                         Spacer()
-                        if let date = Calendar.current.date(byAdding: .weekOfYear, value: club.timeInterval * index, to: club.movieEndDate) {
+                        if let date = Calendar.current.date(byAdding: .weekOfYear, value: club.timeInterval * index, to: club.movieEndDate ?? Date()) {
                             Text("\(String(describing: date.formatted(date: .numeric, time: .omitted)))")
                                 .font(.title3)
                                 .foregroundStyle(.black)
