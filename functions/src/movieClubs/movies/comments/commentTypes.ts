@@ -12,7 +12,7 @@ interface CommentDataAssociations {
   movieId: string;
 }
 
-export interface PostCommentData extends CommentData, CommentDataAssociations { }
+export interface PostCommentData extends CommentData, CommentDataAssociations {}
 
 export interface DeleteCommentData extends CommentDataAssociations {
   id: string;

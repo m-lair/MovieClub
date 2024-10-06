@@ -11,11 +11,13 @@ if (fs.existsSync(serviceAccountPath)) {
 
   if (!firebaseAdmin.apps.length) {
     firebaseApp = firebaseAdmin.initializeApp({
-      credential: firebaseAdmin.credential.cert(serviceAccount)
+      credential: firebaseAdmin.credential.cert(serviceAccount),
     });
   }
 } else {
-  console.warn(`Service account key not found at ${serviceAccountPath}. Initializing with default credentials.`);
+  console.warn(
+    `Service account key not found at ${serviceAccountPath}. Initializing with default credentials.`,
+  );
 
   if (!firebaseAdmin.apps.length) {
     firebaseApp = firebaseAdmin.initializeApp();
