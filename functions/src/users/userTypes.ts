@@ -8,6 +8,7 @@ export interface UserData {
 export interface CreateUserWithEmailData extends UserData {
   email: string;
   password: string;
+  signInProvider?: string;
 };
 
 export interface CreateUserWithOAuthData extends UserData {

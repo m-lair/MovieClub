@@ -27,7 +27,7 @@ export async function populateCommentData(params: CommentMockParams = {}): Promi
     id: id,
     image: params.image || "Test image",
     text: params.text || "Test text",
-    userId: params.username || "test-user-id",
+    userId: params.id || "test-user-id",
     username: params.username || "Test User",
     likes: params.likes || 0,
     createdAt: Date.now(),

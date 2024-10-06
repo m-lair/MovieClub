@@ -39,6 +39,7 @@ describe("User Functions", () => {
       assert(userDoc?.image == userData.image);
       assert(userDoc?.bio == userData.bio);
       assert(userDoc?.email == userData.email);
+      assert(userDoc?.signInProvider == "password");
     });
 
     it("should error when email already exists", async () => {
@@ -82,24 +83,16 @@ describe("User Functions", () => {
 
     let userId: string;
     let userData: CreateUserWithOAuthData;
+    let auth: AuthData;
 
     beforeEach(async () => {
-      userData = {
-        name: "Test User",
-        image: "Test Image",
-        bio: "Test Bio",
-        email: "test@email.com",
-        signInProvider: "apple"
-      };
-
-      await firebaseAdmin.auth().createUser({
-        email: userData.email,
-        displayName: userData.name
-      });
+      const { user: userDataMock, auth: authMock } = await populateUserData({ createUser: false, signInProvider: "apple.com" });
+      auth = authMock;
+      userData = userDataMock;
     });
 
     it("should create a new User when email exists in auth via alt sign-in (ie apple/gmail)", async () => {
-      userId = await createUserWithSignInProviderWrapped({ data: userData });
+      userId = await createUserWithSignInProviderWrapped({ data: userData, auth: auth });
 
       const snap = await firestore.collection(USERS).doc(userId).get();
       const userDoc = snap.data();
@@ -108,12 +101,14 @@ describe("User Functions", () => {
       assert.equal(userDoc?.image, userData.image);
       assert.equal(userDoc?.bio, userData.bio);
       assert.equal(userDoc?.email, userData.email);
+      assert.equal(userDoc?.signInProvider, userData.signInProvider);
     });
 
     it("should error when email doesn't exist in auth", async () => {
       try {
-        userData.email = "nonexistant@email.com"
-        await createUserWithSignInProviderWrapped({ data: userData });
+        auth.token.email = "nonexistant@email.com"
+
+        await createUserWithSignInProviderWrapped({ data: userData, auth: auth });
 
         assert.fail("Expected error not thrown");
       } catch (error: any) {
@@ -123,10 +118,10 @@ describe("User Functions", () => {
 
     it("should error when email already exists", async () => {
       try {
-        await createUserWithSignInProviderWrapped({ data: userData });
+        await createUserWithSignInProviderWrapped({ data: userData, auth: auth });
 
         userData.name = "Test User 2";
-        await createUserWithSignInProviderWrapped({ data: userData });
+        await createUserWithSignInProviderWrapped({ data: userData, auth: auth });
 
         assert.fail("Expected error not thrown");
       } catch (error: any) {
@@ -136,7 +131,7 @@ describe("User Functions", () => {
 
     it("should error when user name already exists", async () => {
       try {
-        await createUserWithSignInProviderWrapped({ data: userData });
+        await createUserWithSignInProviderWrapped({ data: userData, auth: auth });
 
         userData.email = "test2@email.com";
 
@@ -145,7 +140,7 @@ describe("User Functions", () => {
           displayName: userData.name
         });
 
-        await createUserWithSignInProviderWrapped({ data: userData });
+        await createUserWithSignInProviderWrapped({ data: userData, auth: auth });
 
         assert.fail("Expected error not thrown");
       } catch (error: any) {
@@ -155,10 +150,19 @@ describe("User Functions", () => {
 
     it("should error without required fields", async () => {
       try {
+        await createUserWithSignInProviderWrapped({ data: {}, auth: auth })
+        assert.fail("Expected error not thrown");
+      } catch (error: any) {
+        assert.match(error.message, /The function must be called with name./);
+      };
+    });
+
+    it("should error without auth", async () => {
+      try {
         await createUserWithSignInProviderWrapped({ data: {} })
         assert.fail("Expected error not thrown");
       } catch (error: any) {
-        assert.match(error.message, /The function must be called with email, name./);
+        assert.match(error.message, /auth object is undefined./);
       };
     });
   });
@@ -168,10 +172,12 @@ describe("User Functions", () => {
 
     let user: UserDataMock;
     let userData: UpdateUserData;
+    let auth: AuthData;
 
     beforeEach(async () => {
-      const userMock = await populateUserData();
-      user = userMock.user;
+      const { user: userMock, auth: authMock } = await populateUserData();
+      user = userMock;
+      auth = authMock;
 
       userData = {
         id: user.id,
@@ -182,7 +188,7 @@ describe("User Functions", () => {
     });
 
     it("should update an existing User", async () => {
-      await updateUserWrapped({ data: userData });
+      await updateUserWrapped({ data: userData, auth: auth });
       const userId = user.id || "";
       const snap = await firestore.collection(USERS).doc(userId).get();
       const userDoc = snap.data();
@@ -195,10 +201,19 @@ describe("User Functions", () => {
 
     it("should error without required fields", async () => {
       try {
+        await updateUserWrapped({ data: {}, auth: auth })
+        assert.fail("Expected error not thrown");
+      } catch (error: any) {
+        assert.match(error.message, /At least one field must be updated./);
+      };
+    });
+
+    it("should error without auth", async () => {
+      try {
         await updateUserWrapped({ data: {} })
         assert.fail("Expected error not thrown");
       } catch (error: any) {
-        assert.match(error.message, /The function must be called with id./);
+        assert.match(error.message, /auth object is undefined./);
       };
     });
   });
@@ -214,7 +229,7 @@ describe("User Functions", () => {
     beforeEach(async () => {
       const { user: userMock, auth: authMock } = await populateUserData();
       user = userMock;
-      auth = authMock!;
+      auth = authMock;
 
       movieClub = await populateMovieClubData();
 
@@ -253,12 +268,12 @@ describe("User Functions", () => {
         .doc(user.id)
         .get()
 
-        const movieClubMember = movieClubMemberSnap.data();
+      const movieClubMember = movieClubMemberSnap.data();
 
-        assert.equal(movieClubMemberSnap.id, user.id)
-        assert.equal(movieClubMember?.image, membershipData.image)
-        assert.equal(movieClubMember?.username, user.name)
-        assert(movieClubMember?.createdAt)
+      assert.equal(movieClubMemberSnap.id, user.id)
+      assert.equal(movieClubMember?.image, membershipData.image)
+      assert.equal(movieClubMember?.username, user.name)
+      assert(movieClubMember?.createdAt)
     });
 
     it("should error if movie club is not public", async () => {
@@ -284,7 +299,7 @@ describe("User Functions", () => {
 
     it("should error without auth", async () => {
       try {
-        await joinMovieClubWrapped({ data: {}, auth: undefined })
+        await joinMovieClubWrapped({ data: {} })
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(error.message, /auth object is undefined./);

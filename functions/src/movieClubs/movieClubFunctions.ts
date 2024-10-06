@@ -1,27 +1,31 @@
 import * as functions from "firebase-functions";
 import { firestore } from "firestore";
-import { handleCatchHttpsError, logVerbose, verifyRequiredFields } from "helpers";
+import { handleCatchHttpsError, logVerbose, throwHttpsError, verifyAuth, verifyRequiredFields } from "helpers";
 import { MovieClubData, UpdateMovieClubData } from "./movieClubTypes";
 import { CallableRequest } from "firebase-functions/https";
 import { MOVIE_CLUBS } from "src/utilities/collectionNames";
 
 exports.createMovieClub = functions.https.onCall(async (request: CallableRequest<MovieClubData>) => {
   try {
-    const requiredFields = ["bannerUrl", "description", "image", "isPublic", "name", "ownerId", "ownerName", "timeInterval"];
+    const { data, auth } = request;
+
+    const { uid } = verifyAuth(auth);
+
+    const requiredFields = ["bannerUrl", "description", "image", "isPublic", "name", "ownerName", "timeInterval"];
     verifyRequiredFields(request.data, requiredFields);
 
     const movieClubRef = firestore.collection(MOVIE_CLUBS);
 
     const movieClubData: MovieClubData = {
-      bannerUrl: request.data.bannerUrl,
-      description: request.data.description,
-      image: request.data.image,
-      isPublic: request.data.isPublic,
-      name: request.data.name,
+      bannerUrl: data.bannerUrl,
+      description: data.description,
+      image: data.image,
+      isPublic: data.isPublic,
+      name: data.name,
       numMembers: 1,
-      ownerId: request.data.ownerId,
-      ownerName: request.data.ownerName,
-      timeInterval: request.data.timeInterval,
+      ownerId: uid,
+      ownerName: data.ownerName,
+      timeInterval: data.timeInterval,
       createdAt: Date.now()
     };
 
@@ -37,21 +41,32 @@ exports.createMovieClub = functions.https.onCall(async (request: CallableRequest
 
 exports.updateMovieClub = functions.https.onCall(async (request: CallableRequest<UpdateMovieClubData>) => {
   try {
+    const { data, auth } = request;
+
+    const { uid } = verifyAuth(auth);
+
     const requiredFields = ["id"];
     verifyRequiredFields(request.data, requiredFields);
 
     const movieClubRef = firestore.collection(MOVIE_CLUBS).doc(request.data.id);
 
-    const movieClubData = {
-      ...(request.data.bannerUrl && { bannerUrl: request.data.bannerUrl }),
-      ...(request.data.description && { description: request.data.description }),
-      ...(request.data.image && { image: request.data.image }),
-      ...(request.data.isPublic != undefined && { isPublic: request.data.isPublic }),
-      ...(request.data.name && { name: request.data.name }),
-      ...(request.data.timeInterval && { timeInterval: request.data.timeInterval })
+    const movieClubSnap = await movieClubRef.get();
+    const movieClubData = movieClubSnap.data();
+
+    if (movieClubData?.ownerId !== uid) {
+      throwHttpsError("permission-denied", "The user is not the owner of the Movie Club.");
+    }
+
+    const movieClubUpdateData = {
+      ...(data.bannerUrl && { bannerUrl: data.bannerUrl }),
+      ...(data.description && { description: data.description }),
+      ...(data.image && { image: data.image }),
+      ...(data.isPublic != undefined && { isPublic: data.isPublic }),
+      ...(data.name && { name: data.name }),
+      ...(data.timeInterval && { timeInterval: data.timeInterval })
     };
 
-    await movieClubRef.update(movieClubData);
+    await movieClubRef.update(movieClubUpdateData);
 
     logVerbose("Movie Club updated successfully!");
   } catch (error) {
