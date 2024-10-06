@@ -1,18 +1,27 @@
 const assert = require("assert");
 import { firebaseTest } from "test/testHelper";
 import { firestore } from "firestore";
-import { populateUserData, populateMovieClubData, populateMovieData, populateCommentData } from "mocks";
+import {
+  populateUserData,
+  populateMovieClubData,
+  populateMovieData,
+  populateCommentData,
+} from "mocks";
 import { comments } from "index";
 import { UpdateUserData } from "src/users/userTypes";
 import { UpdateMovieClubData } from "src/movieClubs/movieClubTypes";
-import { DeleteCommentData, PostCommentData } from "src/movieClubs/movies/comments/commentTypes";
+import {
+  DeleteCommentData,
+  PostCommentData,
+} from "src/movieClubs/movies/comments/commentTypes";
 import { COMMENTS, MOVIE_CLUBS, MOVIES } from "src/utilities/collectionNames";
 import { AuthData } from "firebase-functions/tasks";
 import { populateMembershipData } from "test/mocks/membership";
 
-// @ts-ignore
+// @ts-expect-error it works but ts won't detect it for some reason
 // TODO: Figure out why ts can't detect the export on this
-const { deleteComment, postComment } = comments
+// prettier-ignore
+const { deleteComment, postComment } = comments;
 
 describe("Comment Functions", () => {
   const postWrapped = firebaseTest.wrap(postComment);
@@ -29,10 +38,17 @@ describe("Comment Functions", () => {
     user = userMock.user;
     auth = userMock.auth;
 
-    movieClub = await populateMovieClubData({ id: "1", ownerId: user.id, ownerName: user.name });
+    movieClub = await populateMovieClubData({
+      id: "1",
+      ownerId: user.id,
+      ownerName: user.name,
+    });
     movie = await populateMovieData({ id: "1", movieClubId: movieClub.id });
     text = "This is a test comment";
-    await populateMembershipData({ userId: user.id, movieClubId: movieClub.id })
+    await populateMembershipData({
+      userId: user.id,
+      movieClubId: movieClub.id,
+    });
   });
 
   describe("postComment", () => {
@@ -75,7 +91,7 @@ describe("Comment Functions", () => {
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(error.message, /You are not a member of this Movie Club./);
-      };
+      }
     });
 
     it("should error without required fields", async () => {
@@ -83,8 +99,11 @@ describe("Comment Functions", () => {
         await postWrapped({ data: {}, auth: auth });
         assert.fail("Expected error not thrown");
       } catch (error: any) {
-        assert.match(error.message, /The function must be called with movieClubId, movieId, text, username./);
-      };
+        assert.match(
+          error.message,
+          /The function must be called with movieClubId, movieId, text, username./,
+        );
+      }
     });
 
     it("should error without auth", async () => {
@@ -93,7 +112,7 @@ describe("Comment Functions", () => {
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(error.message, /auth object is undefined./);
-      };
+      }
     });
   });
 
@@ -107,7 +126,12 @@ describe("Comment Functions", () => {
         movieId: movie.id,
       };
 
-      const comment = await populateCommentData({ movieClubId: movieClub.id, movieId: movie.id, userId: user.id, username: user.name });
+      const comment = await populateCommentData({
+        movieClubId: movieClub.id,
+        movieId: movie.id,
+        userId: user.id,
+        username: user.name,
+      });
 
       commentData.id = comment.id;
     });
@@ -142,11 +166,14 @@ describe("Comment Functions", () => {
 
     it("should error with wrong user", async () => {
       try {
-        auth.uid = "wrong-uid"
+        auth.uid = "wrong-uid";
         await deleteWrapped({ data: commentData, auth: auth });
         assert.fail("Expected error not thrown");
       } catch (error: any) {
-        assert.match(error.message, /You cannot delete a comment that you don't own./);
+        assert.match(
+          error.message,
+          /You cannot delete a comment that you don't own./,
+        );
 
         const snap = await firestore
           .collection(MOVIE_CLUBS)
@@ -157,8 +184,8 @@ describe("Comment Functions", () => {
           .doc(commentData.id)
           .get();
 
-        assert.equal(snap.data()?.id, commentData.id)
-      };
+        assert.equal(snap.data()?.id, commentData.id);
+      }
     });
 
     it("should error without required fields", async () => {
@@ -166,7 +193,10 @@ describe("Comment Functions", () => {
         await deleteWrapped({ data: {}, auth: auth });
         assert.fail("Expected error not thrown");
       } catch (error: any) {
-        assert.match(error.message, /The function must be called with id, movieClubId, movieId/);
+        assert.match(
+          error.message,
+          /The function must be called with id, movieClubId, movieId/,
+        );
 
         const snap = await firestore
           .collection(MOVIE_CLUBS)
@@ -177,8 +207,8 @@ describe("Comment Functions", () => {
           .doc(commentData.id)
           .get();
 
-        assert.equal(snap.data()?.id, commentData.id)
-      };
+        assert.equal(snap.data()?.id, commentData.id);
+      }
     });
 
     it("should error without auth", async () => {
@@ -197,8 +227,8 @@ describe("Comment Functions", () => {
           .doc(commentData.id)
           .get();
 
-        assert.equal(snap.data()?.id, commentData.id)
-      };
+        assert.equal(snap.data()?.id, commentData.id);
+      }
     });
   });
 });

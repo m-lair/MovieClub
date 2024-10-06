@@ -1,61 +1,92 @@
 import * as functions from "firebase-functions";
 import { firestore, firebaseAdmin } from "firestore";
-import { handleCatchHttpsError, logError, logVerbose, throwHttpsError, verifyAuth, verifyRequiredFields } from "helpers";
-import { CreateUserWithEmailData, CreateUserWithOAuthData, JoinMovieClubData, UpdateUserData } from "./userTypes";
+import {
+  handleCatchHttpsError,
+  logError,
+  logVerbose,
+  throwHttpsError,
+  verifyAuth,
+  verifyRequiredFields,
+} from "helpers";
+import {
+  CreateUserWithEmailData,
+  CreateUserWithOAuthData,
+  JoinMovieClubData,
+  UpdateUserData,
+} from "./userTypes";
 import { CallableRequest } from "firebase-functions/https";
-import { MEMBERS, MEMBERSHIPS, MOVIE_CLUBS, USERS } from "src/utilities/collectionNames";
+import {
+  MEMBERS,
+  MEMBERSHIPS,
+  MOVIE_CLUBS,
+  USERS,
+} from "src/utilities/collectionNames";
 
-exports.createUserWithEmail = functions.https.onCall(async (request: CallableRequest<CreateUserWithEmailData>) => {
-  try {
-    const {data} = request;
-    const requiredFields = ["email", "name", "password"];
-    verifyRequiredFields(request.data, requiredFields);
+exports.createUserWithEmail = functions.https.onCall(
+  async (request: CallableRequest<CreateUserWithEmailData>) => {
+    try {
+      const { data } = request;
+      const requiredFields = ["email", "name", "password"];
+      verifyRequiredFields(request.data, requiredFields);
 
-    const uid = await createUserAuthentication(request.data);
-    data.signInProvider = "password";
+      const uid = await createUserAuthentication(request.data);
+      data.signInProvider = "password";
 
-    if (uid) {
-      await createUser(uid, data);
+      if (uid) {
+        await createUser(uid, data);
+      }
+
+      return uid;
+    } catch (error: any) {
+      handleCatchHttpsError("Error creating user:", error);
     }
+  },
+);
 
-    return uid;
-  } catch (error: any) {
-    handleCatchHttpsError("Error creating user:", error);
-  }
-});
+exports.createUserWithSignInProvider = functions.https.onCall(
+  async (request: CallableRequest<CreateUserWithOAuthData>) => {
+    try {
+      const { data, auth } = request;
 
-exports.createUserWithSignInProvider = functions.https.onCall(async (request: CallableRequest<CreateUserWithOAuthData>) => {
-  try {
-    const { data, auth } = request;
+      const {
+        uid,
+        token: {
+          email,
+          firebase: { sign_in_provider },
+        },
+      } = verifyAuth(auth);
 
-    const { uid, token: { email, firebase: { sign_in_provider } } } = verifyAuth(auth);
+      const requiredFields = ["name"];
+      verifyRequiredFields(data, requiredFields);
 
-    const requiredFields = ["name"];
-    verifyRequiredFields(data, requiredFields);
+      const userRecord = await getAuthUserByEmail(email!);
+      data.signInProvider = sign_in_provider;
 
-    const userRecord = await getAuthUserByEmail(email!);
-    data.signInProvider = sign_in_provider;
+      if (userRecord) {
+        await createUser(uid, data);
+      } else {
+        throwHttpsError(
+          "invalid-argument",
+          `createUserWithSignInProvider: email does not exist`,
+          data,
+        );
+      }
 
-    if (userRecord) {
-      await createUser(uid, data)
-    } else {
-      throwHttpsError("invalid-argument", `createUserWithSignInProvider: email does not exist`, data);
+      return uid;
+    } catch (error: any) {
+      handleCatchHttpsError("Error creating user:", error);
     }
+  },
+);
 
-    return uid;
-  } catch (error: any) {
-    handleCatchHttpsError("Error creating user:", error);
-  }
-});
-
-// For email lookup, you can only search the main (top level) email and not provider specific emails. 
-// For example, if a Facebook account with a different email facebookUser@example.com 
-// is linked to an existing user with email user@example.com, 
-// calling getUserByEmail("facebookUser@example.com") will yield no results 
-// whereas getUserByEmail("user@example.com") will return the expected user. 
-// In the case of the default "single account per email" setting, 
-// the first email used to sign in with will be used as the top level email unless modified afterwards. 
-// When "multiple accounts per email" is set, the main email is only set when a password user is created 
+// For email lookup, you can only search the main (top level) email and not provider specific emails.
+// For example, if a Facebook account with a different email facebookUser@example.com
+// is linked to an existing user with email user@example.com,
+// calling getUserByEmail("facebookUser@example.com") will yield no results
+// whereas getUserByEmail("user@example.com") will return the expected user.
+// In the case of the default "single account per email" setting,
+// the first email used to sign in with will be used as the top level email unless modified afterwards.
+// When "multiple accounts per email" is set, the main email is only set when a password user is created
 // unless manually updated.
 
 async function getAuthUserByEmail(email: string) {
@@ -63,49 +94,57 @@ async function getAuthUserByEmail(email: string) {
     return await firebaseAdmin.auth().getUserByEmail(email);
   } catch (error: any) {
     switch (error.code) {
-      case 'auth/user-not-found':
+      case "auth/user-not-found":
         return null;
 
       default:
         throw error;
-    };
-  };
-};
+    }
+  }
+}
 
-async function createUserAuthentication(data: CreateUserWithEmailData): Promise<string | undefined> {
+async function createUserAuthentication(
+  data: CreateUserWithEmailData,
+): Promise<string | undefined> {
   const { email, password, name } = data;
 
   try {
     const userRecord = await firebaseAdmin.auth().createUser({
       email: email,
       password: password,
-      displayName: name
+      displayName: name,
     });
 
     return userRecord.uid;
   } catch (error: any) {
     // all error codes: https://firebase.google.com/docs/auth/admin/errors
     switch (error.code) {
-      case 'auth/email-already-exists':
+      case "auth/email-already-exists":
         throwHttpsError("invalid-argument", error.message, data);
-
-      case 'auth/invalid-display-name':
+        break;
+      case "auth/invalid-display-name":
         throwHttpsError("invalid-argument", error.message, data);
-
-      case 'auth/invalid-email':
+        break;
+      case "auth/invalid-email":
         throwHttpsError("invalid-argument", error.message, data);
-
-      case 'auth/invalid-password':
+        break;
+      case "auth/invalid-password":
         throwHttpsError("invalid-argument", error.message, data);
-
+        break;
       default:
         logError("Error creating admin user:", error);
-        throwHttpsError("internal", `createUserAuthentication: ${error.message}`, data);
-    };
-  };
-};
+        throwHttpsError(
+          "internal",
+          `createUserAuthentication: ${error.message}`,
+          data,
+        );
+    }
+  }
+}
 
-type CreateUserData = CreateUserWithEmailData & { signInProvider?: never } | CreateUserWithOAuthData;
+type CreateUserData =
+  | (CreateUserWithEmailData & { signInProvider?: never })
+  | CreateUserWithOAuthData;
 
 async function createUser(id: string, data: CreateUserData): Promise<void> {
   const userData = {
@@ -115,25 +154,37 @@ async function createUser(id: string, data: CreateUserData): Promise<void> {
     bio: data.bio || "",
     image: data.image || "",
     signInProvider: data.signInProvider || "",
-    createdAt: Date.now()
+    createdAt: Date.now(),
   };
 
   try {
     await firestore.runTransaction(async (t) => {
-      const userRefByName = firestore.collection(USERS).where('name', '==', data.name);
-      const userRefByEmail = firestore.collection(USERS).where('email', '==', data.email);
+      const userRefByName = firestore
+        .collection(USERS)
+        .where("name", "==", data.name);
+      const userRefByEmail = firestore
+        .collection(USERS)
+        .where("email", "==", data.email);
 
       const [queryByName, queryByEmail] = await Promise.all([
         t.get(userRefByName),
-        t.get(userRefByEmail)
+        t.get(userRefByEmail),
       ]);
 
       if (queryByName.docs.length > 0) {
-        throwHttpsError("invalid-argument", `name ${data.name} already exists.`, data);
+        throwHttpsError(
+          "invalid-argument",
+          `name ${data.name} already exists.`,
+          data,
+        );
       }
 
       if (queryByEmail.docs.length > 0) {
-        throwHttpsError("invalid-argument", `email ${data.email} already exists.`, data);
+        throwHttpsError(
+          "invalid-argument",
+          `email ${data.email} already exists.`,
+          data,
+        );
       }
 
       const newUserRef = firestore.collection(USERS).doc(id);
@@ -141,84 +192,95 @@ async function createUser(id: string, data: CreateUserData): Promise<void> {
     });
   } catch (error: any) {
     switch (error.code) {
-      case 'auth/invalid-password':
+      case "auth/invalid-password":
         throwHttpsError("invalid-argument", error.message);
-
-      case 'invalid-argument':
+        break;
+      case "invalid-argument":
         throw error;
-
       default:
         logError("Error creating user:", error);
         throwHttpsError("internal", `createUser: ${error.message}`, data);
-    };
-  };
-};
-
-exports.updateUser = functions.https.onCall(async (request: CallableRequest<UpdateUserData>): Promise<void> => {
-  try {
-    const { data, auth } = request;
-
-    const { uid } = verifyAuth(auth);
-
-    const userData = {
-      ...(data.bio && { bio: data.bio }),
-      ...(data.image && { image: data.image }),
-      ...(data.name && { name: data.name })
-    };
-
-    await firestore.collection(USERS).doc(uid).update(userData);
-
-    logVerbose("User updated successfully!");
-  } catch (error: any) {
-    handleCatchHttpsError(`Error updating User ${request.auth?.uid}`, error);
-  };
-});
-
-exports.joinMovieClub = functions.https.onCall(async (request: CallableRequest<JoinMovieClubData>): Promise<void> => {
-  try {
-    const { data, auth } = request;
-
-    const { uid } = verifyAuth(auth);
-
-    const requiredFields = ["image", "movieClubId", "movieClubName", "username"];
-    verifyRequiredFields(data, requiredFields);
-
-    const movieClubRef = await firestore
-      .collection(MOVIE_CLUBS)
-      .doc(data.movieClubId)
-      .get()
-
-    const movieClubData = movieClubRef.data()
-
-    if (movieClubData !== undefined && !movieClubData.isPublic) {
-      throwHttpsError("permission-denied", "The Movie Club is not publicly joinable.");
     }
+  }
+}
 
-    const userMembershipsRef = firestore
-      .collection(USERS)
-      .doc(uid)
-      .collection(MEMBERSHIPS)
-      .doc(data.movieClubId);
+exports.updateUser = functions.https.onCall(
+  async (request: CallableRequest<UpdateUserData>): Promise<void> => {
+    try {
+      const { data, auth } = request;
 
-    await userMembershipsRef.set({
-      movieClubName: data.movieClubName,
-      createdAt: Date.now()
-    });
+      const { uid } = verifyAuth(auth);
 
-    const movieClubMemberRef = firestore
-      .collection(MOVIE_CLUBS)
-      .doc(data.movieClubId)
-      .collection(MEMBERS)
-      .doc(uid);
+      const userData = {
+        ...(data.bio && { bio: data.bio }),
+        ...(data.image && { image: data.image }),
+        ...(data.name && { name: data.name }),
+      };
 
-    await movieClubMemberRef.set({
-      image: data.image,
-      username: data.username,
-      createdAt: Date.now()
-    });
+      await firestore.collection(USERS).doc(uid).update(userData);
 
-    logVerbose("User updated successfully!");
-  } catch (error: any) {
-    handleCatchHttpsError(`Error joining movie club`, error);
-  };
-});
+      logVerbose("User updated successfully!");
+    } catch (error: any) {
+      handleCatchHttpsError(`Error updating User ${request.auth?.uid}`, error);
+    }
+  },
+);
+
+exports.joinMovieClub = functions.https.onCall(
+  async (request: CallableRequest<JoinMovieClubData>): Promise<void> => {
+    try {
+      const { data, auth } = request;
+
+      const { uid } = verifyAuth(auth);
+
+      const requiredFields = [
+        "image",
+        "movieClubId",
+        "movieClubName",
+        "username",
+      ];
+      verifyRequiredFields(data, requiredFields);
+
+      const movieClubRef = await firestore
+        .collection(MOVIE_CLUBS)
+        .doc(data.movieClubId)
+        .get();
+
+      const movieClubData = movieClubRef.data();
+
+      if (movieClubData !== undefined && !movieClubData.isPublic) {
+        throwHttpsError(
+          "permission-denied",
+          "The Movie Club is not publicly joinable.",
+        );
+      }
+
+      const userMembershipsRef = firestore
+        .collection(USERS)
+        .doc(uid)
+        .collection(MEMBERSHIPS)
+        .doc(data.movieClubId);
+
+      await userMembershipsRef.set({
+        movieClubName: data.movieClubName,
+        createdAt: Date.now(),
+      });
+
+      const movieClubMemberRef = firestore
+        .collection(MOVIE_CLUBS)
+        .doc(data.movieClubId)
+        .collection(MEMBERS)
+        .doc(uid);
+
+      await movieClubMemberRef.set({
+        image: data.image,
+        username: data.username,
+        createdAt: Date.now(),
+      });
+
+      logVerbose("User updated successfully!");
+    } catch (error: any) {
+      handleCatchHttpsError(`Error joining movie club`, error);
+    }
+  },
+);
