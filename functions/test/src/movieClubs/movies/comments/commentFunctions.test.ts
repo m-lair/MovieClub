@@ -6,6 +6,7 @@ import { comments } from "index";
 import { UpdateUserData } from "src/users/userTypes";
 import { UpdateMovieClubData } from "src/movieClubs/movieClubTypes";
 import { DeleteCommentData, PostCommentData } from "src/movieClubs/movies/comments/commentTypes";
+import { COMMENTS, MOVIE_CLUBS, MOVIES } from "src/utilities/collectionNames";
 
 // @ts-ignore
 // TODO: Figure out why ts can't detect the export on this
@@ -21,7 +22,9 @@ describe("Comment Functions", () => {
   let text: string;
 
   beforeEach(async () => {
-    user = await populateUserData();
+    const userMock = await populateUserData();
+    user = userMock.user;
+    
     movieClub = await populateMovieClubData({ id: "1", ownerId: user.id, ownerName: user.name });
     movie = await populateMovieData({ id: "1", movieClubId: movieClub.id });
     text = "This is a test comment";
@@ -44,11 +47,11 @@ describe("Comment Functions", () => {
       await postWrapped({ data: commentData });
 
       const snap = await firestore
-        .collection("movieclubs")
+        .collection(MOVIE_CLUBS)
         .doc(movieClub.id)
-        .collection("movies")
+        .collection(MOVIES)
         .doc(movie.id)
-        .collection("comments")
+        .collection(COMMENTS)
         .where("userId", "==", user.id)
         .get();
 
@@ -89,11 +92,11 @@ describe("Comment Functions", () => {
       let snap;
 
       snap = await firestore
-        .collection("movieclubs")
+        .collection(MOVIE_CLUBS)
         .doc(movieClub.id)
-        .collection("movies")
+        .collection(MOVIES)
         .doc(movie.id)
-        .collection("comments")
+        .collection(COMMENTS)
         .doc(commentData.id)
         .get()
 
@@ -102,11 +105,11 @@ describe("Comment Functions", () => {
       await deleteWrapped({ data: commentData });
 
       snap = await firestore
-        .collection("movieclubs")
+        .collection(MOVIE_CLUBS)
         .doc(movieClub.id)
-        .collection("movies")
+        .collection(MOVIES)
         .doc(movie.id)
-        .collection("comments")
+        .collection(COMMENTS)
         .doc(commentData.id)
         .get()
 
@@ -121,11 +124,11 @@ describe("Comment Functions", () => {
         assert.match(error.message, /The function must be called with id, movieClubId, movieId/);
 
         const snap = await firestore
-          .collection("movieclubs")
+          .collection(MOVIE_CLUBS)
           .doc(movieClub.id)
-          .collection("movies")
+          .collection(MOVIES)
           .doc(movie.id)
-          .collection("comments")
+          .collection(COMMENTS)
           .doc(commentData.id)
           .get()
 

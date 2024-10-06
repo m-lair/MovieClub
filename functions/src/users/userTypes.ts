@@ -18,3 +18,10 @@ export interface CreateUserWithOAuthData extends UserData {
 export interface UpdateUserData extends UserData {
   id: string;
 }
+
+export interface JoinMovieClubData {
+  movieClubId: string;
+  movieClubName: string;
+  image: string;
+  username: string;
+}

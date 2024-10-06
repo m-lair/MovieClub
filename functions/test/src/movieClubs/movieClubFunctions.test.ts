@@ -6,6 +6,7 @@ import { MovieClubData, UpdateMovieClubData } from "src/movieClubs/movieClubType
 import { populateMovieClubData } from "mocks";
 import { populateUserData, UserDataMock } from "test/mocks/user";
 import { MovieClubMock } from "test/mocks/movieclub";
+import { MOVIE_CLUBS } from "src/utilities/collectionNames";
 
 // @ts-ignore
 // TODO: Figure out why ts can't detect the export on this
@@ -19,7 +20,9 @@ describe("createMovieClub", () => {
   let movieClub: UpdateMovieClubData;
 
   beforeEach(async () => {
-    user = await populateUserData();
+    const userMock = await populateUserData();
+    user = userMock.user;
+
     const userId = user.id || "test-user-id";
     const username = user.name || "test-user-name";
 
@@ -38,7 +41,7 @@ describe("createMovieClub", () => {
 
   it("should create a new Movie Club", async () => {
     movieClub = await wrapped({ data: movieClubData })
-    const snap = await firestore.collection("movieclubs").doc(movieClub.id).get()
+    const snap = await firestore.collection(MOVIE_CLUBS).doc(movieClub.id).get()
     const movieClubDoc = snap.data();
 
     assert.equal(movieClubDoc?.bannerUrl, movieClubData.bannerUrl);
@@ -70,7 +73,9 @@ describe("updateMovieClub", () => {
   let movieClub: MovieClubMock;
 
   beforeEach(async () => {
-    user = await populateUserData();
+    const userMock = await populateUserData();
+    user = userMock.user;
+    
     movieClub = await populateMovieClubData({ id: "1", ownerId: user.id, ownerName: user.name });
 
     movieClubData = {
@@ -89,7 +94,7 @@ describe("updateMovieClub", () => {
 
   it("should update an existing Movie Club", async () => {
     await wrapped({ data: movieClubData })
-    const snap = await firestore.collection("movieclubs").doc(movieClub.id).get()
+    const snap = await firestore.collection(MOVIE_CLUBS).doc(movieClub.id).get()
     const movieClubDoc = snap.data();
 
     assert.equal(movieClubDoc?.bannerUrl, movieClubData.bannerUrl);

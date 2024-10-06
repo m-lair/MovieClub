@@ -3,6 +3,7 @@ import { firestore } from "firestore";
 import { handleCatchHttpsError, logVerbose, verifyRequiredFields } from "helpers";
 import { DeleteCommentData, PostCommentData } from "./commentTypes";
 import { CallableRequest } from "firebase-functions/https";
+import { COMMENTS, MOVIE_CLUBS, MOVIES } from "src/utilities/collectionNames";
 
 exports.postComment = functions.https.onCall(async (request: CallableRequest<PostCommentData>) => {
   try {
@@ -10,11 +11,11 @@ exports.postComment = functions.https.onCall(async (request: CallableRequest<Pos
     verifyRequiredFields(request.data, requiredFields)
 
     const commentsRef = firestore
-      .collection("movieclubs")
+      .collection(MOVIE_CLUBS)
       .doc(request.data.movieClubId)
-      .collection("movies")
+      .collection(MOVIES)
       .doc(request.data.movieId)
-      .collection("comments");
+      .collection(COMMENTS);
 
     const commentData = {
       userId: request.data.userId,
@@ -41,11 +42,11 @@ exports.deleteComment = functions.https.onCall(async (request: CallableRequest<D
     verifyRequiredFields(request.data, requiredFields);
 
     const commentRef = firestore
-      .collection("movieclubs")
+      .collection(MOVIE_CLUBS)
       .doc(request.data.movieClubId)
-      .collection("movies")
+      .collection(MOVIES)
       .doc(request.data.movieId)
-      .collection("comments")
+      .collection(COMMENTS)
       .doc(request.data.id);
 
     // Delete the comment

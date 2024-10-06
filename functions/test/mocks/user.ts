@@ -1,5 +1,6 @@
+import { AuthData } from "firebase-functions/tasks";
 import { logError, logVerbose } from "helpers";
-import { firestore } from "firestore";
+import { firestore, firebaseAdmin } from "firestore";
 
 export interface UserDataMock {
   id: string;
@@ -7,13 +8,20 @@ export interface UserDataMock {
   email: string;
   image: string;
   name: string;
+  password: string;
   createdAt: number;
 };
 
+export interface UserDataAuth {
+  user: UserDataMock;
+  auth: AuthData;
+}
+
 type UserDataMockParams = Partial<UserDataMock>;
 
-export async function populateUserData(params: UserDataMockParams = {}): Promise<UserDataMock> {
+export async function populateUserData(params: UserDataMockParams = {}): Promise<UserDataAuth> {
   logVerbose("Populating User data...");
+
   const testUserId = params?.id || "test-user-id";
   const testUserData: UserDataMock = {
     id: testUserId,
@@ -21,14 +29,48 @@ export async function populateUserData(params: UserDataMockParams = {}): Promise
     email: params.email || "test@email.com",
     image: params.image || "Test Image",
     name: params.name || "Test User",
+    password: params.password || "TestPassword",
     createdAt: Date.now()
   };
+
+  const authData = await authMock(testUserData);
+
   try {
+    await firebaseAdmin.auth().createUser({
+      email: testUserData.email,
+      password: testUserData.password,
+      displayName: testUserData.name
+    });
+
     await firestore.collection('users').doc(testUserId).set(testUserData);
     logVerbose("User data set");
   } catch (error) {
     logError("Error setting user data:", error);
   };
 
-  return testUserData;
+  return { user: testUserData, auth: authData };
 };
+
+function authMock(user: UserDataMock): AuthData {
+  return {
+    uid: user.id,
+    token: {
+      aud: process.env.PROJECT_ID!,
+      auth_time: Date.now() - 99,
+      email: user.email,
+      email_verified: true,
+      exp: Date.now() + 9999999,
+      firebase: {
+        identities: {},
+        sign_in_provider: "apple"
+      },
+      iat: Date.now() - 99,
+      iss: `https://securetoken.google.com/${process.env.PROJECT_ID}`,
+      phone_number: "",
+      picture: "",
+      sub: user.id,
+      uid: user.id,
+    }
+  }
+};
+
