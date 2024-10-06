@@ -72,7 +72,7 @@ export function authMock(user: UserDataMock): AuthData {
       exp: Date.now() + 9999999,
       firebase: {
         identities: {},
-        sign_in_provider: "apple"
+        sign_in_provider: user.signInProvider
       },
       iat: Date.now() - 99,
       iss: `https://securetoken.google.com/${process.env.PROJECT_ID}`,
