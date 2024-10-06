@@ -20,4 +20,33 @@ MovieClub.xcodeproj/xcuserdata/marcus.xcuserdatad/xcdebugger/Breakpoints_v2.xcbk
 MovieClub.xcodeproj/xcuserdata/marcus.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
 *.xcodeproj
 ./MovieClub.xcodeproj
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 .vscode
+<<<<<<< HEAD
+=======
+.vscode
+<<<<<<< HEAD
+*.json
+MovieClub.xcodeproj/*
+>>>>>>> dbe780f (createWithEmail)
+=======
+MovieClub.xcodeproj/*
+>>>>>>> 90bc2ee (working tests)
+=======
+*.json
+MovieClub.xcodeproj/*
+>>>>>>> 6d1db29 (createWithEmail)
+=======
+.vscode
+>>>>>>> d98a3c8 (working tests)
+=======
+.vscode
+<<<<<<< HEAD
+*.json
+MovieClub.xcodeproj/*
+>>>>>>> 3b24be2 (createWithEmail)
+=======
+MovieClub.xcodeproj/*
+>>>>>>> 9d052da (working tests)

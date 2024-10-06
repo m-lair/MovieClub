@@ -1,6 +1,9 @@
 import { firestore } from "firestore";
 import { logError, logVerbose } from "helpers";
+<<<<<<< HEAD
 import { COMMENTS, MOVIE_CLUBS, MOVIES } from "src/utilities/collectionNames";
+=======
+>>>>>>> f475212 (remove unused locals)
 
 export interface CommentMock {
   id: string;
