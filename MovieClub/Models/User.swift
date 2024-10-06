@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import SwiftData
 
-@Observable
-final class User: Identifiable, Decodable {
+@Model
+final class User: Identifiable, Decodable, Equatable {
     var id: String?
     var email: String
     var bio: String?

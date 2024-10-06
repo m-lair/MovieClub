@@ -25,7 +25,7 @@ struct ComingSoonView: View {
                     HStack{
                         ComingSoonRowView(member: comingSoon[index])
                         Spacer()
-                        if let date = Calendar.current.date(byAdding: .weekOfYear, value: club.timeInterval * index, to: club.movieEndDate) {
+                        if let date = Calendar.current.date(byAdding: .weekOfYear, value: club.timeInterval * index, to: club.movieEndDate ?? Date()) {
                             Text("\(String(describing: date.formatted(date: .numeric, time: .omitted)))")
                                 .font(.title3)
                                 .foregroundStyle(.black)
@@ -54,7 +54,7 @@ struct ComingSoonView: View {
     }
     //populate coming soon list
     func getUserData() async {
-        if let id = await data.currentClub?.id {
+        if let id = data.currentClub?.id {
             do {
                 let snapshot = try await data.movieClubCollection().document(id).collection("members").order(by: "dateAdded", descending: false).getDocuments()
                 let members = snapshot.documents.compactMap { member in

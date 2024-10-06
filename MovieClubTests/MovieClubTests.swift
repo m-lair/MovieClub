@@ -10,8 +10,8 @@ import Firebase
 import FirebaseFunctions
 @testable import MovieClub
 
-struct MovieClubTests {
 
+    
     @Suite struct UserAuthTests {
         let createUserWithEmail: Callable<[String: String], String> = Functions.functions().httpsCallable("users-createUserWithEmail")
         let createUserWithSignInProvider: Callable<[String: String], String> = Functions.functions().httpsCallable("users-createUserWithSignInProvider")
@@ -37,7 +37,7 @@ struct MovieClubTests {
             #expect(updatedUserId != "")
         }
     }
-
+    
     @Suite struct CommentTests {
         let postComment: Callable<[String: String], String> = Functions.functions().httpsCallable("comments-postComment")
         let deleteComment: Callable<[String: String], String?> = Functions.functions().httpsCallable("comments-deleteComment")
@@ -62,36 +62,36 @@ struct MovieClubTests {
             }
         }
     }
-
-    @Suite struct MovieClubTests {
-        let createMovieClub: Callable<MovieClub, MovieClub> = Functions.functions().httpsCallable("movieClubs-createMovieClub")
-        let updateMovieClub: Callable<MovieClub, MovieClub> = Functions.functions().httpsCallable("movieClubs-updateMovieClub")
-        let movieClub = MovieClub(name: "test-club",
-                  desc: "this is a test movie club",
-                  ownerName: "test-user",
-                  timeInterval: 2,
-                  ownerId: "test-user-id",
-                  isPublic: true,
-                  bannerUrl: "no-image")
+    
+@Suite struct MovieClubTests {
+    let createMovieClub: Callable<MovieClub, MovieClub> = Functions.functions().httpsCallable("movieClubs-createMovieClub")
+    let updateMovieClub: Callable<MovieClub, MovieClub> = Functions.functions().httpsCallable("movieClubs-updateMovieClub")
+    let movieClub = MovieClub(name: "test-club",
+                              desc: "this is a test movie club",
+                              ownerName: "test-user",
+                              timeInterval: 2,
+                              ownerId: "test-user-id",
+                              isPublic: true,
+                              bannerUrl: "no-image")
+    
+    //MARK: - Set Up
+    
+    private func populateClubData() async throws {
         
-        //MARK: - Set Up
-        
-        private func populateClubData() async throws {
-            
-            //Test Club w/ no members
-        }
-        
-        @Test func createMovieClub() async throws {
-            let createdClub = try await createMovieClub(movieClub)
-            #expect(createdClub != nil && createdClub.name == movieClub.name)
-        }
-        
-        @Test func updateMovieClub() async throws {
-            var movieClub = try await createMovieClub(movieClub)
-            print(movieClub.id)
-            movieClub.name = "updated-club"
-            let resultClub = try await updateMovieClub(movieClub)
-            #expect(resultClub != nil && resultClub.id != movieClub.id)
-        }
+        //Test Club w/ no members
+    }
+    
+    @Test func createMovieClub() async throws {
+        let createdClub = try await createMovieClub(movieClub)
+        #expect(createdClub != nil && createdClub.name == movieClub.name)
+    }
+    
+    @Test func updateMovieClub() async throws {
+        var movieClub = try await createMovieClub(movieClub)
+        print(movieClub.id)
+        movieClub.name = "updated-club"
+        let resultClub = try await updateMovieClub(movieClub)
+        #expect(resultClub != nil && resultClub.id != movieClub.id)
     }
 }
+
