@@ -1,6 +1,6 @@
 import { AuthData } from "firebase-functions/tasks";
 import { logError, logVerbose } from "helpers";
-import { firestore } from "firestore";
+import { firestore, firebaseAdmin } from "firestore";
 
 export interface UserDataMock {
   id: string;
