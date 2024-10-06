@@ -76,11 +76,11 @@
 		2C87B2BB2C6F1B4100A49B2B /* ComingSoonRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C87B2BA2C6F1B4100A49B2B /* ComingSoonRowView.swift */; };
 		2CAEAB9A2C58972300A0011A /* ClubDetailsForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */; };
 		2CAEABA12C5C5C9300A0011A /* BlurredBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */; };
-		2CD71F2C2CB2736400F9CF58 /* TestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 2CD71F2B2CB2736400F9CF58 /* TestPlan.xctestplan */; };
+		2CD71F4B2CB2798800F9CF58 /* TestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 2CD71F4A2CB2798800F9CF58 /* TestPlan.xctestplan */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		2CCCBF642CAFBC3900D3E506 /* PBXContainerItemProxy */ = {
+		2CD71F452CB2795000F9CF58 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2C5DEC132BF1AC6C000EF232 /* Project object */;
 			proxyType = 1;
@@ -151,12 +151,13 @@
 		2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubDetailsForm.swift; sourceTree = "<group>"; };
 		2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurredBackground.swift; sourceTree = "<group>"; };
 		2CAEABA42C6A7FD500A0011A /* MovieClub.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MovieClub.entitlements; sourceTree = "<group>"; };
-		2CCCBF602CAFBC3900D3E506 /* MovieClubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MovieClubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		2CD71F2B2CB2736400F9CF58 /* TestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestPlan.xctestplan; sourceTree = "<group>"; };
+		2CD71F392CB278A100F9CF58 /* Testing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Testing.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/Testing.framework; sourceTree = DEVELOPER_DIR; };
+		2CD71F412CB2795000F9CF58 /* MovieClubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MovieClubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2CD71F4A2CB2798800F9CF58 /* TestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestPlan.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		2CCCBF612CAFBC3900D3E506 /* MovieClubTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MovieClubTests; sourceTree = "<group>"; };
+		2CD71F422CB2795000F9CF58 /* MovieClubTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MovieClubTests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -177,7 +178,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2CCCBF5D2CAFBC3900D3E506 /* Frameworks */ = {
+		2CD71F3E2CB2795000F9CF58 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -198,6 +199,7 @@
 		2C11FFD32C9D4002004F54BC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2CD71F392CB278A100F9CF58 /* Testing.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -300,10 +302,10 @@
 		2C5DEC122BF1AC6C000EF232 = {
 			isa = PBXGroup;
 			children = (
-				2CD71F2B2CB2736400F9CF58 /* TestPlan.xctestplan */,
 				2C11FFD62C9D4A23004F54BC /* GoogleService-Info.plist */,
+				2CD71F4A2CB2798800F9CF58 /* TestPlan.xctestplan */,
 				2C5DEC1D2BF1AC6C000EF232 /* MovieClub */,
-				2CCCBF612CAFBC3900D3E506 /* MovieClubTests */,
+				2CD71F422CB2795000F9CF58 /* MovieClubTests */,
 				2C11FFD32C9D4002004F54BC /* Frameworks */,
 				2C5DEC1C2BF1AC6C000EF232 /* Products */,
 			);
@@ -313,7 +315,7 @@
 			isa = PBXGroup;
 			children = (
 				2C5DEC1B2BF1AC6C000EF232 /* MovieClub.app */,
-				2CCCBF602CAFBC3900D3E506 /* MovieClubTests.xctest */,
+				2CD71F412CB2795000F9CF58 /* MovieClubTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -431,27 +433,27 @@
 			productReference = 2C5DEC1B2BF1AC6C000EF232 /* MovieClub.app */;
 			productType = "com.apple.product-type.application";
 		};
-		2CCCBF5F2CAFBC3900D3E506 /* MovieClubTests */ = {
+		2CD71F402CB2795000F9CF58 /* MovieClubTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2CCCBF662CAFBC3900D3E506 /* Build configuration list for PBXNativeTarget "MovieClubTests" */;
+			buildConfigurationList = 2CD71F472CB2795000F9CF58 /* Build configuration list for PBXNativeTarget "MovieClubTests" */;
 			buildPhases = (
-				2CCCBF5C2CAFBC3900D3E506 /* Sources */,
-				2CCCBF5D2CAFBC3900D3E506 /* Frameworks */,
-				2CCCBF5E2CAFBC3900D3E506 /* Resources */,
+				2CD71F3D2CB2795000F9CF58 /* Sources */,
+				2CD71F3E2CB2795000F9CF58 /* Frameworks */,
+				2CD71F3F2CB2795000F9CF58 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				2CCCBF652CAFBC3900D3E506 /* PBXTargetDependency */,
+				2CD71F462CB2795000F9CF58 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				2CCCBF612CAFBC3900D3E506 /* MovieClubTests */,
+				2CD71F422CB2795000F9CF58 /* MovieClubTests */,
 			);
 			name = MovieClubTests;
 			packageProductDependencies = (
 			);
 			productName = MovieClubTests;
-			productReference = 2CCCBF602CAFBC3900D3E506 /* MovieClubTests.xctest */;
+			productReference = 2CD71F412CB2795000F9CF58 /* MovieClubTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -467,7 +469,7 @@
 					2C5DEC1A2BF1AC6C000EF232 = {
 						CreatedOnToolsVersion = 15.3;
 					};
-					2CCCBF5F2CAFBC3900D3E506 = {
+					2CD71F402CB2795000F9CF58 = {
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = 2C5DEC1A2BF1AC6C000EF232;
 					};
@@ -490,7 +492,7 @@
 			projectRoot = "";
 			targets = (
 				2C5DEC1A2BF1AC6C000EF232 /* MovieClub */,
-				2CCCBF5F2CAFBC3900D3E506 /* MovieClubTests */,
+				2CD71F402CB2795000F9CF58 /* MovieClubTests */,
 			);
 		};
 /* End PBXProject section */
@@ -502,12 +504,12 @@
 			files = (
 				2C5DEC262BF1AC6E000EF232 /* Preview Assets.xcassets in Resources */,
 				2C5DEC232BF1AC6E000EF232 /* Assets.xcassets in Resources */,
-				2CD71F2C2CB2736400F9CF58 /* TestPlan.xctestplan in Resources */,
+				2CD71F4B2CB2798800F9CF58 /* TestPlan.xctestplan in Resources */,
 				2C11FFD72C9D4A23004F54BC /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2CCCBF5E2CAFBC3900D3E506 /* Resources */ = {
+		2CD71F3F2CB2795000F9CF58 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -606,7 +608,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2CCCBF5C2CAFBC3900D3E506 /* Sources */ = {
+		2CD71F3D2CB2795000F9CF58 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -636,10 +638,10 @@
 			isa = PBXTargetDependency;
 			productRef = 2C87B2B82C6DBF6600A49B2B /* FirebaseStorage */;
 		};
-		2CCCBF652CAFBC3900D3E506 /* PBXTargetDependency */ = {
+		2CD71F462CB2795000F9CF58 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 2C5DEC1A2BF1AC6C000EF232 /* MovieClub */;
-			targetProxy = 2CCCBF642CAFBC3900D3E506 /* PBXContainerItemProxy */;
+			targetProxy = 2CD71F452CB2795000F9CF58 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -830,7 +832,7 @@
 			};
 			name = Release;
 		};
-		2CCCBF672CAFBC3900D3E506 /* Debug */ = {
+		2CD71F482CB2795000F9CF58 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -850,7 +852,7 @@
 			};
 			name = Debug;
 		};
-		2CCCBF682CAFBC3900D3E506 /* Release */ = {
+		2CD71F492CB2795000F9CF58 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -890,11 +892,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2CCCBF662CAFBC3900D3E506 /* Build configuration list for PBXNativeTarget "MovieClubTests" */ = {
+		2CD71F472CB2795000F9CF58 /* Build configuration list for PBXNativeTarget "MovieClubTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				2CCCBF672CAFBC3900D3E506 /* Debug */,
-				2CCCBF682CAFBC3900D3E506 /* Release */,
+				2CD71F482CB2795000F9CF58 /* Debug */,
+				2CD71F492CB2795000F9CF58 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

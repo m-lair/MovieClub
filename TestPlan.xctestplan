@@ -1,7 +1,7 @@
 {
   "configurations" : [
     {
-      "id" : "B4FB9363-BABF-4A34-8258-8EA69A65D88F",
+      "id" : "F9467907-DF15-484C-A871-B7CB0106D745",
       "name" : "Configuration 1",
       "options" : {
 
@@ -12,7 +12,13 @@
     "testTimeoutsEnabled" : true
   },
   "testTargets" : [
-
+    {
+      "target" : {
+        "containerPath" : "container:MovieClub.xcodeproj",
+        "identifier" : "2CD71F402CB2795000F9CF58",
+        "name" : "MovieClubTests"
+      }
+    }
   ],
   "version" : 1
 }
