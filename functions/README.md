@@ -60,7 +60,6 @@ Returns:
 
 ```
 Params = {
-  email: "string@email.com",
   name: "string",
   signInProvider: "string",
   bio?: "string",
@@ -78,8 +77,7 @@ Returns:
 Params = {
   name?: "string",
   bio?: "string",
-  image?: "string/path",
-  signInProvider?: "string"
+  image?: "string/path"
 }
 ```
 
@@ -93,7 +91,6 @@ Params = {
 
 ```
 Params = {
-  ownerId: "string",
   ownerName: "string",
   name: "string",
   isPublic: boolean,
@@ -132,7 +129,6 @@ Params = {
   movieClubId: "string",
   movieId: "string",
   text: "string",
-  userId: "string",
   username: boolean
 }
 

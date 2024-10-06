@@ -2,13 +2,19 @@ const assert = require("assert");
 import { firebaseTest } from "test/testHelper";
 import { firestore } from "firestore";
 import { movieClubs } from "index";
-import { MovieClubData, UpdateMovieClubData } from "src/movieClubs/movieClubTypes";
+import {
+  MovieClubData,
+  UpdateMovieClubData,
+} from "src/movieClubs/movieClubTypes";
 import { populateMovieClubData } from "mocks";
 import { populateUserData, UserDataMock } from "test/mocks/user";
 import { MovieClubMock } from "test/mocks/movieclub";
+import { MOVIE_CLUBS } from "src/utilities/collectionNames";
+import { AuthData } from "firebase-functions/tasks";
 
-// @ts-ignore
+// @ts-expect-error it works but ts won't detect it for some reason
 // TODO: Figure out why ts can't detect the export on this
+// prettier-ignore
 const { createMovieClub, updateMovieClub } = movieClubs;
 
 describe("createMovieClub", () => {
@@ -17,9 +23,13 @@ describe("createMovieClub", () => {
   let user: UserDataMock;
   let movieClubData: MovieClubData;
   let movieClub: UpdateMovieClubData;
+  let auth: AuthData;
 
   beforeEach(async () => {
-    user = await populateUserData();
+    const userMock = await populateUserData();
+    user = userMock.user;
+    auth = userMock.auth;
+
     const userId = user.id || "test-user-id";
     const username = user.name || "test-user-name";
 
@@ -37,8 +47,11 @@ describe("createMovieClub", () => {
   });
 
   it("should create a new Movie Club", async () => {
-    movieClub = await wrapped({ data: movieClubData })
-    const snap = await firestore.collection("movieclubs").doc(movieClub.id).get()
+    movieClub = await wrapped({ data: movieClubData, auth: auth });
+    const snap = await firestore
+      .collection(MOVIE_CLUBS)
+      .doc(movieClub.id)
+      .get();
     const movieClubDoc = snap.data();
 
     assert.equal(movieClubDoc?.bannerUrl, movieClubData.bannerUrl);
@@ -54,24 +67,44 @@ describe("createMovieClub", () => {
 
   it("should error without required fields", async () => {
     try {
-      await wrapped({ data: {} })
-      assert.fail('Expected error not thrown');
+      await wrapped({ data: {}, auth: auth });
+      assert.fail("Expected error not thrown");
     } catch (error: any) {
-      assert.match(error.message, /The function must be called with bannerUrl, description, image, isPublic, name, ownerId, ownerName, timeInterval./);
-    };
+      assert.match(
+        error.message,
+        /The function must be called with bannerUrl, description, image, isPublic, name, ownerName, timeInterval./,
+      );
+    }
+  });
+
+  it("should error without auth", async () => {
+    try {
+      await wrapped({ data: {} });
+      assert.fail("Expected error not thrown");
+    } catch (error: any) {
+      assert.match(error.message, /auth object is undefined./);
+    }
   });
 });
 
 describe("updateMovieClub", () => {
-  const wrapped = firebaseTest.wrap(updateMovieClub)
+  const wrapped = firebaseTest.wrap(updateMovieClub);
 
   let user: UserDataMock;
   let movieClubData: UpdateMovieClubData;
   let movieClub: MovieClubMock;
+  let auth: AuthData;
 
   beforeEach(async () => {
-    user = await populateUserData();
-    movieClub = await populateMovieClubData({ id: "1", ownerId: user.id, ownerName: user.name });
+    const userMock = await populateUserData();
+    user = userMock.user;
+    auth = userMock.auth;
+
+    movieClub = await populateMovieClubData({
+      id: "1",
+      ownerId: user.id,
+      ownerName: user.name,
+    });
 
     movieClubData = {
       id: movieClub.id,
@@ -88,8 +121,11 @@ describe("updateMovieClub", () => {
   });
 
   it("should update an existing Movie Club", async () => {
-    await wrapped({ data: movieClubData })
-    const snap = await firestore.collection("movieclubs").doc(movieClub.id).get()
+    await wrapped({ data: movieClubData, auth: auth });
+    const snap = await firestore
+      .collection(MOVIE_CLUBS)
+      .doc(movieClub.id)
+      .get();
     const movieClubDoc = snap.data();
 
     assert.equal(movieClubDoc?.bannerUrl, movieClubData.bannerUrl);
@@ -103,27 +139,34 @@ describe("updateMovieClub", () => {
     assert.equal(movieClubDoc?.timeInterval, movieClubData.timeInterval);
   });
 
-  it("should error without required fields", async () => {
+  it("should error if user doesn't own the club", async () => {
     try {
-      await wrapped({ data: {} })
-      assert.fail('Expected error not thrown');
+      auth.uid = "wrong-uid";
+      await wrapped({ data: movieClubData, auth: auth });
+      assert.fail("Expected error not thrown");
     } catch (error: any) {
-      assert.match(error.message, /The function must be called with id/);
-    };
+      assert.match(
+        error.message,
+        /The user is not the owner of the Movie Club./,
+      );
+    }
   });
 
-  it.skip("should not allow a user who does not own the movie club to update it", async () => {
+  it("should error without required fields", async () => {
     try {
-      await wrapped({
-        data: {
-          movieClubId: movieClub.id,
-          name: "Updated Test Club",
-          ownerId: "wrong-user-id",
-        }
-      })
-      assert.fail('Expected error not thrown');
+      await wrapped({ data: {}, auth: auth });
+      assert.fail("Expected error not thrown");
     } catch (error: any) {
-      assert.match(error.message, /ownerId does not match movieClub.ownerId/);
-    };
+      assert.match(error.message, /The function must be called with id./);
+    }
+  });
+
+  it("should error without auth", async () => {
+    try {
+      await wrapped({ data: {} });
+      assert.fail("Expected error not thrown");
+    } catch (error: any) {
+      assert.match(error.message, /auth object is undefined./);
+    }
   });
 });
