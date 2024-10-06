@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "DF43911F-CB42-423E-8A05-DC214B2D85B1",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:MovieClub.xcodeproj",
+        "identifier" : "2CCCBF5F2CAFBC3900D3E506",
+        "name" : "MovieClubTests"
+      }
+    }
+  ],
+  "version" : 1
+}
