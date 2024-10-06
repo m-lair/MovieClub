@@ -18,7 +18,9 @@ export interface MovieClubMock {
 
 type MovieClubMockParams = Partial<MovieClubMock>;
 
-export async function populateMovieClubData(params: MovieClubMockParams = {}): Promise<MovieClubMock> {
+export async function populateMovieClubData(
+  params: MovieClubMockParams = {},
+): Promise<MovieClubMock> {
   logVerbose("Populating movie club data...");
   const testMoviceClubId = params.id || "Test Club";
   const { isPublic = true } = params;
@@ -42,10 +44,9 @@ export async function populateMovieClubData(params: MovieClubMockParams = {}): P
   try {
     await movieClubRef.set(movieClubData);
     logVerbose("Movie club data set");
-
   } catch (error) {
     logError("Error setting movie club data:", error);
-  };
+  }
 
   return movieClubData;
-};
+}

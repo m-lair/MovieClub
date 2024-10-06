@@ -1,16 +1,23 @@
 import * as functions from "firebase-functions";
 import { AuthData } from "firebase-functions/tasks";
 
-export const verifyRequiredFields = (data: Record<string, any>, requiredFields: Array<string>) => {
-  const missingFields = requiredFields.filter(field => !data?.[field]);
+export const verifyRequiredFields = (
+  data: Record<string, any>,
+  requiredFields: Array<string>,
+) => {
+  const missingFields = requiredFields.filter((field) => !data?.[field]);
 
   if (missingFields.length > 0) {
-    throwHttpsError("invalid-argument", `The function must be called with ${missingFields.join(', ')}.`, data);
-  };
+    throwHttpsError(
+      "invalid-argument",
+      `The function must be called with ${missingFields.join(", ")}.`,
+      data,
+    );
+  }
 };
 
 export const verifyAuth = (auth: AuthData | undefined): AuthData => {
-  if (!auth){
+  if (!auth) {
     throwHttpsError("unauthenticated", "auth object is undefined.");
   }
 
@@ -20,13 +27,13 @@ export const verifyAuth = (auth: AuthData | undefined): AuthData => {
 export const logVerbose = (message: string) => {
   if (process.env.LOG_LEVEL == "verbose") {
     console.log(message);
-  };
+  }
 };
 
 export const logError = (message: string, error: any) => {
   if (process.env.ERROR_LEVEL == "verbose") {
     console.error(message, error);
-  };
+  }
 };
 
 export const handleCatchHttpsError = (message: string, error: any) => {
@@ -36,9 +43,13 @@ export const handleCatchHttpsError = (message: string, error: any) => {
     throw error;
   } else {
     throwHttpsError("internal", error.message, error);
-  };
+  }
 };
 
-export const throwHttpsError = (cause: functions.https.FunctionsErrorCode, message: string, details = {}): functions.https.HttpsError => {
+export const throwHttpsError = (
+  cause: functions.https.FunctionsErrorCode,
+  message: string,
+  details = {},
+): functions.https.HttpsError => {
   throw new functions.https.HttpsError(cause, message, details);
 };

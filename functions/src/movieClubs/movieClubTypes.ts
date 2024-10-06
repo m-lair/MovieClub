@@ -12,5 +12,5 @@ export interface MovieClubData {
 }
 
 export interface UpdateMovieClubData extends MovieClubData {
-  id: string
-};
+  id: string;
+}
