@@ -86,7 +86,7 @@ describe("User Functions", () => {
     let auth: AuthData;
 
     beforeEach(async () => {
-      const { user: userDataMock, auth: authMock } = await populateUserData({ createUser: false });
+      const { user: userDataMock, auth: authMock } = await populateUserData({ createUser: false, signInProvider: "apple.com" });
       auth = authMock;
       userData = userDataMock;
     });
@@ -101,6 +101,7 @@ describe("User Functions", () => {
       assert.equal(userDoc?.image, userData.image);
       assert.equal(userDoc?.bio, userData.bio);
       assert.equal(userDoc?.email, userData.email);
+      assert.equal(userDoc?.signInProvider, userData.signInProvider);
     });
 
     it("should error when email doesn't exist in auth", async () => {
