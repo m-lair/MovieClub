@@ -47,7 +47,7 @@ exports.createUserWithSignInProvider = functions.https.onCall(
   async (request: CallableRequest<CreateUserWithOAuthData>) => {
     try {
       const { data, auth } = request;
-
+      console.log("auth", auth);
       const {
         uid,
         token: {

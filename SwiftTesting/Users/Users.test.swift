@@ -30,6 +30,7 @@ extension AppTests {
         }
         
         @Test func signUpWithProvider() async throws {
+            try await setUp()
             let providerData: [String: String] = [
                 "signInProvider": "apple",
                 "idToken": "sample-token",

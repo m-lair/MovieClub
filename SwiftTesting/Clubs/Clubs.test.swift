@@ -19,7 +19,8 @@ extension AppTests {
         let createClub: Callable<MovieClub, MovieClub> = Functions.functions().httpsCallable("movieClubs-createMovieClub")
         
         @Test func createClub() async throws {
-            let club = MovieClub(name: "test\(UUID())", ownerName: "test-user", timeInterval: 2, ownerId: "0001", isPublic: true)
+            try await setUp()
+            let club = MovieClub(name: "test\(UUID())", desc: "test-desc", ownerName: "test-user", timeInterval: 2, ownerId: "0001", isPublic: true, bannerUrl: "no-image")
             let response = try await createClub(club)
             #expect(response.name == club.name)
         }

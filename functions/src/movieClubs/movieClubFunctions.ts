@@ -19,9 +19,6 @@ exports.createMovieClub = functions.https.onCall(
       const { uid } = verifyAuth(auth);
 
       const requiredFields = [
-        "bannerUrl",
-        "description",
-        "image",
         "isPublic",
         "name",
         "ownerName",

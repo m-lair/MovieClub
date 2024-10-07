@@ -27,6 +27,7 @@ func configureFirebase() {
     let env = ProcessInfo.processInfo.environment
     
     Auth.auth().useEmulator(withHost: "127.0.0.1", port: 9099)
+    Auth.auth().settings?.isAppVerificationDisabledForTesting = true
     Functions.functions().useEmulator(withHost: "127.0.0.1", port: 5001)
     let settings = Firestore.firestore().settings
     settings.host = "127.0.0.1:8080"

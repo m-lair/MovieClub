@@ -15,12 +15,14 @@ import FirebaseFirestore
 
 
 @Suite struct AppTests {
+
     
-    func setUp() async throws {
-        
-    }
+}
+
+public func setUp() async throws {
+    let user = try await Auth.auth().createUser(withEmail: "test\(UUID())@test.com", password: "123456")
+}
+
+public func tearDown() async throws {
     
-    func tearDown() async throws {
-        
-    }
 }
