@@ -24,9 +24,11 @@ extension AppTests {
         let movieClubId = "test-movie-club"
         
         @Test func postComment() async throws {
+            try await setUp()
             let commentData = ["text": "This is a test comment", "movieClubId": movieClubId, "movieId": movieId, "username": "test-user", "userId": "\("test-user-id")"]
             let response = try await postComment(commentData)
             #expect(response != "")
+            try await tearDown()
         }
         
         @Test func deleteComment() async throws {

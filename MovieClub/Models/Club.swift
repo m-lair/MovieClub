@@ -12,7 +12,7 @@ import SwiftData
 final class MovieClub: Identifiable, Codable, Hashable, Equatable {
     var id: String?
     var name: String
-    var created: Date
+    var createdAt: Date?
     var numMembers: Int?
     var desc: String?
     var ownerName: String
@@ -29,21 +29,21 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
     init(
         id: String? = nil,
         name: String,
-        created: Date = Date(),
+        createdAt: Date = Date(),
         desc: String? = nil,
         ownerName: String,
         timeInterval: Int,
         ownerId: String,
         isPublic: Bool,
         banner: Data? = nil,
-        bannerUrl: String? = nil,
+        bannerUrl: String? = "no-image",
         numMovies: Int = 0,
-        members: [Member]? = nil,
+        members: [Member]? = [],
         movies: [Movie] = []
     ) {
         self.id = id
         self.name = name
-        self.created = created
+        self.createdAt = createdAt
         self.desc = desc
         self.ownerName = ownerName
         self.timeInterval = timeInterval
@@ -58,32 +58,55 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
     
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        
         id = try container.decodeIfPresent(String.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
-        created = try container.decode(Date.self, forKey: .created)
         numMembers = try container.decode(Int.self, forKey: .numMembers)
         desc = try container.decodeIfPresent(String.self, forKey: .desc)
         ownerName = try container.decode(String.self, forKey: .ownerName)
         timeInterval = try container.decode(Int.self, forKey: .timeInterval)
-        movieEndDate = try container.decode(Date.self, forKey: .movieEndDate)
+        movieEndDate = try container.decodeIfPresent(Date.self, forKey: .movieEndDate)
         ownerId = try container.decode(String.self, forKey: .ownerId)
-        isPublic = try container.decode(Bool.self, forKey: .isPublic)
         bannerUrl = try container.decodeIfPresent(String.self, forKey: .bannerUrl)
-        numMovies = try container.decode(Int.self, forKey: .numMovies)
+        numMovies = try container.decodeIfPresent(Int.self, forKey: .numMovies)
         movies = []
+        
+        if let timestamp = try? container.decode(Int.self, forKey: .createdAt) {
+            createdAt = Date(timeIntervalSince1970: TimeInterval(timestamp)) // Convert Firestore Timestamp to Swift Date
+        }
+        
+        if let str = try? container.decode(String.self, forKey: .isPublic) {
+            isPublic = str.lowercased() == "true"
+        } else {
+            isPublic = false
+        }
+        
     }
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
-        try container.encode(created, forKey: .created)
+        try container.encode(createdAt, forKey: .createdAt)
+        try container.encode(timeInterval, forKey: .timeInterval)
+        try container.encode(bannerUrl, forKey: .bannerUrl)
+        try container.encode(ownerName, forKey: .ownerName)
+        try container.encode(desc, forKey: .desc)
+        
+        switch isPublic {
+        case true:
+            try container.encode("true", forKey: .isPublic)
+        case false :
+            try container.encode("false", forKey: .isPublic)
+        }
+        
+        
     }
     
     enum CodingKeys: String, CodingKey {
         case id
         case name
-        case created
+        case createdAt
         case numMembers
         case desc = "description"
         case ownerName
