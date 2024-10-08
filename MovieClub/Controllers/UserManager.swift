@@ -7,6 +7,7 @@
 
 import Foundation
 import FirebaseAuth
+import FirebaseFunctions
 import FirebaseStorage
 
 extension DataManager {
@@ -165,5 +166,18 @@ extension DataManager {
             print("Error fetching profile image URL: \(error)")
             return ""
         }
+    }
+    
+    // MARK: - Join Club
+    
+    func joinClub(clubId: String) async throws {
+        let joinClub: Callable<User, String> = functions.httpsCallable("users-joinClub")
+        
+        guard let user = currentUser else {
+            throw AuthError.invalidUser
+        }
+        
+        let response = try await joinClub(user)
+        
     }
 }

@@ -80,7 +80,6 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         } else {
             isPublic = false
         }
-        
     }
     
     func encode(to encoder: Encoder) throws {
@@ -99,8 +98,6 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         case false :
             try container.encode("false", forKey: .isPublic)
         }
-        
-        
     }
     
     enum CodingKeys: String, CodingKey {
@@ -118,6 +115,7 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         case bannerUrl
         case numMovies
     }
+    
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }

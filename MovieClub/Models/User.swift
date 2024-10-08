@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FirebaseFunctions
 import SwiftData
 
 @Model

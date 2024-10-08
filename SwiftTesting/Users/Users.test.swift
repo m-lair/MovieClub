@@ -20,6 +20,7 @@ extension AppTests {
         let createUserWithEmail: Callable<[String: String], String> = Functions.functions().httpsCallable("users-createUserWithEmail")
         let createUserWithSignInProvider: Callable<[String: String], String> = Functions.functions().httpsCallable("users-createUserWithSignInProvider")
         let updateUser: Callable<String, String> = Functions.functions().httpsCallable("users-updateUser")
+        let joinMovieClub: Callable<[String: String], String?> = Functions.functions().httpsCallable("users-joinMovieClub")
         
         let id = UUID()
         
@@ -30,18 +31,27 @@ extension AppTests {
         }
         
         @Test func signUpWithProvider() async throws {
-            try await setUp()
+            let id = UUID()
             let providerData: [String: String] = [
                 "signInProvider": "apple",
                 "idToken": "sample-token",
-                "email": "testuser@example.com",
-                "name": "Test User"
+                "email": "testuser\(id)@example.com",
+                "name": "Test User \(id)"
             ]
             let userId = try await createUserWithSignInProvider(providerData)
             #expect(userId != "")
         }
         
         @Test func updateUser() async throws {
+        }
+        
+        @Test func joinClub() async throws {
+            try await setUp(userId: UUID())
+            let requestData = ["movieClubId": "\(UUID())", "movieClubName": "test-club", "image": "test-image.png", "username": "test-username"]
+            let response = try await joinMovieClub(requestData)
+            if let response {
+                #expect(response != "")
+            }
         }
     }
 }

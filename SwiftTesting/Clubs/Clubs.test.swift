@@ -27,10 +27,6 @@ extension AppTests {
             try await tearDown()
         }
         
-        
-        @Test func joinClub() async throws {
-            //Join Club
-        }
     }
     
 }
