@@ -5,7 +5,7 @@ export const firebaseTest = require("firebase-functions-test")({
   databaseURL: "localhost:8080",
 });
 
-async function clearDb() {
+export async function clearDb() {
   await fetch(
     `http://localhost:8080/emulator/v1/projects/${process.env.PROJECT_ID}/databases/(default)/documents`,
     {
@@ -14,18 +14,11 @@ async function clearDb() {
   );
 }
 
-async function clearAuthDb() {
+export async function clearAuthDb() {
+  process.env.FIREBASE_AUTH_EMULATOR_HOST = "127.0.0.1:9099";
+
   const result = await firebaseAdmin.auth().listUsers();
   const users = result.users.map((user) => user.uid);
 
   await firebaseAdmin.auth().deleteUsers(users);
 }
-
-beforeEach(async () => {
-  await clearDb();
-  await clearAuthDb();
-});
-
-afterEach(async () => {
-  firebaseTest.cleanup();
-});
