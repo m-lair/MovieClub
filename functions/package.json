@@ -11,6 +11,7 @@
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
     "test": "mocha -r ts-node/register -r tsconfig-paths/register",
+    "reset": "ts-node test/clearDb.ts",
     "lint": "npx eslint . --fix"
   },
   "engines": {
