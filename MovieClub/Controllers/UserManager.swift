@@ -45,6 +45,41 @@ extension DataManager {
         }
     }
     
+    // MARK: - Fetch User Clubs
+    
+    func fetchUserClubs() async {
+        do {
+            guard let user = currentUser else {
+                print("No user logged in")
+                return
+            }
+            let snapshot = try await usersCollection().document(user.id ?? "")
+                .collection("memberships")
+                .getDocuments()
+            
+            let clubIds = snapshot.documents.compactMap { $0.documentID }
+            let clubs = try await withThrowingTaskGroup(of: MovieClub?.self) { group in
+                for clubId in clubIds {
+                    group.addTask { [weak self] in
+                        guard let self = self else { return nil }
+                        return await self.fetchMovieClub(clubId: clubId)
+                    }
+                }
+                
+                var clubList: [MovieClub] = []
+                for try await club in group {
+                    if let club = club {
+                        clubList.append(club)
+                    }
+                }
+                return clubList
+            }
+            self.userClubs = clubs
+        } catch {
+            print("Error fetching user clubs: \(error)")
+        }
+    }
+    
     // MARK: - Update Profile Picture
     
     func updateProfilePicture(imageData: Data) async throws {
@@ -170,14 +205,28 @@ extension DataManager {
     
     // MARK: - Join Club
     
-    func joinClub(clubId: String) async throws {
-        let joinClub: Callable<User, String> = functions.httpsCallable("users-joinClub")
-        
-        guard let user = currentUser else {
+    func joinClub(club: MovieClub) async throws {
+        print("joining club \(club.name), \(club.id)")
+        guard
+            let user = currentUser,
+            let clubId = club.id,
+            let userId = user.id
+        else {
             throw AuthError.invalidUser
         }
         
-        let response = try await joinClub(user)
+        let joinClub: Callable<[String: String], MovieClub> = functions.httpsCallable("users-joinMovieClub")
+        let requestData: [String: String] = ["userId": userId,
+                                             "movieClubId": clubId,
+                                             "username": user.name,
+                                             "movieClubName": club.name,
+                                             "image": "image"]
+        do {
+            let result = try await joinClub(requestData)
+            userClubs.append(result)
+        } catch {
+            print("Error joining club: \(error)")
+        }
         
     }
 }

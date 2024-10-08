@@ -24,7 +24,7 @@ final class User: Identifiable, Codable, Hashable, Equatable {
         bio: String? = nil,
         name: String,
         image: String? = nil,
-        clubs: [Membership]? = nil
+        clubs: [Membership]? = []
     ) {
         self.id = id
         self.email = email

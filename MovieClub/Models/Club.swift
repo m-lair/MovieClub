@@ -91,7 +91,6 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         try container.encode(bannerUrl, forKey: .bannerUrl)
         try container.encode(ownerName, forKey: .ownerName)
         try container.encode(desc, forKey: .desc)
-        
         switch isPublic {
         case true:
             try container.encode("true", forKey: .isPublic)
@@ -101,7 +100,7 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
     }
     
     enum CodingKeys: String, CodingKey {
-        case id
+        case id = "clubId"
         case name
         case createdAt
         case numMembers

@@ -32,22 +32,24 @@ struct NewClubView: View {
         VStack{
             List(filteredClubs){club in
                 HStack{
-                    Text("\(club.name)")
+                    Text("test club")
                         .font(.title)
                     Spacer()
                     Image(systemName: "person.fill")
                     Text(": \(club.numMembers)")
                     Button {
                         Task{
-                            await data.joinClub(club: club)
-                            data.userClubs.append(club)
-                            btnDisabled = true
+                            do {
+                                print("clubId \(club.id)")
+                                try await data.joinClub(club: club)
+                            } catch {
+                                print(error)
+                            }
                             dismiss()
                         }
                     } label: {
                         Text("Join")
                     }
-                    .disabled(btnDisabled)
                 }
                 /* NavigationLink(destination: ClubDetailView(movieClub: club, path: $path )) {
                  Text(club.name)
@@ -88,12 +90,3 @@ struct NewClubView: View {
         }
     }
 }
-    
-
-
-        
-    
-    // thinking of using a plus button on the clubs view to bring up this page
-    // after that the user should be presented with a search bar to search the name of the club
-    // if the user wishes to create their own then lets make the top right of this search view a Create button
-    // when button is clicked it will take the user to the form to create one from scratch

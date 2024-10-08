@@ -29,7 +29,7 @@ extension DataManager {
     func createUser(email: String, password: String, displayName: String) async throws -> String {
         do {
             let functions = Functions.functions()
-            let result = try await functions.httpsCallable("users-createUser").call([
+            let result = try await functions.httpsCallable("users-createUserWithEmail").call([
                 "email": email,
                 "password": password,
                 "name": displayName
