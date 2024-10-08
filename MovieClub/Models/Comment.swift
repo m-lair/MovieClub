@@ -8,7 +8,7 @@ import Foundation
 import SwiftData
 
 @Model
-final class Comment: Identifiable, Decodable, Equatable, Hashable{
+final class Comment: Identifiable, Codable, Hashable, Equatable {
     var id: String?
     var userId: String
     var image: String? = ""
@@ -44,6 +44,13 @@ final class Comment: Identifiable, Decodable, Equatable, Hashable{
         createdAt = try container.decode(Date.self, forKey: .createdAt)
         text = try container.decode(String.self, forKey: .text)
         likes = try container.decodeIfPresent(Int.self, forKey: .likes) ?? 0
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(id, forKey: .id)
+        try container.encode(userId, forKey: .userId)
+        try container.encodeIfPresent(image, forKey: .image)
     }
     
     enum CodingKeys: String, CodingKey {

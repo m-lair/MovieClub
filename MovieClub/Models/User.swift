@@ -6,9 +6,11 @@
 //
 
 import Foundation
+import FirebaseFunctions
+import SwiftData
 
-@Observable
-final class User: Identifiable, Decodable {
+@Model
+final class User: Identifiable, Codable, Hashable, Equatable {
     var id: String?
     var email: String
     var bio: String?
@@ -22,7 +24,7 @@ final class User: Identifiable, Decodable {
         bio: String? = nil,
         name: String,
         image: String? = nil,
-        clubs: [Membership]? = nil
+        clubs: [Membership]? = []
     ) {
         self.id = id
         self.email = email
@@ -40,6 +42,13 @@ final class User: Identifiable, Decodable {
         image = try container.decodeIfPresent(String.self, forKey: .image)
         clubs = try container.decodeIfPresent([Membership].self, forKey: .clubs)
         name = try container.decode(String.self, forKey: .name)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(id, forKey: .id)
+        try container.encode(email, forKey: .email)
+        try container.encodeIfPresent(bio, forKey: .bio)
     }
     
     enum CodingKeys: String, CodingKey {

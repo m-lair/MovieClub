@@ -8,6 +8,7 @@
 import Foundation
 import FirebaseFirestore
 import FirebaseStorage
+import FirebaseFunctions
 import UIKit
 
 extension DataManager {
@@ -26,15 +27,10 @@ extension DataManager {
     // MARK: - Create Movie Club
     
     func createMovieClub(movieClub: MovieClub) async throws {
+        let createClub: Callable<MovieClub, MovieClub> = functions.httpsCallable("movieClubs-createMovieClub")
         do {
-            let result = try await  functions.httpsCallable("movieClubs-createMovieClub").call([
-                "name": movieClub.name,
-                "ownerId": movieClub.ownerId,
-                "ownerName": movieClub.ownerName,
-                "isPublic": movieClub.isPublic,
-                "timeInterval": movieClub.timeInterval,
-                "bannerUrl": movieClub.bannerUrl ?? ""
-            ])
+            let result = try await createClub(movieClub)
+            userClubs.append(result)
         } catch {
             throw error
         }
@@ -52,41 +48,6 @@ extension DataManager {
             ])
         } catch {
             throw error
-        }
-    }
-    
-    // MARK: - Fetch User Clubs
-    
-    func fetchUserClubs() async {
-        do {
-            guard let user = currentUser else {
-                print("No user logged in")
-                return
-            }
-            let snapshot = try await usersCollection().document(user.id ?? "")
-                .collection("memberships")
-                .getDocuments()
-            
-            let clubIds = snapshot.documents.compactMap { $0.data()["clubId"] as? String }
-            let clubs = try await withThrowingTaskGroup(of: MovieClub?.self) { group in
-                for clubId in clubIds {
-                    group.addTask { [weak self] in
-                        guard let self = self else { return nil }
-                        return await self.fetchMovieClub(clubId: clubId)
-                    }
-                }
-                
-                var clubList: [MovieClub] = []
-                for try await club in group {
-                    if let club = club {
-                        clubList.append(club)
-                    }
-                }
-                return clubList
-            }
-            self.userClubs = clubs
-        } catch {
-            print("Error fetching user clubs: \(error)")
         }
     }
     
@@ -123,13 +84,6 @@ extension DataManager {
         movie = club.movies.first
     }
     
-    // MARK: - Join Club
-    
-    func joinClub(club: MovieClub) async {
-        if let user = self.currentUser, let clubId = club.id {
-            await addClubMember(clubId: clubId, user: user, date: Date())
-        }
-    }
     
     func addClubMember(clubId: String, user: User, date: Date) async {
         do {

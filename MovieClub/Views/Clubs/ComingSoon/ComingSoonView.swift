@@ -54,7 +54,7 @@ struct ComingSoonView: View {
     }
     //populate coming soon list
     func getUserData() async {
-        if let id = await data.currentClub?.id {
+        if let id = data.currentClub?.id {
             do {
                 let snapshot = try await data.movieClubCollection().document(id).collection("members").order(by: "dateAdded", descending: false).getDocuments()
                 let members = snapshot.documents.compactMap { member in

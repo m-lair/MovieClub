@@ -173,7 +173,7 @@ struct ClubDetailsForm: View {
                       ownerId: userId,
                       isPublic: isPublic,
                       bannerUrl: "",
-                      numMovies: 1)
+                      numMovies: 1, members: [])
             
             /*let movie =
              Movie(created: created,
