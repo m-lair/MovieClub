@@ -16,6 +16,7 @@ export default [
       "prettier/prettier": "error",
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-require-imports": "off",
+      endOfLine: "auto",
     },
   },
   {
