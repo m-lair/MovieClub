@@ -1,8 +1,9 @@
 # Project Setup
 
 ### Dependencies
-- Firebase CLI: https://firebase.google.com/docs/cli
 - Node: https://nodejs.org/en/download/package-manager
+- Firebase CLI: https://firebase.google.com/docs/cli
+`npm install -g firebase-tools`
 - Typescript: https://www.typescriptlang.org/download/
 
 ### Configure Firebase CLI

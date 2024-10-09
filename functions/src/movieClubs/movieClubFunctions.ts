@@ -48,7 +48,7 @@ exports.createMovieClub = functions.https.onCall(
 
       logVerbose("Movie Club created successfully!");
 
-      return movieClub;
+      return movieClub.id;
     } catch (error) {
       handleCatchHttpsError("Error creating Movie Club:", error);
     }
