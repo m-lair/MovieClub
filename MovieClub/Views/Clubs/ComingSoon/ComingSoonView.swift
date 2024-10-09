@@ -20,31 +20,6 @@ struct ComingSoonView: View {
             Text("Coming Soon...")
                 .font(.title)
             Divider()
-            List {
-                ForEach(comingSoon.indices, id: \.self) { index in
-                    HStack{
-                        ComingSoonRowView(member: comingSoon[index])
-                        Spacer()
-                        if let date = Calendar.current.date(byAdding: .weekOfYear, value: club.timeInterval * index, to: club.movieEndDate) {
-                            Text("\(String(describing: date.formatted(date: .numeric, time: .omitted)))")
-                                .font(.title3)
-                                .foregroundStyle(.black)
-                            
-                            if comingSoon[index].id == data.currentUser?.id ?? "" {
-                                NavigationLink(value: "EditMovies") {
-                                    Label("Edit", systemImage: "pencil")
-                                    
-                                }
-                            }
-                        }
-                    }
-                }
-                .padding()
-                .frame(width: (screenWidth - 20), height: 30)
-                .background(Color(.gray))
-                .clipShape(.rect(cornerRadius: 20))
-                
-            }
         }
         .onAppear() {
             Task{

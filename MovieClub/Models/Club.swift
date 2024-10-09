@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Model
-final class MovieClub: Identifiable, Decodable, Hashable, Equatable {
+final class MovieClub: Identifiable, Codable, Hashable, Equatable {
     var id: String?
     var name: String
     var createdAt: Date?

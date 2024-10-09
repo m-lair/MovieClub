@@ -23,7 +23,7 @@ final class User: Identifiable, Codable, Hashable, Equatable {
         email: String,
         bio: String? = nil,
         name: String,
-        image: String? = nil,
+        image: String? = "no-image",
         clubs: [Membership]? = []
     ) {
         self.id = id
@@ -49,6 +49,7 @@ final class User: Identifiable, Codable, Hashable, Equatable {
         try container.encodeIfPresent(id, forKey: .id)
         try container.encode(email, forKey: .email)
         try container.encodeIfPresent(bio, forKey: .bio)
+        try container.encode(image, forKey: .image)
     }
     
     enum CodingKeys: String, CodingKey {
