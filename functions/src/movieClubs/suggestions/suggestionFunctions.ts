@@ -41,7 +41,7 @@ exports.createMovieClubSuggestion = functions.https.onCall(
   }
 );
 
-exports.deleteMovieClubSuggestion = functions.https.onCall(
+exports.deleteUserMovieClubSuggestion = functions.https.onCall(
   async (request: CallableRequest<DeleteMovieClubSuggestionData>) => {
     try {
       const { data, auth } = request;

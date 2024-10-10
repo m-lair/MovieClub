@@ -13,7 +13,7 @@ import { populateSuggestionData } from "test/mocks/suggestion";
 // @ts-expect-error it works but ts won't detect it for some reason
 // TODO: Figure out why ts can't detect the export on this
 // prettier-ignore
-const { createMovieClubSuggestion, deleteMovieClubSuggestion } = suggestions;
+const { createMovieClubSuggestion, deleteUserMovieClubSuggestion } = suggestions;
 
 describe("Suggestion Functions", () => {
   let user: UserDataMock;
@@ -87,14 +87,14 @@ describe("Suggestion Functions", () => {
     });
   });
 
-  describe("deleteMovieClubSuggestion", () => {
-    const wrapped = firebaseTest.wrap(deleteMovieClubSuggestion);
+  describe("deleteUserMovieClubSuggestion", () => {
+    const wrapped = firebaseTest.wrap(deleteUserMovieClubSuggestion);
 
     beforeEach(async () => {
       await populateSuggestionData({ userId: user.id, movieClubId: movieClub.id, title: movieClubSuggestionData.title })
     });
 
-    it.only("should delete an existing suggestion", async () => {
+    it("should delete a suggestion for the requesting user", async () => {
       const snap = await getMovieClubSuggestionDocRef(user.id, movieClub.id).get();
       const movieClubSuggestionDoc = snap.data();
 
