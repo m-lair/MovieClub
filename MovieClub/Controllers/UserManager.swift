@@ -186,17 +186,17 @@ extension DataManager {
     
     // MARK: - Get Profile Image by User ID
     
-    func getProfileImage(userId: String) async -> String {
+    func getProfileImage(userId: String) async throws -> String? {
         do {
             let document = try await usersCollection().document(userId).getDocument()
             guard let url = document.get("image") as? String else {
                 print("No image field in user document")
-                return ""
+                return nil
             }
             return url
         } catch {
             print("Error fetching profile image URL: \(error)")
-            return ""
+            throw error
         }
     }
     
