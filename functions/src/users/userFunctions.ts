@@ -27,9 +27,9 @@ exports.createUserWithEmail = functions.https.onCall(
     try {
       const { data } = request;
       const requiredFields = ["email", "name", "password"];
-      verifyRequiredFields(request.data, requiredFields);
+      verifyRequiredFields(data, requiredFields);
 
-      const uid = await createUserAuthentication(request.data);
+      const uid = await createUserAuthentication(data);
       data.signInProvider = "password";
 
       if (uid) {
@@ -141,9 +141,7 @@ async function createUserAuthentication(
   }
 }
 
-type CreateUserData =
-  | (CreateUserWithEmailData & { signInProvider?: never })
-  | CreateUserWithOAuthData;
+type CreateUserData = CreateUserWithEmailData | CreateUserWithOAuthData;
 
 async function createUser(id: string, data: CreateUserData): Promise<void> {
   const userData = {

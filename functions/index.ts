@@ -1,5 +1,5 @@
 require("module-alias/register");
 
-import { comments, config, movies, movieClubs, users } from "./src";
+import { comments, config, suggestions, movieClubs, users } from "./src";
 
-export { comments, config, movies, movieClubs, users };
+export { comments, config, suggestions, movieClubs, users };
