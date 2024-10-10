@@ -89,6 +89,7 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         try container.encode(createdAt, forKey: .createdAt)
         try container.encode(timeInterval, forKey: .timeInterval)
         try container.encode(bannerUrl, forKey: .bannerUrl)
+        try container.encode(banner, forKey: .banner)
         try container.encode(ownerName, forKey: .ownerName)
         try container.encode(desc, forKey: .desc)
         switch isPublic {
@@ -110,7 +111,7 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         case movieEndDate
         case ownerId
         case isPublic
-        case banner
+        case banner = "image"
         case bannerUrl
         case numMovies
     }
