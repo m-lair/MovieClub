@@ -47,6 +47,7 @@ final class User: Identifiable, Codable, Hashable, Equatable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(id, forKey: .id)
+        try container.encode(name, forKey: .name)
         try container.encode(email, forKey: .email)
         try container.encodeIfPresent(bio, forKey: .bio)
         try container.encode(image, forKey: .image)

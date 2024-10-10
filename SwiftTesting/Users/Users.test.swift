@@ -9,17 +9,17 @@ import Testing
 import Firebase
 import Foundation
 import FirebaseFunctions
-import FirebaseAuth
 import FirebaseFirestore
+import class FirebaseAuth.Auth
+import class MovieClub.User
 @testable import MovieClub
 
 extension AppTests {
     
-    
     @Suite struct UserFunctionsTests {
         let createUserWithEmail: Callable<[String: String], String> = Functions.functions().httpsCallable("users-createUserWithEmail")
         let createUserWithSignInProvider: Callable<[String: String], String> = Functions.functions().httpsCallable("users-createUserWithSignInProvider")
-        let updateUser: Callable<String, String> = Functions.functions().httpsCallable("users-updateUser")
+        let updateUser: Callable<User, Bool?> = Functions.functions().httpsCallable("users-updateUser")
         let joinMovieClub: Callable<[String: String], String?> = Functions.functions().httpsCallable("users-joinMovieClub")
         
         let id = UUID()
@@ -43,10 +43,30 @@ extension AppTests {
         }
         
         @Test func updateUser() async throws {
+            let id = UUID()
+            guard let auth = try await setUp(userId: id) else { return }
+            print("auth: \(auth)")
+            let userRef = Firestore.firestore().collection("users").document(auth)
+            
+            let user = User(email: "test\(id)@test.com", bio: "test-bio", name: "test\(id)", image: "test-image.png")
+            try userRef.setData(from: user)
+            
+            user.name = "updated-name"
+            user.bio = "updated-bio"
+            user.image = "updated-image.png"
+
+            let _ = try await updateUser(user)
+            
+           
+            let result = try await userRef.getDocument().data(as: User.self)
+            #expect(result.name == "updated-name")
+            #expect(result.bio == "updated-bio")
+            #expect(result.image == "updated-image.png")
+            try await tearDown()
         }
         
         @Test func joinClub() async throws {
-            try await setUp(userId: UUID())
+            let _ = try await setUp(userId: UUID())
             let requestData = ["movieClubId": "\(UUID())", "movieClubName": "test-club", "image": "test-image.png", "username": "test-username"]
             let response = try await joinMovieClub(requestData)
             if let response {
