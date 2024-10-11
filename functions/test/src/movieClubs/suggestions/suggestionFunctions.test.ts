@@ -34,9 +34,10 @@ describe("Suggestion Functions", () => {
     });
 
     movieClubSuggestionData = {
+      imageUrl: "Test Image Url",
       movieClubId: movieClub.id,
       title: "Test Movie Title",
-      imageUrl: "Test Image Url"
+      username: user.name
     }
   });
 
@@ -50,6 +51,7 @@ describe("Suggestion Functions", () => {
 
       assert.equal(movieClubSuggestionbDoc?.title, movieClubSuggestionData.title);
       assert.equal(movieClubSuggestionbDoc?.imageUrl, movieClubSuggestionData.imageUrl);
+      assert.equal(movieClubSuggestionbDoc?.username, movieClubSuggestionData.username);
     });
 
     it("should error if user is not a member of the club", async () => {

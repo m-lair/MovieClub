@@ -17,16 +17,16 @@ exports.createMovieClubSuggestion = functions.https.onCall(
       const { data, auth } = request;
       const { uid } = verifyAuth(auth);
 
-      const requiredFields = ["imageUrl", "movieClubId", "title"];
+      const requiredFields = ["imageUrl", "movieClubId", "title", "username"];
       verifyRequiredFields(data, requiredFields);
       await verifyMembership(uid, data.movieClubId);
 
       const suggestionRef = getMovieClubSuggestionDocRef(uid, data.movieClubId);
 
       const suggestionData = {
-        uid: uid,
         title: data.title,
         imageUrl: data.imageUrl,
+        username: data.username,
         createdAt: Date.now()
       };
 

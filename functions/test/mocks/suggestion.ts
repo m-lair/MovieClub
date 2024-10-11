@@ -4,6 +4,7 @@ import { getMovieClubSuggestionDocRef } from "src/movieClubs/suggestions/suggest
 export interface SuggestionMock {
   title: string;
   imageUrl: string;
+  username: string;
   createdAt: number;
 }
 
@@ -20,6 +21,7 @@ export async function populateSuggestionData(
   const suggestionData: SuggestionMock = {
     imageUrl: params.imageUrl || "Test Image Url",
     title: params.title || "Test Title",
+    username: params.username || "Test Username",
     createdAt: Date.now(),
   };
 
