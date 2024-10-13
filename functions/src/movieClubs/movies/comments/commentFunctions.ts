@@ -11,11 +11,10 @@ import { DeleteCommentData, PostCommentData } from "./commentTypes";
 import { CallableRequest } from "firebase-functions/https";
 import {
   COMMENTS,
-  MEMBERSHIPS,
   MOVIE_CLUBS,
   MOVIES,
-  USERS,
 } from "src/utilities/collectionNames";
+import { verifyMembership } from "src/users/userHelpers";
 
 exports.postComment = functions.https.onCall(
   async (request: CallableRequest<PostCommentData>) => {
@@ -26,22 +25,7 @@ exports.postComment = functions.https.onCall(
 
       const requiredFields = ["movieClubId", "movieId", "text", "username"];
       verifyRequiredFields(data, requiredFields);
-
-      const membershipRef = firestore
-        .collection(USERS)
-        .doc(uid)
-        .collection(MEMBERSHIPS)
-        .doc(data.movieClubId);
-
-      const membershipSnap = await membershipRef.get();
-      const membershipData = membershipSnap.data();
-
-      if (membershipData === undefined) {
-        throwHttpsError(
-          "permission-denied",
-          "You are not a member of this Movie Club.",
-        );
-      }
+      await verifyMembership(uid, data.movieClubId);
 
       const commentsRef = firestore
         .collection(MOVIE_CLUBS)

@@ -22,7 +22,6 @@ describe("createMovieClub", () => {
 
   let user: UserDataMock;
   let movieClubData: MovieClubData;
-  let movieClub: UpdateMovieClubData;
   let auth: AuthData;
 
   beforeEach(async () => {
@@ -47,10 +46,10 @@ describe("createMovieClub", () => {
   });
 
   it("should create a new Movie Club", async () => {
-    movieClub = await wrapped({ data: movieClubData, auth: auth });
+    const movieClubId = await wrapped({ data: movieClubData, auth: auth });
     const snap = await firestore
       .collection(MOVIE_CLUBS)
-      .doc(movieClub.id)
+      .doc(movieClubId)
       .get();
     const movieClubDoc = snap.data();
 
