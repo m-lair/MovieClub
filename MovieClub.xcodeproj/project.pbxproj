@@ -86,6 +86,7 @@
 		2CD71FE02CBAFFF100F9CF58 /* ImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FDF2CBAFFEB00F9CF58 /* ImageManager.swift */; };
 		2CD71FE22CBB176D00F9CF58 /* BannerSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FE12CBB176D00F9CF58 /* BannerSelector.swift */; };
 		2CD71FE52CBC85BE00F9CF58 /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FE42CBC85B900F9CF58 /* HelperFunctions.swift */; };
+		2CD71FEB2CBCF0FA00F9CF58 /* Suggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FEA2CBCF0F600F9CF58 /* Suggestion.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -172,6 +173,7 @@
 		2CD71FDF2CBAFFEB00F9CF58 /* ImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageManager.swift; sourceTree = "<group>"; };
 		2CD71FE12CBB176D00F9CF58 /* BannerSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerSelector.swift; sourceTree = "<group>"; };
 		2CD71FE42CBC85B900F9CF58 /* HelperFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperFunctions.swift; sourceTree = "<group>"; };
+		2CD71FEA2CBCF0F600F9CF58 /* Suggestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suggestion.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -365,6 +367,7 @@
 		2C5DEC3D2BF1B06C000EF232 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				2CD71FEA2CBCF0F600F9CF58 /* Suggestion.swift */,
 				2C11FFE22CA274C1004F54BC /* Comment.swift */,
 				2C11FFDC2CA13341004F54BC /* Club.swift */,
 				2C11FFFB2CA381A0004F54BC /* OMDBResponse.swift */,
@@ -669,6 +672,7 @@
 				2CD71FDE2CB995DD00F9CF58 /* ClubToolbar.swift in Sources */,
 				2C87B2A72C6B13C500A49B2B /* AviSelector.swift in Sources */,
 				2C8256B72BF1BC1E00D2ED12 /* MovieRowView.swift in Sources */,
+				2CD71FEB2CBCF0FA00F9CF58 /* Suggestion.swift in Sources */,
 				2C44750F2C2A6C2D0034204C /* UserEditView.swift in Sources */,
 				2C11FFDD2CA13346004F54BC /* Club.swift in Sources */,
 				2C1100062CA386CC004F54BC /* CommentManager.swift in Sources */,
