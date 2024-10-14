@@ -47,7 +47,6 @@ class DataManager: Identifiable {
             functions = Functions.functions()
             self.userSession = auth.currentUser
             try await fetchUser()
-            
         }
     }
     

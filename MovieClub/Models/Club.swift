@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Model
-final class MovieClub: Identifiable, Decodable, Hashable, Equatable {
+final class MovieClub: Identifiable, Codable, Hashable, Equatable {
     var id: String?
     var name: String
     var createdAt: Date?
@@ -61,7 +61,7 @@ final class MovieClub: Identifiable, Decodable, Hashable, Equatable {
         
         id = try container.decodeIfPresent(String.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
-        numMembers = try container.decode(Int.self, forKey: .numMembers)
+        numMembers = try container.decodeIfPresent(Int.self, forKey: .numMembers)
         desc = try container.decodeIfPresent(String.self, forKey: .desc)
         ownerName = try container.decode(String.self, forKey: .ownerName)
         timeInterval = try container.decode(Int.self, forKey: .timeInterval)
@@ -84,18 +84,25 @@ final class MovieClub: Identifiable, Decodable, Hashable, Equatable {
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(id, forKey: .id)
+        try container.encodeIfPresent(id, forKey: .id)
         try container.encode(name, forKey: .name)
         try container.encode(createdAt, forKey: .createdAt)
         try container.encode(timeInterval, forKey: .timeInterval)
         try container.encode(bannerUrl, forKey: .bannerUrl)
+        
+        
         try container.encode(ownerName, forKey: .ownerName)
         try container.encode(desc, forKey: .desc)
+        try container.encode(ownerId, forKey: .ownerId)
         switch isPublic {
         case true:
             try container.encode("true", forKey: .isPublic)
         case false :
             try container.encode("false", forKey: .isPublic)
+        }
+        if let bannerData = banner {
+            let base64Image = bannerData.base64EncodedString() // Convert to Base64 string
+            try container.encode(base64Image, forKey: .banner) // Encode Base64 string
         }
     }
     
@@ -110,7 +117,7 @@ final class MovieClub: Identifiable, Decodable, Hashable, Equatable {
         case movieEndDate
         case ownerId
         case isPublic
-        case banner
+        case banner = "image"
         case bannerUrl
         case numMovies
     }

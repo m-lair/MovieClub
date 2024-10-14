@@ -9,6 +9,7 @@ import Foundation
 import FirebaseAuth
 import FirebaseFunctions
 import FirebaseStorage
+import Promises
 
 extension DataManager {
     
@@ -98,15 +99,11 @@ extension DataManager {
     
     // MARK: - Update User Details
     
-    func updateUserDetails(changes: [String: Any]) async throws {
+    func updateUserDetails(user: User) async throws {
         do {
-            //print("Updating user details")
-            try await usersCollection().document(currentUser?.id ?? "").updateData(changes)
-            
-            // Update related data in comments, movies, and members
-            await updateRelatedUserData(changes: changes)
-            
-            //print("Fetching updated user")
+            print("username: \(user.name)")
+            let updateUser: Callable<User, Bool?> = functions.httpsCallable("users-updateUser")
+            let result = try await updateUser(user)
             try await fetchUser()
         } catch {
             throw error
@@ -189,24 +186,23 @@ extension DataManager {
     
     // MARK: - Get Profile Image by User ID
     
-    func getProfileImage(userId: String) async -> String {
+    func getProfileImage(userId: String) async throws -> String? {
         do {
             let document = try await usersCollection().document(userId).getDocument()
             guard let url = document.get("image") as? String else {
                 print("No image field in user document")
-                return ""
+                return nil
             }
             return url
         } catch {
             print("Error fetching profile image URL: \(error)")
-            return ""
+            throw error
         }
     }
     
     // MARK: - Join Club
     
     func joinClub(club: MovieClub) async throws {
-        print("joining club \(club.name), \(club.id)")
         guard
             let user = currentUser,
             let clubId = club.id,

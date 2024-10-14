@@ -9,7 +9,6 @@ import Foundation
 import FirebaseFirestore
 import FirebaseStorage
 import FirebaseFunctions
-import UIKit
 
 extension DataManager {
     
@@ -40,12 +39,9 @@ extension DataManager {
     
     func updateMovieClub(movieClub: MovieClub) async throws {
         do {
-            let result = try await  functions.httpsCallable("movieClubs-updateMovieClub").call([
-                "id": movieClub.id,
-                "name": movieClub.name,
-                "ownerId": movieClub.ownerId,
-                "ownerName": movieClub.ownerName
-            ])
+            print("updating movie club: \(movieClub.name)")
+            let result = try await  functions.httpsCallable("movieClubs-updateMovieClub").call(movieClub)
+            print("updated club: \(result)")
         } catch {
             throw error
         }

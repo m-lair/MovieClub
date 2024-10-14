@@ -30,7 +30,7 @@ struct NewClubView: View {
     }
     var body: some View {
         VStack{
-            List(filteredClubs){club in
+            List(filteredClubs, id: \.id){club in
                 HStack{
                     Text("test club")
                         .font(.title)

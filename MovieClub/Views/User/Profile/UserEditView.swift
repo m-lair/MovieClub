@@ -14,45 +14,47 @@ struct UserEditView: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) private var dismiss
     @Environment(\.editMode) private var editMode
-    @State private var changes: [String: String] = [:]
+    @State var errorMessage: String = ""
+    @State var errorShowing: Bool = false
     @State var name: String = ""
     @State var bio: String = ""
+    
     var body: some View {
         VStack{
             if let user = data.currentUser {
                 if editMode?.wrappedValue.isEditing == true {
                     Form {
                         TextField("Name", text: $name, prompt: Text(user.name))
-                            .onChange(of: name) {
-                                   changes["name"] = name
-                               }
-                        TextField("Bio", text: $bio)
-                            .onChange(of: bio) {
-                                   changes["bio"] = bio
-                               }
+                        TextField("Bio", text: $bio, prompt: Text(user.bio ?? "No bio yet"))
                     }
                 }
             }
         }
         .onChange(of: editMode?.wrappedValue) {
             Task{
-                if editMode?.wrappedValue.isEditing == true {
-                    print("is editing true")
-                }
-                if editMode?.wrappedValue.isEditing == false {
-                    if !changes.isEmpty {
-                        do {
-                            print("in try update")
-                            try await data.updateUserDetails(changes: changes)
-                        }catch{
-                            print(error)
-                        }
-                    }
-                    
-                }
+               try await submit()
             }
-            
         }
-        
+        .alert(errorMessage, isPresented: $errorShowing) {
+            Button("OK", role: .cancel) { }
+        }
+    }
+    
+    private func submit() async throws {
+        if editMode?.wrappedValue.isEditing == false {
+            if name.isEmpty || bio.isEmpty { return }
+            guard let userUpdates = data.currentUser else { return }
+            do {
+                userUpdates.name = name
+                userUpdates.bio = bio
+                try await data.updateUserDetails(user: userUpdates)
+                data.currentUser = userUpdates
+                dismiss()
+            } catch let error as NSError {
+                print(error)
+                errorMessage = error.localizedDescription
+                errorShowing = true
+            }
+        }
     }
 }
