@@ -95,7 +95,7 @@ struct ClubEditView: View {
         }
         guard timeInterval != 0 else {
             errorShowing = true
-            errorMessage = "Name cannot be empty"
+            errorMessage = "Time Interval cannot be empty"
             return
         }
         
