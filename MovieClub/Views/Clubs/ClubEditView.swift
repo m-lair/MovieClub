@@ -90,7 +90,7 @@ struct ClubEditView: View {
         }
         guard !description.isEmpty else {
             errorShowing = true
-            errorMessage = "Name cannot be empty"
+            errorMessage = "description cannot be empty"
             return
         }
         guard timeInterval != 0 else {
