@@ -10,12 +10,13 @@ import FirebaseFirestore
 
 struct ClubDetailView: View {
     @Environment(DataManager.self) var data: DataManager
+    @Environment(\.editMode) var editMode
     @Environment(\.dismiss) var dismiss
     @Binding var navPath: NavigationPath
     
     @State var isLoading: Bool = true
     let club: MovieClub
-    @State var isPresentingEditView = false
+    
     var body: some View {
         ZStack{
             if isLoading {
@@ -28,55 +29,12 @@ struct ClubDetailView: View {
                         NowPlayingView(movie: movie, club: club)
                     }
                 }
-                .padding()
-                Spacer()
-            }
-        }
-        .toolbar{
-            if data.currentClub?.ownerId == data.currentUser?.id ?? "" {
-                Menu {
-                    Button {
-                        // Do Nothing
-                    } label: {
-                        Label("Report A Problem", systemImage: "exclamationmark.octagon")
-                    }
-                    Button {
-                        isPresentingEditView = true
-                    } label: {
-                        Label("Edit", systemImage: "pencil")
-                    }
-                    
-                    Button {
-                        Task{
-                            dismiss()
-                        }
-                    } label: {
-                        Label("Leave Club", systemImage: "trash")
-                    }
-                    .foregroundStyle(.red)
-                    
-                } label: {
-                    Label("Menu", systemImage: "ellipsis")
-                }
-            } else {
-                Menu {
-                    Button {
-                        Task{
-                            dismiss()
-                        }
-                    } label: {
-                        Label("Leave Club", systemImage: "trash")
-                    }
-                    .foregroundStyle(.red)
-                    
-                } label: {
-                    Label("Menu", systemImage: "ellipsis")
+                .toolbar {
+                    ClubToolbar(club: club)
                 }
             }
         }
-        .sheet(isPresented: $isPresentingEditView) {
-            ClubDetailsForm(navPath: $navPath)
-        }
+        
         .task {
             await loadClub()
         }

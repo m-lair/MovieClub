@@ -14,11 +14,7 @@ struct ClubDetailsForm: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var navPath: NavigationPath
     
-    @State private var apiMovie: APIMovie?
-    @State private var searchText = ""
-    @State private var searchBar = true
-    @State private var sheetShowing = false
-    @State private var banner: Image?
+    @State var banner: UIImage?
     @State private var photoItem: PhotosPickerItem?
     @State private var name = ""
     @State private var isPublic = false // Default to private
@@ -46,45 +42,7 @@ struct ClubDetailsForm: View {
                     }
                 }
                 Section("Banner"){
-                    HStack{
-                        Button{
-                            showPicker = true
-                        } label: {
-                            if let banner {
-                                banner
-                                    .resizable()
-                                    .scaledToFill()
-                                    .padding(-20) /// expand the blur a bit to cover the edges
-                                    .clipped() /// prevent blur overflow
-                                    .frame(width: (screenWidth - 20), height:275)
-                                    .mask(LinearGradient(stops:
-                                                            [.init(color: .white, location: 0),
-                                                             .init(color: .white, location: 0.85),
-                                                             .init(color: .clear, location: 1.0),], startPoint: .top, endPoint: .bottom))
-                            }else{
-                                Image(systemName: "house.fill")
-                                    .frame(width: (screenWidth - 20), height: 275)
-                                    .clipShape(.rect(cornerRadius: 25))
-                                    .shadow(radius: 8)
-                            }
-                        }
-                    }
-                    .onChange(of: photoItem) {
-                        Task {
-                            do {
-                                if let loaded = try await photoItem?.loadTransferable(type: Image.self) {
-                                    showPicker = false
-                                    banner = loaded
-                                    
-                                } else {
-                                    print("Failed")
-                                }
-                            }catch{
-                                print("couldnt get photo \(error)")
-                            }
-                        }
-                    }
-                    .photosPicker(isPresented: $showPicker, selection: $photoItem)
+                    BannerSelector(banner: $banner, photoItem: $photoItem)
                 }
                 .listRowInsets(EdgeInsets())
                 Section("Settings") {
@@ -100,43 +58,9 @@ struct ClubDetailsForm: View {
                         .pickerStyle(.segmented)
                     }
                 }
-                /*Section{
-                    VStack(alignment: .center){
-                        Button {
-                            Task{
-                                if let imageData = try await photoItem?.loadTransferable(type: Data.self) {
-                                    let documentString = data.db.collection("movieclubs").document().documentID
-                                    print(documentString)
-                                    sheetShowing = true
-                                    
-                                }
-                            }
-                        } label: {
-                            AsyncImage(url: URL(string: apiMovie?.poster ?? "")){ phase in
-                                if let image = phase.image {
-                                   // let _ = print("emptyView")
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        
-                                        
-                                } else {
-                                   // let _ = print("emptyView")
-                                    Text("Choose First Movie...")
-                                }
-                            }
-                        }
-                    }
-                    .sheet(isPresented: $sheetShowing) {
-                        AddMovieView() { movie in
-                            apiMovie = movie
-                        }
-                    }
-                }*/
-                
                 Button{
                     Task{
-                        await submit()
+                        try await submit()
                     }
                 }label:{
                     Text("Create Club")
@@ -145,25 +69,22 @@ struct ClubDetailsForm: View {
         }
     }
     
-    @MainActor
-    private func submit() async {
-        do{
-            /*if let image = try await photoItem?.loadTransferable(type: Data.self) {
-             
-             let documentString = data.db.collection("movieclubs").document().documentID
-             if let imageData = UIImage(data: image) {
-             
-             // will need to rewrite for cloud function
-             let urlString = try await data.uploadClubImage(image: imageData, clubId: documentString)
-             */
-            guard
-                let user = data.currentUser,
-                let userId = user.id
-            else {
-                
-                return
+    func encodeImageToBase64(_ image: UIImage) -> String? {
+            guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+                return nil
             }
-            
+            return imageData.base64EncodedString()
+        }
+    
+    
+    @MainActor
+    private func submit() async throws{
+        guard
+            let user = data.currentUser,
+            let userId = user.id
+        else { return }
+        
+        guard let bannerData = try await photoItem?.loadTransferable(type: Data.self) else { return }
             let movieClub =
             MovieClub(name: name,
                       desc: desc,
@@ -171,9 +92,9 @@ struct ClubDetailsForm: View {
                       timeInterval: timeInterval,
                       ownerId: userId,
                       isPublic: isPublic,
-                      bannerUrl: "",
-                      numMovies: 1, members: [])
-            
+                      banner: bannerData,
+                      bannerUrl: "no-image")
+        
             /*let movie =
              Movie(created: created,
              title: apiMovie?.title ?? "",
@@ -182,12 +103,13 @@ struct ClubDetailsForm: View {
              userName: user.name,
              userId: userId,
              authorAvi: user.image ?? "")*/
-            
+        do {
             try await data.createMovieClub(movieClub: movieClub)
             navPath.removeLast(navPath.count)
             
         }catch{
             print("error submitting club \(error)")
+            
         }
     }
     

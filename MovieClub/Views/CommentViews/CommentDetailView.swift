@@ -21,7 +21,11 @@ struct CommentDetailView: View {
                     .font(.body)
             }
             .task{
-                self.imageUrl = await data.getProfileImage(userId: comment.userId)
+                do {
+                    self.imageUrl = try await data.getProfileImage(userId: comment.userId) ?? ""
+                } catch {
+                    print(error)
+                }
             }
             .padding()
             .background(Color.gray.opacity(0.1))
