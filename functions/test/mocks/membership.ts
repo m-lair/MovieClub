@@ -1,5 +1,5 @@
 import { logError, logVerbose } from "helpers";
-import { firestore } from "firestore";
+import { getUserMembershipDocRef } from "src/users/memberships/membershipHelpers";
 
 export interface MembershipMock {
   movieClubName: string;
@@ -15,21 +15,15 @@ export interface MembershipMockParams {
 
 export async function populateMembershipData(params: MembershipMockParams) {
   logVerbose("Populating membership data...");
-  const { createMembership = true } = params;
-
-  const userId = params.userId || "test-user";
-  const movieClubId = params.movieClubId || "test-club";
+  const { movieClubId, userId, createMembership = true } = params;
 
   const membershipData: MembershipMock = {
     movieClubName: params.movieClubName || "Test Club",
     createdAt: Date.now(),
   };
 
-  const membershipRef = firestore
-    .collection("users")
-    .doc(userId)
-    .collection("memberships")
-    .doc(movieClubId);
+  const membershipRef = getUserMembershipDocRef(userId, movieClubId)
+
   try {
     if (createMembership) {
       await membershipRef.set(membershipData);
@@ -41,4 +35,4 @@ export async function populateMembershipData(params: MembershipMockParams) {
   }
 
   return membershipData;
-}
+};

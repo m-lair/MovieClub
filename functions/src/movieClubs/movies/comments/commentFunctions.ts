@@ -14,7 +14,7 @@ import {
   MOVIE_CLUBS,
   MOVIES,
 } from "src/utilities/collectionNames";
-import { verifyMembership } from "src/users/userHelpers";
+import { verifyMembership } from "src/users/memberships/membershipHelpers";
 
 exports.postComment = functions.https.onCall(
   async (request: CallableRequest<PostCommentData>) => {
