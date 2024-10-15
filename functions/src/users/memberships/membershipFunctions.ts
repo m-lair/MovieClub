@@ -4,6 +4,7 @@ import { verifyAuth, verifyRequiredFields, throwHttpsError, logVerbose, handleCa
 import { getMovieClub, getMovieClubMemberDocRef } from "src/movieClubs/movieClubHelpers";
 import { getUserMembershipDocRef } from "./membershipHelpers";
 import { JoinMovieClubData, LeaveMovieClubData } from "./membershipTypes";
+import { getMovieClubSuggestionDocRef } from "src/movieClubs/suggestions/suggestionHelpers";
 
 exports.joinMovieClub = functions.https.onCall(
   async (request: CallableRequest<JoinMovieClubData>): Promise<void> => {
@@ -57,6 +58,9 @@ exports.leaveMovieClub = functions.https.onCall(
 
       const requiredFields = ["movieClubId"];
       verifyRequiredFields(data, requiredFields);
+
+      const movieClubSuggestionRef = getMovieClubSuggestionDocRef(uid, data.movieClubId)
+      await movieClubSuggestionRef.delete();
 
       const userMembershipsRef = getUserMembershipDocRef(uid, data.movieClubId);
       await userMembershipsRef.delete();

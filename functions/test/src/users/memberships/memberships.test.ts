@@ -9,6 +9,8 @@ import { MovieClubMock } from "test/mocks/movieclub";
 import { getUserMembership } from "src/users/memberships/membershipHelpers";
 import { getMovieClubMember } from "src/movieClubs/movieClubHelpers";
 import { populateMembershipData } from "test/mocks/membership";
+import { getMovieClubSuggestion } from "src/movieClubs/suggestions/suggestionHelpers";
+import { populateSuggestionData } from "test/mocks/suggestion";
 
 // @ts-expect-error it works but ts won't detect it for some reason
 // TODO: Figure out why ts can't detect the export on this
@@ -107,6 +109,7 @@ describe("membershipFunctions", () => {
 
       await populateMembershipData({ userId: user.id, movieClubId: movieClub.id, movieClubName: movieClub.name });
       await populateMemberData({ userId: user.id, username: user.name, movieClubId: movieClub.id });
+      await populateSuggestionData({ userId: user.id, username: user.name, movieClubId: movieClub.id });
     });
 
     it("should remove a users membership", async () => {
@@ -133,6 +136,41 @@ describe("membershipFunctions", () => {
       const movieClubMemberSnap = await getMovieClubMember(user.id, movieClub.id);
 
       assert.equal(movieClubMemberSnap.data(), undefined);
+    });
+
+    it("should delete movie club suggestion for user", async () => {
+      const movieClubSuggestionSnapBefore = await getMovieClubSuggestion(user.id, movieClub.id);
+
+      const { imageUrl, username } = movieClubSuggestionSnapBefore.data()!;
+      assert.equal(imageUrl, "Test Image Url");
+      assert.equal(username, user.name);
+
+      await leaveMovieClubWrapped({ data: membershipData, auth: auth });
+
+      const movieClubSuggestionSnap = await getMovieClubSuggestion(user.id, movieClub.id);
+
+      assert.equal(movieClubSuggestionSnap.data(), undefined);
+    });
+
+    it("should error without required fields", async () => {
+      try {
+        await leaveMovieClubWrapped({ data: {}, auth: auth });
+        assert.fail("Expected error not thrown");
+      } catch (error: any) {
+        assert.match(
+          error.message,
+          /The function must be called with movieClubId./,
+        );
+      }
+    });
+
+    it("should error without auth", async () => {
+      try {
+        await leaveMovieClubWrapped({ data: {} });
+        assert.fail("Expected error not thrown");
+      } catch (error: any) {
+        assert.match(error.message, /auth object is undefined./);
+      }
     });
   });
 });
