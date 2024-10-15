@@ -14,17 +14,20 @@ final class Suggestion: Identifiable, Codable {
     var title: String
     var userImage: String
     var username: String
+    var clubId: String
     
     init(
         id: String? = nil,
         title: String,
         userImage: String,
-        username: String
+        username: String,
+        clubId: String
     ) {
         self.id = id
         self.title = title
         self.userImage = userImage
         self.username = username
+        self.clubId = clubId
     }
     
     required init(from decoder: Decoder) throws {
@@ -34,6 +37,7 @@ final class Suggestion: Identifiable, Codable {
         title = try container.decode(String.self, forKey: .title)
         userImage = try container.decode(String.self, forKey: .userImage)
         username = try container.decode(String.self, forKey: .username)
+        clubId = try container.decode(String.self, forKey: .clubId)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -43,6 +47,7 @@ final class Suggestion: Identifiable, Codable {
         try container.encode(title, forKey: .title)
         try container.encode(userImage, forKey: .userImage)
         try container.encode(username, forKey: .username)
+        try container.encode(clubId, forKey: .clubId)
     }
     
     enum CodingKeys: String, CodingKey {
@@ -50,6 +55,7 @@ final class Suggestion: Identifiable, Codable {
         case title
         case userImage
         case username
+        case clubId
     }
 }
 
