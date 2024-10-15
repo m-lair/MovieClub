@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 import { CallableRequest } from "firebase-functions/https";
-import { verifyMembership } from "src/users/userHelpers";
+import { verifyMembership } from "src/users/memberships/membershipHelpers";
 import { CreateMovieClubSuggestionData, DeleteMovieClubSuggestionData } from "./suggestionTypes";
 import { getMovieClubSuggestionDocRef } from "./suggestionHelpers";
 

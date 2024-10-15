@@ -11,16 +11,10 @@ import {
 import {
   CreateUserWithEmailData,
   CreateUserWithOAuthData,
-  JoinMovieClubData,
   UpdateUserData,
 } from "./userTypes";
 import { CallableRequest } from "firebase-functions/https";
-import {
-  MEMBERS,
-  MEMBERSHIPS,
-  MOVIE_CLUBS,
-  USERS,
-} from "src/utilities/collectionNames";
+import { USERS } from "src/utilities/collectionNames";
 
 exports.createUserWithEmail = functions.https.onCall(
   async (request: CallableRequest<CreateUserWithEmailData>) => {
@@ -220,64 +214,5 @@ exports.updateUser = functions.https.onCall(
     } catch (error: any) {
       handleCatchHttpsError(`Error updating User ${request.auth?.uid}`, error);
     }
-  },
-);
-
-exports.joinMovieClub = functions.https.onCall(
-  async (request: CallableRequest<JoinMovieClubData>): Promise<void> => {
-    try {
-      const { data, auth } = request;
-
-      const { uid } = verifyAuth(auth);
-
-      const requiredFields = [
-        "image",
-        "movieClubId",
-        "movieClubName",
-        "username",
-      ];
-      verifyRequiredFields(data, requiredFields);
-
-      const movieClubRef = await firestore
-        .collection(MOVIE_CLUBS)
-        .doc(data.movieClubId)
-        .get();
-
-      const movieClubData = movieClubRef.data();
-
-      if (movieClubData !== undefined && !movieClubData.isPublic) {
-        throwHttpsError(
-          "permission-denied",
-          "The Movie Club is not publicly joinable.",
-        );
-      }
-
-      const userMembershipsRef = firestore
-        .collection(USERS)
-        .doc(uid)
-        .collection(MEMBERSHIPS)
-        .doc(data.movieClubId);
-
-      await userMembershipsRef.set({
-        movieClubName: data.movieClubName,
-        createdAt: Date.now(),
-      });
-
-      const movieClubMemberRef = firestore
-        .collection(MOVIE_CLUBS)
-        .doc(data.movieClubId)
-        .collection(MEMBERS)
-        .doc(uid);
-
-      await movieClubMemberRef.set({
-        image: data.image,
-        username: data.username,
-        createdAt: Date.now(),
-      });
-
-      logVerbose("User updated successfully!");
-    } catch (error: any) {
-      handleCatchHttpsError(`Error joining movie club`, error);
-    }
-  },
+  }
 );

@@ -5,18 +5,11 @@ import { users } from "index";
 import {
   CreateUserWithEmailData,
   CreateUserWithOAuthData,
-  JoinMovieClubData,
   UpdateUserData,
 } from "src/users/userTypes";
 import { populateUserData, UserDataMock } from "test/mocks/user";
-import { MovieClubMock, populateMovieClubData } from "test/mocks/movieclub";
 import { AuthData } from "firebase-functions/tasks";
-import {
-  MEMBERS,
-  MEMBERSHIPS,
-  MOVIE_CLUBS,
-  USERS,
-} from "src/utilities/collectionNames";
+import { USERS } from "src/utilities/collectionNames";
 
 // @ts-expect-error it works but ts won't detect it for some reason
 // TODO: Figure out why ts can't detect the export on this
@@ -251,98 +244,6 @@ describe("User Functions", () => {
     it("should error without auth", async () => {
       try {
         await updateUserWrapped({ data: {} });
-        assert.fail("Expected error not thrown");
-      } catch (error: any) {
-        assert.match(error.message, /auth object is undefined./);
-      }
-    });
-  });
-
-  describe("joinMovieClub", () => {
-    const joinMovieClubWrapped = firebaseTest.wrap(joinMovieClub);
-
-    let user: UserDataMock;
-    let movieClub: MovieClubMock;
-    let membershipData: JoinMovieClubData;
-    let auth: AuthData;
-
-    beforeEach(async () => {
-      const { user: userMock, auth: authMock } = await populateUserData();
-      user = userMock;
-      auth = authMock;
-
-      movieClub = await populateMovieClubData();
-
-      membershipData = {
-        image: "Test Image",
-        movieClubId: movieClub.id,
-        movieClubName: movieClub.name,
-        username: user.name,
-      };
-    });
-
-    it("should create a User Membership collection", async () => {
-      await joinMovieClubWrapped({ data: membershipData, auth: auth });
-
-      const userMembershipSnap = await firestore
-        .collection(USERS)
-        .doc(user.id)
-        .collection(MEMBERSHIPS)
-        .doc(movieClub.id)
-        .get();
-
-      const userMembership = userMembershipSnap.data();
-
-      assert.equal(userMembershipSnap.id, movieClub.id);
-      assert.equal(userMembership?.movieClubName, movieClub.name);
-      assert(userMembership?.createdAt);
-    });
-
-    it("should create a Movie Club Member collection", async () => {
-      await joinMovieClubWrapped({ data: membershipData, auth: auth });
-
-      const movieClubMemberSnap = await firestore
-        .collection(MOVIE_CLUBS)
-        .doc(movieClub.id)
-        .collection(MEMBERS)
-        .doc(user.id)
-        .get();
-
-      const movieClubMember = movieClubMemberSnap.data();
-
-      assert.equal(movieClubMemberSnap.id, user.id);
-      assert.equal(movieClubMember?.image, membershipData.image);
-      assert.equal(movieClubMember?.username, user.name);
-      assert(movieClubMember?.createdAt);
-    });
-
-    it("should error if movie club is not public", async () => {
-      try {
-        movieClub = await populateMovieClubData({ isPublic: false });
-        membershipData.movieClubId = movieClub.id;
-
-        await joinMovieClubWrapped({ data: membershipData, auth: auth });
-        assert.fail("Expected error not thrown");
-      } catch (error: any) {
-        assert.match(error.message, /The Movie Club is not publicly joinable./);
-      }
-    });
-
-    it("should error without required fields", async () => {
-      try {
-        await joinMovieClubWrapped({ data: {}, auth: auth });
-        assert.fail("Expected error not thrown");
-      } catch (error: any) {
-        assert.match(
-          error.message,
-          /The function must be called with image, movieClubId, movieClubName, username./,
-        );
-      }
-    });
-
-    it("should error without auth", async () => {
-      try {
-        await joinMovieClubWrapped({ data: {} });
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(error.message, /auth object is undefined./);
