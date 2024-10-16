@@ -55,7 +55,9 @@ extension DataManager {
             return nil
         }
         do {
-            let movieClub = try snapshot.data(as: MovieClub.self)
+            var movieClub = try snapshot.data(as: MovieClub.self)
+            movieClub.id = snapshot.documentID
+            
             let moviesSnapshot = try await movieClubCollection()
                 .document(clubId)
                 .collection("movies")
@@ -63,7 +65,6 @@ extension DataManager {
                 .limit(to: 1)
                 .getDocuments()
             for document in moviesSnapshot.documents {
-                //print("Current movie in method \(document.data())")
                 movieClub.movies = [try document.data(as: Movie.self)]
             }
             return movieClub

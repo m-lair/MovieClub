@@ -21,7 +21,7 @@ extension AppTests {
         @Test func createClub() async throws {
             let _ = try await setUp(userId: UUID())
             let club = MovieClub(name: "test\(UUID())", desc: "test-desc", ownerName: "test-user", timeInterval: 2, ownerId: "0001", isPublic: true, banner: Data(count: 10), bannerUrl: "no-image")
-            print("club \(club.isPublic )")
+
             let response = try await createClub(club)
             #expect(response.name == club.name)
             try await tearDown()
