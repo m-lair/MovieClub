@@ -89,6 +89,7 @@
 		2CD71FEB2CBCF0FA00F9CF58 /* Suggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FEA2CBCF0F600F9CF58 /* Suggestion.swift */; };
 		2CD71FED2CBD9E6A00F9CF58 /* SuggestionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FEC2CBD9E5E00F9CF58 /* SuggestionManager.swift */; };
 		2CD71FF22CBDDEB100F9CF58 /* Suggestions.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FF12CBDDE9D00F9CF58 /* Suggestions.test.swift */; };
+		2CD71FF52CBEFC9300F9CF58 /* CreateSuggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FF42CBEFBFE00F9CF58 /* CreateSuggestion.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -178,6 +179,7 @@
 		2CD71FEA2CBCF0F600F9CF58 /* Suggestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suggestion.swift; sourceTree = "<group>"; };
 		2CD71FEC2CBD9E5E00F9CF58 /* SuggestionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionManager.swift; sourceTree = "<group>"; };
 		2CD71FF12CBDDE9D00F9CF58 /* Suggestions.test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suggestions.test.swift; sourceTree = "<group>"; };
+		2CD71FF42CBEFBFE00F9CF58 /* CreateSuggestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateSuggestion.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -400,6 +402,7 @@
 		2C5DEC742BF1B3F6000EF232 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				2CD71FF32CBEFBF300F9CF58 /* Suggestions */,
 				2C11FFEE2CA37F76004F54BC /* CommentViews */,
 				2CAEAB9F2C5C5C8100A0011A /* ComponentViews */,
 				2C4474F12BFCF1EA0034204C /* Clubs */,
@@ -478,6 +481,14 @@
 			isa = PBXGroup;
 			children = (
 				2CD71FF12CBDDE9D00F9CF58 /* Suggestions.test.swift */,
+			);
+			path = Suggestions;
+			sourceTree = "<group>";
+		};
+		2CD71FF32CBEFBF300F9CF58 /* Suggestions */ = {
+			isa = PBXGroup;
+			children = (
+				2CD71FF42CBEFBFE00F9CF58 /* CreateSuggestion.swift */,
 			);
 			path = Suggestions;
 			sourceTree = "<group>";
@@ -667,6 +678,7 @@
 				2C44751D2C4F4F1D0034204C /* EmptyMovieView.swift in Sources */,
 				2C8256C32BF1E90E00D2ED12 /* DiscoverView.swift in Sources */,
 				2C4475192C4C0D6E0034204C /* ComingSoonView.swift in Sources */,
+				2CD71FF52CBEFC9300F9CF58 /* CreateSuggestion.swift in Sources */,
 				2C11FFF52CA37FC1004F54BC /* AppleAuth.swift in Sources */,
 				2C1100022CA385DC004F54BC /* ClubManager.swift in Sources */,
 				2C11FFF62CA37FC1004F54BC /* NotificationManager.swift in Sources */,

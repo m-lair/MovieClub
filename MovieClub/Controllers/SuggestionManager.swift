@@ -21,21 +21,22 @@ extension DataManager {
     // MARK: Create Suggestion
     
     func createSuggestion(suggestion: Suggestion) async throws -> String? {
-        let createSuggestion: Callable<Suggestion, String?> = functions.httpsCallable("createSuggestion")
+        let createSuggestion: Callable<Suggestion, String?> = functions.httpsCallable("suggestions-createMovieClubSuggestion")
         do {
-            let response = try await createSuggestion(suggestion)
+            let _ = try await createSuggestion(suggestion)
         } catch {
             throw SuggestionError.networkError(error)
         }
+        print("Suggestion created")
         return "200"
     }
     
     // MARK: Delete Suggestion
     
     func deleteSuggestion(clubId: String) async throws -> String? {
-        let deleteSuggestion: Callable<String, String?> = functions.httpsCallable("deleteSuggestion")
+        let deleteSuggestion: Callable<String, String?> = functions.httpsCallable("suggestions-deleteUserMovieClubSuggestion")
         do {
-            let response = try await deleteSuggestion(clubId)
+            let _ = try await deleteSuggestion(clubId)
         } catch {
             throw SuggestionError.networkError(error)
         }
