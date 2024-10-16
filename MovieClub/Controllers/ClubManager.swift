@@ -55,7 +55,9 @@ extension DataManager {
             return nil
         }
         do {
-            let movieClub = try snapshot.data(as: MovieClub.self)
+            var movieClub = try snapshot.data(as: MovieClub.self)
+            movieClub.id = snapshot.documentID
+            
             let moviesSnapshot = try await movieClubCollection()
                 .document(clubId)
                 .collection("movies")
@@ -63,7 +65,6 @@ extension DataManager {
                 .limit(to: 1)
                 .getDocuments()
             for document in moviesSnapshot.documents {
-                //print("Current movie in method \(document.data())")
                 movieClub.movies = [try document.data(as: Movie.self)]
             }
             return movieClub
@@ -78,19 +79,6 @@ extension DataManager {
     func fetchClubDetails(club: MovieClub) async throws {
         currentClub = club
         movie = club.movies.first
-    }
-    
-    
-    func addClubMember(clubId: String, user: User, date: Date) async {
-        do {
-            if let id = user.id {
-                let member = Member(userId: id, userName: user.name, userAvi: user.image ?? "", selector: false, dateAdded: date)
-                let encodedMember = try Firestore.Encoder().encode(member)
-                try await movieClubCollection().document(clubId).collection("members").document(id).setData(encodedMember)
-            }
-        } catch {
-            print("Couldn't add member")
-        }
     }
     
     // MARK: - Remove Club Relationship
@@ -116,19 +104,5 @@ extension DataManager {
         let url = try await storageRef.downloadURL()
         //print("Club image URL: \(url)")
         return url.absoluteString
-    }
-    
-    // MARK: - Add to Coming Soon
-    
-    func addToComingSoon(clubId: String, userId: String, date: Date) async {
-        do {
-            try await movieClubCollection().document(clubId).collection("members").document(userId).updateData([
-                "selector": true,
-                "comingSoonDate": date
-            ])
-            // Additional logic can be added here
-        } catch {
-            print(error)
-        }
     }
 }

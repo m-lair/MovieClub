@@ -32,19 +32,19 @@ struct NewClubView: View {
         VStack{
             List(filteredClubs, id: \.id){club in
                 HStack{
-                    Text("test club")
+                    Text("\(club.name)")
                         .font(.title)
                     Spacer()
                     Image(systemName: "person.fill")
-                    Text(": \(club.numMembers)")
+                    Text("\(club.numMembers ?? 0)")
                     Button {
                         Task{
                             do {
-                                print("clubId \(club.id)")
                                 try await data.joinClub(club: club)
                             } catch {
-                                print(error)
+                                print("error: \(error)")
                             }
+                            await data.fetchUserClubs()
                             dismiss()
                         }
                     } label: {
@@ -79,11 +79,15 @@ struct NewClubView: View {
     }
 
     func getClubList() async throws -> [MovieClub] {
+        let snapshot = try await data.movieClubCollection().getDocuments()
         do {
-            let snapshot = try await data.movieClubCollection().getDocuments()
-            return try snapshot.documents.map { document in
-                try document.data(as: MovieClub.self)
+            var clubs: [MovieClub] = []
+            for document in snapshot.documents {
+                let club = try document.data(as: MovieClub.self)
+                club.id = document.documentID
+                clubs.append(club)
             }
+            return clubs
         } catch {
             print("Error decoding movie club: \(error)")
             return []

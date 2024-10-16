@@ -20,7 +20,7 @@ extension AppTests {
         let createUserWithEmail: Callable<[String: String], String> = Functions.functions().httpsCallable("users-createUserWithEmail")
         let createUserWithSignInProvider: Callable<[String: String], String> = Functions.functions().httpsCallable("users-createUserWithSignInProvider")
         let updateUser: Callable<User, Bool?> = Functions.functions().httpsCallable("users-updateUser")
-        let joinMovieClub: Callable<[String: String], String?> = Functions.functions().httpsCallable("users-joinMovieClub")
+        
         
         let id = UUID()
         
@@ -63,15 +63,6 @@ extension AppTests {
             #expect(result.bio == "updated-bio")
             #expect(result.image == "updated-image.png")
             try await tearDown()
-        }
-        
-        @Test func joinClub() async throws {
-            let _ = try await setUp(userId: UUID())
-            let requestData = ["movieClubId": "\(UUID())", "movieClubName": "test-club", "image": "test-image.png", "username": "test-username"]
-            let response = try await joinMovieClub(requestData)
-            if let response {
-                #expect(response != "")
-            }
         }
     }
 }

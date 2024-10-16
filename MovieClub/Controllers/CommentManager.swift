@@ -51,13 +51,12 @@ extension DataManager {
     
     //MARK: - CommentListener
     
-    func listenForComments() {
+    func listenForComments() throws {
         guard
             let movieId = movie?.id,
             let clubId = currentClub?.id
         else {
-            print("unable to listen for comments")
-            return
+            throw CommentError.invalidData
         }
         
         let commentsRef = movieClubCollection()
@@ -66,21 +65,23 @@ extension DataManager {
             .document(movieId)
             .collection("comments")
             .order(by: "createdAt", descending: true)
+        
         commentsListener?.remove()
         
         // Map Firestore documents to Comment model
         commentsListener = commentsRef.addSnapshotListener { [weak self] querySnapshot, error in
-            guard let self = self else {
-                print("Unknown error")
+            guard let self else {
+                print("Unknown Eror")
                 return
             }
+            
             guard let snapshot = querySnapshot else {
                 print("Error fetching snapshots: \(error!)")
                 return
             }
+            
             comments = snapshot.documents.compactMap { document in
                 do {
-                    //print("comment: \(document.data())")
                     return try document.data(as: Comment.self)
                 } catch {
                     print("Error decoding comment: \(error)")

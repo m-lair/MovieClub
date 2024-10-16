@@ -27,9 +27,12 @@ class DataManager: Identifiable {
     }
     var comments: [Comment] = []
     var commentsListener: ListenerRegistration?
+    var suggestions: [Suggestion] = []
+    var suggestionsListener: ListenerRegistration?
     var userSession: FirebaseAuth.User?
     var currentUser: User?
     var userClubs: [MovieClub] = []
+    
     var currentClub: MovieClub?
     var clubId: String {
         currentClub?.id ?? ""

@@ -26,11 +26,23 @@ struct ClubToolbar: View {
                 } label: {
                     Label("Edit", systemImage: "pencil")
                 }
+                
+                NavigationLink {
+                    CreateSuggestionView()
+                } label: {
+                    Label("New Suggestion", systemImage: "plus")
+                }
             }
             
             Button {
                 Task {
-                   dismiss()
+                    do {
+                        try await data.leaveClub(club: club)
+                    } catch {
+                        print("Error leaving club: \(error)")
+                    }
+                    await data.fetchUserClubs()
+                    dismiss()
                 }
             } label: {
                 Label("Leave Club", systemImage: "trash")

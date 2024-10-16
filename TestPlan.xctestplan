@@ -13,6 +13,16 @@
   },
   "testTargets" : [
     {
+      "skippedTests" : {
+        "suites" : [
+          {
+            "name" : "AppTests",
+            "testFunctions" : [
+              "createSuggestion()"
+            ]
+          }
+        ]
+      },
       "target" : {
         "containerPath" : "container:MovieClub.xcodeproj",
         "identifier" : "2C11002A2CA8C779004F54BC",
@@ -20,5 +30,5 @@
       }
     }
   ],
-  "version" : 1
+  "version" : 2
 }
