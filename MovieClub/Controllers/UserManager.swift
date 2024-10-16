@@ -199,30 +199,4 @@ extension DataManager {
             throw error
         }
     }
-    
-    // MARK: - Join Club
-    
-    func joinClub(club: MovieClub) async throws {
-        guard
-            let user = currentUser,
-            let clubId = club.id,
-            let userId = user.id
-        else {
-            throw AuthError.invalidUser
-        }
-        
-        let joinClub: Callable<[String: String], MovieClub> = functions.httpsCallable("users-joinMovieClub")
-        let requestData: [String: String] = ["userId": userId,
-                                             "movieClubId": clubId,
-                                             "username": user.name,
-                                             "movieClubName": club.name,
-                                             "image": "image"]
-        do {
-            let result = try await joinClub(requestData)
-            userClubs.append(result)
-        } catch {
-            print("Error joining club: \(error)")
-        }
-        
-    }
 }

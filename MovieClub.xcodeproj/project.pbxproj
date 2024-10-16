@@ -90,6 +90,8 @@
 		2CD71FED2CBD9E6A00F9CF58 /* SuggestionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FEC2CBD9E5E00F9CF58 /* SuggestionManager.swift */; };
 		2CD71FF22CBDDEB100F9CF58 /* Suggestions.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FF12CBDDE9D00F9CF58 /* Suggestions.test.swift */; };
 		2CD71FF52CBEFC9300F9CF58 /* CreateSuggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FF42CBEFBFE00F9CF58 /* CreateSuggestion.swift */; };
+		2CD71FF72CC035CB00F9CF58 /* MembershipManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FF62CC035BA00F9CF58 /* MembershipManager.swift */; };
+		2CD71FFA2CC03CD600F9CF58 /* Memberships.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FF92CC03CCF00F9CF58 /* Memberships.test.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -180,6 +182,8 @@
 		2CD71FEC2CBD9E5E00F9CF58 /* SuggestionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionManager.swift; sourceTree = "<group>"; };
 		2CD71FF12CBDDE9D00F9CF58 /* Suggestions.test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suggestions.test.swift; sourceTree = "<group>"; };
 		2CD71FF42CBEFBFE00F9CF58 /* CreateSuggestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateSuggestion.swift; sourceTree = "<group>"; };
+		2CD71FF62CC035BA00F9CF58 /* MembershipManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipManager.swift; sourceTree = "<group>"; };
+		2CD71FF92CC03CCF00F9CF58 /* Memberships.test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Memberships.test.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -389,6 +393,7 @@
 		2C5DEC3E2BF1B081000EF232 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				2CD71FF62CC035BA00F9CF58 /* MembershipManager.swift */,
 				2CD71FEC2CBD9E5E00F9CF58 /* SuggestionManager.swift */,
 				2C1100052CA386C8004F54BC /* CommentManager.swift */,
 				2C1100032CA3868C004F54BC /* MovieManager.swift */,
@@ -448,6 +453,7 @@
 		2CD71F7D2CB3957300F9CF58 /* Users */ = {
 			isa = PBXGroup;
 			children = (
+				2CD71FF82CC03CB800F9CF58 /* Memberships */,
 				2CD71F782CB394F100F9CF58 /* Users.test.swift */,
 			);
 			path = Users;
@@ -491,6 +497,14 @@
 				2CD71FF42CBEFBFE00F9CF58 /* CreateSuggestion.swift */,
 			);
 			path = Suggestions;
+			sourceTree = "<group>";
+		};
+		2CD71FF82CC03CB800F9CF58 /* Memberships */ = {
+			isa = PBXGroup;
+			children = (
+				2CD71FF92CC03CCF00F9CF58 /* Memberships.test.swift */,
+			);
+			path = Memberships;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -644,6 +658,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2CD71FE52CBC85BE00F9CF58 /* HelperFunctions.swift in Sources */,
+				2CD71FFA2CC03CD600F9CF58 /* Memberships.test.swift in Sources */,
 				2CD71F7B2CB3953E00F9CF58 /* Clubs.test.swift in Sources */,
 				2CD71F622CB352BB00F9CF58 /* AppTests.swift in Sources */,
 				2CD71F812CB3963700F9CF58 /* Comments.test.swift in Sources */,
@@ -713,6 +728,7 @@
 				2C4475172C4442680034204C /* NewMovieForm.swift in Sources */,
 				2C4475062C17CFFC0034204C /* CommentInputView.swift in Sources */,
 				2C5DEC1F2BF1AC6C000EF232 /* MovieClubApp.swift in Sources */,
+				2CD71FF72CC035CB00F9CF58 /* MembershipManager.swift in Sources */,
 				2CAEABA12C5C5C9300A0011A /* BlurredBackground.swift in Sources */,
 				2C8256B92BF1BC4A00D2ED12 /* MovieDetailView.swift in Sources */,
 				2C11FFDF2CA1DFED004F54BC /* User.swift in Sources */,
