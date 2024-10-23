@@ -18,7 +18,9 @@ struct CommentsView: View {
             }
         }
         .onAppear {
-            data.listenForComments()
+            Task {
+                try data.listenForComments()
+            }
         }
     }
 }
