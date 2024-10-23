@@ -81,19 +81,6 @@ extension DataManager {
         movie = club.movies.first
     }
     
-    
-    func addClubMember(clubId: String, user: User, date: Date) async {
-        do {
-            if let id = user.id {
-                let member = Member(userId: id, userName: user.name, userAvi: user.image ?? "", selector: false, dateAdded: date)
-                let encodedMember = try Firestore.Encoder().encode(member)
-                try await movieClubCollection().document(clubId).collection("members").document(id).setData(encodedMember)
-            }
-        } catch {
-            print("Couldn't add member")
-        }
-    }
-    
     // MARK: - Remove Club Relationship
     
     func removeClubRelationship(clubId: String, userId: String) async {
@@ -117,19 +104,5 @@ extension DataManager {
         let url = try await storageRef.downloadURL()
         //print("Club image URL: \(url)")
         return url.absoluteString
-    }
-    
-    // MARK: - Add to Coming Soon
-    
-    func addToComingSoon(clubId: String, userId: String, date: Date) async {
-        do {
-            try await movieClubCollection().document(clubId).collection("members").document(userId).updateData([
-                "selector": true,
-                "comingSoonDate": date
-            ])
-            // Additional logic can be added here
-        } catch {
-            print(error)
-        }
     }
 }

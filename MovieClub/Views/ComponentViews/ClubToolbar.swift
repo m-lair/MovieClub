@@ -36,7 +36,13 @@ struct ClubToolbar: View {
             
             Button {
                 Task {
-                   dismiss()
+                    do {
+                        try await data.leaveClub(club: club)
+                    } catch {
+                        print("Error leaving club: \(error)")
+                    }
+                    await data.fetchUserClubs()
+                    dismiss()
                 }
             } label: {
                 Label("Leave Club", systemImage: "trash")
