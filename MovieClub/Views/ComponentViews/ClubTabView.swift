@@ -10,7 +10,6 @@ import Foundation
 
 struct ClubTabView: View {
     let tabs = ["Bullentin", "Now Showing", "Upcoming", "Archives"]
-    
     @State var selectedTab: String = "Now Showing"
     var body: some View {
         Picker("Select a Club", selection: $selectedTab) {
@@ -24,5 +23,5 @@ struct ClubTabView: View {
 }
 
 #Preview {
-    ClubTabView(selectedTab: "Now Showing")
+    ClubTabView()
 }

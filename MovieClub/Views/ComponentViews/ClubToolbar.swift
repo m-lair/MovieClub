@@ -14,7 +14,6 @@ struct ClubToolbar: View {
     
     var body: some View {
         Menu {
-            if data.currentClub?.ownerId == data.currentUser?.id ?? "" {
                 Button {
                     // Report a problem action
                 } label: {
@@ -32,7 +31,6 @@ struct ClubToolbar: View {
                 } label: {
                     Label("New Suggestion", systemImage: "plus")
                 }
-            }
             
             Button {
                 Task {

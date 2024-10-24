@@ -28,6 +28,7 @@ struct ClubDetailView: View {
                     if let movie = data.movie {
                         NowPlayingView(movie: movie, club: club)
                     }
+                    ClubTabView()
                 }
                 .toolbar {
                     ClubToolbar(club: club)

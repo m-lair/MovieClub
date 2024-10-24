@@ -48,10 +48,10 @@ class DataManager: Identifiable {
             db = Firestore.firestore()
             auth = Auth.auth()
             functions = Functions.functions()
-            if userSession != nil {
+            if auth.currentUser?.uid != nil {
+                userSession = auth.currentUser
                 try await fetchUser()
             }
-            try auth.signOut()
         }
     }
     

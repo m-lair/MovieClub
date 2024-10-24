@@ -36,13 +36,6 @@ struct HomePageView: View {
                                 .imageScale(.large)
                         }
                     }
-                    ToolbarItem(placement: .topBarTrailing){
-                        Button {
-                            
-                        } label: {
-                            Image(systemName: "bell.fill")
-                        }
-                    }
                 }
                 .navigationDestination(for: MovieClub.self) { club in
                     ClubDetailView(navPath: $navPath, club: club)
