@@ -54,18 +54,19 @@ struct MainTabView: View {
                         .padding(.top)
                 }
                 .tag(Tab.notificationsPath)
+                
                 NavigationStack(path: $profilePath){
                     ProfileView()
                 }
                 .tabItem {
-                    Label("", systemImage: "person.fill")
+                    Label("", systemImage: "person.circle")
                         .padding(.top)
                     
                 }
                 .tag(Tab.profilePath)
             }
             .toolbarBackground(.gray, for: .navigationBar)
-            .toolbarBackground(.black, for: .tabBar)
+            .background(.black.opacity(0.1))
             .toolbarBackground(.visible, for: .tabBar)
             
         }

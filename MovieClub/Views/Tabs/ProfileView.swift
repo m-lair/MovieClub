@@ -17,28 +17,10 @@ struct ProfileView: View {
     var body: some View {
         VStack{
             AviSelector()
-            UserEditView()
             ProfileDisplayView()
-            //save data after edit
-        }
-        .toolbar {
-            ToolbarItem {
-                EditButton()
-                /* Button {
-                 edit.toggle()
-                 } label: {
-                 switch edit {
-                 case true:
-                 Text("Save")
-                 case false:
-                 Text("Edit")
-                 }
-                 }*/
-            }
             
         }
         .navigationTitle("Profile")
-        
     }
 }
 

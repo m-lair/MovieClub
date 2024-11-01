@@ -12,7 +12,7 @@ final class Comment: Identifiable, Codable, Hashable, Equatable {
     var id: String?
     var userId: String
     var image: String? = ""
-    var username: String
+    var userName: String
     var createdAt: Date
     var text: String
     var likes: Int
@@ -21,7 +21,7 @@ final class Comment: Identifiable, Codable, Hashable, Equatable {
         id: String? = nil,
         userId: String,
         image: String? = "",
-        username: String,
+        userName: String,
         createdAt: Date,
         text: String,
         likes: Int
@@ -29,7 +29,7 @@ final class Comment: Identifiable, Codable, Hashable, Equatable {
         self.id = id
         self.userId = userId
         self.image = image
-        self.username = username
+        self.userName = userName
         self.createdAt = createdAt
         self.text = text
         self.likes = likes
@@ -40,7 +40,7 @@ final class Comment: Identifiable, Codable, Hashable, Equatable {
         id = try container.decodeIfPresent(String.self, forKey: .id)
         userId = try container.decode(String.self, forKey: .userId)
         image = try container.decodeIfPresent(String.self, forKey: .image)
-        username = try container.decode(String.self, forKey: .username)
+        userName = try container.decode(String.self, forKey: .username)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
         text = try container.decode(String.self, forKey: .text)
         likes = try container.decodeIfPresent(Int.self, forKey: .likes) ?? 0

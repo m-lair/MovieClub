@@ -8,6 +8,7 @@
 import Foundation
 import FirebaseFunctions
 import SwiftData
+import SwiftUI
 
 @Model
 final class User: Identifiable, Codable, Hashable, Equatable {
@@ -24,7 +25,7 @@ final class User: Identifiable, Codable, Hashable, Equatable {
         bio: String? = nil,
         name: String,
         image: String? = "no-image",
-        clubs: [Membership]? = []
+        clubs: [Membership] = []
     ) {
         self.id = id
         self.email = email
@@ -61,6 +62,7 @@ final class User: Identifiable, Codable, Hashable, Equatable {
         case image
         case clubs
     }
+    
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }

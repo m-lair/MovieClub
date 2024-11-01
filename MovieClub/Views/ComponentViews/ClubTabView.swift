@@ -9,19 +9,25 @@ import SwiftUI
 import Foundation
 
 struct ClubTabView: View {
-    let tabs = ["Bullentin", "Now Showing", "Upcoming", "Archives"]
-    @State var selectedTab: String = "Now Showing"
+    let tabs: [String]
+    @State var width = UIScreen.main.bounds.size.width
+    @Binding var selectedTabIndex: Int
+
     var body: some View {
-        Picker("Select a Club", selection: $selectedTab) {
-            ForEach(tabs, id: \.self) { tab in
-                Text(tab)
-                    .fontWeight(.semibold)
+        HStack {
+            ForEach(tabs.indices, id: \.self) { index in
+                Button {
+                    selectedTabIndex = index
+                } label: {
+                    Text(tabs[index])
+                        .fontWeight(.semibold)
+                        .foregroundColor(selectedTabIndex == index ? .white : .gray)
+                        
+                }
+                .padding(.horizontal, 10)
+                .background(selectedTabIndex == index ? Color.clear : Color.clear)
             }
         }
-        .pickerStyle(.segmented)
     }
 }
 
-#Preview {
-    ClubTabView()
-}

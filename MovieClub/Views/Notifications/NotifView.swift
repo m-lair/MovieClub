@@ -37,9 +37,9 @@ struct NotificationView: View {
             }
         }
         .padding()
-        .background(Color.gray.opacity(0.8))
+        .background(.clear)
         .cornerRadius(10)
-        .padding(.horizontal)
+        .padding(.horizontal, 2)
         .navigationTitle("Notifications")
     }
 

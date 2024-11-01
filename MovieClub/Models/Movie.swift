@@ -15,8 +15,9 @@ final class Movie: Identifiable, Decodable, Equatable {
     var title: String
     var poster: String?
     var avgRating: Double?
-    var endDate: Date?
+    var endDate: Date
     var userName: String
+    var startDate: Date
     var userId: String
     var authorAvi: String
     var comments: [Comment]?
@@ -29,7 +30,8 @@ final class Movie: Identifiable, Decodable, Equatable {
          title: String,
          poster: String? = nil,
          avgRating: Double? = nil,
-         endDate: Date?,
+         startDate: Date,
+         endDate: Date,
          userName: String,
          userId: String,
          authorAvi: String,
@@ -43,6 +45,7 @@ final class Movie: Identifiable, Decodable, Equatable {
         self.title = title
         self.poster = poster
         self.avgRating = avgRating
+        self.startDate = startDate
         self.endDate = endDate
         self.userName = userName
         self.userId = userId
@@ -60,7 +63,8 @@ final class Movie: Identifiable, Decodable, Equatable {
         title = try container.decode(String.self, forKey: .title)
         poster = try container.decodeIfPresent(String.self, forKey: .poster)
         avgRating = try container.decodeIfPresent(Double.self, forKey: .avgRating)
-        endDate = try container.decodeIfPresent(Date.self, forKey: .endDate)
+        startDate = try container.decode(Date.self, forKey: .startDate)
+        endDate = try container.decode(Date.self, forKey: .endDate)
         userName = try container.decode(String.self, forKey: .userName)
         userId = try container.decode(String.self, forKey: .userId)
         authorAvi = try container.decode(String.self, forKey: .authorAvi)
@@ -74,6 +78,7 @@ final class Movie: Identifiable, Decodable, Equatable {
         case poster
         case avgRating
         case endDate
+        case startDate
         case userName
         case userId
         case authorAvi

@@ -115,22 +115,16 @@ extension DataManager {
     // MARK: - Post Comment
 
     func postComment(movieClubId: String, movieId: String, comment: Comment) async throws {
-        guard
-            let currentUser
-        else {
-            throw AuthError.invalidUser
-        }
-        
         let parameters: [String: Any] = [
             "text" : comment.text,
             "userId": comment.userId,
-            "username": comment.username,
+            "username": comment.userName,
             "movieClubId": movieClubId,
             "movieId": movieId
         ]
         
         do {
-            let result = try await functions.httpsCallable("comments-postComment").call(parameters)
+            _ = try await functions.httpsCallable("comments-postComment").call(parameters)
         } catch {
             throw error
         }

@@ -16,6 +16,7 @@ struct CreateSuggestionView: View {
     @State private var isShowingSuggestions = false
     @FocusState private var isTextFieldFocused: Bool
     
+    
     @State var errorMessage: String = ""
     @State var errorShowing: Bool = false
     
@@ -39,11 +40,11 @@ struct CreateSuggestionView: View {
                 }
             }
         }
-        .navigationTitle("Suggest a Movie")
         .navigationBarTitleDisplayMode(.inline)
         .alert(errorMessage, isPresented: $errorShowing) {
             Button("OK", role: .cancel) { }
         }
+        
     
         /*.onAppear {
             Task {
