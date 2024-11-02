@@ -155,7 +155,6 @@ struct SignUpView: View {
     }
     
     @MainActor func submit() async {
-        checkEmail()
         if errorMessage == "" {
             do{
                 checkEmail()

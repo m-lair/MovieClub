@@ -1,7 +1,7 @@
 export interface JoinMovieClubData {
   clubId: string;
   clubName: string;
-  image: string;
+  image?: string;
   username: string;
 }
 

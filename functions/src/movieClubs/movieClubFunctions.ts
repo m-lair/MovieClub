@@ -11,6 +11,7 @@ import { MovieClubData, UpdateMovieClubData } from "./movieClubTypes";
 import { CallableRequest } from "firebase-functions/https";
 import { MOVIE_CLUBS } from "src/utilities/collectionNames";
 
+
 exports.createMovieClub = functions.https.onCall(
   async (request: CallableRequest<MovieClubData>) => {
     try {
@@ -19,7 +20,7 @@ exports.createMovieClub = functions.https.onCall(
       const { uid } = verifyAuth(auth);
 
       const requiredFields = [
-        "bannerUrl",
+        //"bannerUrl",
         "description",
         "isPublic",
         "name",
@@ -43,8 +44,19 @@ exports.createMovieClub = functions.https.onCall(
       };
 
       logVerbose("Adding movie club to Firestore...");
-      await movieClubRef.add(movieClubData);
-      logVerbose("Movie club added successfully!");
+      const movieClub = await movieClubRef.add(movieClubData);
+      await movieClubRef.doc(movieClub.id).collection("members").doc(uid).set({
+        username: data.ownerName,
+        createdAt: Date.now(),
+      });
+
+      await firestore
+      .collection("users")
+      .doc(uid).collection("memberships")
+      .doc(movieClub.id).set({
+        movieClubName: movieClubData.name,
+        createdAt: Date.now(),
+      });
 
       return movieClubData;
     } catch (error) {

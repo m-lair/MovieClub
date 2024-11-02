@@ -13,7 +13,7 @@ exports.joinMovieClub = functions.https.onCall(
       const { uid } = verifyAuth(auth);
 
       const requiredFields = [
-        "image",
+        //"image",
         "clubId",
         "clubName",
         "username",
