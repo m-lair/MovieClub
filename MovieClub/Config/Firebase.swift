@@ -13,7 +13,6 @@ import Foundation
 import FirebaseFunctions
 import UserNotifications
 import FirebaseAuth
-import FirebaseFirestoreSwift
 import AuthenticationServices
 import FirebaseFirestore
 import FirebaseMessaging

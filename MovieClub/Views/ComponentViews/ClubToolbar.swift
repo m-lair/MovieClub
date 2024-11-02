@@ -14,24 +14,22 @@ struct ClubToolbar: View {
     
     var body: some View {
         Menu {
-            if data.currentClub?.ownerId == data.currentUser?.id ?? "" {
-                Button {
-                    // Report a problem action
-                } label: {
-                    Label("Report A Problem", systemImage: "exclamationmark.octagon")
-                }
-        
-                NavigationLink{
-                        ClubEditView(movieClub: club)
-                } label: {
-                    Label("Edit", systemImage: "pencil")
-                }
-                
-                NavigationLink {
-                    CreateSuggestionView()
-                } label: {
-                    Label("New Suggestion", systemImage: "plus")
-                }
+            Button {
+                // Report a problem action
+            } label: {
+                Label("Report A Problem", systemImage: "exclamationmark.octagon")
+            }
+            
+            NavigationLink{
+                ClubEditView(movieClub: club)
+            } label: {
+                Label("Edit", systemImage: "pencil")
+            }
+            
+            NavigationLink {
+                CreateSuggestionView()
+            } label: {
+                Label("New Suggestion", systemImage: "plus")
             }
             
             Button {
@@ -50,9 +48,8 @@ struct ClubToolbar: View {
             .foregroundStyle(.red)
             
         } label: {
-            Label("Menu", systemImage: "ellipsis")
+            Label("Menu", systemImage: "gearshape.fill")
         }
     }
-
 }
 

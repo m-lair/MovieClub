@@ -9,70 +9,67 @@ import SwiftUI
 
 struct FeaturedMovieView: View {
     @Environment(DataManager.self) var data: DataManager
-    @State var nextUpView = false
-    let movie: Movie
-    @State var selectedByUrl: String = ""
+    let movieTitle: String
+    let details: String
+    let primaryPoster: Image
+    let secondaryPoster: Image
+    let releaseYear: String
+    let collected: Bool
+    
+    
+    @State private var width = UIScreen.main.bounds.width
+    @State private var showFullDetails = false
+    
     var body: some View {
-        // let _ = print("this is the club \(data.currentClub)")
-        VStack(alignment: .center){
-            HStack{
-                Text("Selected by: ")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .padding(.leading)
-                VStack{
-                    AsyncImage(url: URL(string: selectedByUrl)) { phase in
-                        if let image = phase.image {
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
-                                .frame(width: 30, height: 30)
-                            
-                        } else {
-                            ProgressView()
-                                .frame(width: 30, height: 30)
-                        }
-                    }
-                    Text(movie.userName)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
+        ZStack {
+            // Secondary Poster in the Background
+            secondaryPoster
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: width + 2, height: 510, alignment: .center)
+                .opacity(0.7)
+                .overlay(
+                    LinearGradient(
+                        gradient: Gradient(colors: [.black, .clear]),
+                        startPoint: .bottom,
+                        endPoint: .top
+                        )
+                    )
+                
+            VStack(alignment: .leading) {
                 Spacer()
-                VStack{
-                    Image(systemName: "calendar")
-                    if let endDate = data.currentClub?.movieEndDate {
-                        if let startDate = Calendar.current.date(byAdding: .weekOfYear, value: -(data.currentClub?.timeInterval ?? 1), to: endDate) {
-                            Text("\(startDate.formatted(date: .numeric,  time: .omitted)) - \(endDate.formatted(date: .numeric,  time: .omitted))")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                                .padding(.trailing)
-                        }
+                
+                Text(movieTitle)
+                    .font(.title)
+                    .fontWeight(.heavy) +
+                Text(" (\(releaseYear))")
+                    .font(.title)
+                
+                HStack(alignment: .top) {
+                    // Primary Movie Poster
+                    primaryPoster
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxHeight: 250)
+                        .overlay(collected ?
+                                 Rectangle().stroke(.yellow, lineWidth: 2) : nil)
+                    
+                      
+                    
+                    // Details Section
+                    VStack(alignment: .leading) {
+                        Text("Starring: ")
+                            .fontWeight(.bold)
+                        Text("Director: ")
+                            .fontWeight(.bold)
+                            .padding(.bottom)
+                        
+                        Text(details)
+                            .font(.body)
+                        
                     }
                 }
             }
-            let url = URL(string: movie.poster ?? "")
-            AsyncImage(url: url) { phase in
-                if let image = phase.image {
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 250, height: 475)
-                    
-                } else {
-                    ProgressView()
-                        .frame(width: 100, height: 100)
-                }
-            }
-            /*Text(movie.plot ?? "")
-             .fixedSize(horizontal: false, vertical: true)
-             .foregroundColor(.primary)
-             .multilineTextAlignment(.leading)
-             */
-        }
-        .task{
-            let path = "/Users/profile_images/\(movie.userId)"
-            self.selectedByUrl = await data.getProfileImage(path: path)
         }
     }
 }

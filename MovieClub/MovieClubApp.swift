@@ -11,7 +11,6 @@ import FirebaseCore
 import Foundation
 import UserNotifications
 import FirebaseAuth
-import FirebaseFirestoreSwift
 import AuthenticationServices
 import FirebaseFirestore
 import FirebaseMessaging
@@ -78,13 +77,37 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     }
 }
 
-
-
 @main
+
 struct MovieClubApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @State private var notifmanager = NotificationManager()
     @State private var datamanager = DataManager()
+    
+    init() {
+        let appearance = UISegmentedControl.appearance()
+        
+        // Remove the background and divider images to eliminate the gray border
+        appearance.setBackgroundImage(.none, for: .normal, barMetrics: .default)
+        appearance.setBackgroundImage(.none, for: .selected, barMetrics: .default)
+        appearance.setBackgroundImage(.none, for: .highlighted, barMetrics: .default)
+        appearance.setDividerImage(.none, forLeftSegmentState: .normal, rightSegmentState: .normal, barMetrics: .default)
+        
+        // Ensure the selected segment does not have a different background color
+        appearance.selectedSegmentTintColor = UIColor.clear
+        
+        // Set text attributes for unselected segments
+        appearance.setTitleTextAttributes([
+            .foregroundColor: UIColor.white,
+        ], for: .normal)
+        
+        // Set text attributes for the selected segment, including underline
+        appearance.setTitleTextAttributes([
+            .foregroundColor: UIColor.white,
+            .font: UIFont.boldSystemFont(ofSize: 14),
+            .underlineStyle: NSUnderlineStyle.single.rawValue
+        ], for: .selected)
+    }
     
     var body: some Scene {
         WindowGroup {
@@ -95,6 +118,5 @@ struct MovieClubApp: App {
                                       MovieClub.self,
                                       Comment.self])
         }
-        
     }
 }

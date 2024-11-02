@@ -12,13 +12,17 @@ struct MainTabView: View {
     enum Tab {
         case clubsPath, 
              discoverPath,
+             notificationsPath,
              profilePath
     }
+    
     @Environment(DataManager.self) var data: DataManager
     @State private var selection: Tab = .clubsPath
     @State var clubsPath = NavigationPath()
     @State var discoverPath = NavigationPath()
+    @State var notificationsPath = NavigationPath()
     @State var profilePath = NavigationPath()
+    
     var body: some View {
         TabView(selection: tabSelection()){
             Group {
@@ -28,6 +32,7 @@ struct MainTabView: View {
                 .tabItem {
                     Label("", systemImage: "house.fill")
                         .padding(.top)
+                        .fontWeight(.bold)
                 }
                 .background(ignoresSafeAreaEdges: .all)
                 .tag(Tab.clubsPath)
@@ -40,18 +45,28 @@ struct MainTabView: View {
                         .padding(.top)
                 }
                 .tag(Tab.discoverPath)
+                
+                NavigationStack(path: $notificationsPath){
+                    NotificationListView()
+                }
+                .tabItem {
+                    Label("", systemImage: "bell.fill")
+                        .padding(.top)
+                }
+                .tag(Tab.notificationsPath)
+                
                 NavigationStack(path: $profilePath){
                     ProfileView()
                 }
                 .tabItem {
-                    Label("", systemImage: "person.fill")
+                    Label("", systemImage: "person.circle")
                         .padding(.top)
                     
                 }
                 .tag(Tab.profilePath)
             }
             .toolbarBackground(.gray, for: .navigationBar)
-            .toolbarBackground(.black, for: .tabBar)
+            .background(.black.opacity(0.1))
             .toolbarBackground(.visible, for: .tabBar)
             
         }
@@ -73,6 +88,8 @@ extension MainTabView {
                     self.clubsPath = NavigationPath()
                 case .discoverPath:
                     self.discoverPath = NavigationPath()
+                case .notificationsPath:
+                    self.notificationsPath = NavigationPath()
                 case .profilePath:
                     self.profilePath = NavigationPath()
                 }

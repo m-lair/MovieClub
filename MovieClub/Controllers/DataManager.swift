@@ -7,7 +7,6 @@
 
 import Foundation
 import FirebaseAuth
-import FirebaseFirestoreSwift
 import AuthenticationServices
 import FirebaseFirestore
 import UIKit
@@ -27,13 +26,17 @@ class DataManager: Identifiable {
     }
     var comments: [Comment] = []
     var commentsListener: ListenerRegistration?
+    
     var suggestions: [Suggestion] = []
     var suggestionsListener: ListenerRegistration?
+    
     var userSession: FirebaseAuth.User?
+    
     var currentUser: User?
     var userClubs: [MovieClub] = []
-    
     var currentClub: MovieClub?
+    var currentCollection: [CollectionItem] = []
+    
     var clubId: String {
         currentClub?.id ?? ""
     }
@@ -48,8 +51,10 @@ class DataManager: Identifiable {
             db = Firestore.firestore()
             auth = Auth.auth()
             functions = Functions.functions()
-            self.userSession = auth.currentUser
-            try await fetchUser()
+            if auth.currentUser?.uid != nil {
+                userSession = auth.currentUser
+                try await fetchUser()
+            }
         }
     }
     
