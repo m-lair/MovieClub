@@ -14,13 +14,13 @@ exports.joinMovieClub = functions.https.onCall(
 
       const requiredFields = [
         "image",
-        "movieClubId",
-        "movieClubName",
+        "clubId",
+        "clubName",
         "username",
       ];
       verifyRequiredFields(data, requiredFields);
 
-      const movieClubRef = await getMovieClub(data.movieClubId)
+      const movieClubRef = await getMovieClub(data.clubId)
       const movieClubData = movieClubRef.data();
 
       if (movieClubData !== undefined && !movieClubData.isPublic) {
@@ -30,13 +30,13 @@ exports.joinMovieClub = functions.https.onCall(
         );
       };
 
-      const userMembershipsRef = getUserMembershipDocRef(uid, data.movieClubId);
+      const userMembershipsRef = getUserMembershipDocRef(uid, data.clubId);
       await userMembershipsRef.set({
-        movieClubName: data.movieClubName,
+        movieClubName: data.clubId,
         createdAt: Date.now(),
       });
 
-      const movieClubMemberRef = getMovieClubMemberDocRef(uid, data.movieClubId);
+      const movieClubMemberRef = getMovieClubMemberDocRef(uid, data.clubId);
       await movieClubMemberRef.set({
         image: data.image,
         username: data.username,
@@ -55,17 +55,17 @@ exports.leaveMovieClub = functions.https.onCall(
     try {
       const { data, auth } = request;
       const { uid } = verifyAuth(auth);
-
-      const requiredFields = ["movieClubId"];
+      console.log(data)
+      const requiredFields = ["clubId"];
       verifyRequiredFields(data, requiredFields);
 
-      const movieClubSuggestionRef = getMovieClubSuggestionDocRef(uid, data.movieClubId)
+      const movieClubSuggestionRef = getMovieClubSuggestionDocRef(uid, data.clubId)
       await movieClubSuggestionRef.delete();
 
-      const userMembershipsRef = getUserMembershipDocRef(uid, data.movieClubId);
+      const userMembershipsRef = getUserMembershipDocRef(uid, data.clubId);
       await userMembershipsRef.delete();
 
-      const movieClubMemberRef = getMovieClubMemberDocRef(uid, data.movieClubId);
+      const movieClubMemberRef = getMovieClubMemberDocRef(uid, data.clubId);
       await movieClubMemberRef.delete();
 
       logVerbose("User left Movie Club successfully!");

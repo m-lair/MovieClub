@@ -21,7 +21,6 @@ exports.createMovieClub = functions.https.onCall(
       const requiredFields = [
         "bannerUrl",
         "description",
-        "image",
         "isPublic",
         "name",
         "ownerName",
@@ -34,7 +33,6 @@ exports.createMovieClub = functions.https.onCall(
       const movieClubData: MovieClubData = {
         bannerUrl: data.bannerUrl,
         description: data.description,
-        image: data.image,
         isPublic: data.isPublic,
         name: data.name,
         numMembers: 1,
@@ -44,11 +42,11 @@ exports.createMovieClub = functions.https.onCall(
         createdAt: Date.now(),
       };
 
-      const movieClub = await movieClubRef.add(movieClubData);
+      logVerbose("Adding movie club to Firestore...");
+      await movieClubRef.add(movieClubData);
+      logVerbose("Movie club added successfully!");
 
-      logVerbose("Movie Club created successfully!");
-
-      return movieClub.id;
+      return movieClubData;
     } catch (error) {
       handleCatchHttpsError("Error creating Movie Club:", error);
     }

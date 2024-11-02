@@ -25,7 +25,7 @@ exports.createMovieClubSuggestion = functions.https.onCall(
 
       const suggestionData = {
         title: data.title,
-        imageUrl: data.imageUrl,
+        //imageUrl: data.imageUrl,
         username: data.username,
         createdAt: Date.now()
       };

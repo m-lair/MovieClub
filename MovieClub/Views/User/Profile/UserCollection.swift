@@ -18,8 +18,9 @@ struct UserCollectionView: View {
     @Environment(DataManager.self) private var data: DataManager
     let colors: [Color] = [.red, .blue, .green, .yellow, .orange]
     let flexibleColumns = [
-            GridItem(.flexible(minimum: 50, maximum: 100)),
-            GridItem(.flexible(minimum: 50, maximum: 100))
+            GridItem(.flexible(minimum: 50, maximum: 200)),
+            GridItem(.flexible(minimum: 50, maximum: 200)),
+            GridItem(.flexible(minimum: 50, maximum: 200))
             ]
     var body: some View {
         ScrollView {
