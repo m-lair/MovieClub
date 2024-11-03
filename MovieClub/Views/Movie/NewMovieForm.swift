@@ -32,7 +32,7 @@ struct NewMovieForm: View {
                         }
                     }
                     VStack{
-                        Text("\(movie.released)")
+                        Text("\(movie.year)")
                             .font(.subheadline)
                     }
                 } else {
@@ -44,9 +44,9 @@ struct NewMovieForm: View {
                             .font(.caption))
                 }
                 HStack{
-                    Text(movie.director ?? "")
-                    Text(movie.released)
-                    Text(movie.plot ?? "")
+                    Text(movie.director)
+                    Text(movie.year)
+                    Text(movie.plot)
                 }
                 Button {
                     Task{

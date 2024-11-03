@@ -34,7 +34,7 @@ struct MovieRow: View {
                 VStack(alignment: .leading) {
                     Text(movie.title)
                         .font(.headline)
-                    Text("\(movie.released)")
+                    Text(movie.year)
                         .font(.subheadline)
                 }
             } else {

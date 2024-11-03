@@ -13,7 +13,7 @@ struct ComingSoonView: View {
     @Environment(DataManager.self) var data: DataManager
     @State var i: Int = 0
     @State private var screenWidth = UIScreen.main.bounds.size.width
-    @State var comingSoon: [Suggestion] = [Suggestion(id: "0001", title: "Minions 2: The Rise of Gru", userImage: "", username: "RobbieDobbie", clubId: "aLcJUEMjlQ4MZAlqTB0L"), Suggestion(id: "0002", title: "Tropic Thunder", userImage: "", username: "user12345", clubId: "aLcJUEMjlQ4MZAlqTB0L"), Suggestion(id: "0003", title: "Black Swan", userImage: "", username: "MarshHatesMovies", clubId: "aLcJUEMjlQ4MZAlqTB0L")]
+    @State var comingSoon: [Suggestion] = []
     
     @State var imageUrl: String = ""
     @State var creatingSuggestion: Bool = false

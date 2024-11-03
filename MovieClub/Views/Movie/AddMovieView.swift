@@ -69,6 +69,17 @@ struct AddMovieView: View {
             }
         }
     }
+    struct SearchResponse: Decodable {
+        let search: [APIMovie]
+        let totalResults: String
+        let response: String
+        
+        enum CodingKeys: String, CodingKey {
+            case search = "Search"
+            case totalResults
+            case response = "Response"
+        }
+    }
     
     private func fetchMovies(from searchText: String) async throws -> [APIMovie] {
         // print("in fetch Movies")
@@ -90,16 +101,19 @@ struct AddMovieView: View {
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         
         do {
-            let apiResponse = try decoder.decode(OMDBSearchResponse.self, from: data)
+            let apiResponse = try decoder.decode(SearchResponse.self, from: data)
             //print("data \(apiResponse)")
             return apiResponse.search.map { apiMovie in
                 APIMovie(
-                    id: apiMovie.id,
+                    imdbId: apiMovie.imdbId,
                     title: apiMovie.title,
-                    released: apiMovie.released,
+                    plot: apiMovie.year,
+                    poster: apiMovie.poster,
+                    year: apiMovie.year,
+                    runtime: apiMovie.runtime,
+                    secPoster: apiMovie.secPoster,
                     director: apiMovie.director,
-                    poster: apiMovie.poster
-                    //plot: apiMovie.plot
+                    actors: apiMovie.actors
                 )
             }
         } catch {

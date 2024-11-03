@@ -11,20 +11,20 @@ import SwiftData
 @Model
 final class Suggestion: Identifiable, Codable {
     var id: String?
-    var title: String
+    var imdbId: String
     var userImage: String
     var username: String
     var clubId: String
     
     init(
         id: String? = nil,
-        title: String,
+        imdbId: String,
         userImage: String,
         username: String,
         clubId: String
     ) {
         self.id = id
-        self.title = title
+        self.imdbId = imdbId
         self.userImage = userImage
         self.username = username
         self.clubId = clubId
@@ -34,7 +34,7 @@ final class Suggestion: Identifiable, Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         id = try container.decodeIfPresent(String.self, forKey: .id)
-        title = try container.decode(String.self, forKey: .title)
+        imdbId = try container.decode(String.self, forKey: .imdbId)
         userImage = try container.decode(String.self, forKey: .userImage)
         username = try container.decode(String.self, forKey: .username)
         clubId = try container.decode(String.self, forKey: .clubId)
@@ -44,7 +44,7 @@ final class Suggestion: Identifiable, Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         try container.encodeIfPresent(id, forKey: .id)
-        try container.encode(title, forKey: .title)
+        try container.encode(imdbId, forKey: .imdbId)
         try container.encode(userImage, forKey: .userImage)
         try container.encode(username, forKey: .username)
         try container.encode(clubId, forKey: .clubId)
@@ -52,7 +52,7 @@ final class Suggestion: Identifiable, Codable {
     
     enum CodingKeys: String, CodingKey {
         case id
-        case title
+        case imdbId
         case userImage
         case username
         case clubId

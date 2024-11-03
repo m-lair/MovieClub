@@ -58,7 +58,7 @@ extension DataManager {
             let movieClub = try snapshot.data(as: MovieClub.self)
             movieClub.id = snapshot.documentID
             
-            /*let moviesSnapshot = try await movieClubCollection()
+            let moviesSnapshot = try await movieClubCollection()
                 .document(clubId)
                 .collection("movies")
                 .order(by: "endDate", descending: false)
@@ -66,7 +66,7 @@ extension DataManager {
                 .getDocuments()
             for document in moviesSnapshot.documents {
                 movieClub.movies = [try document.data(as: Movie.self)]
-            }*/
+            }
             
             return movieClub
         } catch {

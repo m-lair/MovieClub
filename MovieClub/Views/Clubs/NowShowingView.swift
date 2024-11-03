@@ -9,12 +9,13 @@ import SwiftUI
 
 struct NowShowingView: View {
     @Environment(DataManager.self) private var data: DataManager
-    let movie: Movie
-    //let club: MovieClub
+    @State var isLoading: Bool = false
+    @State var errorMessage: String = ""
     @State var collected: Bool = false
     @State var liked: Bool = false
     @State var disliked: Bool = false
     
+    let movie: Movie
     var progress: Double {
         let now = Date()
         let totalDuration = DateInterval(start: movie.startDate, end: movie.endDate).duration
@@ -27,11 +28,10 @@ struct NowShowingView: View {
     var body: some View {
         VStack {
             ScrollView {
-                FeaturedMovieView(movieTitle: "The Matrix",
-                                  details: "In the year 2005, the Autobots continue to battle the evil Decepticons...",
-                                  primaryPoster: Image("matrixPoster"),
-                                  secondaryPoster: Image("matrixScene"),
-                                  releaseYear: "2005", collected: collected)
+                FeaturedMovieView(collected: collected, movie: movie)
+                    .task {
+                        await getMovieDetails()
+                    }
                 HStack {
                     Label("\(movie.userName)", systemImage: "hand.point.up.left.fill")
                         .font(.title)
@@ -87,6 +87,7 @@ struct NowShowingView: View {
             .scrollIndicators(.hidden)
             
             CommentInputView(movieId: movie.id ?? "")
+            
         }
     }
     
@@ -107,6 +108,19 @@ struct NowShowingView: View {
                 }
             }
             .padding(.horizontal)
+        }
+    }
+    
+    private func getMovieDetails() async {
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            let updatedMovie = try await data.fetchMovieDetails(for: movie)
+            // Update the movie in DataManager
+            data.movie = updatedMovie
+        } catch {
+            errorMessage = error.localizedDescription
+            print("Error fetching movie details: \(error)")
         }
     }
 }

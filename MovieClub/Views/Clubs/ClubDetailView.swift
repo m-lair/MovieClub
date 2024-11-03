@@ -24,9 +24,9 @@ struct ClubDetailView: View {
     
     @State var isLoading: Bool = true
     let club: MovieClub
+    @State var movie: Movie?
     
     var body: some View {
-        let testMovie: Movie = Movie(id: "0001", title: "The Matrix", startDate: startDate, endDate: endDate, userName: "duhmarcus", userId: "0001", authorAvi: "none")
         VStack {
             HeaderView(movieClub: club)
             ClubTabView(tabs: tabs, selectedTabIndex: $selectedTabIndex)
@@ -34,8 +34,13 @@ struct ClubDetailView: View {
             TabView(selection: $selectedTabIndex) {
                 BulletinView()
                     .tag(0)
-                NowShowingView(movie: testMovie)
-                    .tag(1)
+                if let movie {
+                    NowShowingView(movie: movie)
+                        .tag(1)
+                } else {
+                    EmptyMovieView()
+                        .tag(1)
+                }
                 ComingSoonView(startDate: club.movieEndDate, timeInterval: club.timeInterval)
                     .tag(2)
                 ArchivesView()
