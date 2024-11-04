@@ -15,7 +15,7 @@ struct NowShowingView: View {
     @State var liked: Bool = false
     @State var disliked: Bool = false
     
-    let movie: Movie
+    @State var movie: Movie
     var progress: Double {
         let now = Date()
         let totalDuration = DateInterval(start: movie.startDate, end: movie.endDate).duration
@@ -29,9 +29,6 @@ struct NowShowingView: View {
         VStack {
             ScrollView {
                 FeaturedMovieView(collected: collected, movie: movie)
-                    .task {
-                        await getMovieDetails()
-                    }
                 HStack {
                     Label("\(movie.userName)", systemImage: "hand.point.up.left.fill")
                         .font(.title)
@@ -108,19 +105,6 @@ struct NowShowingView: View {
                 }
             }
             .padding(.horizontal)
-        }
-    }
-    
-    private func getMovieDetails() async {
-        isLoading = true
-        defer { isLoading = false }
-        do {
-            let updatedMovie = try await data.fetchMovieDetails(for: movie)
-            // Update the movie in DataManager
-            data.movie = updatedMovie
-        } catch {
-            errorMessage = error.localizedDescription
-            print("Error fetching movie details: \(error)")
         }
     }
 }

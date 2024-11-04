@@ -21,9 +21,6 @@ import FirebaseFunctions
 @Observable 
 class DataManager: Identifiable {
     var movie: Movie?
-    var poster: String {
-        movie?.poster ?? ""
-    }
     var comments: [Comment] = []
     var commentsListener: ListenerRegistration?
     

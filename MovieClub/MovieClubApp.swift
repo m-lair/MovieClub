@@ -114,9 +114,6 @@ struct MovieClubApp: App {
             ContentView()
                 .environment(datamanager)
                 .environment(notifmanager)
-                .modelContainer(for: [Movie.self,
-                                      MovieClub.self,
-                                      Comment.self])
         }
     }
 }

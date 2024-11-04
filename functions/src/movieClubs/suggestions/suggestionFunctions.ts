@@ -5,7 +5,7 @@ import { CreateMovieClubSuggestionData, DeleteMovieClubSuggestionData } from "./
 import { getMovieClubSuggestionRef } from "./suggestionHelpers";
 import { getMovieClubSuggestionDocRef } from "./suggestionHelpers";
 import { getMovieRef } from "../movies/movieHelpers";
-import { getMovieClub, getMovieClubDocRef } from "../../movieClubs/movieClubHelpers";
+import { getMovieClubDocRef } from "../../movieClubs/movieClubHelpers";
 
 import {
   handleCatchHttpsError,
@@ -14,24 +14,26 @@ import {
   verifyRequiredFields,
 } from "helpers";
 import { MovieClubData } from "../movieClubTypes";
+import { MovieData } from "../movies/movieTypes";
 
 exports.createMovieClubSuggestion = functions.https.onCall(
   async (request: CallableRequest<CreateMovieClubSuggestionData>) => {
     try {
       const { data, auth } = request;
       const { uid } = verifyAuth(auth);
-      const requiredFields = ["imageUrl", "movieClubId", "title", "username"];
+      const requiredFields = ["imdbId", "username"];
       verifyRequiredFields(data, requiredFields);
-      await verifyMembership(uid, data.movieClubId);
+      await verifyMembership(uid, data.clubId);
 
-      const suggestionRef = getMovieClubSuggestionDocRef(uid, data.movieClubId);
-      const suggestionCollection = getMovieClubSuggestionRef(data.movieClubId);
+      const suggestionRef = getMovieClubSuggestionDocRef(uid, data.clubId);
+      const suggestionCollection = getMovieClubSuggestionRef(data.clubId);
       
       // Create base suggestion data
       const suggestionData = {
-        title: data.title,
         username: data.username,
+        userImage: data.userImage,
         imdbId: data.imdbId,
+        userId: data.userId,
         createdAt: Date.now()
       };
 
@@ -39,25 +41,28 @@ exports.createMovieClubSuggestion = functions.https.onCall(
       const suggestionsSnapshot = await suggestionCollection.get();
       
       if (suggestionsSnapshot.empty) {
+        console.log("Suggestion collection is empty!");
         // If empty, write directly to movies collection with additional fields
-        const movieCollectionRef = getMovieRef(data.movieClubId);
-        const clubDoc = await getMovieClubDocRef(data.movieClubId).get();
+        const movieCollectionRef = getMovieRef(data.clubId);
+        const clubDoc = await getMovieClubDocRef(data.clubId).get();
         const club = clubDoc.data() as MovieClubData;
      
-        const startDate = Date.now();
+        const startDate = new Date();
         const endDate = new Date();
 
         endDate.setDate(endDate.getDate() + (Number(club.timeInterval) * 7));
 
-        const movieData = {
+        const movieData: MovieData = {
           ...suggestionData,
           likes: 0,
           dislikes: 0,
-          numCollections: 0,
+          numCollected: 0,
+          numComments: 0,
           status: 'active',
           startDate: startDate,
           endDate: endDate
         };
+        console.log(movieData)
         
         await movieCollectionRef.add(movieData);
         logVerbose("Movie added directly to movies collection!");
@@ -69,6 +74,7 @@ exports.createMovieClubSuggestion = functions.https.onCall(
       
       return;
     } catch (error) {
+      console.log(error)
       handleCatchHttpsError("Error creating Suggestion:", error);
     }
   }

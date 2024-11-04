@@ -24,7 +24,6 @@ struct ClubDetailView: View {
     
     @State var isLoading: Bool = true
     let club: MovieClub
-    @State var movie: Movie?
     
     var body: some View {
         VStack {
@@ -34,7 +33,7 @@ struct ClubDetailView: View {
             TabView(selection: $selectedTabIndex) {
                 BulletinView()
                     .tag(0)
-                if let movie {
+                if let movie = data.movie {
                     NowShowingView(movie: movie)
                         .tag(1)
                 } else {
@@ -53,20 +52,8 @@ struct ClubDetailView: View {
             ClubToolbar(club: club)
         }
         .task {
-            await loadClub()
+            data.currentClub = club
         }
-    }
-            
-        
-    private func loadClub() async {
-        isLoading = true
-        do {
-            try await data.fetchClubDetails(club: club)
-            isLoading = false
-        } catch {
-            print("Error fetching club details: \(error)")
-        }
-        
     }
 }
 

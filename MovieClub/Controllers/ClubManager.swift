@@ -65,7 +65,15 @@ extension DataManager {
                 .limit(to: 1)
                 .getDocuments()
             for document in moviesSnapshot.documents {
-                movieClub.movies = [try document.data(as: Movie.self)]
+                var baseMovie = try document.data(as: Movie.self)
+                baseMovie.id = document.documentID
+                
+                // Fetch API data for the movie
+                let apiMovie = try await fetchMovieDetails(for: baseMovie)
+                baseMovie.apiData = MovieAPIData(from: apiMovie)
+                
+                // Update state
+                self.movie = baseMovie
             }
             
             return movieClub
@@ -73,13 +81,6 @@ extension DataManager {
             print("Error decoding movie: \(error)")
             return nil
         }
-    }
-    
-    // MARK: - Fetch Club Details
-    
-    func fetchClubDetails(club: MovieClub) async throws {
-        currentClub = club
-        movie = club.movies.first
     }
     
     // MARK: - Remove Club Relationship

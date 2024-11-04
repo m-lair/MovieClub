@@ -25,6 +25,7 @@ extension DataManager {
         do {
             let _ = try await createSuggestion(suggestion)
         } catch {
+            print("error \(error)")
             throw SuggestionError.networkError(error)
         }
         print("Suggestion created")

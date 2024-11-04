@@ -34,9 +34,10 @@ describe("Suggestion Functions", () => {
     });
 
     movieClubSuggestionData = {
-      imageUrl: "Test Image Url",
-      movieClubId: movieClub.id,
-      title: "Test Movie Title",
+      imdbId: "Test Imdb Id",
+      userImage: "Test Image Url",
+      userId: user.id,
+      clubId: movieClub.id,
       username: user.name
     }
   });
@@ -48,9 +49,7 @@ describe("Suggestion Functions", () => {
       await wrapped({ data: movieClubSuggestionData, auth: auth });
       const snap = await getMovieClubSuggestionDocRef(user.id, movieClub.id).get()
       const movieClubSuggestionbDoc = snap.data();
-
-      assert.equal(movieClubSuggestionbDoc?.title, movieClubSuggestionData.title);
-      assert.equal(movieClubSuggestionbDoc?.imageUrl, movieClubSuggestionData.imageUrl);
+      assert.equal(movieClubSuggestionbDoc?.imageUrl, movieClubSuggestionData.userImage);
       assert.equal(movieClubSuggestionbDoc?.username, movieClubSuggestionData.username);
     });
 
@@ -93,16 +92,14 @@ describe("Suggestion Functions", () => {
     const wrapped = firebaseTest.wrap(deleteUserMovieClubSuggestion);
 
     beforeEach(async () => {
-      await populateSuggestionData({ userId: user.id, movieClubId: movieClub.id, title: movieClubSuggestionData.title })
+      await populateSuggestionData({ userId: user.id, movieClubId: movieClub.id })
     });
 
     it("should delete a suggestion for the requesting user", async () => {
       const snap = await getMovieClubSuggestionDocRef(user.id, movieClub.id).get();
       const movieClubSuggestionDoc = snap.data();
 
-      assert.equal(movieClubSuggestionDoc?.imageUrl, movieClubSuggestionData.imageUrl);
-      assert.equal(movieClubSuggestionDoc?.title, movieClubSuggestionData.title);
-
+      assert.equal(movieClubSuggestionDoc?.imageUrl, movieClubSuggestionData.userImage);
       await wrapped({ data: movieClubSuggestionData, auth: auth });
 
       const deletedSnap = await getMovieClubSuggestionDocRef(user.id, movieClub.id).get();

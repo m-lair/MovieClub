@@ -7,17 +7,19 @@
 
 import SwiftUI
 
+extension DataManager {
+    
+}
+
 struct CreateSuggestionView: View {
     @Environment(DataManager.self) var data
     @Environment(\.dismiss) var dismiss
     
     @State var search: String = ""
     @FocusState var isSearching: Bool
-    @State var searchResults: [APIMovie] = []
+    @State var searchResults: [MovieSearchResult] = []
     @State var suggestions: [Suggestion] = []
     @State var isShowingSuggestions = false
-    @State var imdbId: String? = ""
-    
     
     @State var errorMessage: String = ""
     @State var errorShowing: Bool = false
@@ -34,18 +36,17 @@ struct CreateSuggestionView: View {
                 .focused($isSearching)
                 .onChange(of: search) {
                     Task {
-                       try await searchMovies(query: search)
+                      try await searchMovies()
                     }
                 }
             
             if isSearching {
-                ProgressView()
-                    .padding()
+               
             } else {
-                List(searchResults, id: \.imdbId) { movie in
+                List(searchResults, id: \.id) { movie in
                     Button{
                         Task {
-                            try await submitSuggestion()
+                            try await submitSuggestion(imdbId: movie.id)
                         }
                     } label: {
                         VStack(alignment: .leading) {
@@ -66,59 +67,39 @@ struct CreateSuggestionView: View {
             Button("OK", role: .cancel) { }
         }
     }
-    
-    struct SearchResponse: Decodable {
-        let search: [APIMovie]
-        let totalResults: String
-        let response: String
-        
-        enum CodingKeys: String, CodingKey {
-            case search = "Search"
-            case totalResults
-            case response = "Response"
-        }
-    }
 
-    func searchMovies(query: String) async throws -> [APIMovie] {
-        guard !query.isEmpty else { return [] }
-        
-        let formattedQuery = query.replacingOccurrences(of: " ", with: "+")
-        let urlString = "https://omdbapi.com/?s=\(formattedQuery)&apikey=ab92d369"
-        
-        guard let url = URL(string: urlString) else {
-            print("Invalid URL: \(urlString)")
-            throw URLError(.badURL)
+
+    func searchMovies() async throws {
+        guard !search.isEmpty else {
+            searchResults = []
+            return
         }
         
-        let (data, response) = try await URLSession.shared.data(from: url)
+        // Debounce search
+        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
         
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
-            print("Bad server response: \(response)")
-            throw URLError(.badServerResponse)
-        }
+        // Check if search text hasn't changed
+        guard search == search else { return }
         
-        let decoder = JSONDecoder()
         do {
-            let searchResponse = try decoder.decode(SearchResponse.self, from: data)
-            return searchResponse.search
+            searchResults = try await data.searchMovies(query: search)
         } catch {
-            print("Failed to decode search response: \(error)")
-            throw URLError(.cannotParseResponse)
+            // do nothing
         }
     }
     
-    func submitSuggestion() async throws {
+    func submitSuggestion(imdbId: String) async throws {
         guard
             let clubId = data.currentClub?.id,
             let username = data.currentUser?.name,
-            let imdbId
+            let userId = data.currentUser?.id
         else {
             errorMessage = "invalid user data"
             errorShowing = true
             return
         }
-        let newSuggestion = Suggestion(imdbId: imdbId, userImage: "image", username: username, clubId: clubId)
+        print("clubId: \(clubId), username: \(username), imdbId: \(imdbId)")
+        let newSuggestion = Suggestion(imdbId: imdbId, userId: userId, userImage: "image", username: username, clubId: clubId)
         
         let _ = try await data.createSuggestion(suggestion: newSuggestion)
         dismiss()

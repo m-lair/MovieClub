@@ -1,9 +1,10 @@
 export interface MovieData {
-    title: string;
     likes: number;
     dislikes: number;
-    collected: boolean;
     numCollected: number;
+    status: "active" | "archived";
+    startDate: Date;
+    endDate: Date;
     numComments: number;
     imdbId: string;
 }

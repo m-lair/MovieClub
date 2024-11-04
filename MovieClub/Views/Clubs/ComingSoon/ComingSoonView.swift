@@ -9,7 +9,6 @@ import SwiftUI
 import FirebaseFirestore
 
 struct ComingSoonView: View {
-
     @Environment(DataManager.self) var data: DataManager
     @State var i: Int = 0
     @State private var screenWidth = UIScreen.main.bounds.size.width
@@ -22,9 +21,17 @@ struct ComingSoonView: View {
     let timeInterval: Int
     var body: some View {
         if comingSoon.isEmpty {
-            Text("No Suggestions Yet")
-            Button("Create a Suggestion") {
-                
+            VStack {
+                Text("No Suggestions Yet")
+                Button("New Suggestion"){
+                    creatingSuggestion = true
+                }
+                .foregroundStyle(.black)
+                .buttonStyle(.borderedProminent)
+            
+            }
+            .sheet(isPresented: $creatingSuggestion) {
+                CreateSuggestionView()
             }
         } else {
             ScrollView{
@@ -53,15 +60,10 @@ struct ComingSoonView: View {
                 .sheet(isPresented: $creatingSuggestion) {
                     CreateSuggestionView()
                 }
-                
-            }
-            .onAppear() {
-                Task{
-                    // Do something
-                }
             }
         }
     }
+    
     func computedDateString(for index: Int) -> String? {
         guard let startDate = startDate else { return nil }
         let weeksToAdd = timeInterval * (index + 1)

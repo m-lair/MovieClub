@@ -25,7 +25,6 @@
 		2C11FFF02CA37F7D004F54BC /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C11FFEF2CA37F7D004F54BC /* MainTabView.swift */; };
 		2C11FFF52CA37FC1004F54BC /* AppleAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C11FFF22CA37FC1004F54BC /* AppleAuth.swift */; };
 		2C11FFF62CA37FC1004F54BC /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C11FFF32CA37FC1004F54BC /* NotificationManager.swift */; };
-		2C11FFF82CA38142004F54BC /* APIMovie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C11FFF72CA38142004F54BC /* APIMovie.swift */; };
 		2C11FFFA2CA3816E004F54BC /* UserMembership.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C11FFF92CA3816E004F54BC /* UserMembership.swift */; };
 		2C11FFFE2CA38380004F54BC /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C11FFFD2CA38380004F54BC /* UserManager.swift */; };
 		2C13269F2CC9DF250076E39C /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 2C13269E2CC9DF250076E39C /* FirebaseAnalytics */; };
@@ -55,9 +54,6 @@
 		2C4475042C06DE6B0034204C /* CommentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475032C06DE6B0034204C /* CommentDetailView.swift */; };
 		2C4475062C17CFFC0034204C /* CommentInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475052C17CFFC0034204C /* CommentInputView.swift */; };
 		2C44750F2C2A6C2D0034204C /* UserEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C44750E2C2A6C2D0034204C /* UserEditView.swift */; };
-		2C4475132C361FA50034204C /* AddMovieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475122C361FA50034204C /* AddMovieView.swift */; };
-		2C4475152C3E18810034204C /* NextUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475142C3E18810034204C /* NextUpView.swift */; };
-		2C4475172C4442680034204C /* NewMovieForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475162C4442680034204C /* NewMovieForm.swift */; };
 		2C4475192C4C0D6E0034204C /* ComingSoonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475182C4C0D6E0034204C /* ComingSoonView.swift */; };
 		2C44751B2C4C63AB0034204C /* NowShowingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C44751A2C4C63AB0034204C /* NowShowingView.swift */; };
 		2C4EAB912CD448FB00918F0F /* UserCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4EAB902CD448FB00918F0F /* UserCollection.swift */; };
@@ -71,7 +67,6 @@
 		2C5DEC822BF1B3F6000EF232 /* StarRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5DEC752BF1B3F6000EF232 /* StarRatingView.swift */; };
 		2C8256962BF1B58C00D2ED12 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256952BF1B58C00D2ED12 /* ContentView.swift */; };
 		2C8256B72BF1BC1E00D2ED12 /* MovieRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256B62BF1BC1E00D2ED12 /* MovieRowView.swift */; };
-		2C8256B92BF1BC4A00D2ED12 /* MovieDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256B82BF1BC4A00D2ED12 /* MovieDetailView.swift */; };
 		2C8256BB2BF1BC9300D2ED12 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256BA2BF1BC9300D2ED12 /* LoginView.swift */; };
 		2C8256BD2BF1E63800D2ED12 /* NewClubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256BC2BF1E63800D2ED12 /* NewClubView.swift */; };
 		2C8256C12BF1E8FE00D2ED12 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256C02BF1E8FE00D2ED12 /* ProfileView.swift */; };
@@ -133,7 +128,6 @@
 		2C11FFEF2CA37F7D004F54BC /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		2C11FFF22CA37FC1004F54BC /* AppleAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleAuth.swift; sourceTree = "<group>"; };
 		2C11FFF32CA37FC1004F54BC /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
-		2C11FFF72CA38142004F54BC /* APIMovie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIMovie.swift; sourceTree = "<group>"; };
 		2C11FFF92CA3816E004F54BC /* UserMembership.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserMembership.swift; sourceTree = "<group>"; };
 		2C11FFFD2CA38380004F54BC /* UserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManager.swift; sourceTree = "<group>"; };
 		2C11FFFF2CA3856B004F54BC /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
@@ -155,9 +149,6 @@
 		2C4475032C06DE6B0034204C /* CommentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentDetailView.swift; sourceTree = "<group>"; };
 		2C4475052C17CFFC0034204C /* CommentInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentInputView.swift; sourceTree = "<group>"; };
 		2C44750E2C2A6C2D0034204C /* UserEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserEditView.swift; sourceTree = "<group>"; };
-		2C4475122C361FA50034204C /* AddMovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMovieView.swift; sourceTree = "<group>"; };
-		2C4475142C3E18810034204C /* NextUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextUpView.swift; sourceTree = "<group>"; };
-		2C4475162C4442680034204C /* NewMovieForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewMovieForm.swift; sourceTree = "<group>"; };
 		2C4475182C4C0D6E0034204C /* ComingSoonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComingSoonView.swift; sourceTree = "<group>"; };
 		2C44751A2C4C63AB0034204C /* NowShowingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowShowingView.swift; sourceTree = "<group>"; };
 		2C4EAB902CD448FB00918F0F /* UserCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCollection.swift; sourceTree = "<group>"; };
@@ -172,7 +163,6 @@
 		2C5DEC792BF1B3F6000EF232 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
 		2C8256952BF1B58C00D2ED12 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = Views/ContentView.swift; sourceTree = "<group>"; };
 		2C8256B62BF1BC1E00D2ED12 /* MovieRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovieRowView.swift; sourceTree = "<group>"; };
-		2C8256B82BF1BC4A00D2ED12 /* MovieDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovieDetailView.swift; sourceTree = "<group>"; };
 		2C8256BA2BF1BC9300D2ED12 /* LoginView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		2C8256BC2BF1E63800D2ED12 /* NewClubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewClubView.swift; sourceTree = "<group>"; };
 		2C8256C02BF1E8FE00D2ED12 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
@@ -378,11 +368,7 @@
 			isa = PBXGroup;
 			children = (
 				2C5DEC752BF1B3F6000EF232 /* StarRatingView.swift */,
-				2C8256B82BF1BC4A00D2ED12 /* MovieDetailView.swift */,
 				2C8256B62BF1BC1E00D2ED12 /* MovieRowView.swift */,
-				2C4475122C361FA50034204C /* AddMovieView.swift */,
-				2C4475142C3E18810034204C /* NextUpView.swift */,
-				2C4475162C4442680034204C /* NewMovieForm.swift */,
 			);
 			path = Movie;
 			sourceTree = "<group>";
@@ -442,7 +428,6 @@
 				2C11FFE22CA274C1004F54BC /* Comment.swift */,
 				2C11FFDC2CA13341004F54BC /* Club.swift */,
 				2C11FFF92CA3816E004F54BC /* UserMembership.swift */,
-				2C11FFF72CA38142004F54BC /* APIMovie.swift */,
 				2C11FFEA2CA37B8F004F54BC /* Member.swift */,
 				2C11FFDA2CA13330004F54BC /* Movie.swift */,
 				2C11FFDE2CA1DFED004F54BC /* User.swift */,
@@ -740,7 +725,6 @@
 				2C8256962BF1B58C00D2ED12 /* ContentView.swift in Sources */,
 				2CAEAB9A2C58972300A0011A /* ClubDetailsForm.swift in Sources */,
 				2C1326C72CD1AB3D0076E39C /* AnnouncementView.swift in Sources */,
-				2C4475152C3E18810034204C /* NextUpView.swift in Sources */,
 				2C1326C02CCF36C60076E39C /* MovieButtonViews.swift in Sources */,
 				2C5DEC822BF1B3F6000EF232 /* StarRatingView.swift in Sources */,
 				2C1100042CA38690004F54BC /* MovieManager.swift in Sources */,
@@ -772,7 +756,6 @@
 				2C8256C12BF1E8FE00D2ED12 /* ProfileView.swift in Sources */,
 				2C1326BE2CCACF820076E39C /* ArchivesView.swift in Sources */,
 				2C4474F82C06DD310034204C /* HeaderView.swift in Sources */,
-				2C4475132C361FA50034204C /* AddMovieView.swift in Sources */,
 				2C8256BD2BF1E63800D2ED12 /* NewClubView.swift in Sources */,
 				2C8256BB2BF1BC9300D2ED12 /* LoginView.swift in Sources */,
 				2CD71FDE2CB995DD00F9CF58 /* ClubToolbar.swift in Sources */,
@@ -784,7 +767,6 @@
 				2C44750F2C2A6C2D0034204C /* UserEditView.swift in Sources */,
 				2C11FFDD2CA13346004F54BC /* Club.swift in Sources */,
 				2C1100062CA386CC004F54BC /* CommentManager.swift in Sources */,
-				2C11FFF82CA38142004F54BC /* APIMovie.swift in Sources */,
 				2C5DEC7C2BF1B3F6000EF232 /* SignUpView.swift in Sources */,
 				2C1100362CA8C93E004F54BC /* Firebase.swift in Sources */,
 				2C5DEC7F2BF1B3F6000EF232 /* AddToCalendarView.swift in Sources */,
@@ -793,12 +775,10 @@
 				2C4EAB912CD448FB00918F0F /* UserCollection.swift in Sources */,
 				2CD71FDC2CB856A900F9CF58 /* ClubEditView.swift in Sources */,
 				2C87B2A92C6B145400A49B2B /* CircularImageView.swift in Sources */,
-				2C4475172C4442680034204C /* NewMovieForm.swift in Sources */,
 				2C4475062C17CFFC0034204C /* CommentInputView.swift in Sources */,
 				2C5DEC1F2BF1AC6C000EF232 /* MovieClubApp.swift in Sources */,
 				2CD71FF72CC035CB00F9CF58 /* MembershipManager.swift in Sources */,
 				2CAEABA12C5C5C9300A0011A /* BlurredBackground.swift in Sources */,
-				2C8256B92BF1BC4A00D2ED12 /* MovieDetailView.swift in Sources */,
 				2C11FFDF2CA1DFED004F54BC /* User.swift in Sources */,
 				2CD71FFC2CC0A8DB00F9CF58 /* ClubTabView.swift in Sources */,
 				2CD71FED2CBD9E6A00F9CF58 /* SuggestionManager.swift in Sources */,
