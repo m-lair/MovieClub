@@ -7,15 +7,19 @@
 
 import SwiftUI
 
+extension DataManager {
+    
+}
+
 struct CreateSuggestionView: View {
     @Environment(DataManager.self) var data
     @Environment(\.dismiss) var dismiss
     
-    @State private var movieTitle: String = ""
-    @State private var suggestions: [Suggestion] = []
-    @State private var isShowingSuggestions = false
-    @FocusState private var isTextFieldFocused: Bool
-    
+    @State var search: String = ""
+    @FocusState var isSearching: Bool
+    @State var searchResults: [MovieSearchResult] = []
+    @State var suggestions: [Suggestion] = []
+    @State var isShowingSuggestions = false
     
     @State var errorMessage: String = ""
     @State var errorShowing: Bool = false
@@ -25,48 +29,78 @@ struct CreateSuggestionView: View {
             Text("Create Suggestion")
                 .font(.title)
                 .padding()
-                .navigationBarTitle("Create Suggestion")
             
-            TextField("Enter movie title", text: $movieTitle)
+            TextField("Search for a movie", text: $search)
                 .padding()
                 .textFieldStyle(RoundedBorderTextFieldStyle())
-                .focused($isTextFieldFocused)
+                .focused($isSearching)
+                .onChange(of: search) {
+                    Task {
+                      try await searchMovies()
+                    }
+                }
             
-            Spacer()
-            
-            Button("Submit"){
-                Task {
-                    try await submitSuggestion()
+            if isSearching {
+               
+            } else {
+                List(searchResults, id: \.id) { movie in
+                    Button{
+                        Task {
+                            try await submitSuggestion(imdbId: movie.id)
+                        }
+                    } label: {
+                        VStack(alignment: .leading) {
+                            Text(movie.title)
+                                .font(.headline)
+                            Text(movie.year)
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                    }
                 }
             }
+            
+            Spacer()
         }
         .navigationBarTitleDisplayMode(.inline)
         .alert(errorMessage, isPresented: $errorShowing) {
             Button("OK", role: .cancel) { }
         }
-        
-    
-        /*.onAppear {
-            Task {
-                guard let clubId = data.currentClub?.id else { return }
-                try data.listenToSuggestions(clubId: clubId)
-            }
-        }*/
     }
 
-    func submitSuggestion() async throws {
+
+    func searchMovies() async throws {
+        guard !search.isEmpty else {
+            searchResults = []
+            return
+        }
+        
+        // Debounce search
+        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+        
+        // Check if search text hasn't changed
+        guard search == search else { return }
+        
+        do {
+            searchResults = try await data.searchMovies(query: search)
+        } catch {
+            // do nothing
+        }
+    }
+    
+    func submitSuggestion(imdbId: String) async throws {
         guard
             let clubId = data.currentClub?.id,
-            let username = data.currentUser?.name
+            let username = data.currentUser?.name,
+            let userId = data.currentUser?.id
         else {
-            print("username \(data.currentUser?.name), clubId \(data.currentClub?.id)")
             errorMessage = "invalid user data"
             errorShowing = true
             return
         }
-        let newSuggestion = Suggestion(title: movieTitle, userImage: "image", username: username, clubId: clubId)
-        
+        let newSuggestion = Suggestion(imdbId: imdbId, userId: userId, userImage: "image", userName: username, clubId: clubId)
         let _ = try await data.createSuggestion(suggestion: newSuggestion)
+        data.currentClub?.suggestions?.append(newSuggestion)
         dismiss()
     }
 }

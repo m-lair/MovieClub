@@ -26,10 +26,10 @@ extension DataManager {
     // MARK: - Create Movie Club
     
     func createMovieClub(movieClub: MovieClub) async throws {
-        let createClub: Callable<MovieClub, MovieClub> = functions.httpsCallable("movieClubs-createMovieClub")
+        let createClub: Callable<MovieClub, String> = functions.httpsCallable("movieClubs-createMovieClub")
         do {
             let result = try await createClub(movieClub)
-            userClubs.append(result)
+            try await fetchUser()
         } catch {
             throw error
         }
@@ -55,31 +55,33 @@ extension DataManager {
             return nil
         }
         do {
-            let movieClub = try snapshot.data(as: MovieClub.self)
+            var movieClub = try snapshot.data(as: MovieClub.self)
             movieClub.id = snapshot.documentID
             
-            /*let moviesSnapshot = try await movieClubCollection()
+            let moviesSnapshot = try await movieClubCollection()
                 .document(clubId)
                 .collection("movies")
                 .order(by: "endDate", descending: false)
                 .limit(to: 1)
                 .getDocuments()
             for document in moviesSnapshot.documents {
-                movieClub.movies = [try document.data(as: Movie.self)]
-            }*/
+                var baseMovie = try document.data(as: Movie.self)
+                baseMovie.id = document.documentID
+                
+                // Fetch API data for the movie
+                if let apiMovie = try await fetchMovieDetails(for: baseMovie) {
+                    baseMovie.apiData = MovieAPIData(from: apiMovie)
+                }
+                movieClub.movies.append(baseMovie)
+            }
+            
+            
             
             return movieClub
         } catch {
             print("Error decoding movie: \(error)")
             return nil
         }
-    }
-    
-    // MARK: - Fetch Club Details
-    
-    func fetchClubDetails(club: MovieClub) async throws {
-        currentClub = club
-        movie = club.movies.first
     }
     
     // MARK: - Remove Club Relationship

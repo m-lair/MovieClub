@@ -20,15 +20,16 @@ extension DataManager {
     
     // MARK: Create Suggestion
     
-    func createSuggestion(suggestion: Suggestion) async throws -> String? {
+    func createSuggestion(suggestion: Suggestion) async throws {
         let createSuggestion: Callable<Suggestion, String?> = functions.httpsCallable("suggestions-createMovieClubSuggestion")
         do {
             let _ = try await createSuggestion(suggestion)
         } catch {
+            print("error \(error)")
             throw SuggestionError.networkError(error)
         }
         print("Suggestion created")
-        return "200"
+        
     }
     
     // MARK: Delete Suggestion
@@ -45,11 +46,10 @@ extension DataManager {
     
     // MARK: Fetch Suggestions
     
-    func listenToSuggestions(clubId: String) throws {
-        guard
-            let clubId = currentClub?.id
-        else {
-            throw ClubError.invalidData
+    func listenToSuggestions(clubId: String) {
+        guard !clubId.isEmpty else {
+            print("Invalid club ID")
+            return
         }
         
         let suggestionsRef = movieClubCollection()
@@ -57,30 +57,60 @@ extension DataManager {
             .collection("suggestions")
             .order(by: "createdAt", descending: true)
         
+        // Remove existing listener if any
         suggestionsListener?.remove()
-    
+        
         suggestionsListener = suggestionsRef.addSnapshotListener { [weak self] snapshot, error in
+            guard let self = self else { return }
             
-            guard let self else {
-                print ("Unknown Error")
+            if let error = error {
+                print("Error listening to suggestions: \(error)")
                 return
             }
             
             guard let snapshot = snapshot else {
-                print("Snapshot is nil")
+                print("No snapshot received")
                 return
             }
             
-            suggestions = snapshot.documents.compactMap { document in
-                do{
-                    return try document.data(as: Suggestion.self)
+            let suggestions = snapshot.documents.compactMap { document -> Suggestion? in
+                do {
+                    var suggestion = try document.data(as: Suggestion.self)
+                    suggestion.id = document.documentID
+                    return suggestion
                 } catch {
+                    print("Error decoding suggestion: \(error)")
                     return nil
                 }
-                
+            }
+            
+            // Update suggestions on main thread
+            Task { @MainActor in
+                self.suggestions = suggestions
             }
         }
-        
     }
-
+    
+    func fetchSuggestions(clubId: String) async throws -> [Suggestion] {
+        guard !clubId.isEmpty else {
+            throw NSError(domain: "Invalid club ID", code: -1)
+        }
+        
+        let snapshot = try await movieClubCollection()
+            .document(clubId)
+            .collection("suggestions")
+            .order(by: "createdAt", descending: true)
+            .getDocuments()
+        
+        return snapshot.documents.compactMap { document -> Suggestion? in
+            do {
+                var suggestion = try document.data(as: Suggestion.self)
+                suggestion.id = document.documentID
+                return suggestion
+            } catch {
+                print("Error decoding suggestion: \(error)")
+                return nil
+            }
+        }
+    }
 }

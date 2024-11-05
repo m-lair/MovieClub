@@ -11,8 +11,6 @@ import FirebaseFirestore
 
 
 struct ClubDetailView: View {
-    let startDate = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
-    let endDate = Calendar.current.date(byAdding: .day, value: 7, to: Date())!
     let tabs: [String] = ["Bullentin", "Now Showing", "Upcoming", "Archives"]
     
     @Environment(DataManager.self) var data: DataManager
@@ -26,7 +24,6 @@ struct ClubDetailView: View {
     let club: MovieClub
     
     var body: some View {
-        let testMovie: Movie = Movie(id: "0001", title: "The Matrix", startDate: startDate, endDate: endDate, userName: "duhmarcus", userId: "0001", authorAvi: "none")
         VStack {
             HeaderView(movieClub: club)
             ClubTabView(tabs: tabs, selectedTabIndex: $selectedTabIndex)
@@ -34,10 +31,16 @@ struct ClubDetailView: View {
             TabView(selection: $selectedTabIndex) {
                 BulletinView()
                     .tag(0)
-                NowShowingView(movie: testMovie)
-                    .tag(1)
+                if let movie = club.movies.first {
+                    NowShowingView(movie: movie)
+                        .tag(1)
+                } else {
+                    EmptyMovieView()
+                        .tag(1)
+                }
                 ComingSoonView(startDate: club.movieEndDate, timeInterval: club.timeInterval)
-                    .tag(2)
+                        .tag(2)
+                
                 ArchivesView()
                     .tag(3)
             }
@@ -47,21 +50,6 @@ struct ClubDetailView: View {
         .toolbar {
             ClubToolbar(club: club)
         }
-        .task {
-            await loadClub()
-        }
-    }
-            
-        
-    private func loadClub() async {
-        isLoading = true
-        do {
-            try await data.fetchClubDetails(club: club)
-            isLoading = false
-        } catch {
-            print("Error fetching club details: \(error)")
-        }
-        
     }
 }
 

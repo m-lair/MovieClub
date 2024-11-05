@@ -13,13 +13,13 @@ import FirebaseFirestore
 struct MovieRow: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) var dismiss
-    @State var movie: APIMovie
-    var onSave: (APIMovie) -> Void
+    @State var movie: MovieAPIData
+    var onSave: (MovieAPIData) -> Void
     
     var body: some View {
         HStack {
             if movie.poster != "" {
-            let url = URL(string: movie.poster)
+                let url = URL(string: movie.poster ?? "")
                 AsyncImage(url: url) { phase in
                     if let image = phase.image {
                         image
@@ -34,7 +34,7 @@ struct MovieRow: View {
                 VStack(alignment: .leading) {
                     Text(movie.title)
                         .font(.headline)
-                    Text("\(movie.released)")
+                    Text(String(movie.releaseYear))
                         .font(.subheadline)
                 }
             } else {

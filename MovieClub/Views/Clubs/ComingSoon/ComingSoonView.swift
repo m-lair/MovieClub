@@ -9,66 +9,116 @@ import SwiftUI
 import FirebaseFirestore
 
 struct ComingSoonView: View {
-
     @Environment(DataManager.self) var data: DataManager
-    @State var i: Int = 0
-    @State private var screenWidth = UIScreen.main.bounds.size.width
-    @State var comingSoon: [Suggestion] = [Suggestion(id: "0001", title: "Minions 2: The Rise of Gru", userImage: "", username: "RobbieDobbie", clubId: "aLcJUEMjlQ4MZAlqTB0L"), Suggestion(id: "0002", title: "Tropic Thunder", userImage: "", username: "user12345", clubId: "aLcJUEMjlQ4MZAlqTB0L"), Suggestion(id: "0003", title: "Black Swan", userImage: "", username: "MarshHatesMovies", clubId: "aLcJUEMjlQ4MZAlqTB0L")]
     
-    @State var imageUrl: String = ""
-    @State var creatingSuggestion: Bool = false
+    @State private var screenWidth = UIScreen.main.bounds.size.width
+    @State private var creatingSuggestion = false
+    @State private var isLoading = false
+    @State private var error: Error?
     
     let startDate: Date?
     let timeInterval: Int
+    
+    var suggestions: [Suggestion] {
+        data.suggestions
+    }
+    
     var body: some View {
-        if comingSoon.isEmpty {
-            Text("No Suggestions Yet")
-            Button("Create a Suggestion") {
-                
-            }
-        } else {
-            ScrollView{
+        Group {
+            if suggestions.isEmpty {
                 VStack {
-                    ForEach(Array(comingSoon.enumerated()), id: \.offset) { index, suggestion in
-                        HStack {
-                            ComingSoonRowView(suggestion: suggestion)
-                            Spacer()
-                            if let dateString = computedDateString(for: index) {
-                                Text(dateString)
-                            } else {
-                                Text("No Date")
-                            }
+                    if isLoading {
+                        ProgressView()
+                    } else {
+                        Text("No Suggestions Yet")
+                        newSuggestionButton
+                    }
+                }
+            } else {
+                suggestionsList
+            }
+        }
+        .refreshable {
+            await refreshSuggestions()
+        }
+        .sheet(isPresented: $creatingSuggestion) {
+            CreateSuggestionView()
+        }
+        .alert("Error", isPresented: .constant(error != nil)) {
+            Button("OK") {
+                error = nil
+            }
+            Button("Retry") {
+                Task {
+                    await refreshSuggestions()
+                }
+            }
+        } message: {
+            if let error = error {
+                Text(error.localizedDescription)
+            }
+        }
+        .task {
+            setupSuggestionsListener()
+        }
+        .onDisappear {
+            data.suggestionsListener?.remove()
+            data.suggestionsListener = nil
+        }
+    }
+    
+    private var suggestionsList: some View {
+        ScrollView {
+            VStack {
+                ForEach(Array(suggestions.enumerated()), id: \.1.id) { index, suggestion in
+                    HStack {
+                        ComingSoonRowView(suggestion: suggestion)
+                        Spacer()
+                        if let dateString = computedDateString(for: index) {
+                            Text(dateString)
+                        } else {
+                            Text("No Date")
                         }
                     }
-                    .padding([.top, .leading])
-                    
-                    
-                    Button("New Suggestion"){
-                        creatingSuggestion = true
-                    }
-                    .foregroundStyle(.black)
-                    .buttonStyle(.borderedProminent)
+                }
+                .padding([.top, .leading])
                 
-                }
-                .sheet(isPresented: $creatingSuggestion) {
-                    CreateSuggestionView()
-                }
-                
-            }
-            .onAppear() {
-                Task{
-                    // Do something
-                }
+                newSuggestionButton
             }
         }
     }
-    func computedDateString(for index: Int) -> String? {
+    
+    private var newSuggestionButton: some View {
+        Button("New Suggestion") {
+            creatingSuggestion = true
+        }
+        .foregroundStyle(.black)
+        .buttonStyle(.borderedProminent)
+    }
+    
+    private func computedDateString(for index: Int) -> String? {
         guard let startDate = startDate else { return nil }
         let weeksToAdd = timeInterval * (index + 1)
-        if let date = Calendar.current.date(byAdding: .weekOfYear, value: weeksToAdd, to: startDate) {
-            return date.formatted(date: .abbreviated, time: .omitted)
+        return Calendar.current.date(byAdding: .weekOfYear, value: weeksToAdd, to: startDate)?
+            .formatted(date: .abbreviated, time: .omitted)
+    }
+    
+    private func setupSuggestionsListener()  {
+        guard let clubId = data.currentClub?.id else { return }
+        data.listenToSuggestions(clubId: clubId)
+    }
+    
+    private func refreshSuggestions() async {
+        isLoading = true
+        defer { isLoading = false }
+        
+        do {
+            guard let clubId = data.currentClub?.id else { return }
+            _ = try await data.fetchSuggestions(clubId: clubId)
+            error = nil
+        } catch {
+            self.error = error
+            print("Error refreshing suggestions: \(error)")
         }
-        return nil
     }
 }
-

@@ -97,7 +97,7 @@ extension DataManager {
         guard
             let currentUser
         else {
-            throw AuthError.invalidUser
+            throw CommentError.unauthorized
         }
         
         let parameters: [String: Any] = [

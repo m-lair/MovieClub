@@ -1,8 +1,9 @@
 export interface CreateMovieClubSuggestionData {
-  imageUrl: string;
-  movieClubId: string;
-  title: string;
-  username: string;
+  userImage?: string;
+  clubId: string;
+  imdbId: string;
+  userId: string;
+  userName: string;
 }
 
 export interface DeleteMovieClubSuggestionData {

@@ -12,7 +12,7 @@ struct ArchivesView: View {
     let endDate = Calendar.current.date(byAdding: .day, value: 7, to: Date())!
     
     var body: some View {
-        let testMovie: Movie = Movie(title: "The Matrix", startDate: startDate, endDate: endDate, userName: "duhmarcus", userId: "0001", authorAvi: "none")
+        let testMovie: Movie = Movie(userId: "0001", imdbId: "tt0133093", startDate: startDate, endDate: endDate, userName: "duhmarcus", status: "Archived")
         ScrollView {
             VStack {
                 ForEach(1..<6, id: \.self) { index in

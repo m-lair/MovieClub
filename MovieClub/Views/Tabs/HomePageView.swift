@@ -13,20 +13,27 @@ import SwiftUI
 struct HomePageView: View {
     @Environment(DataManager.self) var data: DataManager
     @Binding var navPath: NavigationPath
+    
+    var userClubs: [MovieClub] {
+        data.userClubs
+    }
     var body: some View {
         ZStack{
             Color.gray.ignoresSafeArea()
                 .overlay(Color.black.opacity(0.7))
             ScrollView{
                 VStack {
-                    if data.userClubs.count > 0 {
-                        ForEach(data.userClubs) { movieClub in
+                    if !userClubs.isEmpty {
+                        ForEach(userClubs, id: \.self) { movieClub in
                             NavigationLink(value: movieClub) {
                                 MovieClubCardView(movieClub: movieClub)
                             }
+                            .task {
+                                data.currentClub = await data.fetchMovieClub(clubId: movieClub.id ?? "")
+                            }
                         }
                     } else {
-                        ProgressView()
+                        Text("\(userClubs.count) clubs found")
                     }
                 }
                 .toolbar {

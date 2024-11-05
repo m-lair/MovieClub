@@ -22,6 +22,7 @@ struct MainTabView: View {
     @State var discoverPath = NavigationPath()
     @State var notificationsPath = NavigationPath()
     @State var profilePath = NavigationPath()
+    @State private var isLoading = true
     
     var body: some View {
         TabView(selection: tabSelection()){
@@ -98,9 +99,4 @@ extension MainTabView {
             self.selection = tappedTab
         }
     }
-}
-
-#Preview {
-    MainTabView()
-        .environment(DataManager())
 }

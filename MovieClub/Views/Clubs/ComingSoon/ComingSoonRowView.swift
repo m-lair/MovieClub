@@ -15,7 +15,7 @@ struct ComingSoonRowView: View {
         let _ = print("in row view")
         HStack{
             CircularImageView(size: 30)
-            Text(suggestion.username)
+            Text(suggestion.userName)
                 .font(.headline)
                 .foregroundColor(.primary)
             Spacer()

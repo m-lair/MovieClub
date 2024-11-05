@@ -11,6 +11,7 @@ import Firebase
 import FirebaseFirestore
 import class MovieClub.User
 import class FirebaseAuth.User
+import class FirebaseAuth.Auth
 @testable import MovieClub
 
 extension AppTests {

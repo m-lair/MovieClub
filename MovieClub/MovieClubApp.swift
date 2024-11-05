@@ -15,23 +15,19 @@ import AuthenticationServices
 import FirebaseFirestore
 import FirebaseMessaging
 import FirebaseAnalytics
-import SwiftData
 
 class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication,
-                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
+                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
         application.registerForRemoteNotifications()
-        // MARK: - Firebase Config
-        configureFirebase()
         
-        // MARK: - Notifications Config
         Messaging.messaging().delegate = self
         
         UNUserNotificationCenter.current().delegate = self
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-                  UNUserNotificationCenter.current().requestAuthorization(
-                    options: authOptions,
-                    completionHandler: {_, _ in })
+        UNUserNotificationCenter.current().requestAuthorization(
+            options: authOptions,
+            completionHandler: {_, _ in })
         Analytics.setAnalyticsCollectionEnabled(true)
         return true
     }
@@ -77,46 +73,102 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     }
 }
 
-@main
+@Observable
+class AppState {
+    var isLoading = true
+    let authManager: AuthManager
+    let dataManager: DataManager
+    
+    init() async throws {
+        self.isLoading = true
+        self.authManager = await AuthManager()
+        
+        do {
+            self.dataManager = try await DataManager()
+        } catch {
+            fatalError("Failed to initialize DataManager: \(error)")
+        }
+        
+        self.isLoading = false
+    }
+}
 
+@main
 struct MovieClubApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @State private var notifmanager = NotificationManager()
-    @State private var datamanager = DataManager()
+    
+    // Use StateObject for the initial state container
+    @StateObject private var stateContainer = StateContainer()
     
     init() {
-        let appearance = UISegmentedControl.appearance()
-        
-        // Remove the background and divider images to eliminate the gray border
-        appearance.setBackgroundImage(.none, for: .normal, barMetrics: .default)
-        appearance.setBackgroundImage(.none, for: .selected, barMetrics: .default)
-        appearance.setBackgroundImage(.none, for: .highlighted, barMetrics: .default)
-        appearance.setDividerImage(.none, forLeftSegmentState: .normal, rightSegmentState: .normal, barMetrics: .default)
-        
-        // Ensure the selected segment does not have a different background color
-        appearance.selectedSegmentTintColor = UIColor.clear
-        
-        // Set text attributes for unselected segments
-        appearance.setTitleTextAttributes([
-            .foregroundColor: UIColor.white,
-        ], for: .normal)
-        
-        // Set text attributes for the selected segment, including underline
-        appearance.setTitleTextAttributes([
-            .foregroundColor: UIColor.white,
-            .font: UIFont.boldSystemFont(ofSize: 14),
-            .underlineStyle: NSUnderlineStyle.single.rawValue
-        ], for: .selected)
+        configureFirebase()
+        print("MovieClubApp initializing")
     }
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environment(datamanager)
-                .environment(notifmanager)
-                .modelContainer(for: [Movie.self,
-                                      MovieClub.self,
-                                      Comment.self])
+            Group {
+                if let appState = stateContainer.appState {
+                    MainContentView(appState: appState)
+                } else {
+                    ProgressView("Initializing...")
+                        .onAppear {
+                            print("Showing loading view")
+                            stateContainer.initializeAppState()
+                        }
+                }
+            }
         }
     }
 }
+
+// State container to handle async initialization
+@MainActor
+@Observable class StateContainer: ObservableObject {
+    var appState: AppState?
+    
+    func initializeAppState() {
+        Task {
+            do {
+                self.appState = try await AppState()
+                print("AppState initialized successfully")
+            } catch {
+                print("Error initializing AppState: \(error)")
+            }
+        }
+    }
+}
+struct MainContentView: View {
+    let appState: AppState
+    @Bindable var authManager: AuthManager
+    
+    init(appState: AppState) {
+        self.appState = appState
+        self.authManager = appState.authManager
+    }
+    
+    var body: some View {
+        Group {
+            if authManager.authCurrentUser != nil {
+                let _ = print("User is logged in - showing content view")
+                ContentView()
+                    .environment(appState.authManager)
+                    .environment(appState.dataManager)
+                    .task {
+                        do {
+                            try await appState.dataManager.fetchUser()
+                        } catch {
+                            print("Error fetching user: \(error)")
+                        }
+                    }
+            } else {
+                let _ = print("User is not logged in - showing login view")
+                LoginView()
+                    .environment(appState.authManager)
+                    .environment(appState.dataManager)
+            }
+        }
+    }
+}
+
+

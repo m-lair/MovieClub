@@ -2,14 +2,16 @@
 //  EmptyMovieView.swift
 //  MovieClub
 //
-//  Created by Marcus Lair on 7/22/24.
+//  Created by Marcus Lair on 11/2/24.
 //
 
 import SwiftUI
 
 struct EmptyMovieView: View {
     var body: some View {
-        Text("No Movies Coming Up Yet...")
+        VStack {
+            Text("No Upcoming Movies, Go Suggest One!")
+        }
     }
 }
 

@@ -9,11 +9,13 @@ import SwiftUI
 
 struct NowShowingView: View {
     @Environment(DataManager.self) private var data: DataManager
-    let movie: Movie
-    //let club: MovieClub
+    @State var isLoading: Bool = false
+    @State var errorMessage: String = ""
     @State var collected: Bool = false
     @State var liked: Bool = false
     @State var disliked: Bool = false
+    
+    @State var movie: Movie
     
     var progress: Double {
         let now = Date()
@@ -27,11 +29,7 @@ struct NowShowingView: View {
     var body: some View {
         VStack {
             ScrollView {
-                FeaturedMovieView(movieTitle: "The Matrix",
-                                  details: "In the year 2005, the Autobots continue to battle the evil Decepticons...",
-                                  primaryPoster: Image("matrixPoster"),
-                                  secondaryPoster: Image("matrixScene"),
-                                  releaseYear: "2005", collected: collected)
+                FeaturedMovieView(collected: collected, movie: movie)
                 HStack {
                     Label("\(movie.userName)", systemImage: "hand.point.up.left.fill")
                         .font(.title)
@@ -87,6 +85,7 @@ struct NowShowingView: View {
             .scrollIndicators(.hidden)
             
             CommentInputView(movieId: movie.id ?? "")
+            
         }
     }
     

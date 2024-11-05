@@ -37,8 +37,8 @@ describe("membershipFunctions", () => {
     beforeEach(async () => {
       membershipData = {
         image: "Test Image",
-        movieClubId: movieClub.id,
-        movieClubName: movieClub.name,
+        clubId: movieClub.id,
+        clubName: movieClub.name,
         username: user.name,
       };
     });
@@ -69,7 +69,7 @@ describe("membershipFunctions", () => {
     it("should error if movie club is not public", async () => {
       try {
         movieClub = await populateMovieClubData({ isPublic: false });
-        membershipData.movieClubId = movieClub.id;
+        membershipData.clubId = movieClub.id;
 
         await joinMovieClubWrapped({ data: membershipData, auth: auth });
         assert.fail("Expected error not thrown");
@@ -105,7 +105,7 @@ describe("membershipFunctions", () => {
     const leaveMovieClubWrapped = firebaseTest.wrap(leaveMovieClub);
 
     beforeEach(async () => {
-      membershipData = { movieClubId: movieClub.id };
+      membershipData = { clubId: movieClub.id };
 
       await populateMembershipData({ userId: user.id, movieClubId: movieClub.id, movieClubName: movieClub.name });
       await populateMemberData({ userId: user.id, username: user.name, movieClubId: movieClub.id });

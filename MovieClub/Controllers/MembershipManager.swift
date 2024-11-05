@@ -25,7 +25,7 @@ extension DataManager {
             let user = currentUser,
             let clubId = club.id
         else {
-            throw AuthError.invalidUser
+           return
         }
         
         let joinClub: Callable<[String: String], MovieClub> = functions.httpsCallable("memberships-joinMovieClub")
@@ -48,7 +48,7 @@ extension DataManager {
         guard
             let clubId = club.id
         else {
-            throw AuthError.invalidUser
+            return
         }
         
         let leaveClub: Callable<[String: String], String?> = functions.httpsCallable("memberships-leaveMovieClub")
