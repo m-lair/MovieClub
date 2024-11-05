@@ -18,24 +18,24 @@ struct ComingSoonView: View {
     
     let startDate: Date?
     let timeInterval: Int
-    
-    var suggestions: [Suggestion] {
-        data.suggestions
-    }
+    var clubId: String { data.clubId }
+    var suggestions: [Suggestion] { data.suggestions }
     
     var body: some View {
-        Group {
-            if suggestions.isEmpty {
-                VStack {
-                    if isLoading {
-                        ProgressView()
-                    } else {
-                        Text("No Suggestions Yet")
-                        newSuggestionButton
+        VStack {
+            Group {
+                if suggestions.isEmpty {
+                    VStack {
+                        if isLoading {
+                            ProgressView()
+                        } else {
+                            Text("No Suggestions Yet")
+                            newSuggestionButton
+                        }
                     }
+                } else {
+                    suggestionsList
                 }
-            } else {
-                suggestionsList
             }
         }
         .refreshable {
@@ -82,14 +82,14 @@ struct ComingSoonView: View {
                     }
                 }
                 .padding([.top, .leading])
-                
                 newSuggestionButton
             }
+            
         }
     }
     
     private var newSuggestionButton: some View {
-        Button("New Suggestion") {
+        Button("Create Suggestion") {
             creatingSuggestion = true
         }
         .foregroundStyle(.black)
@@ -104,7 +104,6 @@ struct ComingSoonView: View {
     }
     
     private func setupSuggestionsListener()  {
-        guard let clubId = data.currentClub?.id else { return }
         data.listenToSuggestions(clubId: clubId)
     }
     
