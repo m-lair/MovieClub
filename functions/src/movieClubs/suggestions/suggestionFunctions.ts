@@ -43,12 +43,12 @@ exports.createMovieClubSuggestion = functions.https.onCall(
       if (suggestionsSnapshot.length === 0) {
         const activeMovieRef = await getMovieClubMovieStatus(data.clubId);
         if (activeMovieRef.empty) {
-       
           setMovieFromSuggestion(uid, data.clubId, suggestionData);
       } else {
         // Otherwise, add to suggestions as normal
         console.log("Suggestion is empty but there is an active movie");
         await suggestionCollection.add(suggestionData);
+        return;
         logVerbose("Suggestion created successfully!");
       }
       
