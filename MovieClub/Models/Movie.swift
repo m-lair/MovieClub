@@ -11,11 +11,12 @@ struct Movie: Identifiable, Codable {
     let startDate: Date
     let endDate: Date
     let userName: String
+    let status: String
     
     // Analytics & Social Data
     var likes: Int
     var dislikes: Int
-    var numCollections: Int
+    var numCollected: Int
     var numComments: Int
     
     // API Data
@@ -28,9 +29,10 @@ struct Movie: Identifiable, Codable {
         startDate: Date,
         endDate: Date,
         userName: String,
+        status: String,
         likes: Int = 0,
         dislikes: Int = 0,
-        numCollections: Int = 0,
+        numCollected: Int = 0,
         numComments: Int = 0,
         apiData: MovieAPIData? = nil
     ) {
@@ -42,9 +44,10 @@ struct Movie: Identifiable, Codable {
         self.userName = userName
         self.likes = likes
         self.dislikes = dislikes
-        self.numCollections = numCollections
+        self.numCollected = numCollected
         self.numComments = numComments
         self.apiData = apiData
+        self.status = status
     }
 }
 

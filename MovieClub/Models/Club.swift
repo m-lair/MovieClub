@@ -6,9 +6,9 @@
 //
 
 import Foundation
-import SwiftData
 
-@Model
+
+
 final class MovieClub: Identifiable, Codable, Hashable, Equatable {
     var id: String?
     var name: String
@@ -24,6 +24,7 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
     var bannerUrl: String?
     var numMovies: Int?
     var members: [Member]?
+    var suggestions: [Suggestion]?
     var movies: [Movie]
     
     init(
@@ -39,6 +40,7 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         bannerUrl: String? = "no-image",
         numMovies: Int = 0,
         members: [Member]? = [],
+        suggestions: [Suggestion]? = [],
         movies: [Movie] = []
     ) {
         self.id = id
@@ -53,6 +55,7 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         self.bannerUrl = bannerUrl
         self.numMovies = numMovies
         self.members = members
+        self.suggestions = suggestions
         self.movies = movies
     }
     

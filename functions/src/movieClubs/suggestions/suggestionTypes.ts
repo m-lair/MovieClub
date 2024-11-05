@@ -3,7 +3,7 @@ export interface CreateMovieClubSuggestionData {
   clubId: string;
   imdbId: string;
   userId: string;
-  username: string;
+  userName: string;
 }
 
 export interface DeleteMovieClubSuggestionData {

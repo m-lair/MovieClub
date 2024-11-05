@@ -16,6 +16,7 @@ struct NowShowingView: View {
     @State var disliked: Bool = false
     
     @State var movie: Movie
+    
     var progress: Double {
         let now = Date()
         let totalDuration = DateInterval(start: movie.startDate, end: movie.endDate).duration

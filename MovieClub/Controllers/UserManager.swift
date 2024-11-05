@@ -30,8 +30,9 @@ extension DataManager {
             print("User not logged in")
             return
         }
-        
-        guard let snapshot = try? await usersCollection().document(uid).getDocument() else {
+        guard
+            let snapshot = try? await usersCollection().document(uid).getDocument()
+        else {
             print("error getting user document")
             currentUser = nil
             userSession = nil
@@ -42,6 +43,7 @@ extension DataManager {
             currentUser = try snapshot.data(as: User.self)
             await fetchUserClubs()
         } catch {
+            print("error parsing user document")
             throw error
         }
     }
@@ -69,10 +71,12 @@ extension DataManager {
                 
                 var clubList: [MovieClub] = []
                 for try await club in group {
-                    if let club = club {
+                    if let club {
+                        print("Fetched club: \(club.id)")
                         clubList.append(club)
                     }
                 }
+                
                 return clubList
             }
             self.userClubs = clubs

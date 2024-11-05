@@ -98,10 +98,9 @@ struct CreateSuggestionView: View {
             errorShowing = true
             return
         }
-        print("clubId: \(clubId), username: \(username), imdbId: \(imdbId)")
-        let newSuggestion = Suggestion(imdbId: imdbId, userId: userId, userImage: "image", username: username, clubId: clubId)
-        
+        let newSuggestion = Suggestion(imdbId: imdbId, userId: userId, userImage: "image", userName: username, clubId: clubId)
         let _ = try await data.createSuggestion(suggestion: newSuggestion)
+        data.currentClub?.suggestions?.append(newSuggestion)
         dismiss()
     }
 }

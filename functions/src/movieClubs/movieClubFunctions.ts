@@ -58,7 +58,7 @@ exports.createMovieClub = functions.https.onCall(
         createdAt: Date.now(),
       });
 
-      return movieClubData;
+      return movieClub.id;
     } catch (error) {
       handleCatchHttpsError("Error creating Movie Club:", error);
     }

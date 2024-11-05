@@ -46,6 +46,7 @@
 		2C1326C22CD1AA770076E39C /* Announcement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1326C12CD1AA6D0076E39C /* Announcement.swift */; };
 		2C1326C52CD1AAF10076E39C /* BulletinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1326C42CD1AAF10076E39C /* BulletinView.swift */; };
 		2C1326C72CD1AB3D0076E39C /* AnnouncementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1326C62CD1AB3D0076E39C /* AnnouncementView.swift */; };
+		2C3580772CD9350E00DE7D47 /* TMDB-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2C3580762CD9350E00DE7D47 /* TMDB-Info.plist */; };
 		2C4474F82C06DD310034204C /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4474F72C06DD310034204C /* HeaderView.swift */; };
 		2C4474FA2C06DD670034204C /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4474F92C06DD670034204C /* InfoView.swift */; };
 		2C4474FC2C06DD840034204C /* SwipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4474FB2C06DD840034204C /* SwipeView.swift */; };
@@ -141,6 +142,7 @@
 		2C1326C12CD1AA6D0076E39C /* Announcement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Announcement.swift; sourceTree = "<group>"; };
 		2C1326C42CD1AAF10076E39C /* BulletinView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BulletinView.swift; sourceTree = "<group>"; };
 		2C1326C62CD1AB3D0076E39C /* AnnouncementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementView.swift; sourceTree = "<group>"; };
+		2C3580762CD9350E00DE7D47 /* TMDB-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TMDB-Info.plist"; sourceTree = "<group>"; };
 		2C4474F72C06DD310034204C /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		2C4474F92C06DD670034204C /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
 		2C4474FB2C06DD840034204C /* SwipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeView.swift; sourceTree = "<group>"; };
@@ -376,6 +378,7 @@
 		2C5DEC122BF1AC6C000EF232 = {
 			isa = PBXGroup;
 			children = (
+				2C3580762CD9350E00DE7D47 /* TMDB-Info.plist */,
 				2CD71F822CB5E3C500F9CF58 /* TestPlan.xctestplan */,
 				2C11FFD62C9D4A23004F54BC /* GoogleService-Info.plist */,
 				2C5DEC1D2BF1AC6C000EF232 /* MovieClub */,
@@ -660,6 +663,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C3580772CD9350E00DE7D47 /* TMDB-Info.plist in Resources */,
 				2C5DEC262BF1AC6E000EF232 /* Preview Assets.xcassets in Resources */,
 				2C5DEC232BF1AC6E000EF232 /* Assets.xcassets in Resources */,
 				2CD71F832CB5E3C500F9CF58 /* TestPlan.xctestplan in Resources */,

@@ -38,7 +38,7 @@ describe("Suggestion Functions", () => {
       userImage: "Test Image Url",
       userId: user.id,
       clubId: movieClub.id,
-      username: user.name
+      userName: user.name
     }
   });
 
@@ -50,7 +50,7 @@ describe("Suggestion Functions", () => {
       const snap = await getMovieClubSuggestionDocRef(user.id, movieClub.id).get()
       const movieClubSuggestionbDoc = snap.data();
       assert.equal(movieClubSuggestionbDoc?.imageUrl, movieClubSuggestionData.userImage);
-      assert.equal(movieClubSuggestionbDoc?.username, movieClubSuggestionData.username);
+      assert.equal(movieClubSuggestionbDoc?.username, movieClubSuggestionData.userName);
     });
 
     it("should error if user is not a member of the club", async () => {

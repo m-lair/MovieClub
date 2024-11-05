@@ -10,7 +10,7 @@ import Foundation
 // MARK: - DataManager Extension
 extension DataManager {
     
-    func fetchMovieDetails(for movie: Movie) async throws -> MovieAPIResponse {
+    func fetchMovieDetails(for movie: Movie) async throws -> MovieAPIResponse? {
         let urlString = "https://omdbapi.com/?i=\(movie.imdbId)&apikey=ab92d369&plot=full"
         
         guard let url = URL(string: urlString) else {
@@ -41,7 +41,7 @@ extension DataManager {
         guard !query.isEmpty else { return [] }
         
         let formattedQuery = query.replacingOccurrences(of: " ", with: "+")
-        let urlString = "https://omdbapi.com/?s=\(formattedQuery)&apikey=ab92d369"
+        let urlString = "https://omdbapi.com/?s=\(formattedQuery)&apikey=\(apiKey)&plot=full"
         
         guard let url = URL(string: urlString) else {
             print("Invalid URL: \(urlString)")

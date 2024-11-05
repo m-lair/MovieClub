@@ -37,13 +37,23 @@ struct FeaturedMovieView: View {
              EmptyView()
              }*/
             
+            Rectangle()
+                .fill(Color.black)
+                .frame(width: width + 2, height: 510, alignment: .center)
+                .overlay(LinearGradient(
+                    gradient: Gradient(colors: [.black, .clear]),
+                    startPoint: .bottom,
+                    endPoint: .top
+                    )
+                    )
+            
             VStack(alignment: .leading) {
                 Spacer()
                 
                 Text(movie.title)
                     .font(.title)
                     .fontWeight(.heavy) +
-                Text("\(movie.releaseYear)")
+                Text(" (\(movie.yearFormatted))")
                     .font(.title)
                 
                 HStack(alignment: .top) {
@@ -63,24 +73,26 @@ struct FeaturedMovieView: View {
                         }
                     }
                     // Details Section
-                    VStack(alignment: .leading) {
+                    VStack(alignment: .leading, spacing: 10) {
+                            Text("Starring: ")
+                                .fontWeight(.bold) +
+                            Text(movie.castFormatted)
+                                .font(.body)
                         
-                        Text("Starring: ")
-                            .fontWeight(.bold) +
-                        Text(movie.castFormatted)
-                            .font(.body)
-                        
-                        Text("Director: ")
-                            .fontWeight(.bold) +
-                        Text(movie.director)
-                            .font(.body)
-                        
-                        Text(movie.plot)
-                            .font(.body)
+                            Text("Director: ")
+                                .fontWeight(.bold) +
+                            Text(movie.director)
+                                .font(.body)
+                            
+                            Text(movie.plot)
+                            .font(.callout)
+                                .lineLimit(4)
                         
                     }
+                    .padding(3)
                 }
             }
+            .padding(.horizontal, 5)
         }
     }
 }

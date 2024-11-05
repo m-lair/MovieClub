@@ -11,8 +11,6 @@ import FirebaseFirestore
 
 
 struct ClubDetailView: View {
-    let startDate = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
-    let endDate = Calendar.current.date(byAdding: .day, value: 7, to: Date())!
     let tabs: [String] = ["Bullentin", "Now Showing", "Upcoming", "Archives"]
     
     @Environment(DataManager.self) var data: DataManager
@@ -33,7 +31,7 @@ struct ClubDetailView: View {
             TabView(selection: $selectedTabIndex) {
                 BulletinView()
                     .tag(0)
-                if let movie = data.movie {
+                if let movie = club.movies.first {
                     NowShowingView(movie: movie)
                         .tag(1)
                 } else {
@@ -41,7 +39,8 @@ struct ClubDetailView: View {
                         .tag(1)
                 }
                 ComingSoonView(startDate: club.movieEndDate, timeInterval: club.timeInterval)
-                    .tag(2)
+                        .tag(2)
+                
                 ArchivesView()
                     .tag(3)
             }
@@ -50,9 +49,6 @@ struct ClubDetailView: View {
         }
         .toolbar {
             ClubToolbar(club: club)
-        }
-        .task {
-            data.currentClub = club
         }
     }
 }

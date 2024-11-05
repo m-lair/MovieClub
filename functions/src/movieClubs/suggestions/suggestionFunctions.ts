@@ -21,16 +21,15 @@ exports.createMovieClubSuggestion = functions.https.onCall(
     try {
       const { data, auth } = request;
       const { uid } = verifyAuth(auth);
-      const requiredFields = ["imdbId", "username"];
+      const requiredFields = ["imdbId", "userName"];
       verifyRequiredFields(data, requiredFields);
       await verifyMembership(uid, data.clubId);
 
-      const suggestionRef = getMovieClubSuggestionDocRef(uid, data.clubId);
       const suggestionCollection = getMovieClubSuggestionRef(data.clubId);
       
       // Create base suggestion data
       const suggestionData = {
-        username: data.username,
+        userName: data.userName,
         userImage: data.userImage,
         imdbId: data.imdbId,
         userId: data.userId,
@@ -38,12 +37,15 @@ exports.createMovieClubSuggestion = functions.https.onCall(
       };
 
       // Check if suggestion collection is empty
-      const suggestionsSnapshot = await suggestionCollection.get();
+      const suggestionsSnapshot = suggestionCollection.count;
       
-      if (suggestionsSnapshot.empty) {
+      if (suggestionsSnapshot.length === 0) {
         console.log("Suggestion collection is empty!");
         // If empty, write directly to movies collection with additional fields
-        const movieCollectionRef = getMovieRef(data.clubId);
+        const activeMovieRef = await getMovieRef(data.clubId).where("status", "==", "active").get();
+        if (activeMovieRef.empty) {
+        console.log("no active movies");
+        const movieCollectionRef = getMovieRef(data.clubId)
         const clubDoc = await getMovieClubDocRef(data.clubId).get();
         const club = clubDoc.data() as MovieClubData;
      
@@ -62,17 +64,19 @@ exports.createMovieClubSuggestion = functions.https.onCall(
           startDate: startDate,
           endDate: endDate
         };
-        console.log(movieData)
         
         await movieCollectionRef.add(movieData);
         logVerbose("Movie added directly to movies collection!");
+      
       } else {
         // Otherwise, add to suggestions as normal
-        await suggestionRef.set(suggestionData);
+        console.log("Suggestion is empty but there is an active movie");
+        await suggestionCollection.add(suggestionData);
         logVerbose("Suggestion created successfully!");
       }
       
       return;
+    }
     } catch (error) {
       console.log(error)
       handleCatchHttpsError("Error creating Suggestion:", error);

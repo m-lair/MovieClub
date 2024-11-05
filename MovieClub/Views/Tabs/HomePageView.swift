@@ -20,9 +20,12 @@ struct HomePageView: View {
             ScrollView{
                 VStack {
                     if data.userClubs.count > 0 {
-                        ForEach(data.userClubs) { movieClub in
+                        ForEach(data.userClubs, id: \.self) { movieClub in
                             NavigationLink(value: movieClub) {
                                 MovieClubCardView(movieClub: movieClub)
+                            }
+                            .task {
+                                data.currentClub = await data.fetchMovieClub(clubId: movieClub.id ?? "")
                             }
                         }
                     } else {

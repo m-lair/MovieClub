@@ -26,10 +26,10 @@ extension DataManager {
     // MARK: - Create Movie Club
     
     func createMovieClub(movieClub: MovieClub) async throws {
-        let createClub: Callable<MovieClub, MovieClub> = functions.httpsCallable("movieClubs-createMovieClub")
+        let createClub: Callable<MovieClub, String> = functions.httpsCallable("movieClubs-createMovieClub")
         do {
             let result = try await createClub(movieClub)
-            userClubs.append(result)
+            try await fetchUser()
         } catch {
             throw error
         }
@@ -55,7 +55,7 @@ extension DataManager {
             return nil
         }
         do {
-            let movieClub = try snapshot.data(as: MovieClub.self)
+            var movieClub = try snapshot.data(as: MovieClub.self)
             movieClub.id = snapshot.documentID
             
             let moviesSnapshot = try await movieClubCollection()
@@ -69,12 +69,13 @@ extension DataManager {
                 baseMovie.id = document.documentID
                 
                 // Fetch API data for the movie
-                let apiMovie = try await fetchMovieDetails(for: baseMovie)
-                baseMovie.apiData = MovieAPIData(from: apiMovie)
-                
-                // Update state
-                self.movie = baseMovie
+                if let apiMovie = try await fetchMovieDetails(for: baseMovie) {
+                    baseMovie.apiData = MovieAPIData(from: apiMovie)
+                }
+                movieClub.movies.append(baseMovie)
             }
+            
+            
             
             return movieClub
         } catch {
