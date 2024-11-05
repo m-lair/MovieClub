@@ -17,60 +17,46 @@ import FirebaseMessaging
 import FirebaseFunctions
 
 
-@MainActor
-@Observable 
+@Observable @MainActor
 class DataManager: Identifiable {
-    var apiKey: String {
-      get {
-        // 1
-        guard let filePath = Bundle.main.path(forResource: "TMDB-Info", ofType: "plist") else {
-          fatalError("Couldn't find file 'TMDB-Info.plist'.")
-        }
-        // 2
-        let plist = NSDictionary(contentsOfFile: filePath)
-        guard let value = plist?.object(forKey: "KEY") as? String else {
-          fatalError("Couldn't find key 'API_KEY' in 'TMDB-Info.plist'.")
-        }
-        return value
-      }
-    }
+    // MARK: - API Key
+    var apiKey: String
     
+    // MARK: - Movie Data
     var movie: Movie?
-    
     var comments: [Comment] = []
-    var commentsListener: ListenerRegistration?
-    
     var suggestions: [Suggestion] = []
-    var suggestionsListener: ListenerRegistration?
     
-    var userSession: FirebaseAuth.User?
-    
+    // MARK: - User Data
     var currentUser: User?
     var userClubs: [MovieClub] = []
     var currentClub: MovieClub?
     var currentCollection: [CollectionItem] = []
     
+    // MARK: - Computed Properties
     var clubId: String {
         currentClub?.id ?? ""
     }
-    var queue: Membership?
-    var db: Firestore!
-    var auth: Auth!
-    var functions: Functions!
     
+    // MARK: - Firebase References
+    var db: Firestore
+    var functions: Functions
     
-    init(){
-        Task {
-            db = Firestore.firestore()
-            auth = Auth.auth()
-            functions = Functions.functions()
-            if auth.currentUser?.uid != nil {
-                userSession = auth.currentUser
-                try await fetchUser()
-            }
+    // MARK: - Cleanup
+    var commentsListener: ListenerRegistration?
+    var suggestionsListener: ListenerRegistration?
+    
+    init() throws {
+        // Initialize API Key
+        guard let filePath = Bundle.main.path(forResource: "TMDB-Info", ofType: "plist"),
+              let plist = NSDictionary(contentsOfFile: filePath),
+              let key = plist.object(forKey: "KEY") as? String else {
+            throw DataError.invalidAPIKey
         }
+        db = Firestore.firestore()
+        functions = Functions.functions()
+        apiKey = key
     }
-    
     // MARK: - Collection References
     
     func movieClubCollection() -> CollectionReference {
@@ -81,3 +67,24 @@ class DataManager: Identifiable {
         return db.collection("users")
     }
 }
+
+    // MARK: - Error Handling
+extension DataManager {
+    enum DataError: LocalizedError {
+        case invalidAPIKey
+        case firestoreError(Error)
+        case userNotFound
+        
+        var errorDescription: String? {
+            switch self {
+            case .invalidAPIKey:
+                return "Could not load TMDB API key from configuration"
+            case .firestoreError(let error):
+                return "Firestore error: \(error.localizedDescription)"
+            case .userNotFound:
+                return "User not found"
+            }
+        }
+    }
+}
+

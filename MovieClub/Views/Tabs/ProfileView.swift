@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @Environment(DataManager.self) private  var data: DataManager
+    @Environment(AuthManager.self) private var authManager: AuthManager
     @Environment(\.editMode) private var editMode
     @Environment(\.dismiss) private var dismiss
     @State private var edit = false
@@ -19,7 +20,7 @@ struct ProfileView: View {
             AviSelector()
             ProfileDisplayView()
             Button {
-                data.signOut()
+                authManager.signOut()
             } label: {
                 Rectangle()
                     .foregroundColor(.red)
@@ -30,10 +31,4 @@ struct ProfileView: View {
         }
         .navigationTitle("Profile")
     }
-}
-
-
-#Preview {
-    ProfileView()
-        .environment(DataManager())
 }

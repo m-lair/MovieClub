@@ -15,6 +15,7 @@ import FirebaseFunctions
 
 struct SignUpView: View {
     @Environment(DataManager.self) private var data
+    @Environment(AuthManager.self) private var authManager
     @Environment(\.dismiss) var dismiss
     
     @State private var currentNonce: String? = nil
@@ -158,8 +159,8 @@ struct SignUpView: View {
         if errorMessage == "" {
             do{
                 checkEmail()
-                let uid = try await data.createUser(email: email, password:password, displayName:name)
-                try await data.signIn(email: email, password: password)
+                let uid = try await authManager.createUser(email: email, password:password, displayName:name)
+                try await authManager.signIn(email: email, password: password)
                 dismiss()
             } catch {
                 errorMessage = ErrorManager().handleError(error: error)
@@ -181,9 +182,4 @@ struct SignUpView: View {
             }
         }
     }
-}
-
-#Preview {
-    SignUpView()
-        .environment(DataManager())
 }
