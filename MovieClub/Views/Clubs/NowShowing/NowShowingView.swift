@@ -16,7 +16,6 @@ struct NowShowingView: View {
     @State var disliked: Bool = false
     
     @State var movie: Movie
-    
     var progress: Double {
         let now = Date()
         let totalDuration = DateInterval(start: movie.startDate, end: movie.endDate).duration
@@ -81,6 +80,9 @@ struct NowShowingView: View {
                 }
                 CommentsView()
             }
+            .refreshable {
+                await refreshClub()
+            }
             .scrollDismissesKeyboard(.interactively)
             .scrollIndicators(.hidden)
             
@@ -107,6 +109,13 @@ struct NowShowingView: View {
             }
             .padding(.horizontal)
         }
+    }
+    func refreshClub() async {
+        isLoading = true
+        defer { isLoading = false }
+    
+        await data.fetchMovieClub(clubId: data.clubId)
+       
     }
 }
 

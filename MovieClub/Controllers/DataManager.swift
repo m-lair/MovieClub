@@ -22,8 +22,6 @@ class DataManager: Identifiable {
     // MARK: - API Key
     var apiKey: String
     
-    // MARK: - Movie Data
-    var movie: Movie?
     var comments: [Comment] = []
     var suggestions: [Suggestion] = []
     
@@ -36,6 +34,10 @@ class DataManager: Identifiable {
     // MARK: - Computed Properties
     var clubId: String {
         currentClub?.id ?? ""
+    }
+
+    var movieId: String {
+        currentClub?.movies.first?.id ?? ""
     }
     
     // MARK: - Firebase References

@@ -68,14 +68,14 @@ extension DataManager {
                 var baseMovie = try document.data(as: Movie.self)
                 baseMovie.id = document.documentID
                 
+                //TODO: fetch comments??
+                
                 // Fetch API data for the movie
                 if let apiMovie = try await fetchMovieDetails(for: baseMovie) {
                     baseMovie.apiData = MovieAPIData(from: apiMovie)
                 }
                 movieClub.movies.append(baseMovie)
             }
-            
-            
             
             return movieClub
         } catch {

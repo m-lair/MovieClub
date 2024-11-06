@@ -23,24 +23,24 @@ exports.postComment = functions.https.onCall(
 
       const { uid } = verifyAuth(auth);
 
-      const requiredFields = ["movieClubId", "movieId", "text", "username"];
+      const requiredFields = ["clubId", "movieId", "text", "userName"];
       verifyRequiredFields(data, requiredFields);
-      await verifyMembership(uid, data.movieClubId);
+      await verifyMembership(uid, data.clubId);
 
       const commentsRef = firestore
         .collection(MOVIE_CLUBS)
-        .doc(data.movieClubId)
+        .doc(data.clubId)
         .collection(MOVIES)
         .doc(data.movieId)
         .collection(COMMENTS);
 
       const commentData = {
         userId: uid,
-        username: data.username,
+        userName: data.userName,
         text: data.text,
         likes: 0,
         image: data.image || "",
-        createdAt: Date.now(),
+        createdAt: new Date(),
       };
 
       const commentDoc = await commentsRef.add(commentData);
@@ -66,7 +66,7 @@ exports.deleteComment = functions.https.onCall(
 
       const commentRef = firestore
         .collection(MOVIE_CLUBS)
-        .doc(data.movieClubId)
+        .doc(data.clubId)
         .collection(MOVIES)
         .doc(data.movieId)
         .collection(COMMENTS)

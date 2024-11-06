@@ -49,7 +49,7 @@
 		2C3580772CD9350E00DE7D47 /* TMDB-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2C3580762CD9350E00DE7D47 /* TMDB-Info.plist */; };
 		2C4474F82C06DD310034204C /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4474F72C06DD310034204C /* HeaderView.swift */; };
 		2C4475002C06DE3A0034204C /* FeaturedMovieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4474FF2C06DE3A0034204C /* FeaturedMovieView.swift */; };
-		2C4475022C06DE4F0034204C /* CommentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475012C06DE4F0034204C /* CommentView.swift */; };
+		2C4475022C06DE4F0034204C /* CommentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475012C06DE4F0034204C /* CommentsView.swift */; };
 		2C4475042C06DE6B0034204C /* CommentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475032C06DE6B0034204C /* CommentDetailView.swift */; };
 		2C4475062C17CFFC0034204C /* CommentInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4475052C17CFFC0034204C /* CommentInputView.swift */; };
 		2C44750F2C2A6C2D0034204C /* UserEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C44750E2C2A6C2D0034204C /* UserEditView.swift */; };
@@ -143,7 +143,7 @@
 		2C3580762CD9350E00DE7D47 /* TMDB-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TMDB-Info.plist"; sourceTree = "<group>"; };
 		2C4474F72C06DD310034204C /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		2C4474FF2C06DE3A0034204C /* FeaturedMovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturedMovieView.swift; sourceTree = "<group>"; };
-		2C4475012C06DE4F0034204C /* CommentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentView.swift; sourceTree = "<group>"; };
+		2C4475012C06DE4F0034204C /* CommentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsView.swift; sourceTree = "<group>"; };
 		2C4475032C06DE6B0034204C /* CommentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentDetailView.swift; sourceTree = "<group>"; };
 		2C4475052C17CFFC0034204C /* CommentInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentInputView.swift; sourceTree = "<group>"; };
 		2C44750E2C2A6C2D0034204C /* UserEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserEditView.swift; sourceTree = "<group>"; };
@@ -276,7 +276,7 @@
 			children = (
 				2C4475032C06DE6B0034204C /* CommentDetailView.swift */,
 				2C4475052C17CFFC0034204C /* CommentInputView.swift */,
-				2C4475012C06DE4F0034204C /* CommentView.swift */,
+				2C4475012C06DE4F0034204C /* CommentsView.swift */,
 			);
 			path = CommentViews;
 			sourceTree = "<group>";
@@ -762,7 +762,7 @@
 				2C11FFFA2CA3816E004F54BC /* UserMembership.swift in Sources */,
 				2C11FFFE2CA38380004F54BC /* UserManager.swift in Sources */,
 				2CD71FE02CBAFFF100F9CF58 /* ImageManager.swift in Sources */,
-				2C4475022C06DE4F0034204C /* CommentView.swift in Sources */,
+				2C4475022C06DE4F0034204C /* CommentsView.swift in Sources */,
 				2C87B2AB2C6C072E00A49B2B /* UserMembershipsView.swift in Sources */,
 				2C44751B2C4C63AB0034204C /* NowShowingView.swift in Sources */,
 				2C8256C12BF1E8FE00D2ED12 /* ProfileView.swift in Sources */,

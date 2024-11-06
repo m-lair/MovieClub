@@ -29,7 +29,8 @@ struct HomePageView: View {
                                 MovieClubCardView(movieClub: movieClub)
                             }
                             .task {
-                                data.currentClub = await data.fetchMovieClub(clubId: movieClub.id ?? "")
+                                print("current club: \(data.currentClub?.name ?? "none")")
+                                data.currentClub = movieClub
                             }
                         }
                     } else {

@@ -62,6 +62,7 @@ struct ComingSoonView: View {
             setupSuggestionsListener()
         }
         .onDisappear {
+            data.suggestions = []
             data.suggestionsListener?.remove()
             data.suggestionsListener = nil
         }
@@ -84,7 +85,6 @@ struct ComingSoonView: View {
                 .padding([.top, .leading])
                 newSuggestionButton
             }
-            
         }
     }
     

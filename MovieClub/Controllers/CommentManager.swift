@@ -25,38 +25,34 @@ extension DataManager {
 
     // MARK: - (Deprecated) Fetch Comments
     
-    func fetchComments(movieClubId: String, movieId: String) async -> [Comment] {
-        do {
-            let querySnapshot = try await movieClubCollection()
-                .document(movieClubId)
-                .collection("movies")
-                .document(movieId)
-                .collection("comments")
-                .order(by: "createdAt", descending: true)
-                .getDocuments()
-            let comments = querySnapshot.documents.compactMap { document in
-                do {
-                    return try document.data(as: Comment.self)
-                } catch {
-                    print("Error decoding comment \(document.documentID): \(error)")
-                    return nil
-                }
+    func fetchComments(clubId: String, movieId: String) async throws -> [Comment] {
+        
+        let snapshot = try await movieClubCollection()
+            .document(clubId)
+            .collection("movies")
+            .document(movieId)
+            .collection("comments")
+            .order(by: "createdAt", descending: true)
+            .getDocuments()
+        
+        return snapshot.documents.compactMap { document -> Comment? in
+            do {
+                let comment = try document.data(as: Comment.self)
+                comment.id = document.documentID
+                return comment
+            } catch {
+                print("Error decoding comment \(document.documentID): \(error)")
+                return nil
             }
-            return comments
-        } catch {
-            print("Error fetching comments: \(error)")
-            return []
         }
     }
     
     //MARK: - CommentListener
     
-    func listenForComments() throws {
-        guard
-            let movieId = movie?.id,
-            let clubId = currentClub?.id
-        else {
-            throw CommentError.invalidData
+    func listenToComments(movieId: String) {
+        guard !movieId.isEmpty else {
+            print("Invalid Club ID")
+            return
         }
         
         let commentsRef = movieClubCollection()
@@ -80,9 +76,12 @@ extension DataManager {
                 return
             }
             
-            comments = snapshot.documents.compactMap { document in
+            comments = snapshot.documents.compactMap { document -> Comment? in
                 do {
-                    return try document.data(as: Comment.self)
+                    var comment = try document.data(as: Comment.self)
+                    comment.id = document.documentID
+                    print("comment id: \(comment.id)")
+                    return comment
                 } catch {
                     print("Error decoding comment: \(error)")
                     return nil
@@ -114,18 +113,20 @@ extension DataManager {
     
     // MARK: - Post Comment
 
-    func postComment(movieClubId: String, movieId: String, comment: Comment) async throws {
+    func postComment(clubId: String, movieId: String, comment: Comment) async throws {
         let parameters: [String: Any] = [
             "text" : comment.text,
             "userId": comment.userId,
-            "username": comment.userName,
-            "movieClubId": movieClubId,
+            "userName": comment.userName,
+            "clubId": clubId,
             "movieId": movieId
         ]
         
         do {
             _ = try await functions.httpsCallable("comments-postComment").call(parameters)
+            print("posted comment")
         } catch {
+            print("error posting comment: \(error)")
             throw error
         }
     }

@@ -40,7 +40,7 @@ final class Comment: Identifiable, Codable, Hashable, Equatable {
         id = try container.decodeIfPresent(String.self, forKey: .id)
         userId = try container.decode(String.self, forKey: .userId)
         image = try container.decodeIfPresent(String.self, forKey: .image)
-        userName = try container.decode(String.self, forKey: .username)
+        userName = try container.decode(String.self, forKey: .userName)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
         text = try container.decode(String.self, forKey: .text)
         likes = try container.decodeIfPresent(Int.self, forKey: .likes) ?? 0
@@ -51,31 +51,16 @@ final class Comment: Identifiable, Codable, Hashable, Equatable {
         try container.encodeIfPresent(id, forKey: .id)
         try container.encode(userId, forKey: .userId)
         try container.encodeIfPresent(image, forKey: .image)
+        try container.encode(userName, forKey: .image)
     }
     
     enum CodingKeys: String, CodingKey {
         case id
         case userId
         case image
-        case username
+        case userName
         case createdAt
         case text
         case likes
-    }
-    
-    
-    static func == (lhs: Comment, rhs: Comment) -> Bool {
-        return lhs.id == rhs.id && lhs.userId == rhs.userId
-    }
-    
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-        hasher.combine(userId)
-        hasher.combine(image)
-        hasher.combine(createdAt)
-        hasher.combine(text)
-        hasher.combine(likes)
-     
     }
 }

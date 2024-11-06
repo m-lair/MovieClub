@@ -49,9 +49,7 @@ struct CommentInputView: View {
     
     private func submitComment() async throws {
         guard
-            let userId = data.currentUser?.id,
-            let clubId = data.currentClub?.id,
-            let userName = data.currentUser?.name
+            let userId = data.currentUser?.id
         else {
             errorShowing.toggle()
             self.error = "Could not get all comment information"
@@ -60,8 +58,7 @@ struct CommentInputView: View {
         let newComment = Comment(id: UUID().uuidString, userId: userId, userName: "duhmarcus", createdAt: Date(), text: commentText, likes: 0)
         //could hand back result objects and contionally navigate based on fails
         do {
-            data.comments.append(newComment)
-            try await data.postComment(movieClubId: clubId, movieId: movieId, comment: newComment)
+            try await data.postComment(clubId: data.clubId, movieId: movieId, comment: newComment)
         } catch DataManager.CommentError.invalidData {
             errorShowing.toggle()
             self.error = "Could not encode comment"

@@ -14,7 +14,7 @@ import AuthenticationServices
 @Observable
 class AuthManager {
     var authCurrentUser: FirebaseAuth.User?
-    private var authState: AuthStateDidChangeListenerHandle?
+    var authState: AuthStateDidChangeListenerHandle?
     
     init() {
         registerStateListener()

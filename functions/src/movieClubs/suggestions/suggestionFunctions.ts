@@ -34,7 +34,7 @@ exports.createMovieClubSuggestion = functions.https.onCall(
         imdbId: data.imdbId,
         userId: data.userId,
         clubId: data.clubId,
-        createdAt: Date.now()
+        createdAt: new Date()
       };
 
       // Check if suggestion collection is empty
