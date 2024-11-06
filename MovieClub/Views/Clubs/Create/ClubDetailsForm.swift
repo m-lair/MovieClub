@@ -105,6 +105,7 @@ struct ClubDetailsForm: View {
              authorAvi: user.image ?? "")*/
         do {
             try await data.createMovieClub(movieClub: movieClub)
+            data.currentClub = movieClub
             navPath.removeLast(navPath.count)
             
         }catch{

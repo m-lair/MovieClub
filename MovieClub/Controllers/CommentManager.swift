@@ -51,7 +51,7 @@ extension DataManager {
     
     func listenToComments(movieId: String) {
         guard !movieId.isEmpty else {
-            print("Invalid Club ID")
+            print("movieId is empty")
             return
         }
         

@@ -24,6 +24,7 @@ class DataManager: Identifiable {
     
     var comments: [Comment] = []
     var suggestions: [Suggestion] = []
+    var movies: [Movie] = []
     
     // MARK: - User Data
     var currentUser: User?
@@ -39,6 +40,7 @@ class DataManager: Identifiable {
     var movieId: String {
         currentClub?.movies.first?.id ?? ""
     }
+    
     
     // MARK: - Firebase References
     var db: Firestore

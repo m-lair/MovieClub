@@ -74,6 +74,7 @@ extension DataManager {
                 if let apiMovie = try await fetchMovieDetails(for: baseMovie) {
                     baseMovie.apiData = MovieAPIData(from: apiMovie)
                 }
+                movies = [baseMovie]
                 movieClub.movies.append(baseMovie)
             }
             

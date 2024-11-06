@@ -50,9 +50,6 @@ struct CreateSuggestionView: View {
                         }
                     }
                 }
-                
-                
-                
                 Spacer()
             }
             .alert(errorMessage, isPresented: $errorShowing) {
@@ -60,7 +57,7 @@ struct CreateSuggestionView: View {
             }
         }
     }
-
+    
     func searchMovies() async throws {
         guard !search.isEmpty else {
             searchResults = []
@@ -86,13 +83,30 @@ struct CreateSuggestionView: View {
             let username = data.currentUser?.name,
             let userId = data.currentUser?.id
         else {
+            print("clubId \(data.clubId), username \(data.currentUser?.name), userId are nil \(data.currentUser?.id)")
             errorMessage = "invalid user data"
             errorShowing = true
             return
         }
         let newSuggestion = Suggestion(imdbId: imdbId, userId: userId, userImage: "image", userName: username, clubId: clubId)
+        
+        if data.movieId.isEmpty && data.suggestions.isEmpty {
+            let startDate = Date()
+            guard
+                let timeinterval = data.currentClub?.timeInterval,
+                let endDate = Calendar.current.date(byAdding: .weekOfYear, value: timeinterval, to: startDate)
+            else {
+                errorMessage = "something went wrong"
+                errorShowing = true
+                return
+            }
+            
+        let newMovie = Movie(userId: userId, imdbId: imdbId, startDate: startDate, endDate: endDate, userName: username, status: "active")
+            
+        }
         let _ = try await data.createSuggestion(suggestion: newSuggestion)
-        data.currentClub?.suggestions?.append(newSuggestion)
+        await data.fetchMovieClub(clubId: clubId)
         dismiss()
     }
 }
+

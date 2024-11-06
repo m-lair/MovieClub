@@ -15,79 +15,90 @@ struct NowShowingView: View {
     @State var liked: Bool = false
     @State var disliked: Bool = false
     
-    @State var movie: Movie
+    var movies: [Movie] { data.movies }
     var progress: Double {
         let now = Date()
-        let totalDuration = DateInterval(start: movie.startDate, end: movie.endDate).duration
-        let elapsedDuration = DateInterval(start: movie.startDate, end: min(now, movie.endDate)).duration
-        
-        return (elapsedDuration / totalDuration)
+        if let movie = movies.first {
+            let totalDuration = DateInterval(start: movie.startDate, end: movie.endDate).duration
+            let elapsedDuration = DateInterval(start: movie.startDate, end: min(now, movie.endDate)).duration
+            return (elapsedDuration / totalDuration)
+        }
+        return 0
     }
-    
     @State private var width = UIScreen.main.bounds.width
+    
     var body: some View {
         VStack {
-            ScrollView {
-                FeaturedMovieView(collected: collected, movie: movie)
-                HStack {
-                    Label("\(movie.userName)", systemImage: "hand.point.up.left.fill")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .padding()
-                    Spacer()
-                    Button {
-                        collected.toggle()
-                        Task {
-                            data.currentCollection.append(CollectionItem(url: "matrixPoster", color: .brown))
+            if let movie = movies.first {
+                let _ = print("\(movie.title)")
+                ScrollView {
+                    FeaturedMovieView(collected: collected, movie: movie)
+                    HStack {
+                        Label("\(movie.userName)", systemImage: "hand.point.up.left.fill")
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .padding()
+                        Spacer()
+                        Button {
+                            collected.toggle()
+                            Task {
+                                data.currentCollection.append(CollectionItem(url: "matrixPoster", color: .brown))
+                            }
+                        } label: {
+                            CollectButton(collected: $collected)
                         }
-                    } label: {
-                        CollectButton(collected: $collected)
+                        
+                        Button {
+                            liked.toggle()
+                        } label: {
+                            Image(systemName: "hand.thumbsup.circle.fill")
+                                .resizable()
+                                .frame(width: 30, height: 30)
+                                .foregroundStyle(liked ? .green : .white)
+                        }
+                        
+                        Button {
+                            disliked.toggle()
+                        } label: {
+                            Image(systemName: "hand.thumbsdown.circle.fill")
+                                .resizable()
+                                .frame(width: 30, height: 30)
+                                .foregroundStyle(disliked ? .red : .white)
+                        }
                     }
+                    .padding(.trailing, 20)
                     
-                    Button {
-                        liked.toggle()
-                    } label: {
-                        Image(systemName: "hand.thumbsup.circle.fill")
-                            .resizable()
-                            .frame(width: 30, height: 30)
-                            .foregroundStyle(liked ? .green : .white)
+                    HStack {
+                        Text(movie.startDate, format: .dateTime.day().month())
+                            .font(.title3)
+                            .textCase(.uppercase)
+                        
+                        ProgressView(value: progress)
+                            .progressViewStyle(ClubProgressViewStyle())
+                            .frame(height: 10)
+                        
+                        Text(movie.endDate, format: .dateTime.day().month())
+                            .font(.title3)
+                            .textCase(.uppercase)
+                        
                     }
-                    
-                    Button {
-                        disliked.toggle()
-                    } label: {
-                        Image(systemName: "hand.thumbsdown.circle.fill")
-                            .resizable()
-                            .frame(width: 30, height: 30)
-                            .foregroundStyle(disliked ? .red : .white)
-                    }
+                    CommentsView()
                 }
-                .padding(.trailing, 20)
                 
-                HStack {
-                    Text(movie.startDate, format: .dateTime.day().month())
-                        .font(.title3)
-                        .textCase(.uppercase)
-                    
-                    ProgressView(value: progress)
-                        .progressViewStyle(ClubProgressViewStyle())
-                        .frame(height: 10)
-                    
-                    Text(movie.endDate, format: .dateTime.day().month())
-                        .font(.title3)
-                        .textCase(.uppercase)
-                    
+                .scrollDismissesKeyboard(.interactively)
+                .scrollIndicators(.hidden)
+                
+                CommentInputView(movieId: movie.id ?? "")
+                
+            } else {
+                Button("No Movies Coming Up") {
+                    Task {
+                        await refreshClub()
+                    }
                 }
-                CommentsView()
+                .foregroundStyle(.black)
+                .buttonStyle(.borderedProminent)
             }
-            .refreshable {
-                await refreshClub()
-            }
-            .scrollDismissesKeyboard(.interactively)
-            .scrollIndicators(.hidden)
-            
-            CommentInputView(movieId: movie.id ?? "")
-            
         }
     }
     
@@ -113,7 +124,7 @@ struct NowShowingView: View {
     func refreshClub() async {
         isLoading = true
         defer { isLoading = false }
-    
+        print("clubId: \(data.clubId)")
         await data.fetchMovieClub(clubId: data.clubId)
        
     }

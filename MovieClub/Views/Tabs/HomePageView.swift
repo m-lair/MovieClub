@@ -27,11 +27,9 @@ struct HomePageView: View {
                         ForEach(userClubs, id: \.self) { movieClub in
                             NavigationLink(value: movieClub) {
                                 MovieClubCardView(movieClub: movieClub)
+                                
                             }
-                            .task {
-                                print("current club: \(data.currentClub?.name ?? "none")")
-                                data.currentClub = movieClub
-                            }
+                            
                         }
                     } else {
                         Text("\(userClubs.count) clubs found")
