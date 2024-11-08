@@ -18,24 +18,24 @@ struct ComingSoonView: View {
     
     let startDate: Date?
     let timeInterval: Int
-    
-    var suggestions: [Suggestion] {
-        data.suggestions
-    }
+    var clubId: String { data.clubId }
+    var suggestions: [Suggestion] { data.suggestions }
     
     var body: some View {
-        Group {
-            if suggestions.isEmpty {
-                VStack {
-                    if isLoading {
-                        ProgressView()
-                    } else {
-                        Text("No Suggestions Yet")
-                        newSuggestionButton
+        VStack {
+            Group {
+                if suggestions.isEmpty {
+                    VStack {
+                        if isLoading {
+                            ProgressView()
+                        } else {
+                            Text("No Suggestions Yet")
+                            newSuggestionButton
+                        }
                     }
+                } else {
+                    suggestionsList
                 }
-            } else {
-                suggestionsList
             }
         }
         .refreshable {
@@ -62,6 +62,7 @@ struct ComingSoonView: View {
             setupSuggestionsListener()
         }
         .onDisappear {
+            data.suggestions = []
             data.suggestionsListener?.remove()
             data.suggestionsListener = nil
         }
@@ -70,6 +71,16 @@ struct ComingSoonView: View {
     private var suggestionsList: some View {
         ScrollView {
             VStack {
+                HStack {
+                    Text("Suggestions")
+                        .font(.headline)
+                    Spacer()
+                    Text("Begins")
+                        .font(.headline)
+                }
+                .padding(.horizontal
+                )
+                Divider()
                 ForEach(Array(suggestions.enumerated()), id: \.1.id) { index, suggestion in
                     HStack {
                         ComingSoonRowView(suggestion: suggestion)
@@ -82,14 +93,13 @@ struct ComingSoonView: View {
                     }
                 }
                 .padding([.top, .leading])
-                
                 newSuggestionButton
             }
         }
     }
     
     private var newSuggestionButton: some View {
-        Button("New Suggestion") {
+        Button("Create Suggestion") {
             creatingSuggestion = true
         }
         .foregroundStyle(.black)
@@ -97,14 +107,15 @@ struct ComingSoonView: View {
     }
     
     private func computedDateString(for index: Int) -> String? {
-        guard let startDate = startDate else { return nil }
+        guard let startDate = startDate else {
+            print("no start date")
+            return nil }
         let weeksToAdd = timeInterval * (index + 1)
         return Calendar.current.date(byAdding: .weekOfYear, value: weeksToAdd, to: startDate)?
             .formatted(date: .abbreviated, time: .omitted)
     }
     
     private func setupSuggestionsListener()  {
-        guard let clubId = data.currentClub?.id else { return }
         data.listenToSuggestions(clubId: clubId)
     }
     

@@ -22,10 +22,9 @@ class DataManager: Identifiable {
     // MARK: - API Key
     var apiKey: String
     
-    // MARK: - Movie Data
-    var movie: Movie?
     var comments: [Comment] = []
     var suggestions: [Suggestion] = []
+    var movies: [Movie] = []
     
     // MARK: - User Data
     var currentUser: User?
@@ -37,6 +36,11 @@ class DataManager: Identifiable {
     var clubId: String {
         currentClub?.id ?? ""
     }
+
+    var movieId: String {
+        currentClub?.movies.first?.id ?? ""
+    }
+    
     
     // MARK: - Firebase References
     var db: Firestore

@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct EmptyMovieView: View {
+    @Environment(DataManager.self) var data
     var body: some View {
         VStack {
-            Text("No Upcoming Movies, Go Suggest One!")
+            
         }
     }
 }

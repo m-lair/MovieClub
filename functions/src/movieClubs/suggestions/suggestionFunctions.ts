@@ -4,7 +4,7 @@ import { verifyMembership } from "src/users/memberships/membershipHelpers";
 import { CreateMovieClubSuggestionData, DeleteMovieClubSuggestionData } from "./suggestionTypes";
 import { getMovieClubSuggestionRef } from "./suggestionHelpers";
 import { getMovieClubSuggestionDocRef } from "./suggestionHelpers";
-import { getMovieRef } from "../movies/movieHelpers";
+import { getMovieRef, getMovieClubMovieStatus } from "../movies/movieHelpers";
 import { getMovieClubDocRef } from "../../movieClubs/movieClubHelpers";
 
 import {
@@ -28,50 +28,27 @@ exports.createMovieClubSuggestion = functions.https.onCall(
       const suggestionCollection = getMovieClubSuggestionRef(data.clubId);
       
       // Create base suggestion data
-      const suggestionData = {
+      const suggestionData: CreateMovieClubSuggestionData = {
         userName: data.userName,
         userImage: data.userImage,
         imdbId: data.imdbId,
         userId: data.userId,
-        createdAt: Date.now()
+        clubId: data.clubId,
+        createdAt: new Date()
       };
 
       // Check if suggestion collection is empty
       const suggestionsSnapshot = suggestionCollection.count;
       
       if (suggestionsSnapshot.length === 0) {
-        console.log("Suggestion collection is empty!");
-        // If empty, write directly to movies collection with additional fields
-        const activeMovieRef = await getMovieRef(data.clubId).where("status", "==", "active").get();
+        const activeMovieRef = await getMovieClubMovieStatus(data.clubId);
         if (activeMovieRef.empty) {
-        console.log("no active movies");
-        const movieCollectionRef = getMovieRef(data.clubId)
-        const clubDoc = await getMovieClubDocRef(data.clubId).get();
-        const club = clubDoc.data() as MovieClubData;
-     
-        const startDate = new Date();
-        const endDate = new Date();
-
-        endDate.setDate(endDate.getDate() + (Number(club.timeInterval) * 7));
-
-        const movieData: MovieData = {
-          ...suggestionData,
-          likes: 0,
-          dislikes: 0,
-          numCollected: 0,
-          numComments: 0,
-          status: 'active',
-          startDate: startDate,
-          endDate: endDate
-        };
-        
-        await movieCollectionRef.add(movieData);
-        logVerbose("Movie added directly to movies collection!");
-      
+          setMovieFromSuggestion(uid, data.clubId, suggestionData);
       } else {
         // Otherwise, add to suggestions as normal
         console.log("Suggestion is empty but there is an active movie");
         await suggestionCollection.add(suggestionData);
+        return;
         logVerbose("Suggestion created successfully!");
       }
       
@@ -83,6 +60,30 @@ exports.createMovieClubSuggestion = functions.https.onCall(
     }
   }
 );
+
+export const setMovieFromSuggestion = async (uid: string, movieClubId: string, suggestionData: CreateMovieClubSuggestionData) => {
+  const movieCollectionRef = getMovieRef(movieClubId);
+  const clubDoc = await getMovieClubDocRef(movieClubId).get();
+  const club = clubDoc.data() as MovieClubData;
+
+  const startDate = new Date();
+  const endDate = new Date();
+
+  endDate.setDate(endDate.getDate() + (Number(club.timeInterval) * 7));
+
+  const movieData: MovieData = {
+    ...suggestionData,
+    likes: 0,
+    dislikes: 0,
+    numCollected: 0,
+    numComments: 0,
+    status: 'active',
+    startDate: startDate,
+    endDate: endDate
+  };
+  
+  await movieCollectionRef.add(movieData);
+};
 
 exports.deleteUserMovieClubSuggestion = functions.https.onCall(
   async (request: CallableRequest<DeleteMovieClubSuggestionData>) => {

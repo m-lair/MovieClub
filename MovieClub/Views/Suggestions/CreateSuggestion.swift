@@ -7,10 +7,6 @@
 
 import SwiftUI
 
-extension DataManager {
-    
-}
-
 struct CreateSuggestionView: View {
     @Environment(DataManager.self) var data
     @Environment(\.dismiss) var dismiss
@@ -18,31 +14,27 @@ struct CreateSuggestionView: View {
     @State var search: String = ""
     @FocusState var isSearching: Bool
     @State var searchResults: [MovieSearchResult] = []
-    @State var suggestions: [Suggestion] = []
-    @State var isShowingSuggestions = false
     
     @State var errorMessage: String = ""
     @State var errorShowing: Bool = false
     
     var body: some View {
-        VStack {
-            Text("Create Suggestion")
-                .font(.title)
-                .padding()
-            
-            TextField("Search for a movie", text: $search)
-                .padding()
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .focused($isSearching)
-                .onChange(of: search) {
-                    Task {
-                      try await searchMovies()
+        NavigationStack {
+            VStack {
+                Text("Create Suggestion")
+                    .font(.title)
+                    .padding()
+                
+                TextField("Search for a movie", text: $search)
+                    .padding()
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .focused($isSearching)
+                    .onChange(of: search) {
+                        Task {
+                            try await searchMovies()
+                        }
                     }
-                }
-            
-            if isSearching {
-               
-            } else {
+                
                 List(searchResults, id: \.id) { movie in
                     Button{
                         Task {
@@ -58,17 +50,14 @@ struct CreateSuggestionView: View {
                         }
                     }
                 }
+                Spacer()
             }
-            
-            Spacer()
-        }
-        .navigationBarTitleDisplayMode(.inline)
-        .alert(errorMessage, isPresented: $errorShowing) {
-            Button("OK", role: .cancel) { }
+            .alert(errorMessage, isPresented: $errorShowing) {
+                Button("OK", role: .cancel) { }
+            }
         }
     }
-
-
+    
     func searchMovies() async throws {
         guard !search.isEmpty else {
             searchResults = []
@@ -76,7 +65,7 @@ struct CreateSuggestionView: View {
         }
         
         // Debounce search
-        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+        try? await Task.sleep(nanoseconds: 500_000) // 0.05 seconds
         
         // Check if search text hasn't changed
         guard search == search else { return }
@@ -99,8 +88,24 @@ struct CreateSuggestionView: View {
             return
         }
         let newSuggestion = Suggestion(imdbId: imdbId, userId: userId, userImage: "image", userName: username, clubId: clubId)
+        
+        if data.movieId.isEmpty && data.suggestions.isEmpty {
+            let startDate = Date()
+            guard
+                let timeinterval = data.currentClub?.timeInterval,
+                let endDate = Calendar.current.date(byAdding: .weekOfYear, value: timeinterval, to: startDate)
+            else {
+                errorMessage = "something went wrong"
+                errorShowing = true
+                return
+            }
+            
+        let newMovie = Movie(userId: userId, imdbId: imdbId, startDate: startDate, endDate: endDate, userName: username, status: "active")
+            
+        }
         let _ = try await data.createSuggestion(suggestion: newSuggestion)
-        data.currentClub?.suggestions?.append(newSuggestion)
+        _ = await data.fetchMovieClub(clubId: clubId)
         dismiss()
     }
 }
+

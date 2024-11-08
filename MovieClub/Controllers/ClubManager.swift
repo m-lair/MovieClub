@@ -72,10 +72,10 @@ extension DataManager {
                 if let apiMovie = try await fetchMovieDetails(for: baseMovie) {
                     baseMovie.apiData = MovieAPIData(from: apiMovie)
                 }
+                movies = [baseMovie]
+                movieClub.movieEndDate = baseMovie.endDate
                 movieClub.movies.append(baseMovie)
             }
-            
-            
             
             return movieClub
         } catch {

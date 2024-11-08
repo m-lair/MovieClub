@@ -10,6 +10,29 @@ import Foundation
 // MARK: - DataManager Extension
 extension DataManager {
     
+    func fetchMovies(clubId: String) async throws {
+        let moviesSnapshot = try await movieClubCollection()
+            .document(clubId)
+            .collection("movies")
+            .order(by: "endDate", descending: false)
+            .limit(to: 1)
+            .getDocuments()
+        
+        for document in moviesSnapshot.documents {
+            var baseMovie = try document.data(as: Movie.self)
+            baseMovie.id = document.documentID
+            
+            //TODO: fetch comments??
+            
+            // Fetch API data for the movie
+            if let apiMovie = try await fetchMovieDetails(for: baseMovie) {
+                baseMovie.apiData = MovieAPIData(from: apiMovie)
+            }
+            currentClub?.movies.append(baseMovie)
+        }
+        
+    }
+    
     func fetchMovieDetails(for movie: Movie) async throws -> MovieAPIResponse? {
         let urlString = "https://omdbapi.com/?i=\(movie.imdbId)&apikey=ab92d369&plot=full"
         

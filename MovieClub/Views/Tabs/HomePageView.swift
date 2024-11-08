@@ -19,7 +19,7 @@ struct HomePageView: View {
     }
     var body: some View {
         ZStack{
-            Color.gray.ignoresSafeArea()
+            Color.black.ignoresSafeArea()
                 .overlay(Color.black.opacity(0.7))
             ScrollView{
                 VStack {
@@ -27,13 +27,14 @@ struct HomePageView: View {
                         ForEach(userClubs, id: \.self) { movieClub in
                             NavigationLink(value: movieClub) {
                                 MovieClubCardView(movieClub: movieClub)
+                                
                             }
-                            .task {
-                                data.currentClub = await data.fetchMovieClub(clubId: movieClub.id ?? "")
-                            }
+                            
                         }
                     } else {
-                        Text("\(userClubs.count) clubs found")
+                        VStack {
+                            ProgressView()
+                        }
                     }
                 }
                 .toolbar {

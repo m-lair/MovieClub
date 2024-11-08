@@ -104,7 +104,7 @@ extension DataManager {
         
         return snapshot.documents.compactMap { document -> Suggestion? in
             do {
-                var suggestion = try document.data(as: Suggestion.self)
+                let suggestion = try document.data(as: Suggestion.self)
                 suggestion.id = document.documentID
                 return suggestion
             } catch {

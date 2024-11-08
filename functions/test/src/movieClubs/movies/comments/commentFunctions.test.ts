@@ -56,11 +56,14 @@ describe("Comment Functions", () => {
 
     beforeEach(async () => {
       commentData = {
-        movieClubId: movieClub.id,
+        clubId: movieClub.id,
         movieId: movie.id,
         text: text,
         userId: user.id,
-        username: user.name,
+        userName: user.name,
+        image: user.image,
+        likes: 0,
+        createdAt: new Date(),
       };
     });
 
@@ -122,7 +125,7 @@ describe("Comment Functions", () => {
     beforeEach(async () => {
       commentData = {
         id: "",
-        movieClubId: movieClub.id,
+        clubId: movieClub.id,
         movieId: movie.id,
       };
 

@@ -4,6 +4,7 @@ export interface CreateMovieClubSuggestionData {
   imdbId: string;
   userId: string;
   userName: string;
+  createdAt?: Date;
 }
 
 export interface DeleteMovieClubSuggestionData {

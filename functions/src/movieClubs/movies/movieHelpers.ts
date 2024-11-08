@@ -12,3 +12,6 @@ export const getMovieDocRef = (uid: string, movieClubId: string) => {
   return getMovieRef(movieClubId).doc(uid);
 };
 
+export const getMovieClubMovieStatus = async (movieClubId: string) => {
+  return getMovieRef(movieClubId).where("status", "==", "active").get();
+}

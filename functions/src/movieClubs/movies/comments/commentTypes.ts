@@ -1,14 +1,14 @@
 export interface CommentData {
   text: string;
   userId: string;
-  username: string;
+  userName: string;
   image?: string;
-  likes?: number;
-  createdAt?: number;
+  likes: number;
+  createdAt: Date;
 }
 
 interface CommentDataAssociations {
-  movieClubId: string;
+  clubId: string;
   movieId: string;
 }
 
