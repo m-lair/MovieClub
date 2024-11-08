@@ -83,7 +83,6 @@ struct CreateSuggestionView: View {
             let username = data.currentUser?.name,
             let userId = data.currentUser?.id
         else {
-            print("clubId \(data.clubId), username \(data.currentUser?.name), userId are nil \(data.currentUser?.id)")
             errorMessage = "invalid user data"
             errorShowing = true
             return
@@ -105,7 +104,7 @@ struct CreateSuggestionView: View {
             
         }
         let _ = try await data.createSuggestion(suggestion: newSuggestion)
-        await data.fetchMovieClub(clubId: clubId)
+        _ = await data.fetchMovieClub(clubId: clubId)
         dismiss()
     }
 }

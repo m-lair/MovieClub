@@ -19,7 +19,7 @@ struct HomePageView: View {
     }
     var body: some View {
         ZStack{
-            Color.gray.ignoresSafeArea()
+            Color.black.ignoresSafeArea()
                 .overlay(Color.black.opacity(0.7))
             ScrollView{
                 VStack {
@@ -32,7 +32,9 @@ struct HomePageView: View {
                             
                         }
                     } else {
-                        Text("\(userClubs.count) clubs found")
+                        VStack {
+                            ProgressView()
+                        }
                     }
                 }
                 .toolbar {

@@ -92,8 +92,6 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         try container.encode(createdAt, forKey: .createdAt)
         try container.encode(timeInterval, forKey: .timeInterval)
         try container.encode(bannerUrl, forKey: .bannerUrl)
-        
-        
         try container.encode(ownerName, forKey: .ownerName)
         try container.encode(desc, forKey: .desc)
         try container.encode(ownerId, forKey: .ownerId)

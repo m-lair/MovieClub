@@ -71,6 +71,16 @@ struct ComingSoonView: View {
     private var suggestionsList: some View {
         ScrollView {
             VStack {
+                HStack {
+                    Text("Suggestions")
+                        .font(.headline)
+                    Spacer()
+                    Text("Begins")
+                        .font(.headline)
+                }
+                .padding(.horizontal
+                )
+                Divider()
                 ForEach(Array(suggestions.enumerated()), id: \.1.id) { index, suggestion in
                     HStack {
                         ComingSoonRowView(suggestion: suggestion)
@@ -97,7 +107,9 @@ struct ComingSoonView: View {
     }
     
     private func computedDateString(for index: Int) -> String? {
-        guard let startDate = startDate else { return nil }
+        guard let startDate = startDate else {
+            print("no start date")
+            return nil }
         let weeksToAdd = timeInterval * (index + 1)
         return Calendar.current.date(byAdding: .weekOfYear, value: weeksToAdd, to: startDate)?
             .formatted(date: .abbreviated, time: .omitted)

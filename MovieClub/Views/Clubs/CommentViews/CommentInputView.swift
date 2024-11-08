@@ -25,6 +25,7 @@ struct CommentInputView: View {
                 .overlay(
                  Capsule().stroke(Color.white, lineWidth: 1) // Capsule border
                 )
+                .lineLimit(5, reservesSpace: true)
                 .padding(2)
                
             Button("", systemImage: "arrow.up.circle.fill") {
