@@ -65,7 +65,6 @@ struct CommentDetailView: View {
             Spacer()
         }
         .onChange(of: comment.likedBy) {
-            let _ = print("likedBy changed")
             updateLikeState()
         }
         .onAppear {
@@ -137,9 +136,7 @@ struct CommentDetailView: View {
     
     private func updateLikeState() {
         guard let currentUserID = data.currentUser?.id else { return }
-        print("comment.likedBy: \(comment.likedBy)")
         isLiked = comment.likedBy.contains(currentUserID)
-        print("isLiked: \(isLiked)")
         likesCount = comment.likes
     }
 }
