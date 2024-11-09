@@ -14,61 +14,91 @@ struct CommentInputView: View {
     @State var error: String = ""
     @State var errorShowing: Bool = false
     @State private var commentText: String = ""
-    //var movieClub: MovieClub
-    @State var movieId: String
     
+   
+    //var movieClub: MovieClub
+    let movieId: String
+    @Binding var replyToComment: Comment?
+    @FocusState private var isFocused: Bool
+    var textLabel: String {
+        if replyToComment != nil {
+            return "Leave a Reply \(replyToComment?.userId)"
+        } else {
+            return "Leave a Comment"
+        }
+    }
+
     var body: some View {
-        HStack {
-            TextField("Leave a Comment", text: $commentText)
-                .frame(maxHeight: 9)
-                .padding()
-                .overlay(
-                 Capsule().stroke(Color.white, lineWidth: 1) // Capsule border
-                )
-                .lineLimit(5, reservesSpace: true)
-                .padding(2)
-               
-            Button("", systemImage: "arrow.up.circle.fill") {
-                Task{
-                    if commentText != "" && commentText.count > 0 {
-                        try await submitComment()
+        
+        
+        VStack {
+            HStack {
+                TextField(textLabel, text: $commentText)
+                    .frame(maxHeight: 9)
+                    .padding()
+                    .overlay(
+                        Capsule().stroke(Color.white, lineWidth: 1) // Capsule border
+                    )
+                    .lineLimit(5, reservesSpace: true)
+                    .focused($isFocused)
+                    .padding(2)
+                
+                Button("", systemImage: "arrow.up.circle.fill") {
+                    Task {
+                        await submitComment()
                         commentText = ""
-                    } else {
-                        print("empty Text")
+                        replyToComment = nil
+                        isFocused = false
                     }
                 }
+                .foregroundColor(Color(uiColor: .systemBlue))
+                .font(.title)
             }
-            .foregroundColor(Color(uiColor: .systemBlue))
-            .font(.title)
+            
         }
         .padding(.bottom)
         .background(.clear)
         .alert(error, isPresented: $errorShowing) {
             Button("OK", role: .cancel) { }
         }
+        .onAppear {
+            if replyToComment != nil {
+                isFocused = true
+            }
+        }
     }
     
-    private func submitComment() async throws {
-        guard
-            let userId = data.currentUser?.id
-        else {
+    private func submitComment() async {
+        guard let userId = data.currentUser?.id else {
             errorShowing.toggle()
-            self.error = "Could not get all comment information"
+            self.error = "Could not get user ID"
             return
         }
-        let newComment = Comment(id: UUID().uuidString, userId: userId, userName: "duhmarcus", createdAt: Date(), text: commentText, likes: 0)
-        //could hand back result objects and contionally navigate based on fails
+        
+        let replyToCommentID = replyToComment?.id
+        
+        let newComment = Comment(
+            id: UUID().uuidString,
+            userId: userId,
+            userName: data.currentUser?.name ?? "Anonymous",
+            createdAt: Date(),
+            text: commentText,
+            likes: 0,
+            parentId: replyToCommentID
+        )
+        
         do {
             try await data.postComment(clubId: data.clubId, movieId: movieId, comment: newComment)
-        } catch DataManager.CommentError.invalidData {
-            errorShowing.toggle()
-            self.error = "Could not encode comment"
-        } catch DataManager.CommentError.networkError {
-            errorShowing.toggle()
-            self.error = "Invalid response from server"
+            // Clear input fields after successful post
+            
+            commentText = ""
+            replyToComment = nil
+            isFocused = false
+            
         } catch {
             errorShowing.toggle()
-            self.error = "Unknown error"
+            self.error = "Failed to post comment: \(error.localizedDescription)"
         }
     }
+
 }

@@ -12,7 +12,6 @@ struct ComingSoonRowView: View {
     @State var suggestion: Suggestion
     @State var imageUrl: String? = ""
     var body: some View {
-        let _ = print("in row view")
         HStack{
             CircularImageView(size: 30)
             Text(suggestion.userName)
