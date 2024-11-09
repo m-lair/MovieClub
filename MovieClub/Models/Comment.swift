@@ -49,6 +49,9 @@ final class Comment: Identifiable, Codable, Hashable, Equatable {
         text = try container.decode(String.self, forKey: .text)
         parentId = try container.decodeIfPresent(String.self, forKey: .parentId)
         likes = try container.decodeIfPresent(Int.self, forKey: .likes) ?? 0
+        likedBy = try container.decodeIfPresent([String].self, forKey: .likedBy) ?? []
+
+        
     }
     
     func encode(to encoder: Encoder) throws {
@@ -69,6 +72,7 @@ final class Comment: Identifiable, Codable, Hashable, Equatable {
         case text
         case likes
         case parentId
+        case likedBy
     }
 }
 
