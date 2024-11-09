@@ -98,13 +98,7 @@ struct NowShowingView: View {
                 }
 
             } else {
-                Button("No Movies Coming Up") {
-                    Task {
-                        await refreshClub()
-                    }
-                }
-                .foregroundStyle(.black)
-                .buttonStyle(.borderedProminent)
+                WaveLoadingView()
             }
         }
     }

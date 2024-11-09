@@ -21,54 +21,52 @@ struct HomePageView: View {
         ZStack{
             Color.black.ignoresSafeArea()
                 .overlay(Color.black.opacity(0.7))
-            ScrollView{
-                VStack {
-                    if !userClubs.isEmpty {
+            if !userClubs.isEmpty {
+                ScrollView{
+                    VStack {
                         ForEach(userClubs, id: \.self) { movieClub in
                             NavigationLink(value: movieClub) {
                                 MovieClubCardView(movieClub: movieClub)
                                 
                             }
+                        }
+                        .navigationDestination(for: MovieClub.self) { club in
+                            ClubDetailView(navPath: $navPath, club: club)
+                                .navigationTitle(club.name)
+                                .navigationBarTitleDisplayMode(.inline)
+                        }
+                        .navigationDestination(for: String.self) { value in
+                            switch value {
+                                
+                            case "NewClub":
+                                NewClubView()
+                                
+                            case "CreateForm":
+                                ClubDetailsForm(navPath: $navPath)
+                            default: ProgressView()
+                            }
                             
                         }
-                    } else {
-                        VStack {
-                            ProgressView()
-                        }
                     }
                 }
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        NavigationLink(value: "NewClub") {
-                            Image(systemName: "plus")
-                                .imageScale(.large)
-                        }
-                    }
-                }
-                .navigationDestination(for: MovieClub.self) { club in
-                    ClubDetailView(navPath: $navPath, club: club)
-                        .navigationTitle(club.name)
-                        .navigationBarTitleDisplayMode(.inline)
-                }
-                .navigationDestination(for: String.self) { value in
-                    switch value {
-                        
-                    case "NewClub":
-                        NewClubView()
-                        
-                    case "CreateForm":
-                        ClubDetailsForm(navPath: $navPath)
-                    default: ProgressView()
-                    }
-                    
+                .navigationTitle("Movie Clubs")
+                .navigationBarTitleDisplayMode(.inline)
+            } else {
+                VStack {
+                    WaveLoadingView()
                 }
             }
         }
-        .navigationTitle("Movie Clubs")
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                NavigationLink(value: "NewClub") {
+                    Image(systemName: "plus")
+                        .imageScale(.large)
+                }
+            }
+        }
     }
 }
-
 
 
 

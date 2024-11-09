@@ -123,7 +123,7 @@ struct CommentDetailView: View {
             do {
                 try await data.likeComment(commentId: comment.id, userId: currentUserId)
             } catch {
-                print("Error liking comment: \(error.localizedDescription)")
+                print("Error liking comment: \(error)")
             }
         }
     }

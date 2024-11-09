@@ -64,24 +64,24 @@ exports.likeComment = functions.https.onCall(
       const { data, auth } = request;
 
       const { uid } = verifyAuth(auth);
-
+      
       const requiredFields = ['clubId', 'movieId', 'commentId'];
       verifyRequiredFields(data, requiredFields);
       await verifyMembership(uid, data.clubId);
 
       const commentRef = firestore
-        .collection('movieClubs') // Assuming MOVIE_CLUBS = 'movieClubs'
+        .collection(MOVIE_CLUBS) // Assuming MOVIE_CLUBS = 'movieClubs'
         .doc(data.clubId)
-        .collection('movies') // Assuming MOVIES = 'movies'
+        .collection(MOVIES) // Assuming MOVIES = 'movies'
         .doc(data.movieId)
-        .collection('comments') // Assuming COMMENTS = 'comments'
+        .collection(COMMENTS) // Assuming COMMENTS = 'comments'
         .doc(data.commentId);
 
         await commentRef.update({
           likedBy: firebaseAdmin.firestore.FieldValue.arrayUnion(uid),
           likes: firebaseAdmin.firestore.FieldValue.increment(1),
         });
-
+       
       return { success: true };
     } catch (error) {
       handleCatchHttpsError('Error liking comment:', error);
@@ -101,11 +101,11 @@ exports.unlikeComment = functions.https.onCall(
       await verifyMembership(uid, data.clubId);
 
       const commentRef = firestore
-        .collection('movieClubs')
+        .collection(MOVIE_CLUBS)
         .doc(data.clubId)
-        .collection('movies')
+        .collection(MOVIES)
         .doc(data.movieId)
-        .collection('comments')
+        .collection(COMMENTS)
         .doc(data.commentId);
 
       await commentRef.update({
