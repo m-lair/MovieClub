@@ -53,8 +53,8 @@ struct MovieClubCardView: View {
             .frame(maxWidth: (screenWidth - 20), maxHeight: 185, alignment: .bottomLeading)
             
         }
-        
     }
+    
     var cardText: some View {
         
         VStack(alignment: .leading){

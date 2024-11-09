@@ -7,7 +7,9 @@
 
 import Foundation
 import FirebaseAuth
+import FirebaseFunctions
 import FirebaseStorage
+import Promises
 
 extension DataManager {
     
@@ -24,23 +26,61 @@ extension DataManager {
     // MARK: - Fetch User
     
     func fetchUser() async throws {
-        guard let uid = auth.currentUser?.uid else {
+        guard let uid = Auth.auth().currentUser?.uid else {
             print("User not logged in")
             return
         }
         
-        guard let snapshot = try? await usersCollection().document(uid).getDocument() else {
+        guard
+            let snapshot = try? await usersCollection().document(uid).getDocument()
+        else {
             print("error getting user document")
-            currentUser = nil
-            userSession = nil
             return
         }
-        
+        print("\(snapshot.data())")
         do {
             currentUser = try snapshot.data(as: User.self)
-            await fetchUserClubs()
         } catch {
+            print("error parsing user document")
             throw error
+        }
+        await fetchUserClubs()
+    }
+    
+    // MARK: - Fetch User Clubs
+    
+    func fetchUserClubs() async {
+        do {
+            guard let user = currentUser else {
+                print("No user logged in")
+                return
+            }
+            let snapshot = try await usersCollection().document(user.id ?? "")
+                .collection("memberships")
+                .getDocuments()
+            
+            let clubIds = snapshot.documents.compactMap { $0.documentID }
+            let clubs = try await withThrowingTaskGroup(of: MovieClub?.self) { group in
+                for clubId in clubIds {
+                    group.addTask { [weak self] in
+                        guard let self = self else { return nil }
+                        return await self.fetchMovieClub(clubId: clubId)
+                    }
+                }
+                
+                var clubList: [MovieClub] = []
+                for try await club in group {
+                    if let club {
+                        print("Fetched club: \(club.id)")
+                        clubList.append(club)
+                    }
+                }
+                
+                return clubList
+            }
+            self.userClubs = clubs
+        } catch {
+            print("Error fetching user clubs: \(error)")
         }
     }
     
@@ -62,15 +102,11 @@ extension DataManager {
     
     // MARK: - Update User Details
     
-    func updateUserDetails(changes: [String: Any]) async throws {
+    func updateUserDetails(user: User) async throws {
         do {
-            //print("Updating user details")
-            try await usersCollection().document(currentUser?.id ?? "").updateData(changes)
-            
-            // Update related data in comments, movies, and members
-            await updateRelatedUserData(changes: changes)
-            
-            //print("Fetching updated user")
+            print("username: \(user.name)")
+            let updateUser: Callable<User, Bool?> = functions.httpsCallable("users-updateUser")
+            let result = try await updateUser(user)
             try await fetchUser()
         } catch {
             throw error
@@ -153,17 +189,17 @@ extension DataManager {
     
     // MARK: - Get Profile Image by User ID
     
-    func getProfileImage(userId: String) async -> String {
+    func getProfileImage(userId: String) async throws -> String? {
         do {
             let document = try await usersCollection().document(userId).getDocument()
             guard let url = document.get("image") as? String else {
                 print("No image field in user document")
-                return ""
+                return nil
             }
             return url
         } catch {
             print("Error fetching profile image URL: \(error)")
-            return ""
+            throw error
         }
     }
 }

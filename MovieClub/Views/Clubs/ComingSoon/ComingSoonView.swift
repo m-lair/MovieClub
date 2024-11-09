@@ -10,66 +10,126 @@ import FirebaseFirestore
 
 struct ComingSoonView: View {
     @Environment(DataManager.self) var data: DataManager
-    @State var i: Int = 0
+    
     @State private var screenWidth = UIScreen.main.bounds.size.width
-    @State var comingSoon: [Member] = []
-    @State var imageUrl: String = ""
-    let club: MovieClub
+    @State private var creatingSuggestion = false
+    @State private var isLoading = false
+    @State private var error: Error?
+    
+    let startDate: Date?
+    let timeInterval: Int
+    var clubId: String { data.clubId }
+    var suggestions: [Suggestion] { data.suggestions }
+    
     var body: some View {
         VStack {
-            Text("Coming Soon...")
-                .font(.title)
-            Divider()
-            List {
-                ForEach(comingSoon.indices, id: \.self) { index in
-                    HStack{
-                        ComingSoonRowView(member: comingSoon[index])
+            Group {
+                if suggestions.isEmpty {
+                    VStack {
+                        if isLoading {
+                            ProgressView()
+                        } else {
+                            Text("No Suggestions Yet")
+                            newSuggestionButton
+                        }
+                    }
+                } else {
+                    suggestionsList
+                }
+            }
+        }
+        .refreshable {
+            await refreshSuggestions()
+        }
+        .sheet(isPresented: $creatingSuggestion) {
+            CreateSuggestionView()
+        }
+        .alert("Error", isPresented: .constant(error != nil)) {
+            Button("OK") {
+                error = nil
+            }
+            Button("Retry") {
+                Task {
+                    await refreshSuggestions()
+                }
+            }
+        } message: {
+            if let error = error {
+                Text(error.localizedDescription)
+            }
+        }
+        .task {
+            setupSuggestionsListener()
+        }
+        .onDisappear {
+            data.suggestions = []
+            data.suggestionsListener?.remove()
+            data.suggestionsListener = nil
+        }
+    }
+    
+    private var suggestionsList: some View {
+        ScrollView {
+            VStack {
+                HStack {
+                    Text("Suggestions")
+                        .font(.headline)
+                    Spacer()
+                    Text("Begins")
+                        .font(.headline)
+                }
+                .padding(.horizontal
+                )
+                Divider()
+                ForEach(Array(suggestions.enumerated()), id: \.1.id) { index, suggestion in
+                    HStack {
+                        ComingSoonRowView(suggestion: suggestion)
                         Spacer()
-                        if let date = Calendar.current.date(byAdding: .weekOfYear, value: club.timeInterval * index, to: club.movieEndDate) {
-                            Text("\(String(describing: date.formatted(date: .numeric, time: .omitted)))")
-                                .font(.title3)
-                                .foregroundStyle(.black)
-                            
-                            if comingSoon[index].id == data.currentUser?.id ?? "" {
-                                NavigationLink(value: "EditMovies") {
-                                    Label("Edit", systemImage: "pencil")
-                                    
-                                }
-                            }
+                        if let dateString = computedDateString(for: index) {
+                            Text(dateString)
+                        } else {
+                            Text("No Date")
                         }
                     }
                 }
-                .padding()
-                .frame(width: (screenWidth - 20), height: 30)
-                .background(Color(.gray))
-                .clipShape(.rect(cornerRadius: 20))
-                
-            }
-        }
-        .onAppear() {
-            Task{
-                await getUserData()
+                .padding([.top, .leading])
+                newSuggestionButton
             }
         }
     }
-    //populate coming soon list
-    func getUserData() async {
-        if let id = await data.currentClub?.id {
-            do {
-                let snapshot = try await data.movieClubCollection().document(id).collection("members").order(by: "dateAdded", descending: false).getDocuments()
-                let members = snapshot.documents.compactMap { member in
-                    do {
-                        return try member.data(as: Member.self)
-                    }catch{
-                        print("error getting members \(error)")
-                        return nil
-                    }
-                }
-                self.comingSoon = members
-            }catch {
-                print("couldnt get to club members")
-            }
+    
+    private var newSuggestionButton: some View {
+        Button("Create Suggestion") {
+            creatingSuggestion = true
+        }
+        .foregroundStyle(.black)
+        .buttonStyle(.borderedProminent)
+    }
+    
+    private func computedDateString(for index: Int) -> String? {
+        guard let startDate = startDate else {
+            print("no start date")
+            return nil }
+        let weeksToAdd = timeInterval * (index + 1)
+        return Calendar.current.date(byAdding: .weekOfYear, value: weeksToAdd, to: startDate)?
+            .formatted(date: .abbreviated, time: .omitted)
+    }
+    
+    private func setupSuggestionsListener()  {
+        data.listenToSuggestions(clubId: clubId)
+    }
+    
+    private func refreshSuggestions() async {
+        isLoading = true
+        defer { isLoading = false }
+        
+        do {
+            guard let clubId = data.currentClub?.id else { return }
+            _ = try await data.fetchSuggestions(clubId: clubId)
+            error = nil
+        } catch {
+            self.error = error
+            print("Error refreshing suggestions: \(error)")
         }
     }
 }
-

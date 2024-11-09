@@ -5,12 +5,20 @@
 //  Created by Marcus Lair on 9/24/24.
 //
 
+import Observation
 import Foundation
 import FirebaseAuth
 import FirebaseFunctions
+import AuthenticationServices
 
-extension DataManager {
+@Observable
+class AuthManager {
+    var authCurrentUser: FirebaseAuth.User?
+    var authState: AuthStateDidChangeListenerHandle?
     
+    init() {
+        registerStateListener()
+    }
     // MARK: - Enums
     enum AuthError: Error {
         case invalidEmail
@@ -28,8 +36,9 @@ extension DataManager {
     
     func createUser(email: String, password: String, displayName: String) async throws -> String {
         do {
+            try Auth.auth().signOut()
             let functions = Functions.functions()
-            let result = try await functions.httpsCallable("users-createUser").call([
+            let result = try await functions.httpsCallable("users-createUserWithEmail").call([
                 "email": email,
                 "password": password,
                 "name": displayName
@@ -44,8 +53,8 @@ extension DataManager {
     
     // MARK: - Update User
     
-    func updateUser(displayName: String) async throws {
-        guard let currentUser else {
+    /*func updateUser(displayName: String) async throws {
+        guard let user = auth?.currentUser else {
             throw AuthError.invalidUser
         }
         do {
@@ -60,19 +69,16 @@ extension DataManager {
         } catch {
             throw error
         }
-    }
+    }*/
     
     // MARK: - Sign In
     
     func signIn(email: String, password: String) async throws {
-        print("Signing in")
         do {
-            let result = try await auth.signIn(withEmail: email, password: password)
-            self.userSession = result.user
-            print("Signed in user \(result.user)")
-            try await fetchUser()
+            let result = try await Auth.auth().signIn(withEmail: email, password: password)
+            self.authCurrentUser = result.user
         } catch {
-            throw error
+            print(error.localizedDescription)
         }
     }
     
@@ -81,11 +87,38 @@ extension DataManager {
     func signOut() {
         do {
             try Auth.auth().signOut()
-            self.userSession = nil
-            self.currentUser = nil
         } catch {
             print(error.localizedDescription)
         }
     }
+    
+    private func registerStateListener() {
+        if authState == nil {
+            authState = Auth.auth().addStateDidChangeListener { [weak self] (_, user) in
+                self?.authCurrentUser = user
+            }
+        }
+    }
+    
+   /* private var accessGroup: String {
+        get {
+            let info = KeyChainAccessGroupHelper.getAccessGroupInfo()
+            let prefix = info?.prefix ?? "unknown"
+            return prefix + "." + (Bundle.main.bundleIdentifier ?? "unknown")
+        }
+    }
+    
+    private func setupKeychainSharing() {
+        do {
+            let auth = Auth.auth()
+            auth.shareAuthStateAcrossDevices = true
+            try auth.useUserAccessGroup(accessGroup)
+        }
+        catch let error as NSError {
+            print("Error changing user access group: %@", error)
+        }
+    }*/
 }
+
+
 

@@ -1,91 +1,128 @@
-//
-//  MovieModel.swift
-//  MovieClub
-//
-//  Created by Marcus Lair on 9/23/24.
-//
-
 import Foundation
-import SwiftData
+import SwiftUI
 
-@Model
-final class Movie: Identifiable, Decodable, Equatable {
+
+// MARK: - Base Movie Model (Firestore)
+struct Movie: Identifiable, Codable {
+    // Firestore stored properties
     var id: String?
-    var created: Date?
-    var title: String
-    var poster: String?
-    var avgRating: Double?
-    var endDate: Date?
-    var userName: String
-    var userId: String
-    var authorAvi: String
-    var comments: [Comment]?
-    var plot: String?
-    var director: String?
-    var releaseYear: String?
-
-    init(id: String? = nil,
-         created: Date? = nil,
-         title: String,
-         poster: String? = nil,
-         avgRating: Double? = nil,
-         endDate: Date?,
-         userName: String,
-         userId: String,
-         authorAvi: String,
-         comments: [Comment]? = nil,
-         plot: String? = nil,
-         director: String? = nil,
-         releaseYear: String? = nil
+    let userId: String
+    let imdbId: String
+    let startDate: Date
+    let endDate: Date
+    let userName: String
+    let status: String
+    
+    // Analytics & Social Data
+    var likes: Int
+    var dislikes: Int
+    var numCollected: Int
+    var numComments: Int
+    
+    // API Data
+    var apiData: MovieAPIData?
+    
+    init(
+        id: String? = nil,
+        userId: String,
+        imdbId: String,
+        startDate: Date,
+        endDate: Date,
+        userName: String,
+        status: String,
+        likes: Int = 0,
+        dislikes: Int = 0,
+        numCollected: Int = 0,
+        numComments: Int = 0,
+        apiData: MovieAPIData? = nil
     ) {
         self.id = id
-        self.created = created
-        self.title = title
-        self.poster = poster
-        self.avgRating = avgRating
+        self.userId = userId
+        self.imdbId = imdbId
+        self.startDate = startDate
         self.endDate = endDate
         self.userName = userName
-        self.userId = userId
-        self.authorAvi = authorAvi
-        self.comments = comments
-        self.plot = plot
-        self.director = director
-        self.releaseYear = releaseYear
+        self.likes = likes
+        self.dislikes = dislikes
+        self.numCollected = numCollected
+        self.numComments = numComments
+        self.apiData = apiData
+        self.status = status
     }
-    
-    required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decodeIfPresent(String.self, forKey: .id)
-        created = try container.decodeIfPresent(Date.self, forKey: .created)
-        title = try container.decode(String.self, forKey: .title)
-        poster = try container.decodeIfPresent(String.self, forKey: .poster)
-        avgRating = try container.decodeIfPresent(Double.self, forKey: .avgRating)
-        endDate = try container.decodeIfPresent(Date.self, forKey: .endDate)
-        userName = try container.decode(String.self, forKey: .userName)
-        userId = try container.decode(String.self, forKey: .userId)
-        authorAvi = try container.decode(String.self, forKey: .authorAvi)
-        
-    }
+}
+
+// MARK: - Movie API Response (Raw API Data)
+struct MovieAPIResponse: Codable, Equatable, Hashable {
+    let imdbId: String
+    let title: String
+    let plot: String
+    let poster: String
+    let year: String
+    let runtime: String
+    let director: String
+    let actors: String
     
     enum CodingKeys: String, CodingKey {
-        case id
-        case created
-        case title
-        case poster
-        case avgRating
-        case endDate
-        case userName
-        case userId
-        case authorAvi
+        case imdbId = "imdbID"
+        case title = "Title"
+        case plot = "Plot"
+        case poster = "Poster"
+        case year = "Year"
+        case runtime = "Runtime"
+        case director = "Director"
+        case actors = "Actors"
     }
     
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        imdbId = try container.decode(String.self, forKey: .imdbId)
+        title = try container.decode(String.self, forKey: .title)
+        plot = try container.decodeIfPresent(String.self, forKey: .plot) ?? ""
+        poster = try container.decodeIfPresent(String.self, forKey: .poster) ?? ""
+        year = try container.decode(String.self, forKey: .year)
+        runtime = try container.decodeIfPresent(String.self, forKey: .runtime) ?? ""
+        director = try container.decode(String.self, forKey: .director)
+        actors = try container.decode(String.self, forKey: .actors)
     }
+}
+
+// MARK: - Movie API Data (Processed API Data)
+struct MovieAPIData: Codable, Equatable, Hashable {
+    let title: String
+    let plot: String
+    let poster: String
+    let releaseYear: Int
+    let runtime: Int
+    let director: String
+    let cast: [String]
     
-    static func == (lhs: Movie, rhs: Movie) -> Bool {
-       return lhs.id == rhs.id && lhs.title == rhs.title
+    init(from response: MovieAPIResponse) {
+        self.title = response.title
+        self.plot = response.plot
+        self.poster = response.poster
+        self.releaseYear = Int(response.year) ?? 0
+        self.runtime = response.runtime.components(separatedBy: " ").first.flatMap { Int($0) } ?? 0
+        self.director = response.director
+        self.cast = response.actors.components(separatedBy: ", ")
     }
-    
+}
+
+// MARK: - Movie Convenience Properties
+extension Movie {
+    var title: String { apiData?.title ?? "Loading..." }
+    var plot: String { apiData?.plot ?? "" }
+    var poster: String { apiData?.poster ?? "" }
+    var releaseYear: Int { apiData?.releaseYear ?? 0 }
+    var runtime: Int { apiData?.runtime ?? 0 }
+    var director: String { apiData?.director ?? "" }
+    var cast: [String] { apiData?.cast ?? [] }
+        
+    var castFormatted: String {
+        cast.joined(separator: ", ")
+    }
+        
+    var yearFormatted: String {
+        String(releaseYear)
+    }
 }

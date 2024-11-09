@@ -8,88 +8,63 @@
 import SwiftUI
 import FirebaseFirestore
 
+
+
 struct ClubDetailView: View {
+    let tabs: [String] = ["Bullentin", "Now Showing", "Upcoming", "Archives"]
+    
     @Environment(DataManager.self) var data: DataManager
+    @Environment(\.editMode) var editMode
     @Environment(\.dismiss) var dismiss
+  
+    @State var selectedTabIndex: Int = 1
     @Binding var navPath: NavigationPath
     
     @State var isLoading: Bool = true
     let club: MovieClub
-    @State var isPresentingEditView = false
+    
     var body: some View {
-        ZStack{
-            if isLoading {
-                ProgressView()
-            } else {
-                BlurredBackgroundView(urlString: data.poster)
-                VStack {
-                    HeaderView(movieClub: club)
-                    if let movie = data.movie {
-                        NowPlayingView(movie: movie, club: club)
-                    }
-                }
-                .padding()
-                Spacer()
+        VStack {
+            //HeaderView(movieClub: club)
+            ClubTabView(tabs: tabs, selectedTabIndex: $selectedTabIndex)
+            
+            TabView(selection: $selectedTabIndex) {
+                BulletinView()
+                    .tag(0)
+        
+                NowShowingView()
+                        .tag(1)
+                
+                ComingSoonView(startDate: club.movieEndDate, timeInterval: club.timeInterval)
+                    .tag(2)
+                
+                ArchivesView()
+                    .tag(3)
             }
-        }
-        .toolbar{
-            if data.currentClub?.ownerId == data.currentUser?.id ?? "" {
-                Menu {
-                    Button {
-                        // Do Nothing
-                    } label: {
-                        Label("Report A Problem", systemImage: "exclamationmark.octagon")
+            .refreshable {
+                Task {
+                    if !data.clubId.isEmpty {
+                        try await data.fetchMovies(clubId: data.clubId)
                     }
-                    Button {
-                        isPresentingEditView = true
-                    } label: {
-                        Label("Edit", systemImage: "pencil")
-                    }
-                    
-                    Button {
-                        Task{
-                            dismiss()
-                        }
-                    } label: {
-                        Label("Leave Club", systemImage: "trash")
-                    }
-                    .foregroundStyle(.red)
-                    
-                } label: {
-                    Label("Menu", systemImage: "ellipsis")
-                }
-            } else {
-                Menu {
-                    Button {
-                        Task{
-                            dismiss()
-                        }
-                    } label: {
-                        Label("Leave Club", systemImage: "trash")
-                    }
-                    .foregroundStyle(.red)
-                    
-                } label: {
-                    Label("Menu", systemImage: "ellipsis")
                 }
             }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            
         }
-        .sheet(isPresented: $isPresentingEditView) {
-            ClubDetailsForm(navPath: $navPath)
+        .toolbar {
+            ClubToolbar(club: club)
+            
         }
         .task {
-            await loadClub()
+            data.currentClub = club
+            await data.fetchMovieClub(clubId: data.clubId)
         }
-    }
-    private func loadClub() async {
-        isLoading = true
-        do {
-            try await data.fetchClubDetails(club: club)
-            isLoading = false
-        } catch {
-            print("Error fetching club details: \(error)")
+        .onDisappear {
+            data.currentClub = nil
+            data.comments = []
+            data.movies = []
+            data.suggestions = []
         }
-        
     }
 }
 

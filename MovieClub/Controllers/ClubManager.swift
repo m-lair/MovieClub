@@ -8,7 +8,7 @@
 import Foundation
 import FirebaseFirestore
 import FirebaseStorage
-import UIKit
+import FirebaseFunctions
 
 extension DataManager {
     
@@ -26,15 +26,10 @@ extension DataManager {
     // MARK: - Create Movie Club
     
     func createMovieClub(movieClub: MovieClub) async throws {
+        let createClub: Callable<MovieClub, String> = functions.httpsCallable("movieClubs-createMovieClub")
         do {
-            let result = try await  functions.httpsCallable("movieClubs-createMovieClub").call([
-                "name": movieClub.name,
-                "ownerId": movieClub.ownerId,
-                "ownerName": movieClub.ownerName,
-                "isPublic": movieClub.isPublic,
-                "timeInterval": movieClub.timeInterval,
-                "bannerUrl": movieClub.bannerUrl ?? ""
-            ])
+            let result = try await createClub(movieClub)
+            try await fetchUser()
         } catch {
             throw error
         }
@@ -44,49 +39,11 @@ extension DataManager {
     
     func updateMovieClub(movieClub: MovieClub) async throws {
         do {
-            let result = try await  functions.httpsCallable("movieClubs-updateMovieClub").call([
-                "id": movieClub.id,
-                "name": movieClub.name,
-                "ownerId": movieClub.ownerId,
-                "ownerName": movieClub.ownerName
-            ])
+            print("updating movie club: \(movieClub.name)")
+            let result = try await  functions.httpsCallable("movieClubs-updateMovieClub").call(movieClub)
+            print("updated club: \(result)")
         } catch {
             throw error
-        }
-    }
-    
-    // MARK: - Fetch User Clubs
-    
-    func fetchUserClubs() async {
-        do {
-            guard let user = currentUser else {
-                print("No user logged in")
-                return
-            }
-            let snapshot = try await usersCollection().document(user.id ?? "")
-                .collection("memberships")
-                .getDocuments()
-            
-            let clubIds = snapshot.documents.compactMap { $0.data()["clubId"] as? String }
-            let clubs = try await withThrowingTaskGroup(of: MovieClub?.self) { group in
-                for clubId in clubIds {
-                    group.addTask { [weak self] in
-                        guard let self = self else { return nil }
-                        return await self.fetchMovieClub(clubId: clubId)
-                    }
-                }
-                
-                var clubList: [MovieClub] = []
-                for try await club in group {
-                    if let club = club {
-                        clubList.append(club)
-                    }
-                }
-                return clubList
-            }
-            self.userClubs = clubs
-        } catch {
-            print("Error fetching user clubs: \(error)")
         }
     }
     
@@ -98,7 +55,9 @@ extension DataManager {
             return nil
         }
         do {
-            let movieClub = try snapshot.data(as: MovieClub.self)
+            var movieClub = try snapshot.data(as: MovieClub.self)
+            movieClub.id = snapshot.documentID
+            
             let moviesSnapshot = try await movieClubCollection()
                 .document(clubId)
                 .collection("movies")
@@ -106,40 +65,22 @@ extension DataManager {
                 .limit(to: 1)
                 .getDocuments()
             for document in moviesSnapshot.documents {
-                //print("Current movie in method \(document.data())")
-                movieClub.movies = [try document.data(as: Movie.self)]
+                var baseMovie = try document.data(as: Movie.self)
+                baseMovie.id = document.documentID
+                
+                // Fetch API data for the movie
+                if let apiMovie = try await fetchMovieDetails(for: baseMovie) {
+                    baseMovie.apiData = MovieAPIData(from: apiMovie)
+                }
+                movies = [baseMovie]
+                movieClub.movieEndDate = baseMovie.endDate
+                movieClub.movies.append(baseMovie)
             }
+            
             return movieClub
         } catch {
             print("Error decoding movie: \(error)")
             return nil
-        }
-    }
-    
-    // MARK: - Fetch Club Details
-    
-    func fetchClubDetails(club: MovieClub) async throws {
-        currentClub = club
-        movie = club.movies.first
-    }
-    
-    // MARK: - Join Club
-    
-    func joinClub(club: MovieClub) async {
-        if let user = self.currentUser, let clubId = club.id {
-            await addClubMember(clubId: clubId, user: user, date: Date())
-        }
-    }
-    
-    func addClubMember(clubId: String, user: User, date: Date) async {
-        do {
-            if let id = user.id {
-                let member = Member(userId: id, userName: user.name, userAvi: user.image ?? "", selector: false, dateAdded: date)
-                let encodedMember = try Firestore.Encoder().encode(member)
-                try await movieClubCollection().document(clubId).collection("members").document(id).setData(encodedMember)
-            }
-        } catch {
-            print("Couldn't add member")
         }
     }
     
@@ -166,19 +107,5 @@ extension DataManager {
         let url = try await storageRef.downloadURL()
         //print("Club image URL: \(url)")
         return url.absoluteString
-    }
-    
-    // MARK: - Add to Coming Soon
-    
-    func addToComingSoon(clubId: String, userId: String, date: Date) async {
-        do {
-            try await movieClubCollection().document(clubId).collection("members").document(userId).updateData([
-                "selector": true,
-                "comingSoonDate": date
-            ])
-            // Additional logic can be added here
-        } catch {
-            print(error)
-        }
     }
 }

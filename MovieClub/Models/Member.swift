@@ -7,13 +7,13 @@
 import Foundation
 
 struct Member: Codable, Identifiable, Hashable {
-    var id: String?
+    var id: String
     var userId: String
     var userName: String
     var userAvi: String
     var selector: Bool = true
-    var movieDate: Date?
-    var dateAdded: Date?
+    var movieDate: Date
+    var dateAdded: Date
     
     enum CodingKeys: String, CodingKey {
         case id

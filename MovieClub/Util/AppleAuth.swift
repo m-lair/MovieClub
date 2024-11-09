@@ -15,7 +15,6 @@ import FirebaseFunctions
 class AppleSignInManager: NSObject {
     
     private var currentNonce: String?
-    private var data = DataManager()
     
     // Singleton instance (optional but useful)
     static let shared = AppleSignInManager()
@@ -81,7 +80,7 @@ class AppleSignInManager: NSObject {
                     }
                     
                     Task {
-                        try await self.data.createUser(email: authResult.user.email!, password: "", displayName: authResult.user.displayName ?? "")
+                        try await AuthManager().createUser(email: authResult.user.email!, password: "", displayName: authResult.user.displayName ?? "")
                     }
                     completion(.success(authResult))
                 }

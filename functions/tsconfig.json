@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "lib",
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2017",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "noUnusedLocals": true,
+    "resolveJsonModule": true,
+    "baseUrl": "./",
+    "paths": {
+      "src": [
+        "src"
+      ],
+      "helpers": [
+        "src/utilities/helpers"
+      ],
+      "index": [
+        "index"
+      ],
+      "firestore": [
+        "src/utilities/firestore"
+      ],
+      "test": [
+        "test"
+      ],
+      "mocks": [
+        "test/mocks"
+      ]
+    },
+  },
+  "compileOnSave": true,
+  "include": [
+    "src/**/*",
+    "package.json",
+    "firebase.json",
+    "index.ts",
+    "src/utilities/service-account.json",
+    "test/**/*"
+  ]
+}

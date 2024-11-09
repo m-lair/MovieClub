@@ -13,61 +13,60 @@ import SwiftUI
 struct HomePageView: View {
     @Environment(DataManager.self) var data: DataManager
     @Binding var navPath: NavigationPath
+    
+    var userClubs: [MovieClub] {
+        data.userClubs
+    }
     var body: some View {
         ZStack{
-            Color.gray.ignoresSafeArea()
+            Color.black.ignoresSafeArea()
                 .overlay(Color.black.opacity(0.7))
-            ScrollView{
-                VStack {
-                    if data.userClubs.count > 0 {
-                        ForEach(data.userClubs) { movieClub in
+            if !userClubs.isEmpty {
+                ScrollView{
+                    VStack {
+                        ForEach(userClubs, id: \.self) { movieClub in
                             NavigationLink(value: movieClub) {
                                 MovieClubCardView(movieClub: movieClub)
+                                
                             }
                         }
-                    } else {
-                        ProgressView()
-                    }
-                }
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        NavigationLink(value: "NewClub") {
-                            Image(systemName: "plus")
-                                .imageScale(.large)
+                        .navigationDestination(for: MovieClub.self) { club in
+                            ClubDetailView(navPath: $navPath, club: club)
+                                .navigationTitle(club.name)
+                                .navigationBarTitleDisplayMode(.inline)
                         }
-                    }
-                    ToolbarItem(placement: .topBarTrailing){
-                        Button {
+                        .navigationDestination(for: String.self) { value in
+                            switch value {
+                                
+                            case "NewClub":
+                                NewClubView()
+                                
+                            case "CreateForm":
+                                ClubDetailsForm(navPath: $navPath)
+                            default: ProgressView()
+                            }
                             
-                        } label: {
-                            Image(systemName: "bell.fill")
                         }
                     }
                 }
-                .navigationDestination(for: MovieClub.self) { club in
-                    ClubDetailView(navPath: $navPath, club: club)
-                        .navigationTitle(club.name)
-                        .navigationBarTitleDisplayMode(.inline)
-                }
-                .navigationDestination(for: String.self) { value in
-                    switch value {
-                        
-                    case "NewClub":
-                        NewClubView()
-                        
-                    case "CreateForm":
-                        ClubDetailsForm(navPath: $navPath)
-                    default: ProgressView()
-                    }
-                    
+                .navigationTitle("Movie Clubs")
+                .navigationBarTitleDisplayMode(.inline)
+            } else {
+                VStack {
+                    WaveLoadingView()
                 }
             }
         }
-        .navigationTitle("Movie Clubs")
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                NavigationLink(value: "NewClub") {
+                    Image(systemName: "plus")
+                        .imageScale(.large)
+                }
+            }
+        }
     }
 }
-
 
 
 

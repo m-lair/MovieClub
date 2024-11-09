@@ -6,9 +6,12 @@
 //
 
 import Foundation
+import FirebaseFunctions
+import SwiftData
+import SwiftUI
 
-@Observable
-final class User: Identifiable, Decodable {
+@Model
+final class User: Identifiable, Codable, Hashable, Equatable {
     var id: String?
     var email: String
     var bio: String?
@@ -21,8 +24,8 @@ final class User: Identifiable, Decodable {
         email: String,
         bio: String? = nil,
         name: String,
-        image: String? = nil,
-        clubs: [Membership]? = nil
+        image: String? = "no-image",
+        clubs: [Membership] = []
     ) {
         self.id = id
         self.email = email
@@ -42,6 +45,15 @@ final class User: Identifiable, Decodable {
         name = try container.decode(String.self, forKey: .name)
     }
     
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(id, forKey: .id)
+        try container.encode(name, forKey: .name)
+        try container.encode(email, forKey: .email)
+        try container.encodeIfPresent(bio, forKey: .bio)
+        try container.encode(image, forKey: .image)
+    }
+    
     enum CodingKeys: String, CodingKey {
         case id
         case email
@@ -50,6 +62,7 @@ final class User: Identifiable, Decodable {
         case image
         case clubs
     }
+    
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }

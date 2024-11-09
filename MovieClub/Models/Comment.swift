@@ -8,67 +8,81 @@ import Foundation
 import SwiftData
 
 @Model
-final class Comment: Identifiable, Decodable, Equatable, Hashable{
-    var id: String?
+final class Comment: Identifiable, Codable, Hashable, Equatable {
+    var id: String
     var userId: String
     var image: String? = ""
-    var username: String
+    var userName: String
     var createdAt: Date
     var text: String
     var likes: Int
+    var parentId: String?
+    var likedBy: [String] = []
     
     init(
-        id: String? = nil,
+        id: String,
         userId: String,
         image: String? = "",
-        username: String,
+        userName: String,
         createdAt: Date,
         text: String,
-        likes: Int
+        likes: Int,
+        parentId: String? = nil
     ) {
         self.id = id
         self.userId = userId
         self.image = image
-        self.username = username
+        self.userName = userName
         self.createdAt = createdAt
         self.text = text
         self.likes = likes
+        self.parentId = parentId
     }
     
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decodeIfPresent(String.self, forKey: .id)
+        id = ""
         userId = try container.decode(String.self, forKey: .userId)
         image = try container.decodeIfPresent(String.self, forKey: .image)
-        username = try container.decode(String.self, forKey: .username)
+        userName = try container.decode(String.self, forKey: .userName)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
         text = try container.decode(String.self, forKey: .text)
+        parentId = try container.decodeIfPresent(String.self, forKey: .parentId)
         likes = try container.decodeIfPresent(Int.self, forKey: .likes) ?? 0
+        likedBy = try container.decodeIfPresent([String].self, forKey: .likedBy) ?? []
+
+        
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(id, forKey: .id)
+        try container.encode(userId, forKey: .userId)
+        try container.encodeIfPresent(image, forKey: .image)
+        try container.encode(userName, forKey: .image)
+        try container.encode(parentId, forKey: .parentId)
     }
     
     enum CodingKeys: String, CodingKey {
         case id
         case userId
         case image
-        case username
+        case userName
         case createdAt
         case text
         case likes
+        case parentId
+        case likedBy
     }
+}
+
+class CommentNode: Identifiable {
+    var id: String
+    var comment: Comment
+    var replies: [CommentNode] = []
     
-    
-    static func == (lhs: Comment, rhs: Comment) -> Bool {
-        return lhs.id == rhs.id && lhs.userId == rhs.userId
-    }
-    
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-        hasher.combine(userId)
-        hasher.combine(image)
-        hasher.combine(createdAt)
-        hasher.combine(text)
-        hasher.combine(likes)
-     
+    init(comment: Comment) {
+        self.id = comment.id
+        self.comment = comment
     }
 }

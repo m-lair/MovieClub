@@ -22,41 +22,36 @@ extension DataManager {
         case unknownError
         
     }
-
+    
     // MARK: - (Deprecated) Fetch Comments
     
-    func fetchComments(movieClubId: String, movieId: String) async -> [Comment] {
-        do {
-            let querySnapshot = try await movieClubCollection()
-                .document(movieClubId)
-                .collection("movies")
-                .document(movieId)
-                .collection("comments")
-                .order(by: "createdAt", descending: true)
-                .getDocuments()
-            let comments = querySnapshot.documents.compactMap { document in
-                do {
-                    return try document.data(as: Comment.self)
-                } catch {
-                    print("Error decoding comment \(document.documentID): \(error)")
-                    return nil
-                }
+    func fetchComments(clubId: String, movieId: String) async throws -> [Comment] {
+        
+        let snapshot = try await movieClubCollection()
+            .document(clubId)
+            .collection("movies")
+            .document(movieId)
+            .collection("comments")
+            .order(by: "createdAt", descending: true)
+            .getDocuments()
+        
+        return snapshot.documents.compactMap { document -> Comment? in
+            do {
+                let comment = try document.data(as: Comment.self)
+                comment.id = document.documentID
+                return comment
+            } catch {
+                print("Error decoding comment \(document.documentID): \(error)")
+                return nil
             }
-            return comments
-        } catch {
-            print("Error fetching comments: \(error)")
-            return []
         }
     }
     
     //MARK: - CommentListener
     
-    func listenForComments() {
-        guard
-            let movieId = movie?.id,
-            let clubId = currentClub?.id
-        else {
-            print("unable to listen for comments")
+    func listenToComments(movieId: String) {
+        guard !movieId.isEmpty else {
+            print("movieId is empty")
             return
         }
         
@@ -65,73 +60,139 @@ extension DataManager {
             .collection("movies")
             .document(movieId)
             .collection("comments")
-            .order(by: "createdAt", descending: true)
+            .order(by: "createdAt", descending: false) // Use ascending order for thread readability
+        
         commentsListener?.remove()
         
-        // Map Firestore documents to Comment model
         commentsListener = commentsRef.addSnapshotListener { [weak self] querySnapshot, error in
             guard let self = self else {
-                print("Unknown error")
+                print("Unknown Error")
                 return
             }
+            
             guard let snapshot = querySnapshot else {
                 print("Error fetching snapshots: \(error!)")
                 return
             }
-            comments = snapshot.documents.compactMap { document in
+            
+            let fetchedComments = snapshot.documents.compactMap { document -> Comment? in
                 do {
-                    //print("comment: \(document.data())")
-                    return try document.data(as: Comment.self)
+                    var comment = try document.data(as: Comment.self)
+                    comment.id = document.documentID
+                    return comment
                 } catch {
                     print("Error decoding comment: \(error)")
                     return nil
                 }
             }
+            
+            // Organize comments into a hierarchical structure
+            DispatchQueue.main.async {
+                self.comments = self.buildCommentTree(from: fetchedComments)
+            }
         }
     }
+    
+    func buildCommentTree(from comments: [Comment]) -> [CommentNode] {
+        var commentDict = [String: CommentNode]()
+        var rootComments = [CommentNode]()
+
+        // Create nodes for all comments
+        for comment in comments {
+            let node = CommentNode(comment: comment)
+            commentDict[comment.id] = node
+        }
+
+        // Build the tree
+        for node in commentDict.values {
+            if let parentId = node.comment.parentId, let parentNode = commentDict[parentId] {
+                parentNode.replies.append(node)
+            } else {
+                rootComments.append(node)
+            }
+        }
+
+        // Sort rootComments by createdAt
+        rootComments.sort { $0.comment.createdAt < $1.comment.createdAt }
+
+        // Sort replies recursively
+        for node in commentDict.values {
+            node.replies.sort { $0.comment.createdAt < $1.comment.createdAt }
+        }
+
+        return rootComments
+    }
+    
+    
     
     // MARK: - Delete Comment
     
     func deleteComment(movieClubId: String, movieId: String, commentId: String) async throws {
-        guard
-            let currentUser
-        else {
-            throw AuthError.invalidUser
-        }
-        
         let parameters: [String: Any] = [
             "movieClubId": movieClubId,
             "movieId": movieId
         ]
         
         do {
-            let result = try await functions.httpsCallable("comments-deleteComment").call(parameters)
+            let _ = try await functions.httpsCallable("comments-deleteComment").call(parameters)
         } catch {
             throw error
         }
     }
     
     // MARK: - Post Comment
-
-    func postComment(movieClubId: String, movieId: String, comment: Comment) async throws {
-        guard
-            let currentUser
-        else {
-            throw AuthError.invalidUser
+    
+    func postComment(clubId: String, movieId: String, comment: Comment) async throws {
+        
+        var parameters: [String: Any] = [
+            "text": comment.text,
+            "userId": comment.userId,
+            "userName": comment.userName,
+            "clubId": clubId,
+            "movieId": movieId
+        ]
+        
+        if let parentId = comment.parentId {
+            parameters["parentId"] = parentId
         }
         
+        do {
+            _ = try await functions.httpsCallable("comments-postComment").call(parameters)
+            print("Posted comment")
+        } catch {
+            print("Error posting comment: \(error)")
+            throw error
+        }
+    }
+    
+    func likeComment(commentId: String, userId: String) async throws {
         let parameters: [String: Any] = [
-            "text" : comment.text,
-            "userId": comment.userId,
-            "username": comment.username,
-            "movieClubId": movieClubId,
+            "commentId": commentId,
+            "clubId": clubId,
             "movieId": movieId
         ]
         
         do {
-            let result = try await functions.httpsCallable("comments-postComment").call(parameters)
+            _ = try await functions.httpsCallable("comments-likeComment").call(parameters)
+                                                                               
+        } catch {
+            throw error
+        }
+    }
+    
+    func unlikeComment(commentId: String, userId: String) async throws {
+        let parameters: [String: Any] = [
+            "commentId": commentId,
+            "clubId": clubId,
+            "movieId": movieId
+        ]
+        
+        do {
+            _ = try await functions.httpsCallable("comments-unlikeComment").call(parameters)
+                                                                               
         } catch {
             throw error
         }
     }
 }
+
