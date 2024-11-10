@@ -44,9 +44,10 @@ struct ProfileDisplayView: View {
                 }
             }
         }
+        .toolbar {
+            NavigationLink(destination: UserSettingsView()) {
+                Image(systemName: "gearshape")
+            }
+        }
     }
-}
-
-#Preview {
-    ProfileDisplayView()
 }
