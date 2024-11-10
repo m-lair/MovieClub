@@ -72,7 +72,7 @@ class DataManager: Identifiable {
     }
 }
 
-    // MARK: - Error Handling
+// MARK: - Error Handling
 extension DataManager {
     enum DataError: LocalizedError {
         case invalidAPIKey

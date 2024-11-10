@@ -37,7 +37,7 @@ extension DataManager {
             print("error getting user document")
             return
         }
-        print("\(snapshot.data())")
+        
         do {
             currentUser = try snapshot.data(as: User.self)
         } catch {
@@ -71,7 +71,7 @@ extension DataManager {
                 var clubList: [MovieClub] = []
                 for try await club in group {
                     if let club {
-                        print("Fetched club: \(club.id)")
+                       
                         clubList.append(club)
                     }
                 }

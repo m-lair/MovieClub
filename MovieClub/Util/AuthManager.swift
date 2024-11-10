@@ -15,8 +15,10 @@ import AuthenticationServices
 class AuthManager {
     var authCurrentUser: FirebaseAuth.User?
     var authState: AuthStateDidChangeListenerHandle?
+    var functions: Functions
     
     init() {
+        functions = Functions.functions()
         registerStateListener()
     }
     // MARK: - Enums
@@ -89,6 +91,17 @@ class AuthManager {
             try Auth.auth().signOut()
         } catch {
             print(error.localizedDescription)
+        }
+    }
+    
+    func deleteUserData() async throws {
+        let params = ["userId": authCurrentUser?.uid]
+        do {
+            _ = try await functions.httpsCallable("users-deleteUser").call(params)
+            try await Auth.auth().currentUser?.delete()
+        } catch {
+            print("Error deleting user data: \(error)")
+            throw error
         }
     }
     

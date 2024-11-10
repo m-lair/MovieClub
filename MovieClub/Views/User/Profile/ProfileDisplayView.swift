@@ -32,15 +32,6 @@ struct ProfileDisplayView: View {
                             .tag(1)
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))
-                    
-                    Button {
-                        auth.signOut()
-                    } label: {
-                        Text("Sign Out")
-                            .foregroundStyle(Color(.red))
-                            .padding()
-                    }
-                    .hidden()
                 }
             }
         }
