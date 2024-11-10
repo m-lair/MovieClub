@@ -4,7 +4,13 @@ export interface CommentData {
   userName: string;
   image?: string;
   likes: number;
+  likedBy: string[];
+  parentId?: string;
   createdAt: Date;
+}
+
+interface ReplyData extends CommentData {
+  replyToId: string;
 }
 
 interface CommentDataAssociations {
@@ -12,7 +18,19 @@ interface CommentDataAssociations {
   movieId: string;
 }
 
-export interface PostCommentData extends CommentData, CommentDataAssociations {}
+export interface LikeCommentData {
+  clubId: string;
+  movieId: string;
+  commentId: string;
+}
+
+export interface UnlikeCommentData {
+  clubId: string;
+  movieId: string;
+  commentId: string;
+}
+
+export interface PostCommentData extends CommentData, ReplyData, CommentDataAssociations {}
 
 export interface DeleteCommentData extends CommentDataAssociations {
   id: string;

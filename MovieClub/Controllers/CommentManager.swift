@@ -22,7 +22,7 @@ extension DataManager {
         case unknownError
         
     }
-
+    
     // MARK: - (Deprecated) Fetch Comments
     
     func fetchComments(clubId: String, movieId: String) async throws -> [Comment] {
@@ -60,14 +60,13 @@ extension DataManager {
             .collection("movies")
             .document(movieId)
             .collection("comments")
-            .order(by: "createdAt", descending: true)
+            .order(by: "createdAt", descending: false) // Use ascending order for thread readability
         
         commentsListener?.remove()
         
-        // Map Firestore documents to Comment model
         commentsListener = commentsRef.addSnapshotListener { [weak self] querySnapshot, error in
-            guard let self else {
-                print("Unknown Eror")
+            guard let self = self else {
+                print("Unknown Error")
                 return
             }
             
@@ -76,58 +75,124 @@ extension DataManager {
                 return
             }
             
-            comments = snapshot.documents.compactMap { document -> Comment? in
+            let fetchedComments = snapshot.documents.compactMap { document -> Comment? in
                 do {
                     var comment = try document.data(as: Comment.self)
                     comment.id = document.documentID
-                    print("comment id: \(comment.id)")
                     return comment
                 } catch {
                     print("Error decoding comment: \(error)")
                     return nil
                 }
             }
+            
+            // Organize comments into a hierarchical structure
+            DispatchQueue.main.async {
+                self.comments = self.buildCommentTree(from: fetchedComments)
+            }
         }
     }
+    
+    func buildCommentTree(from comments: [Comment]) -> [CommentNode] {
+        var commentDict = [String: CommentNode]()
+        var rootComments = [CommentNode]()
+
+        // Create nodes for all comments
+        for comment in comments {
+            let node = CommentNode(comment: comment)
+            commentDict[comment.id] = node
+        }
+
+        // Build the tree
+        for node in commentDict.values {
+            if let parentId = node.comment.parentId, let parentNode = commentDict[parentId] {
+                parentNode.replies.append(node)
+            } else {
+                rootComments.append(node)
+            }
+        }
+
+        // Sort rootComments by createdAt
+        rootComments.sort { $0.comment.createdAt < $1.comment.createdAt }
+
+        // Sort replies recursively
+        for node in commentDict.values {
+            node.replies.sort { $0.comment.createdAt < $1.comment.createdAt }
+        }
+
+        return rootComments
+    }
+    
+    
     
     // MARK: - Delete Comment
     
     func deleteComment(movieClubId: String, movieId: String, commentId: String) async throws {
-        guard
-            let currentUser
-        else {
-            throw CommentError.unauthorized
-        }
-        
         let parameters: [String: Any] = [
             "movieClubId": movieClubId,
             "movieId": movieId
         ]
         
         do {
-            let result = try await functions.httpsCallable("comments-deleteComment").call(parameters)
+            let _ = try await functions.httpsCallable("comments-deleteComment").call(parameters)
         } catch {
             throw error
         }
     }
     
     // MARK: - Post Comment
-
+    
     func postComment(clubId: String, movieId: String, comment: Comment) async throws {
-        let parameters: [String: Any] = [
-            "text" : comment.text,
+        
+        var parameters: [String: Any] = [
+            "text": comment.text,
             "userId": comment.userId,
             "userName": comment.userName,
             "clubId": clubId,
             "movieId": movieId
         ]
         
+        if let parentId = comment.parentId {
+            parameters["parentId"] = parentId
+        }
+        
         do {
             _ = try await functions.httpsCallable("comments-postComment").call(parameters)
-            print("posted comment")
+            print("Posted comment")
         } catch {
-            print("error posting comment: \(error)")
+            print("Error posting comment: \(error)")
+            throw error
+        }
+    }
+    
+    func likeComment(commentId: String, userId: String) async throws {
+        let parameters: [String: Any] = [
+            "commentId": commentId,
+            "clubId": clubId,
+            "movieId": movieId
+        ]
+        
+        do {
+            _ = try await functions.httpsCallable("comments-likeComment").call(parameters)
+                                                                               
+        } catch {
+            throw error
+        }
+    }
+    
+    func unlikeComment(commentId: String, userId: String) async throws {
+        let parameters: [String: Any] = [
+            "commentId": commentId,
+            "clubId": clubId,
+            "movieId": movieId
+        ]
+        
+        do {
+            _ = try await functions.httpsCallable("comments-unlikeComment").call(parameters)
+                                                                               
+        } catch {
             throw error
         }
     }
 }
+

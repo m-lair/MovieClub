@@ -63,7 +63,9 @@ describe("Comment Functions", () => {
         userName: user.name,
         image: user.image,
         likes: 0,
+        likedBy: [],
         createdAt: new Date(),
+        replyToId: "",
       };
     });
 

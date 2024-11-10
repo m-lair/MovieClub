@@ -14,6 +14,9 @@ struct NowShowingView: View {
     @State var collected: Bool = false
     @State var liked: Bool = false
     @State var disliked: Bool = false
+    @State private var isReplying = false
+    @State private var replyToComment: Comment? = nil
+    @FocusState private var isCommentInputFocused: Bool
     
     var movies: [Movie] { data.movies }
     var progress: Double {
@@ -30,7 +33,6 @@ struct NowShowingView: View {
     var body: some View {
         VStack {
             if let movie = movies.first {
-                let _ = print("\(movie.title)")
                 ScrollView {
                     FeaturedMovieView(collected: collected, movie: movie)
                     HStack {
@@ -82,22 +84,21 @@ struct NowShowingView: View {
                             .textCase(.uppercase)
                         
                     }
-                    CommentsView()
+                    CommentsView(onReply: { comment in
+                        replyToComment = comment
+                        isReplying = true
+                        isCommentInputFocused = true
+                    })
                 }
-                
                 .scrollDismissesKeyboard(.interactively)
                 .scrollIndicators(.hidden)
-                
-                CommentInputView(movieId: movie.id ?? "")
-                
-            } else {
-                Button("No Movies Coming Up") {
-                    Task {
-                        await refreshClub()
-                    }
+                if let movieId = movie.id {
+                    CommentInputView(movieId: movieId, replyToComment:  $replyToComment)
+                        .focused($isCommentInputFocused)
                 }
-                .foregroundStyle(.black)
-                .buttonStyle(.borderedProminent)
+
+            } else {
+                WaveLoadingView()
             }
         }
     }

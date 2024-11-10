@@ -22,7 +22,7 @@ class DataManager: Identifiable {
     // MARK: - API Key
     var apiKey: String
     
-    var comments: [Comment] = []
+    var comments: [CommentNode] = []
     var suggestions: [Suggestion] = []
     var movies: [Movie] = []
     

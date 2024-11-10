@@ -9,22 +9,25 @@ import SwiftData
 
 @Model
 final class Comment: Identifiable, Codable, Hashable, Equatable {
-    var id: String?
+    var id: String
     var userId: String
     var image: String? = ""
     var userName: String
     var createdAt: Date
     var text: String
     var likes: Int
+    var parentId: String?
+    var likedBy: [String] = []
     
     init(
-        id: String? = nil,
+        id: String,
         userId: String,
         image: String? = "",
         userName: String,
         createdAt: Date,
         text: String,
-        likes: Int
+        likes: Int,
+        parentId: String? = nil
     ) {
         self.id = id
         self.userId = userId
@@ -33,17 +36,22 @@ final class Comment: Identifiable, Codable, Hashable, Equatable {
         self.createdAt = createdAt
         self.text = text
         self.likes = likes
+        self.parentId = parentId
     }
     
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decodeIfPresent(String.self, forKey: .id)
+        id = ""
         userId = try container.decode(String.self, forKey: .userId)
         image = try container.decodeIfPresent(String.self, forKey: .image)
         userName = try container.decode(String.self, forKey: .userName)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
         text = try container.decode(String.self, forKey: .text)
+        parentId = try container.decodeIfPresent(String.self, forKey: .parentId)
         likes = try container.decodeIfPresent(Int.self, forKey: .likes) ?? 0
+        likedBy = try container.decodeIfPresent([String].self, forKey: .likedBy) ?? []
+
+        
     }
     
     func encode(to encoder: Encoder) throws {
@@ -52,6 +60,7 @@ final class Comment: Identifiable, Codable, Hashable, Equatable {
         try container.encode(userId, forKey: .userId)
         try container.encodeIfPresent(image, forKey: .image)
         try container.encode(userName, forKey: .image)
+        try container.encode(parentId, forKey: .parentId)
     }
     
     enum CodingKeys: String, CodingKey {
@@ -62,5 +71,18 @@ final class Comment: Identifiable, Codable, Hashable, Equatable {
         case createdAt
         case text
         case likes
+        case parentId
+        case likedBy
+    }
+}
+
+class CommentNode: Identifiable {
+    var id: String
+    var comment: Comment
+    var replies: [CommentNode] = []
+    
+    init(comment: Comment) {
+        self.id = comment.id
+        self.comment = comment
     }
 }
