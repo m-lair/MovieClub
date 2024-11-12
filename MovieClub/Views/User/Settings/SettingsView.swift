@@ -88,37 +88,82 @@ struct SettingsRowView<Destination: View>: View {
     }
 }
 
-// Example destination views
 struct LoginInformationView: View {
     @Environment(DataManager.self) var data
     @Environment(AuthManager.self) var auth
     
     var body: some View {
-        if let user = data.currentUser {
-            VStack {
-                Text("Name \(user.name)")
-                    .padding()
-                Text("Email \(user.email)")
-                    .padding()
-                Spacer()
-                
-                Button("Logout") {
-                    auth.signOut()
+        VStack {
+            if let user = data.currentUser {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("User Information")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .padding(.bottom, 10)
+                    
+                    HStack {
+                        Text("Name:")
+                            .fontWeight(.bold)
+                        Text(user.name)
+                    }
+                    
+                    HStack {
+                        Text("Email:")
+                            .fontWeight(.bold)
+                        Text(user.email)
+                    }
+                    
+                    Spacer().frame(height: 20)
+                    
+                    Button {
+                        auth.signOut()
+                    } label: {
+                        Text("Logout")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.red)
+                            .cornerRadius(10)
+                    }
+                    .padding(.top, 10)
+                    
+                    Button {
+                        guard let userId = user.id else { return }
+                        Task {
+                            try await data.deleteUserAccount(userId: userId)
+                            auth.authCurrentUser = nil
+                        }
+                    } label: {
+                        Text("Delete Account")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.red)
+                            .cornerRadius(10)
+                    }
+                    .padding(.top, 10)
                 }
+                .padding()
+                .background(Color(UIColor.systemGray6))
+                .cornerRadius(12)
+                .shadow(radius: 5)
+                .padding()
+            } else {
+                Text("No user information available.")
+                    .foregroundColor(.gray)
+                    .italic()
+                    .padding()
             }
         }
     }
 }
+
+
 struct AddressesView: View { var body: some View { Text("Addresses Screen") } }
 struct PaymentMethodsView: View { var body: some View { Text("Payment Methods Screen") } }
 struct ReferralDashboardView: View { var body: some View { Text("Referral Dashboard Screen") } }
 struct OrdersView: View { var body: some View { Text("Orders Screen") } }
 struct SubscriptionsView: View { var body: some View { Text("Subscriptions Screen") } }
 struct MyReturnsView: View { var body: some View { Text("My Returns Screen") } }
-
-struct SettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        SettingsView()
-            .preferredColorScheme(.dark)
-    }
-}
