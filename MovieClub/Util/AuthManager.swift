@@ -15,10 +15,13 @@ import AuthenticationServices
 class AuthManager {
     var authCurrentUser: FirebaseAuth.User?
     var authState: AuthStateDidChangeListenerHandle?
-    
+
     init() {
         registerStateListener()
+        self.authCurrentUser = Auth.auth().currentUser
+        checkUserAuthentication()
     }
+
     // MARK: - Enums
     enum AuthError: Error {
         case invalidEmail
@@ -32,8 +35,40 @@ class AuthManager {
         case invalidTokenIssuer
     }
     
-    // MARK: - New User Creation
     
+    private func checkUserAuthentication() {
+        guard let user = Auth.auth().currentUser else {
+            // No user is signed in
+            print("No user is signed in.")
+            return
+        }
+        
+        user.getIDTokenForcingRefresh(true) { [weak self] (idToken, error) in
+            if let error = error {
+                // Token refresh failed, possibly because the user no longer exists
+                print("Token refresh failed: \(error.localizedDescription)")
+                self?.handleTokenRefreshError(error)
+            } else {
+                // Token is valid; user is authenticated
+                print("User is authenticated with UID: \(user.uid)")
+                self?.authCurrentUser = user
+            }
+        }
+    }
+    
+    private func handleTokenRefreshError(_ error: Error) {
+           // Sign out the user locally
+           do {
+               try Auth.auth().signOut()
+               self.authCurrentUser = nil
+               print("User has been signed out due to authentication error.")
+           } catch {
+               print("Error signing out: \(error.localizedDescription)")
+           }
+       }
+
+    // MARK: - New User Creation
+
     func createUser(email: String, password: String, displayName: String) async throws -> String {
         do {
             try Auth.auth().signOut()
@@ -50,75 +85,40 @@ class AuthManager {
             throw error
         }
     }
-    
-    // MARK: - Update User
-    
-    /*func updateUser(displayName: String) async throws {
-        guard let user = auth?.currentUser else {
-            throw AuthError.invalidUser
-        }
-        do {
-            let functions = Functions.functions()
-            let result = try await functions.httpsCallable("users-updateUser").call([
-                "id": currentUser.id,
-                "name": currentUser.name,
-                "email": currentUser.email,
-                "bio": currentUser.bio ?? "",
-            ])
-            print("Updated user \(result.data)")
-        } catch {
-            throw error
-        }
-    }*/
-    
+
     // MARK: - Sign In
-    
+
     func signIn(email: String, password: String) async throws {
         do {
             let result = try await Auth.auth().signIn(withEmail: email, password: password)
             self.authCurrentUser = result.user
         } catch {
             print(error.localizedDescription)
+            throw error
         }
     }
-    
+
     // MARK: - Sign Out
-    
+
     func signOut() {
         do {
             try Auth.auth().signOut()
+            self.authCurrentUser = nil
         } catch {
             print(error.localizedDescription)
         }
     }
-    
+
     private func registerStateListener() {
         if authState == nil {
             authState = Auth.auth().addStateDidChangeListener { [weak self] (_, user) in
+                if let user = user {
+                    print("User is signed in: \(user.uid)")
+                } else {
+                    print("No user is signed in.")
+                }
                 self?.authCurrentUser = user
             }
         }
     }
-    
-   /* private var accessGroup: String {
-        get {
-            let info = KeyChainAccessGroupHelper.getAccessGroupInfo()
-            let prefix = info?.prefix ?? "unknown"
-            return prefix + "." + (Bundle.main.bundleIdentifier ?? "unknown")
-        }
-    }
-    
-    private func setupKeychainSharing() {
-        do {
-            let auth = Auth.auth()
-            auth.shareAuthStateAcrossDevices = true
-            try auth.useUserAccessGroup(accessGroup)
-        }
-        catch let error as NSError {
-            print("Error changing user access group: %@", error)
-        }
-    }*/
 }
-
-
-

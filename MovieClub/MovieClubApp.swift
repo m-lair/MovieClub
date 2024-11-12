@@ -81,7 +81,7 @@ class AppState {
     
     init() async throws {
         self.isLoading = true
-        self.authManager = await AuthManager()
+        self.authManager = AuthManager()
         
         do {
             self.dataManager = try await DataManager()
