@@ -1,23 +1,27 @@
+# Firebase and Google Service files
 GoogleService-Info.plist
-MovieClub/MovieClub.entitlements
-.firebaserc
-functions/.eslintrc.js
-MovieClub.xcodeproj/
 firestore-debug.log
 firestore.indexes.json
 firestore.rules
-functions/package-lock.json
-functions/package-lock.json
-.DS_Store
-node_modulesx/
-.log
+.firebaserc
+
+# Functions and Node modules
+functions/.eslintrc.js
 functions/.runtimeconfig.json
 functions/firebase-debug.log
 functions/pubsub-debug.log
-functions/pubsub-debug.log
-functions/pubsub-debug.log
-MovieClub.xcodeproj/xcuserdata/marcus.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
-MovieClub.xcodeproj/xcuserdata/marcus.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+functions/package-lock.json
+node_modules/
+
+# macOS and system files
+.DS_Store
+*.log
+
+# Xcode project files
+MovieClub.xcodeproj/
+*.xcworkspace
 *.xcodeproj
-./MovieClub.xcodeproj
-.vscode
+*.xcuserdatad/
+*.xcuserdata/
+*.xccheckout
+*.xcodeproj/
