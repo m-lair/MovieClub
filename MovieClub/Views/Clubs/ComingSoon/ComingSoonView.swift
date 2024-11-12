@@ -19,6 +19,7 @@ struct ComingSoonView: View {
     let startDate: Date?
     let timeInterval: Int
     var clubId: String { data.clubId }
+    var canSuggest: Bool { data.userClubs.contains(where: { $0.id == clubId }) }
     var suggestions: [Suggestion] { data.suggestions }
     
     var body: some View {
@@ -94,6 +95,7 @@ struct ComingSoonView: View {
                 }
                 .padding([.top, .leading])
                 newSuggestionButton
+                    .disabled(canSuggest)
             }
         }
     }
