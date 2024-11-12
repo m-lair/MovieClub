@@ -10,9 +10,8 @@ struct Membership: Codable, Identifiable, Hashable {
     var id: String?
     var clubId: String
     var clubName: String
+    var userName: String
+    var image: String?
     
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-        hasher.combine(clubName)
-    }
+    
 }

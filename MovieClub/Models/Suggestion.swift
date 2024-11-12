@@ -8,7 +8,6 @@
 import Foundation
 import SwiftData
 
-@Model
 final class Suggestion: Identifiable, Codable {
     var id: String?
     var imdbId: String
@@ -40,6 +39,7 @@ final class Suggestion: Identifiable, Codable {
         userImage = try container.decode(String.self, forKey: .userImage)
         userName = try container.decode(String.self, forKey: .userName)
         userId = try container.decode(String.self, forKey: .userId)
+        clubId = try container.decode(String.self, forKey: .clubId)
     }
     
     func encode(to encoder: Encoder) throws {

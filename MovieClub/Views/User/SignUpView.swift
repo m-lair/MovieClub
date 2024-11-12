@@ -19,16 +19,20 @@ struct SignUpView: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var currentNonce: String? = nil
-    @FocusState private var emailFieldFocused: Bool
-    @State private var errorMessage: String = ""
-    @State private var errorShowing: Bool = false
+    @State private var error: Error?
+    
     private var btnDisabled: Bool {
-        if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword != password ||  errorMessage != "") {
+        if (name.isEmpty ||
+            email.isEmpty ||
+            password.isEmpty ||
+            confirmPassword != password ||
+            error != nil) {
             return true
         } else {
             return false
         }
     }
+    
     @State private var confirmPassword = ""
     @State private var name: String = ""
     @State private var email: String = ""
@@ -59,8 +63,7 @@ struct SignUpView: View {
                     case .success:
                         dismiss()
                     case .failure(let error):
-                        // Show error message
-                        errorMessage = error.localizedDescription
+                        self.error = error
                     }
                 }
             }
@@ -91,11 +94,7 @@ struct SignUpView: View {
                 .cornerRadius(8)
                 .padding(.horizontal, 50)
                 .padding(.bottom, 20)
-                .focused($emailFieldFocused)
-                .onChange(of: emailFieldFocused) {
-                    let _ = print("focus changed")
-                    checkEmail()
-                }
+        
             
             SecureField("Password", text: $password)
                 .padding()
@@ -149,36 +148,25 @@ struct SignUpView: View {
             }
             .foregroundStyle(.blue)
         }
-        .alert(errorMessage, isPresented: $errorShowing) {
-            Button("OK", role: .cancel) { }
-        }
-        .padding()
-    }
-    
-    @MainActor func submit() async {
-        if errorMessage == "" {
-            do{
-                checkEmail()
-                let uid = try await authManager.createUser(email: email, password:password, displayName:name)
-                try await authManager.signIn(email: email, password: password)
-                dismiss()
-            } catch {
-                errorMessage = ErrorManager().handleError(error: error)
+        .alert("Error", isPresented: .constant(error != nil)) {
+            Button("OK") {
+                error = nil
+            }
+        } message: {
+            if let error {
+                Text(error.localizedDescription)
             }
         }
     }
     
-    @MainActor
-    func checkEmail(){
-        data.usersCollection().whereField("email", isEqualTo: email).getDocuments { (querySnapshot, error) in
-            if let error = error {
-                print("Error getting documents: \(error)")
-                errorShowing.toggle()
-            } else {
-                if let snapshot = querySnapshot, !snapshot.isEmpty {
-                    errorMessage = "Email already exists"
-                    errorShowing.toggle()
-                }
+    @MainActor func submit() async {
+        if error == nil {
+            do{
+                let uid = try await authManager.createUser(email: email, password:password, displayName:name)
+                try await authManager.signIn(email: email, password: password)
+                dismiss()
+            } catch {
+                self.error = error
             }
         }
     }

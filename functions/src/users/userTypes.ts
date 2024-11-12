@@ -20,6 +20,6 @@ export interface UpdateUserData extends UserData {
   id: string;
 }
 
-export interface DeleteUserData {
+export interface DeleteUserData extends UserData {
   id: string;
 }

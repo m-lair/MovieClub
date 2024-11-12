@@ -99,12 +99,8 @@ struct CreateSuggestionView: View {
                 errorShowing = true
                 return
             }
-            
-        let newMovie = Movie(userId: userId, imdbId: imdbId, startDate: startDate, endDate: endDate, userName: username, status: "active")
-            
         }
-        let _ = try await data.createSuggestion(suggestion: newSuggestion)
-        _ = await data.fetchMovieClub(clubId: clubId)
+        let result = try await data.createSuggestion(suggestion: newSuggestion)
         dismiss()
     }
 }

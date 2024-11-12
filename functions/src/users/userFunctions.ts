@@ -36,7 +36,7 @@ exports.deleteUser = functions.https.onCall(
       logVerbose(`Refresh tokens revoked for user ${uid}.`);
 
       // Optionally, delete the user from Firebase Authentication
-      // await firebaseAdmin.auth().deleteUser(uid);
+      await firebaseAdmin.auth().deleteUser(uid);
       // logVerbose(`User ${uid} deleted from Firebase Authentication.`);
     } catch (error: any) {
       handleCatchHttpsError(`Error soft-deleting user ${request.auth?.uid}:`, error);

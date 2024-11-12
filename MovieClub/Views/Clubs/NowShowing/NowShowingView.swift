@@ -18,7 +18,7 @@ struct NowShowingView: View {
     @State private var replyToComment: Comment? = nil
     @FocusState private var isCommentInputFocused: Bool
     
-    var movies: [Movie] { data.movies }
+    var movies: [Movie] { data.currentClub?.movies ?? []}
     var progress: Double {
         let now = Date()
         if let movie = movies.first {
