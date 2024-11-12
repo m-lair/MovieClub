@@ -11,10 +11,181 @@ import {
 import {
   CreateUserWithEmailData,
   CreateUserWithOAuthData,
+  DeleteUserData,
   UpdateUserData,
 } from "./userTypes";
 import { CallableRequest } from "firebase-functions/https";
 import { USERS } from "src/utilities/collectionNames";
+
+exports.deleteUser = functions.https.onCall(
+  async (request: CallableRequest<DeleteUserData>) => {
+    try {
+      const { auth } = request;
+      const { uid } = verifyAuth(auth);
+
+      // Anonymize and soft-delete the user document
+      await anonymizeUserDocument(uid);
+      logVerbose(`User document ${uid} anonymized and soft-deleted.`);
+
+      // Update related data in 'movieclubs' collection
+      await anonymizeMovieClubsForUser(uid);
+      logVerbose(`Related data in 'movieclubs' collection updated.`);
+
+      // Optionally, sign out the user from Firebase Authentication
+      await firebaseAdmin.auth().revokeRefreshTokens(uid);
+      logVerbose(`Refresh tokens revoked for user ${uid}.`);
+
+      // Optionally, delete the user from Firebase Authentication
+      // await firebaseAdmin.auth().deleteUser(uid);
+      // logVerbose(`User ${uid} deleted from Firebase Authentication.`);
+    } catch (error: any) {
+      handleCatchHttpsError(`Error soft-deleting user ${request.auth?.uid}:`, error);
+    }
+  }
+);
+
+/**
+ * Anonymizes related data in the 'movieclubs' collection for the deleted user.
+ *
+ * @param userId The UID of the user to anonymize.
+ */
+async function anonymizeMovieClubsForUser(userId: string): Promise<void> {
+  const movieClubsRef = firestore.collection('movieclubs');
+
+  // Update 'ownerId' and 'ownerName' in 'movieclubs' documents
+  await updateMovieClubsOwnerData(movieClubsRef, userId);
+
+  // Update subcollections recursively
+  await updateMovieClubsSubcollections(movieClubsRef, userId);
+}
+
+/**
+ * Updates 'ownerId' and 'ownerName' in 'movieclubs' documents where the user is the owner.
+ *
+ * @param movieClubsRef Reference to the 'movieclubs' collection.
+ * @param userId The UID of the user to anonymize.
+ */
+async function updateMovieClubsOwnerData(
+  movieClubsRef: FirebaseFirestore.CollectionReference,
+  userId: string
+): Promise<void> {
+  let query = movieClubsRef.where('ownerId', '==', userId).limit(500);
+  let snapshot = await query.get();
+
+  while (!snapshot.empty) {
+    const batch = firestore.batch();
+
+    snapshot.docs.forEach(doc => {
+      const docRef = doc.ref;
+      batch.update(docRef, {
+        ownerId: '[deleted user]',
+        ownerName: '[deleted user]',
+      });
+    });
+
+    await batch.commit();
+
+    // Prepare for the next batch
+    const lastDoc = snapshot.docs[snapshot.docs.length - 1];
+    query = movieClubsRef
+      .where('ownerId', '==', userId)
+      .startAfter(lastDoc)
+      .limit(500);
+
+    snapshot = await query.get();
+  }
+}
+
+/**
+ * Updates subcollections of 'movieclubs' documents where 'userId' matches the deleted user.
+ *
+ * @param movieClubsRef Reference to the 'movieclubs' collection.
+ * @param userId The UID of the user to anonymize.
+ */
+async function updateMovieClubsSubcollections(
+  movieClubsRef: FirebaseFirestore.CollectionReference,
+  userId: string
+): Promise<void> {
+  const movieClubsSnapshot = await movieClubsRef.get();
+
+  for (const clubDoc of movieClubsSnapshot.docs) {
+    await anonymizeSubcollections(clubDoc.ref, userId);
+  }
+}
+
+/**
+ * Recursively anonymizes subcollections where 'userId' matches the deleted user.
+ *
+ * @param docRef Reference to the document.
+ * @param userId The UID of the user to anonymize.
+ */
+async function anonymizeSubcollections(
+  docRef: FirebaseFirestore.DocumentReference,
+  userId: string
+): Promise<void> {
+  const subcollections = await docRef.listCollections();
+
+  for (const subcollection of subcollections) {
+    let query = subcollection.where('userId', '==', userId).limit(500);
+    let snapshot = await query.get();
+
+    while (!snapshot.empty) {
+      const batch = firestore.batch();
+
+      snapshot.docs.forEach(doc => {
+        const docRef = doc.ref;
+        const updateData: any = {
+          userId: '[deleted user]',
+          userName: '[deleted user]',
+        };
+
+        // If the subcollection is 'comments', nullify the 'text' attribute
+        if (subcollection.id === 'comments') {
+          updateData.text = null;
+        }
+
+        batch.update(docRef, updateData);
+      });
+
+      await batch.commit();
+
+      // Prepare for the next batch
+      const lastDoc = snapshot.docs[snapshot.docs.length - 1];
+      query = subcollection
+        .where('userId', '==', userId)
+        .startAfter(lastDoc)
+        .limit(500);
+
+      snapshot = await query.get();
+    }
+
+    // Recursively process nested subcollections
+    for (const doc of snapshot.docs) {
+      await anonymizeSubcollections(doc.ref, userId);
+    }
+  }
+}
+
+/**
+ * Anonymizes and soft-deletes the user document in the 'USERS' collection.
+ *
+ * @param userId The UID of the user to anonymize.
+ */
+async function anonymizeUserDocument(userId: string): Promise<void> {
+  const userRef = firestore.collection(USERS).doc(userId);
+
+  const anonymizedData = {
+    email: firebaseAdmin.firestore.FieldValue.delete(),
+    name: "[deleted user]",
+    bio: firebaseAdmin.firestore.FieldValue.delete(),
+    image: firebaseAdmin.firestore.FieldValue.delete(),
+    signInProvider: firebaseAdmin.firestore.FieldValue.delete(),
+    isDeleted: true,
+    deletedAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
+  };
+
+  await userRef.update(anonymizedData);
+}
 
 exports.createUserWithEmail = functions.https.onCall(
   async (request: CallableRequest<CreateUserWithEmailData>) => {

@@ -11,8 +11,10 @@ import FirebaseFirestore
 
 struct NewClubView: View {
     @Environment(DataManager.self) private var data: DataManager
-    @State var sheetShowing = false
     @Environment(\.dismiss) private var dismiss
+    
+    @State var sheetShowing = false
+    @Binding var path: NavigationPath
     @State var searchText: String = ""
     @State var searchBarShowing = false
     @State var clubList: [MovieClub] = []
@@ -59,7 +61,7 @@ struct NewClubView: View {
             .searchable(text: $searchText)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink(value: "CreateForm"){
+                    NavigationLink(destination: ClubDetailsForm(navPath: $path)) {
                         Text("Create")
                     }
                 }

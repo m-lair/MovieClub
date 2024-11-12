@@ -7,26 +7,40 @@
 import SwiftUI
 
 struct WaveLoadingView: View {
+    private let circleCount = 5
+    private let circleSize: CGFloat = 10
+    private let offsetAmount: CGFloat = 10
+    private let animationDuration: Double = 0.6
+    private let animationDelay: Double = 0.1
+
     @State private var animate = false
 
     var body: some View {
-        HStack(spacing: 8) {
-            ForEach(0..<5) { index in
+        HStack(spacing: circleSize / 2) {
+            ForEach(0..<circleCount, id: \.self) { index in
                 Circle()
                     .fill(Color.white)
-                    .frame(width: 10, height: 10)
-                    .offset(y: self.animate ? -10 : 10)
+                    .frame(width: circleSize, height: circleSize)
+                    .offset(y: animate ? -offsetAmount : offsetAmount)
                     .animation(
-                        Animation
-                            .easeInOut(duration: 0.6)
-                            .repeatForever(autoreverses: true)
-                            .delay(Double(index) * 0.1),
+                        waveAnimation
+                            .delay(Double(index) * animationDelay),
                         value: animate
                     )
             }
         }
+        .frame(height: circleSize + (offsetAmount * 2))
         .onAppear {
-            self.animate = true
+            animate = true
         }
+        .onDisappear {
+            animate = false
+        }
+    }
+
+    private var waveAnimation: Animation {
+        Animation
+            .easeInOut(duration: animationDuration)
+            .repeatForever(autoreverses: true)
     }
 }

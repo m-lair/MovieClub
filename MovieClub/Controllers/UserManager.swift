@@ -113,80 +113,6 @@ extension DataManager {
         }
     }
     
-    // MARK: - Update Related User Data
-    
-    private func updateRelatedUserData(changes: [String: Any]) async {
-        await updateComments(changes: changes)
-        await updateMovies(changes: changes)
-        await updateMembers(changes: changes)
-    }
-    
-    private func updateComments(changes: [String: Any]) async {
-        let commentsQuery = db.collectionGroup("comments").whereField("userId", isEqualTo: currentUser?.id ?? "")
-        do {
-            let commentsSnapshot = try await commentsQuery.getDocuments()
-            let batch = db.batch()
-            for document in commentsSnapshot.documents {
-                batch.updateData([
-                    "username": changes["name"] ?? currentUser?.name ?? ""
-                ], forDocument: document.reference)
-            }
-            try await batch.commit()
-            //print("Successfully updated comments.")
-        } catch {
-            print("Error updating comments: \(error)")
-        }
-    }
-    
-    private func updateMovies(changes: [String: Any]) async {
-        let moviesQuery = db.collectionGroup("movies").whereField("authorId", isEqualTo: currentUser?.id ?? "")
-        do {
-            let movieSnapshot = try await moviesQuery.getDocuments()
-            let batch = db.batch()
-            for document in movieSnapshot.documents {
-                batch.updateData([
-                    "author": changes["name"] ?? currentUser?.name ?? ""
-                ], forDocument: document.reference)
-            }
-            try await batch.commit()
-            //print("Successfully updated movies.")
-        } catch {
-            print("Error updating movies: \(error)")
-        }
-    }
-    
-    private func updateMembers(changes: [String: Any]) async {
-        let membersQuery = db.collectionGroup("members").whereField("userId", isEqualTo: currentUser?.id ?? "")
-        do {
-            let membersSnapshot = try await membersQuery.getDocuments()
-            let batch = db.batch()
-            for document in membersSnapshot.documents {
-                batch.updateData([
-                    "userName": changes["name"] ?? currentUser?.name ?? ""
-                ], forDocument: document.reference)
-            }
-            try await batch.commit()
-            //print("Successfully updated members.")
-        } catch {
-            print("Error updating members: \(error)")
-        }
-    }
-    
-    // MARK: - Get Profile Image by Path
-    
-    func getProfileImage(path: String) async -> String {
-        let storageRef = Storage.storage().reference().child(path)
-        do {
-            let url = try await storageRef.downloadURL()
-            self.currentUser?.image = url.absoluteString
-            //print("Profile image URL: \(url.absoluteString)")
-            return url.absoluteString
-        } catch {
-            print(error)
-            return ""
-        }
-    }
-    
     // MARK: - Get Profile Image by User ID
     
     func getProfileImage(userId: String) async throws -> String? {
@@ -199,6 +125,18 @@ extension DataManager {
             return url
         } catch {
             print("Error fetching profile image URL: \(error)")
+            throw error
+        }
+    }
+    
+    func deleteUserAccount(userId: String) async throws {
+        let parameters: [String: Any] = [
+            "userId": userId
+        ]
+
+        do {
+            _ = try await functions.httpsCallable("users-deleteUser").call(parameters)
+        } catch {
             throw error
         }
     }
