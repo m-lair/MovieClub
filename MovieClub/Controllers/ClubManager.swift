@@ -28,9 +28,10 @@ extension DataManager {
     func createMovieClub(movieClub: MovieClub) async throws {
         let createClub: Callable<MovieClub, String> = functions.httpsCallable("movieClubs-createMovieClub")
         do {
-            let result = try await createClub(movieClub)
+            _ = try await createClub(movieClub)
             try await fetchUser()
         } catch {
+            print("unable to create movie club: \(movieClub.name)")
             throw error
         }
     }

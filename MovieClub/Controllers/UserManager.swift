@@ -71,11 +71,10 @@ extension DataManager {
                 var clubList: [MovieClub] = []
                 for try await club in group {
                     if let club {
-                        print("Fetched club: \(club.id)")
                         clubList.append(club)
                     }
                 }
-                
+                print("clubList: \(clubList)")
                 return clubList
             }
             self.userClubs = clubs

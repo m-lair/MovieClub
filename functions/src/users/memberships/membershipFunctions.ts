@@ -7,7 +7,7 @@ import { JoinMovieClubData, LeaveMovieClubData } from "./membershipTypes";
 import { getMovieClubSuggestionDocRef } from "src/movieClubs/suggestions/suggestionHelpers";
 
 exports.joinMovieClub = functions.https.onCall(
-  async (request: CallableRequest<JoinMovieClubData>): Promise<void> => {
+  async (request: CallableRequest<JoinMovieClubData>) => {
     try {
       const { data, auth } = request;
       const { uid } = verifyAuth(auth);
@@ -16,10 +16,10 @@ exports.joinMovieClub = functions.https.onCall(
         //"image",
         "clubId",
         "clubName",
-        "username",
+        "userName",
       ];
       verifyRequiredFields(data, requiredFields);
-
+      console.log("data", data);
       const movieClubRef = await getMovieClub(data.clubId)
       const movieClubData = movieClubRef.data();
 
@@ -39,9 +39,11 @@ exports.joinMovieClub = functions.https.onCall(
       const movieClubMemberRef = getMovieClubMemberDocRef(uid, data.clubId);
       await movieClubMemberRef.set({
         image: data.image,
-        username: data.username,
+        username: data.userName,
         createdAt: Date.now(),
       });
+
+      return { success: true };
 
       logVerbose("User joined Movie Club successfully!");
     } catch (error: any) {

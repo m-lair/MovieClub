@@ -16,6 +16,12 @@ extension DataManager {
         case invalidMembership
         case joinFailure
         case leaveFailure
+        case custom(message: String)
+    }
+    
+    struct MembershipResponse: Codable {
+        let success: Bool
+        let message: String?
     }
     
     // MARK: - Join Club
@@ -28,17 +34,20 @@ extension DataManager {
            return
         }
         
-        let joinClub: Callable<[String: String], MovieClub> = functions.httpsCallable("memberships-joinMovieClub")
-        let requestData: [String: String] = ["clubId": clubId,
-                                             "username": user.name,
-                                             "clubName": club.name,
-                                             "image": "image"]
+        let joinClub: Callable<Membership, MembershipResponse> = functions.httpsCallable("memberships-joinMovieClub")
+        let membership = Membership(clubId: clubId, clubName: club.name, userName: user.name, image: "image")
         do {
-            _ = try await joinClub(requestData)
-            await fetchUserClubs()
+            let result = try await joinClub(membership)
+            if result.success {
+                print("Suggestion created successfully")
+                await fetchUserClubs()
+            } else {
+                print("Failed to join club: \(result.message ?? "Unknown error")")
+                throw MembershipError.custom(message: result.message ?? "Unknown error")
+            }
         } catch {
-            print("error joining club: \(error.localizedDescription)")
-            throw MembershipError.joinFailure
+            print("Network error: \(error)")
+            throw SuggestionError.networkError(error)
         }
     }
     

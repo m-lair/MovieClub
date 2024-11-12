@@ -61,8 +61,8 @@ struct MovieClubCardView: View {
             if !movieClub.name.isEmpty{
                 Text(movieClub.name)
                     .font(.title)
-                Text("Movie: \(movieClub.numMovies)")
-                Text("Members: \(movieClub.numMembers)")
+                Text("Movie: \(movieClub.numMovies ?? 0)")
+                Text("Members: \(movieClub.numMembers ?? 0)")
                     // You can add more information about the movie club here
                 
             }

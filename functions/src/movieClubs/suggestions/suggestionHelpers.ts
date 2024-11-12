@@ -8,10 +8,10 @@ export const getMovieClubSuggestionRef = (movieClubId: string) => {
     .collection(SUGGESTIONS)
 };
 
-export const getMovieClubSuggestionDocRef = (uid: string, movieClubId: string) => {
-  return getMovieClubSuggestionRef(movieClubId).doc(uid);
+export const getMovieClubSuggestionDocRef = (uid: string, clubId: string) => {
+  return getMovieClubSuggestionRef(clubId).doc(uid);
 };
 
-export const getMovieClubSuggestion = async (uid: string, movieClubId: string) => {
-  return await getMovieClubSuggestionDocRef(uid, movieClubId).get()
+export const getMovieClubSuggestion = async (uid: string, clubId: string) => {
+  return await getMovieClubSuggestionDocRef(uid, clubId).get()
 };
