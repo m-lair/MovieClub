@@ -132,11 +132,81 @@ extension DataManager {
         let parameters: [String: Any] = [
             "userId": userId
         ]
-
+        
         do {
             _ = try await functions.httpsCallable("users-deleteUser").call(parameters)
         } catch {
             throw error
         }
+    }
+    
+    func fetchCurrentCollection() async {
+        do {
+            let items = try await fetchCollectionItems()
+            self.currentCollection = items
+        } catch {
+            print("Error fetching collection items: \(error)")
+        }
+    }
+    
+    func fetchCollectionItems() async throws -> [CollectionItem] {
+        guard let user = currentUser,
+              let userId = user.id
+        else { return [] }
+        
+        let snapshot = try await usersCollection().document(userId).collection("posters").getDocuments()
+        var items: [CollectionItem] = []
+        
+        for document in snapshot.documents {
+            var item = try document.data(as: CollectionItem.self)
+            // Fetch posterUrl if needed
+            if item.posterUrl.isEmpty {
+                if let posterUrl = try? await fetchPosterUrl(imdbId: item.imdbId) {
+                    item.posterUrl = posterUrl
+                    // Optionally update Firestore with the new posterUrl
+                    // try await updatePosterUrlInFirestore(for: item)
+                }
+            }
+            items.append(item)
+        }
+        return items
+    }
+    
+    func fetchPosterUrl(imdbId: String) async throws -> String {
+        let urlString = "https://www.omdbapi.com/?i=\(imdbId)&apikey=\(apiKey)"
+        
+        guard let url = URL(string: urlString) else {
+            throw URLError(.badURL)
+        }
+        
+        let (data, _) = try await URLSession.shared.data(from: url)
+        
+        struct APIResponse: Decodable {
+            let Poster: String?
+        }
+        
+        let apiResponse = try JSONDecoder().decode(APIResponse.self, from: data)
+        return apiResponse.Poster ?? ""
+    }
+    
+    func collectPoster(collectionItem: CollectionItem) async throws {
+        let collectPoster: Callable<CollectionItem, CollectionResponse> = functions.httpsCallable("posters-collectPoster")
+        
+        do {
+            let result = try await collectPoster(collectionItem)
+            if result.success {
+                print("Suggestion created successfully")
+            } else {
+                print("Failed to create suggestion: \(result.message ?? "Unknown error")")
+                throw SuggestionError.custom(message: result.message ?? "Unknown error")
+            }
+        } catch {
+            throw error
+        }
+    }
+    
+    struct CollectionResponse: Codable {
+        let success: Bool
+        let message: String?
     }
 }

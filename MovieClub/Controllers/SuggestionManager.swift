@@ -22,7 +22,7 @@ extension DataManager {
     
     struct SuggestionResponse: Codable {
         let success: Bool
-        let message: String? // Optional in case you want to pass a message with the result
+        let message: String?
     }
     
     // MARK: Create Suggestion

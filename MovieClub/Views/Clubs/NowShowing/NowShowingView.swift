@@ -9,6 +9,7 @@ import SwiftUI
 
 struct NowShowingView: View {
     @Environment(DataManager.self) private var data: DataManager
+    @State var error: Error? = nil
     @State var isLoading: Bool = false
     @State var errorMessage: String = ""
     @State var collected: Bool = false
@@ -42,9 +43,9 @@ struct NowShowingView: View {
                             .padding()
                         Spacer()
                         Button {
-                            collected.toggle()
+                            collected = true
                             Task {
-                                data.currentCollection.append(CollectionItem(url: "matrixPoster", color: .brown))
+                                await collectPoster()
                             }
                         } label: {
                             CollectButton(collected: $collected)
@@ -85,6 +86,15 @@ struct NowShowingView: View {
                 WaveLoadingView()
             }
         }
+        .alert("Error", isPresented: .constant(error != nil), actions: {
+            Button("OK") {
+                error = nil
+            }
+        }, message: {
+            if let error = error {
+                Text(error.localizedDescription)
+            }
+        })
     }
     
     struct ClubProgressViewStyle: ProgressViewStyle {
@@ -110,8 +120,28 @@ struct NowShowingView: View {
         isLoading = true
         defer { isLoading = false }
         print("clubId: \(data.clubId)")
-        await data.fetchMovieClub(clubId: data.clubId)
+        _ = await data.fetchMovieClub(clubId: data.clubId)
        
+    }
+    
+    func collectPoster() async {
+        guard
+            let movie = movies.first,
+            let movieId = movie.id,
+            let club = data.currentClub,
+            let clubName = data.currentClub?.name,
+            let clubId = data.currentClub?.id,
+            let user = data.currentUser
+        else { return }
+        
+        
+        let collectionItem = CollectionItem(id: movieId,  imdbId: movie.imdbId, clubId: clubId, clubName: clubName, colorStr: "green")
+        do {
+            try await data.collectPoster(collectionItem: collectionItem)
+        } catch {
+            self.error = error
+            
+        }
     }
 }
 

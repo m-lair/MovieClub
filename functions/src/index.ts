@@ -6,5 +6,6 @@ import * as memberships from "./users/memberships/membershipFunctions";
 import * as suggestions from "./movieClubs/suggestions/suggestionFunctions";
 //import * as movies from "./movieClubs/movies/movieFunctions";
 import * as users from "./users/userFunctions";
+import * as posters from "./users/posters/posterFunctions";
 
-export { comments, config, memberships, movieClubs, suggestions, users };
+export { comments, config, memberships, movieClubs, suggestions, users, posters };

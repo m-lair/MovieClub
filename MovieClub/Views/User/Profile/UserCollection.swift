@@ -6,83 +6,66 @@
 //
 
 import SwiftUI
-
-
-struct CollectionItem: Identifiable, Hashable {
-    let id = UUID()
-    let url: String
-    let color: Color
-}
+import FirebaseFirestore
 
 struct UserCollectionView: View {
     @Environment(DataManager.self) private var data: DataManager
-    let colors: [Color] = [.red, .blue, .green, .yellow, .orange]
+
     let flexibleColumns = [
-            GridItem(.flexible(minimum: 50, maximum: 200)),
-            GridItem(.flexible(minimum: 50, maximum: 200)),
-            GridItem(.flexible(minimum: 50, maximum: 200))
-            ]
+        GridItem(.flexible(minimum: 50, maximum: 200)),
+        GridItem(.flexible(minimum: 50, maximum: 200)),
+        GridItem(.flexible(minimum: 50, maximum: 200))
+    ]
+
     var body: some View {
         ScrollView {
             LazyVGrid(columns: flexibleColumns, spacing: 10) {
-                ForEach(data.currentCollection, id: \.id) { item in
-                    let randomColor = colors.randomElement() ?? Color.black
-                    AsyncImage(url: URL(string: item.url)) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(maxHeight: 250)
-                                .overlay(Rectangle()
-                                    .stroke(randomColor, lineWidth: 2))
-                                .padding()
-                        case .failure:
-                            Image("\(item.url)")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(maxHeight: 250)
-                                .overlay(Rectangle()
-                                    .stroke(randomColor, lineWidth: 2))
-                                .padding()
-                        
-                        case .empty:
-                            Image("\(item.url)")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(maxHeight: 250)
-                                .overlay(Rectangle()
-                                    .stroke(randomColor, lineWidth: 2))
-                                .padding()
-                        
-                        @unknown default:
-                            Image("\(item.url)")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(maxHeight: 250)
-                                .overlay(Rectangle()
-                                    .stroke(randomColor, lineWidth: 2))
-                                .padding()
+                ForEach(data.currentCollection) { item in
+                    VStack {
+                        if let url = URL(string: item.posterUrl) {
+                            AsyncImage(url: url) { phase in
+                                switch phase {
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(maxHeight: 250)
+                                        .clipped()
+                                case .failure, .empty:
+                                    PlaceholderView()
+                                @unknown default:
+                                    PlaceholderView()
+                                }
+                            }
+                        } else {
+                            PlaceholderView()
                         }
                     }
+                    .overlay(
+                        Rectangle()
+                            .stroke(item.color, lineWidth: 2)
+                    )
+                    .padding()
                 }
             }
+            .padding()
         }
-       /* .onAppear {
-            let collection: [String] = [
-                "https://m.media-amazon.com/images/M/MV5BYTFmNTFlOTAtNzEyNi00MWU2LTg3MGEtYjA2NWY3MDliNjlkXkEyXkFqcGc@._V1_SX300.jpg",
-                "https://m.media-amazon.com/images/M/MV5BYTFmNTFlOTAtNzEyNi00MWU2LTg3MGEtYjA2NWY3MDliNjlkXkEyXkFqcGc@._V1_SX300.jpg",
-                "https://m.media-amazon.com/images/M/MV5BYTFmNTFlOTAtNzEyNi00MWU2LTg3MGEtYjA2NWY3MDliNjlkXkEyXkFqcGc@._V1_SX300.jpg",
-                "https://m.media-amazon.com/images/M/MV5BYTFmNTFlOTAtNzEyNi00MWU2LTg3MGEtYjA2NWY3MDliNjlkXkEyXkFqcGc@._V1_SX300.jpg"
-            ]
-            
-            self.collectionItems = collection.map { url in
-                CollectionItem(
-                    url: url,
-                    color: colors.randomElement() ?? .black
-                )
+        .onAppear {
+            Task {
+                await data.fetchCurrentCollection()
             }
-        }*/
+        }
+    }
+
+    @ViewBuilder
+    private func PlaceholderView() -> some View {
+        Rectangle()
+            .fill(Color.gray)
+            .frame(maxHeight: 250)
+            .overlay(
+                Text("?")
+                    .font(.largeTitle)
+                    .foregroundColor(.white)
+            )
     }
 }
-
