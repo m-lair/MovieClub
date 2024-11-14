@@ -7,8 +7,6 @@
 
 import Foundation
 
-
-
 final class MovieClub: Identifiable, Codable, Hashable, Equatable {
     var id: String?
     var name: String
