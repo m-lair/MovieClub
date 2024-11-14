@@ -34,6 +34,7 @@ struct NowShowingView: View {
     var body: some View {
         VStack {
             if let movie = movies.first {
+                let _ = print("movie.likedBy \(movie.likedBy)")
                 ScrollView {
                     FeaturedMovieView(collected: collected, movie: movie)
                     HStack {
@@ -47,6 +48,7 @@ struct NowShowingView: View {
                             Task {
                                 await collectPoster()
                             }
+                            collected = true
                         } label: {
                             CollectButton(collected: $collected)
                         }
@@ -77,6 +79,12 @@ struct NowShowingView: View {
                 }
                 .scrollDismissesKeyboard(.interactively)
                 .scrollIndicators(.hidden)
+                .onChange(of: movie.collectedBy) {
+                    updateCollectState()
+                }
+                .onAppear {
+                    updateCollectState()
+                }
                 if let movieId = movie.id {
                     CommentInputView(movieId: movieId, replyToComment:  $replyToComment)
                         .focused($isCommentInputFocused)
@@ -124,14 +132,20 @@ struct NowShowingView: View {
        
     }
     
+    private func updateCollectState() {
+        guard
+            let movie = movies.first,
+            let userId = data.currentUser?.id
+        else { return }
+        collected = movie.collectedBy.contains(userId)
+    }
+    
     func collectPoster() async {
         guard
             let movie = movies.first,
             let movieId = movie.id,
-            let club = data.currentClub,
             let clubName = data.currentClub?.name,
-            let clubId = data.currentClub?.id,
-            let user = data.currentUser
+            let clubId = data.currentClub?.id
         else { return }
         
         

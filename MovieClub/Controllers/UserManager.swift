@@ -195,9 +195,9 @@ extension DataManager {
         do {
             let result = try await collectPoster(collectionItem)
             if result.success {
-                print("Suggestion created successfully")
+                print("poster collected successfully")
             } else {
-                print("Failed to create suggestion: \(result.message ?? "Unknown error")")
+                print("poster collect failed: \(result.message ?? "Unknown error")")
                 throw SuggestionError.custom(message: result.message ?? "Unknown error")
             }
         } catch {
