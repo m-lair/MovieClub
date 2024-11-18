@@ -62,25 +62,59 @@ extension DataManager {
             let moviesSnapshot = try await movieClubCollection()
                 .document(clubId)
                 .collection("movies")
-                .order(by: "endDate", descending: false)
+                .whereField("status", isEqualTo: "active")
                 .limit(to: 1)
                 .getDocuments()
-            for document in moviesSnapshot.documents {
-                var baseMovie = try document.data(as: Movie.self)
-                baseMovie.id = document.documentID
+            
+            var needsRotation = false
+            var baseMovie: Movie? = nil
+            
+            if let document = moviesSnapshot.documents.first {
+                baseMovie = try document.data(as: Movie.self)
+                baseMovie?.id = document.documentID
                 
+                // Check if the watch period has ended
+                if let endDate = baseMovie?.endDate, endDate < Date() {
+                    needsRotation = true
+                }
+            } else {
+                // No active movie, check if there are suggestions to rotate
+                needsRotation = true
+            }
+            
+            // If rotation is needed, call the rotateMovie Cloud Function
+            if needsRotation {
+                let rotationResult = try await rotateMovie(clubId: clubId)
+                if !rotationResult {
+                   // Do nothing
+                } else {
+                    // After rotation, fetch the new active movie
+                    let newMoviesSnapshot = try await movieClubCollection()
+                        .document(clubId)
+                        .collection("movies")
+                        .whereField("status", isEqualTo: "active")
+                        .limit(to: 1)
+                        .getDocuments()
+                    if let newDocument = newMoviesSnapshot.documents.first {
+                        baseMovie = try newDocument.data(as: Movie.self)
+                        baseMovie?.id = newDocument.documentID
+                    }
+                }
+            }
+            
+            // If we have a base movie, fetch API data
+            if var baseMovie = baseMovie {
                 // Fetch API data for the movie
                 if let apiMovie = try await fetchMovieDetails(for: baseMovie) {
                     baseMovie.apiData = MovieAPIData(from: apiMovie)
                 }
-                movies = [baseMovie]
                 movieClub.movieEndDate = baseMovie.endDate
-                movieClub.movies.append(baseMovie)
+                movieClub.movies = [baseMovie]
             }
             
             return movieClub
         } catch {
-            print("Error decoding movie: \(error)")
+            print("Error fetching movie club: \(error)")
             return nil
         }
     }

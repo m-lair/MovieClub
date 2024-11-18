@@ -7,7 +7,7 @@ export interface MovieClubData {
   numMembers: number;
   ownerId: string;
   ownerName: string;
-  timeInterval: string;
+  timeInterval: number;
   createdAt?: number;
 }
 

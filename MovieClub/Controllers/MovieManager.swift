@@ -6,9 +6,21 @@
 //
 
 import Foundation
+import FirebaseFunctions
 
 // MARK: - DataManager Extension
 extension DataManager {
+    
+    enum MovieError: Error {
+        case noMovieFound
+        case cantRotate
+        case custom(message: String)
+    }
+    
+    struct MovieResponse: Codable {
+        let success: Bool
+        let message: String?
+    }
     
     func fetchMovies(clubId: String) async throws {
         let moviesSnapshot = try await movieClubCollection()
@@ -21,8 +33,6 @@ extension DataManager {
         for document in moviesSnapshot.documents {
             var baseMovie = try document.data(as: Movie.self)
             baseMovie.id = document.documentID
-            
-            //TODO: fetch comments??
             
             // Fetch API data for the movie
             if let apiMovie = try await fetchMovieDetails(for: baseMovie) {
@@ -52,8 +62,8 @@ extension DataManager {
         let decoder = JSONDecoder()
         do {
             return try decoder.decode(MovieAPIResponse.self, from: data)
-           
-
+            
+            
         } catch {
             print("Failed to decode API response: \(error)")
             throw URLError(.cannotParseResponse)
@@ -90,9 +100,26 @@ extension DataManager {
             throw URLError(.cannotParseResponse)
         }
     }
+    
+    
+    func rotateMovie(clubId: String) async throws -> Bool {
+        let rotateMovie: Callable<[String: String], MovieResponse> = functions.httpsCallable("movies-rotateMovie")
+        do {
+            let result = try await rotateMovie.call(["clubId": clubId])
+            if result.success {
+                print("Rotated movie successfully")
+                return true
+                
+            } else {
+                return false
+            }
+        } catch {
+            throw MovieError.custom(message: error.localizedDescription)
+        }
+    }
 }
-
-// MARK: - movie query by title
+    
+    // MARK: - movie query by title
 struct MovieSearchResult: Decodable, Identifiable {
     let title: String
     let year: String
@@ -111,7 +138,7 @@ struct MovieSearchResult: Decodable, Identifiable {
         case poster = "Poster"
     }
 }
-
+    
 struct SearchResponse: Decodable {
     let search: [MovieSearchResult]
     let totalResults: String
@@ -123,3 +150,4 @@ struct SearchResponse: Decodable {
         case response = "Response"
     }
 }
+
