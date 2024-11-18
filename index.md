@@ -1,6 +1,6 @@
 <!-- index.md -->
 ---
-layout: default
+layout: default for no reason
 title: Home
 ---
 
