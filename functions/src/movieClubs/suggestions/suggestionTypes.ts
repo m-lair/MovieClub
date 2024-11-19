@@ -1,3 +1,12 @@
+export interface SuggestionData {
+  userImage?: string;
+  clubId: string;
+  imdbId: string;
+  userId: string;
+  userName: string;
+  createdAt?: Date;
+}
+
 export interface CreateMovieClubSuggestionData {
   userImage?: string;
   clubId: string;
@@ -8,5 +17,10 @@ export interface CreateMovieClubSuggestionData {
 }
 
 export interface DeleteMovieClubSuggestionData {
-  movieClubId: string;
+  userImage?: string;
+  clubId: string;
+  imdbId: string;
+  userId: string;
+  userName: string;
+  createdAt?: Date;
 }

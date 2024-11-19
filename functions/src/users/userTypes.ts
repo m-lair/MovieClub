@@ -19,3 +19,7 @@ export interface CreateUserWithOAuthData extends UserData {
 export interface UpdateUserData extends UserData {
   id: string;
 }
+
+export interface DeleteUserData extends UserData {
+  id: string;
+}

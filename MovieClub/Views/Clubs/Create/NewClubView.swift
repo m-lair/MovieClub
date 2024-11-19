@@ -1,96 +1,76 @@
-//
-//  CreateClubView.swift
-//  MovieClub
-//
-//  Created by Marcus Lair on 5/13/24.
-//
-//
-
 import SwiftUI
 import FirebaseFirestore
 
 struct NewClubView: View {
     @Environment(DataManager.self) private var data: DataManager
-    @State var sheetShowing = false
     @Environment(\.dismiss) private var dismiss
-    @State var searchText: String = ""
-    @State var searchBarShowing = false
-    @State var clubList: [MovieClub] = []
-    @State var btnDisabled: Bool = false
+    
+    @Binding var path: NavigationPath
+    @State private var searchText: String = ""
+    @State private var clubList: [MovieClub] = []
+
     var filteredClubs: [MovieClub] {
-        guard !searchText.isEmpty else {
-            return clubList
-        }
-        return clubList.filter { club in
-            let isNameMatching = club.name.localizedStandardContains(searchText)
-            let isNotInUserMovieClubs = !data.userClubs.contains { $0.id == club.id }
-            
-            return isNameMatching && isNotInUserMovieClubs
+        clubList.filter { club in
+            !data.userClubs.contains { $0.id == club.id } &&
+            (searchText.isEmpty || club.name.localizedStandardContains(searchText))
         }
     }
+
     var body: some View {
-        VStack{
-            List(filteredClubs, id: \.id){club in
-                HStack{
-                    Text("\(club.name)")
+        VStack {
+            List(filteredClubs) { club in
+                HStack {
+                    Text(club.name)
                         .font(.title)
                     Spacer()
-                    Image(systemName: "person.fill")
-                    Text("\(club.numMembers ?? 0)")
-                    Button {
-                        Task{
+                    HStack(spacing: 4) {
+                        Image(systemName: "person.fill")
+                        Text("\(club.numMembers ?? 0)")
+                    }
+                    Button("Join") {
+                        Task {
                             do {
                                 try await data.joinClub(club: club)
+                                dismiss()
                             } catch {
-                                print("error: \(error)")
+                                print("Error joining club: \(error)")
                             }
-                            await data.fetchUserClubs()
-                            dismiss()
                         }
-                    } label: {
-                        Text("Join")
                     }
+                    .buttonBorderShape(.capsule)
+                    .buttonStyle(.bordered)
                 }
-                /* NavigationLink(destination: ClubDetailView(movieClub: club, path: $path )) {
-                 Text(club.name)
-                 .font(.title)
-                 }*/
             }
-            .searchable(text: $searchText)
+            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
+            .navigationTitle("Find or Create Club")
+            .listStyle(.plain)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink(value: "CreateForm"){
+                    NavigationLink(destination: ClubDetailsForm(navPath: $path)) {
                         Text("Create")
                     }
                 }
             }
-            .navigationTitle("Find or Create Club")
         }
-        .onAppear(){
-            Task{
-                do{
-                    //data.clearMoviesCache()
-                    try await clubList = getClubList()
+        .onAppear {
+            Task {
+                do {
+                    clubList = try await getClubList()
                 } catch {
-                    print("Error Retrieving Clubs")
+                    print("Error retrieving clubs: \(error)")
                 }
             }
         }
     }
-
+    //this method is getting clubs as nil because of the document id
     func getClubList() async throws -> [MovieClub] {
         let snapshot = try await data.movieClubCollection().getDocuments()
-        do {
-            var clubs: [MovieClub] = []
-            for document in snapshot.documents {
-                let club = try document.data(as: MovieClub.self)
-                club.id = document.documentID
-                clubs.append(club)
-            }
-            return clubs
-        } catch {
-            print("Error decoding movie club: \(error)")
-            return []
+        let clubList: [MovieClub] = try snapshot.documents.compactMap { document in
+            
+            var club = try document.data(as: MovieClub.self)
+            club.id = document.documentID
+            return club
         }
+        return clubList
     }
 }

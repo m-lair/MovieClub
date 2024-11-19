@@ -41,7 +41,6 @@ class DataManager: Identifiable {
         currentClub?.movies.first?.id ?? ""
     }
     
-    
     // MARK: - Firebase References
     var db: Firestore
     var functions: Functions
@@ -72,7 +71,7 @@ class DataManager: Identifiable {
     }
 }
 
-    // MARK: - Error Handling
+// MARK: - Error Handling
 extension DataManager {
     enum DataError: LocalizedError {
         case invalidAPIKey

@@ -7,6 +7,9 @@ export interface MovieData {
     endDate: Date;
     numComments: number;
     imdbId: string;
+    collectedBy: string[];
+    likedBy: string[];
+    dislikedBy: string[];
 }
 
 export interface CreateMovieData extends MovieData {

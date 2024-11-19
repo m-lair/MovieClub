@@ -2,7 +2,7 @@ export interface JoinMovieClubData {
   clubId: string;
   clubName: string;
   image?: string;
-  username: string;
+  userName: string;
 }
 
 export interface LeaveMovieClubData {

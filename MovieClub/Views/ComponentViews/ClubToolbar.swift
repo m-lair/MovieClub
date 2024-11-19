@@ -26,12 +26,6 @@ struct ClubToolbar: View {
                 Label("Edit", systemImage: "pencil")
             }
             
-            NavigationLink {
-                CreateSuggestionView()
-            } label: {
-                Label("New Suggestion", systemImage: "plus")
-            }
-            
             Button {
                 Task {
                     do {

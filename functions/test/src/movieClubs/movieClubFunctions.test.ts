@@ -41,7 +41,7 @@ describe("createMovieClub", () => {
       numMembers: 1,
       ownerId: userId,
       ownerName: username,
-      timeInterval: "Test Interval",
+      timeInterval: 0,
     };
   });
 
@@ -114,7 +114,7 @@ describe("updateMovieClub", () => {
       numMembers: 2,
       ownerId: "Not Updated ownerId",
       ownerName: "Not Updated ownerName",
-      timeInterval: "Updated test interval",
+      timeInterval: 0,
       bannerUrl: "Updated test banner URL",
     };
   });

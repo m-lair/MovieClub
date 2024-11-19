@@ -12,7 +12,7 @@ export interface MovieClubMock {
   numMembers: number;
   ownerId: string;
   ownerName: string;
-  timeInterval: string;
+  timeInterval: number;
   createdAt: number;
 }
 
@@ -35,7 +35,7 @@ export async function populateMovieClubData(
     numMembers: params.numMembers || 1,
     ownerId: params.ownerId || "test-user-id",
     ownerName: params.ownerName || "Test User",
-    timeInterval: params.timeInterval || "",
+    timeInterval: params.timeInterval || 0,
     createdAt: Date.now(),
     // movieEndDate: firebaseAdmin.firestore.Timestamp.fromDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)),
   };

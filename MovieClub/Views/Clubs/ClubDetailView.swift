@@ -57,7 +57,7 @@ struct ClubDetailView: View {
         }
         .task {
             data.currentClub = club
-            await data.fetchMovieClub(clubId: data.clubId)
+            await data.fetchUserClubs()
         }
         .onDisappear {
             data.currentClub = nil

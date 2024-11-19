@@ -81,7 +81,7 @@ class AppState {
     
     init() async throws {
         self.isLoading = true
-        self.authManager = await AuthManager()
+        self.authManager = AuthManager()
         
         do {
             self.dataManager = try await DataManager()
@@ -159,6 +159,7 @@ struct MainContentView: View {
                             try await appState.dataManager.fetchUser()
                         } catch {
                             print("Error fetching user: \(error)")
+                            authManager.authCurrentUser = nil
                         }
                     }
             } else {

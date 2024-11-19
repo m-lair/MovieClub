@@ -39,7 +39,7 @@ describe("membershipFunctions", () => {
         image: "Test Image",
         clubId: movieClub.id,
         clubName: movieClub.name,
-        username: user.name,
+        userName: user.name,
       };
     });
 

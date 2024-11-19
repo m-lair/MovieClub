@@ -79,6 +79,8 @@
 		2C87B2BB2C6F1B4100A49B2B /* ComingSoonRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C87B2BA2C6F1B4100A49B2B /* ComingSoonRowView.swift */; };
 		2CAEAB9A2C58972300A0011A /* ClubDetailsForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */; };
 		2CAEABA12C5C5C9300A0011A /* BlurredBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */; };
+		2CBAE7992CE10B6F00A7C0AC /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBAE7982CE10B6F00A7C0AC /* SettingsView.swift */; };
+		2CBEB31D2CE5A7D200FB6623 /* CollectionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBEB31C2CE5A7D200FB6623 /* CollectionItem.swift */; };
 		2CD71F622CB352BB00F9CF58 /* AppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71F602CB352BB00F9CF58 /* AppTests.swift */; };
 		2CD71F792CB3951900F9CF58 /* Users.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71F782CB394F100F9CF58 /* Users.test.swift */; };
 		2CD71F7B2CB3953E00F9CF58 /* Clubs.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71F7A2CB3952600F9CF58 /* Clubs.test.swift */; };
@@ -175,6 +177,8 @@
 		2CAEAB992C58972300A0011A /* ClubDetailsForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubDetailsForm.swift; sourceTree = "<group>"; };
 		2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurredBackground.swift; sourceTree = "<group>"; };
 		2CAEABA42C6A7FD500A0011A /* MovieClub.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MovieClub.entitlements; sourceTree = "<group>"; };
+		2CBAE7982CE10B6F00A7C0AC /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		2CBEB31C2CE5A7D200FB6623 /* CollectionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionItem.swift; sourceTree = "<group>"; };
 		2CD71F602CB352BB00F9CF58 /* AppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTests.swift; sourceTree = "<group>"; };
 		2CD71F6F2CB35A4200F9CF58 /* Testing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Testing.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/Testing.framework; sourceTree = DEVELOPER_DIR; };
 		2CD71F782CB394F100F9CF58 /* Users.test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Users.test.swift; sourceTree = "<group>"; };
@@ -369,6 +373,7 @@
 		2C4474F22BFCF1F10034204C /* User */ = {
 			isa = PBXGroup;
 			children = (
+				2CBAE7972CE10B6000A7C0AC /* Settings */,
 				2C11FFED2CA37E85004F54BC /* Profile */,
 				2C5DEC792BF1B3F6000EF232 /* SignUpView.swift */,
 				2C8256BA2BF1BC9300D2ED12 /* LoginView.swift */,
@@ -435,6 +440,7 @@
 		2C5DEC3D2BF1B06C000EF232 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				2CBEB31C2CE5A7D200FB6623 /* CollectionItem.swift */,
 				2C1326C12CD1AA6D0076E39C /* Announcement.swift */,
 				2C1326B32CC9E9F70076E39C /* Notification.swift */,
 				2CD71FEA2CBCF0F600F9CF58 /* Suggestion.swift */,
@@ -488,6 +494,14 @@
 				2C1326BF2CCF36C60076E39C /* MovieButtonViews.swift */,
 			);
 			path = ComponentViews;
+			sourceTree = "<group>";
+		};
+		2CBAE7972CE10B6000A7C0AC /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				2CBAE7982CE10B6F00A7C0AC /* SettingsView.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		2CD71F612CB352BB00F9CF58 /* SwiftTesting */ = {
@@ -728,6 +742,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CBEB31D2CE5A7D200FB6623 /* CollectionItem.swift in Sources */,
 				2C11FFEB2CA37B8F004F54BC /* Member.swift in Sources */,
 				2C1326B42CC9E9FD0076E39C /* Notification.swift in Sources */,
 				2C1326B82CC9EB400076E39C /* NotifListView.swift in Sources */,
@@ -752,6 +767,7 @@
 				2C87B2B12C6D08F300A49B2B /* ProfileDisplayView.swift in Sources */,
 				2C8256C32BF1E90E00D2ED12 /* DiscoverView.swift in Sources */,
 				2C4475192C4C0D6E0034204C /* ComingSoonView.swift in Sources */,
+				2CBAE7992CE10B6F00A7C0AC /* SettingsView.swift in Sources */,
 				2CD71FF52CBEFC9300F9CF58 /* CreateSuggestion.swift in Sources */,
 				2C11FFF52CA37FC1004F54BC /* AppleAuth.swift in Sources */,
 				2C1326C52CD1AAF10076E39C /* BulletinView.swift in Sources */,

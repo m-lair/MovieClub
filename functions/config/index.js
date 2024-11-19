@@ -1,11 +1,16 @@
 const dotenv = require('dotenv').config();
 
-const env = process.env.NODE_ENV || "dev"
-const config = require(`./config.${env}.js`);
-require("./config.dev")
+const env = process.env.NODE_ENV || "dev";
 
-console.log(`Loaded ${env} configuration`);
+let config;
 
-module.exports = {
-  config,
-};
+try {
+  config = require(`./config.${env}.js`);
+  console.log(`Loaded ${env} configuration`);
+} catch (error) {
+  console.error(`Failed to load configuration for environment: ${env}`);
+  console.error(error.message);
+  config = {}; // Default to an empty object if no config file is found
+}
+
+module.exports = config;

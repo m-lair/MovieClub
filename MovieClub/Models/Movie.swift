@@ -12,6 +12,9 @@ struct Movie: Identifiable, Codable {
     let endDate: Date
     let userName: String
     let status: String
+    var likedBy: [String] = []
+    var dislikedBy: [String] = []
+    var collectedBy: [String] = []
     
     // Analytics & Social Data
     var likes: Int
@@ -34,6 +37,9 @@ struct Movie: Identifiable, Codable {
         dislikes: Int = 0,
         numCollected: Int = 0,
         numComments: Int = 0,
+        likedBy: [String] = [],
+        dislikedBy: [String] = [],
+        collectedBy: [String] = [],
         apiData: MovieAPIData? = nil
     ) {
         self.id = id
@@ -96,6 +102,7 @@ struct MovieAPIData: Codable, Equatable, Hashable {
     let runtime: Int
     let director: String
     let cast: [String]
+    
     
     init(from response: MovieAPIResponse) {
         self.title = response.title

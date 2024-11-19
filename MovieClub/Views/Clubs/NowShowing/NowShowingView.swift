@@ -1,5 +1,5 @@
 //
-//  NowPlayingView.swift
+//  NowShowingView.swift
 //  MovieClub
 //
 //  Created by Marcus Lair on 7/20/24.
@@ -9,6 +9,7 @@ import SwiftUI
 
 struct NowShowingView: View {
     @Environment(DataManager.self) private var data: DataManager
+    @State var error: Error? = nil
     @State var isLoading: Bool = false
     @State var errorMessage: String = ""
     @State var collected: Bool = false
@@ -18,7 +19,7 @@ struct NowShowingView: View {
     @State private var replyToComment: Comment? = nil
     @FocusState private var isCommentInputFocused: Bool
     
-    var movies: [Movie] { data.movies }
+    var movies: [Movie] { data.currentClub?.movies ?? []}
     var progress: Double {
         let now = Date()
         if let movie = movies.first {
@@ -33,6 +34,7 @@ struct NowShowingView: View {
     var body: some View {
         VStack {
             if let movie = movies.first {
+                let _ = print("movie.likedBy \(movie.likedBy)")
                 ScrollView {
                     FeaturedMovieView(collected: collected, movie: movie)
                     HStack {
@@ -42,31 +44,16 @@ struct NowShowingView: View {
                             .padding()
                         Spacer()
                         Button {
-                            collected.toggle()
+                            collected = true
                             Task {
-                                data.currentCollection.append(CollectionItem(url: "matrixPoster", color: .brown))
+                                await collectPoster()
                             }
+                            collected = true
                         } label: {
                             CollectButton(collected: $collected)
                         }
                         
-                        Button {
-                            liked.toggle()
-                        } label: {
-                            Image(systemName: "hand.thumbsup.circle.fill")
-                                .resizable()
-                                .frame(width: 30, height: 30)
-                                .foregroundStyle(liked ? .green : .white)
-                        }
-                        
-                        Button {
-                            disliked.toggle()
-                        } label: {
-                            Image(systemName: "hand.thumbsdown.circle.fill")
-                                .resizable()
-                                .frame(width: 30, height: 30)
-                                .foregroundStyle(disliked ? .red : .white)
-                        }
+                        ReviewThumbs(liked: $liked, disliked: $disliked)
                     }
                     .padding(.trailing, 20)
                     
@@ -92,6 +79,12 @@ struct NowShowingView: View {
                 }
                 .scrollDismissesKeyboard(.interactively)
                 .scrollIndicators(.hidden)
+                .onChange(of: movie.collectedBy) {
+                    updateCollectState()
+                }
+                .onAppear {
+                    updateCollectState()
+                }
                 if let movieId = movie.id {
                     CommentInputView(movieId: movieId, replyToComment:  $replyToComment)
                         .focused($isCommentInputFocused)
@@ -101,6 +94,15 @@ struct NowShowingView: View {
                 WaveLoadingView()
             }
         }
+        .alert("Error", isPresented: .constant(error != nil), actions: {
+            Button("OK") {
+                error = nil
+            }
+        }, message: {
+            if let error = error {
+                Text(error.localizedDescription)
+            }
+        })
     }
     
     struct ClubProgressViewStyle: ProgressViewStyle {
@@ -126,8 +128,34 @@ struct NowShowingView: View {
         isLoading = true
         defer { isLoading = false }
         print("clubId: \(data.clubId)")
-        await data.fetchMovieClub(clubId: data.clubId)
+        _ = await data.fetchMovieClub(clubId: data.clubId)
        
+    }
+    
+    private func updateCollectState() {
+        guard
+            let movie = movies.first,
+            let userId = data.currentUser?.id
+        else { return }
+        collected = movie.collectedBy.contains(userId)
+    }
+    
+    func collectPoster() async {
+        guard
+            let movie = movies.first,
+            let movieId = movie.id,
+            let clubName = data.currentClub?.name,
+            let clubId = data.currentClub?.id
+        else { return }
+        
+        
+        let collectionItem = CollectionItem(id: movieId,  imdbId: movie.imdbId, clubId: clubId, clubName: clubName, colorStr: "green")
+        do {
+            try await data.collectPoster(collectionItem: collectionItem)
+        } catch {
+            self.error = error
+            
+        }
     }
 }
 

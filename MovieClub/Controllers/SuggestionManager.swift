@@ -16,32 +16,49 @@ extension DataManager {
         case movieAlreadySuggested
         case movieNotFound
         case networkError(Error)
+        case custom(message: String)
+        
+    }
+    
+    struct SuggestionResponse: Codable {
+        let success: Bool
+        let message: String?
     }
     
     // MARK: Create Suggestion
     
     func createSuggestion(suggestion: Suggestion) async throws {
-        let createSuggestion: Callable<Suggestion, String?> = functions.httpsCallable("suggestions-createMovieClubSuggestion")
+        let createSuggestion: Callable<Suggestion, SuggestionResponse> = functions.httpsCallable("suggestions-createMovieClubSuggestion")
         do {
-            let _ = try await createSuggestion(suggestion)
+            let result = try await createSuggestion(suggestion)
+            if result.success {
+                print("Suggestion created successfully")
+            } else {
+                print("Failed to create suggestion: \(result.message ?? "Unknown error")")
+                throw SuggestionError.custom(message: result.message ?? "Unknown error")
+            }
         } catch {
-            print("error \(error)")
+            print("Network error: \(error)")
             throw SuggestionError.networkError(error)
         }
-        print("Suggestion created")
-        
     }
     
     // MARK: Delete Suggestion
     
-    func deleteSuggestion(clubId: String) async throws -> String? {
-        let deleteSuggestion: Callable<String, String?> = functions.httpsCallable("suggestions-deleteUserMovieClubSuggestion")
+    func deleteSuggestion(suggestion: Suggestion) async throws {
+        let deleteSuggestion: Callable<Suggestion, SuggestionResponse> = functions.httpsCallable("suggestions-deleteMovieClubSuggestion")
+        
         do {
-            let _ = try await deleteSuggestion(clubId)
+          let result = try await deleteSuggestion(suggestion)
+            if result.success {
+                print("Suggestion deleted successfully")
+            } else {
+                print("Failed to delete suggestion: \(result.message ?? "Unknown error")")
+                throw SuggestionError.custom(message: result.message ?? "Unknown error")
+            }
         } catch {
             throw SuggestionError.networkError(error)
         }
-        return "200"
     }
     
     // MARK: Fetch Suggestions

@@ -47,12 +47,11 @@ exports.createMovieClubSuggestion = functions.https.onCall(
       } else {
         // Otherwise, add to suggestions as normal
         console.log("Suggestion is empty but there is an active movie");
-        await suggestionCollection.add(suggestionData);
-        return;
-        logVerbose("Suggestion created successfully!");
+        await suggestionCollection.doc(uid).set(suggestionData);
+        return { success: true };
       }
       
-      return;
+      return { success: true };
     }
     } catch (error) {
       console.log(error)
@@ -79,29 +78,30 @@ export const setMovieFromSuggestion = async (uid: string, movieClubId: string, s
     numComments: 0,
     status: 'active',
     startDate: startDate,
-    endDate: endDate
+    endDate: endDate,
+    collectedBy: [],
+    likedBy: [],
+    dislikedBy: []
   };
   
   await movieCollectionRef.add(movieData);
+  
 };
 
-exports.deleteUserMovieClubSuggestion = functions.https.onCall(
+exports.deleteMovieClubSuggestion = functions.https.onCall(
   async (request: CallableRequest<DeleteMovieClubSuggestionData>) => {
     try {
       const { data, auth } = request;
       const { uid } = verifyAuth(auth);
-
-      const requiredFields = ["movieClubId"];
-      verifyRequiredFields(data, requiredFields);
-
-      const suggestionRef = getMovieClubSuggestionDocRef(uid, data.movieClubId);
-
+      
+      console.log(data);
+      const suggestionRef = getMovieClubSuggestionDocRef(uid, data.clubId);
       await suggestionRef.delete();
 
       logVerbose("Suggestion deleted successfully!");
-
-      return;
+      return { success: true };
     } catch (error) {
+      console.log(error)
       handleCatchHttpsError("Error deleting Suggestion:", error);
     }
   }
