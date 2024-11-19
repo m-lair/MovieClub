@@ -35,6 +35,7 @@
   "compileOnSave": true,
   "include": [
     "src/**/*",
+    "src/config/**/*",
     "package.json",
     "firebase.json",
     "index.ts",
