@@ -11,7 +11,6 @@ import { MovieClubData, UpdateMovieClubData } from "./movieClubTypes";
 import { CallableRequest } from "firebase-functions/https";
 import { MOVIE_CLUBS } from "src/utilities/collectionNames";
 
-
 exports.createMovieClub = functions.https.onCall(
   async (request: CallableRequest<MovieClubData>) => {
     try {

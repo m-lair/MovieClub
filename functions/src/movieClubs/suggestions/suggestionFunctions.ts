@@ -78,10 +78,14 @@ export const setMovieFromSuggestion = async (uid: string, movieClubId: string, s
     numComments: 0,
     status: 'active',
     startDate: startDate,
-    endDate: endDate
+    endDate: endDate,
+    collectedBy: [],
+    likedBy: [],
+    dislikedBy: []
   };
   
   await movieCollectionRef.add(movieData);
+  
 };
 
 exports.deleteMovieClubSuggestion = functions.https.onCall(

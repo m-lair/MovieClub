@@ -142,8 +142,7 @@ struct ComingSoonView: View {
 
         do {
             guard let clubId = data.currentClub?.id else { return }
-            try await data.fetchSuggestions(clubId: clubId)
-            error = nil
+            _ = try await data.fetchSuggestions(clubId: clubId)
         } catch {
             self.error = error
             print("Error refreshing suggestions: \(error)")
