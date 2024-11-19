@@ -173,7 +173,7 @@ extension DataManager {
     }
     
     func fetchPosterUrl(imdbId: String) async throws -> String {
-        let urlString = "https://www.omdbapi.com/?i=\(imdbId)&apikey=\(apiKey)"
+        let urlString = "https://www.omdbapi.com/?i=\(imdbId)&apikey=\(omdbKey)"
         
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)

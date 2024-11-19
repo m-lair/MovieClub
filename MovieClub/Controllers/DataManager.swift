@@ -20,7 +20,7 @@ import FirebaseFunctions
 @Observable @MainActor
 class DataManager: Identifiable {
     // MARK: - API Key
-    var apiKey: String
+    var omdbKey: String
     
     var comments: [CommentNode] = []
     var suggestions: [Suggestion] = []
@@ -51,14 +51,14 @@ class DataManager: Identifiable {
     
     init() throws {
         // Initialize API Key
-        guard let filePath = Bundle.main.path(forResource: "TMDB-Info", ofType: "plist"),
-              let plist = NSDictionary(contentsOfFile: filePath),
-              let key = plist.object(forKey: "KEY") as? String else {
+        guard
+            let key = ProcessInfo.processInfo.environment["OMDB_API_KEY"]
+        else {
             throw DataError.invalidAPIKey
         }
         db = Firestore.firestore()
         functions = Functions.functions()
-        apiKey = key
+        omdbKey = key
     }
     // MARK: - Collection References
     
