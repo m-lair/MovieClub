@@ -74,7 +74,7 @@ extension DataManager {
         guard !query.isEmpty else { return [] }
         
         let formattedQuery = query.replacingOccurrences(of: " ", with: "+")
-        let urlString = "https://omdbapi.com/?s=\(formattedQuery)&apikey=\(apiKey)&plot=full"
+        let urlString = "https://omdbapi.com/?s=\(formattedQuery)&apikey=\(omdbKey)&plot=full"
         
         guard let url = URL(string: urlString) else {
             print("Invalid URL: \(urlString)")
