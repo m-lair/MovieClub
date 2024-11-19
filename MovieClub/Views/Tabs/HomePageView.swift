@@ -45,8 +45,16 @@ struct HomePageView: View {
             }
         }
         .toolbar {
-            NavigationLink(destination: NewClubView(path: $navPath)) {
-                Image(systemName: "plus")
+            ToolbarItem(placement: .navigationBarTrailing) {
+                NavigationLink(value: Path.newClub) {
+                    Image(systemName: "plus")
+                }
+            }
+        }
+        .navigationDestination(for: Path.self) { route in
+            switch route {
+            case .newClub:
+                NewClubView(path: $navPath)
             }
         }
         .navigationTitle("Movie Clubs")
@@ -54,6 +62,8 @@ struct HomePageView: View {
     }
 }
 
-
+enum Path: Hashable {
+    case newClub
+}
 
 
