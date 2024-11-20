@@ -79,7 +79,6 @@
 		2CAEABA12C5C5C9300A0011A /* BlurredBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */; };
 		2CBAE7992CE10B6F00A7C0AC /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBAE7982CE10B6F00A7C0AC /* SettingsView.swift */; };
 		2CBEB31D2CE5A7D200FB6623 /* CollectionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBEB31C2CE5A7D200FB6623 /* CollectionItem.swift */; };
-		2CBEB32D2CED6AEC00FB6623 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2CBEB3282CED675100FB6623 /* GoogleService-Info.plist */; };
 		2CD71F622CB352BB00F9CF58 /* AppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71F602CB352BB00F9CF58 /* AppTests.swift */; };
 		2CD71F792CB3951900F9CF58 /* Users.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71F782CB394F100F9CF58 /* Users.test.swift */; };
 		2CD71F7B2CB3953E00F9CF58 /* Clubs.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71F7A2CB3952600F9CF58 /* Clubs.test.swift */; };
@@ -176,7 +175,6 @@
 		2CAEABA42C6A7FD500A0011A /* MovieClub.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MovieClub.entitlements; sourceTree = "<group>"; };
 		2CBAE7982CE10B6F00A7C0AC /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		2CBEB31C2CE5A7D200FB6623 /* CollectionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionItem.swift; sourceTree = "<group>"; };
-		2CBEB3282CED675100FB6623 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2CD71F602CB352BB00F9CF58 /* AppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTests.swift; sourceTree = "<group>"; };
 		2CD71F6F2CB35A4200F9CF58 /* Testing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Testing.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/Testing.framework; sourceTree = DEVELOPER_DIR; };
 		2CD71F782CB394F100F9CF58 /* Users.test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Users.test.swift; sourceTree = "<group>"; };
@@ -391,7 +389,6 @@
 		2C5DEC122BF1AC6C000EF232 = {
 			isa = PBXGroup;
 			children = (
-				2CBEB3282CED675100FB6623 /* GoogleService-Info.plist */,
 				2CD71F822CB5E3C500F9CF58 /* TestPlan.xctestplan */,
 				2C5DEC1D2BF1AC6C000EF232 /* MovieClub */,
 				2CD71F612CB352BB00F9CF58 /* SwiftTesting */,
@@ -608,7 +605,7 @@
 			buildPhases = (
 				2C5DEC172BF1AC6C000EF232 /* Sources */,
 				2C5DEC182BF1AC6C000EF232 /* Frameworks */,
-				2CBEB32C2CED6A8E00FB6623 /* ShellScript */,
+				2CBEB32C2CED6A8E00FB6623 /* Build Service File */,
 				2C5DEC192BF1AC6C000EF232 /* Resources */,
 				2C11FFCC2C9D2984004F54BC /* ShellScript */,
 			);
@@ -685,7 +682,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2CBEB32D2CED6AEC00FB6623 /* GoogleService-Info.plist in Resources */,
 				2C5DEC262BF1AC6E000EF232 /* Preview Assets.xcassets in Resources */,
 				2C5DEC232BF1AC6E000EF232 /* Assets.xcassets in Resources */,
 				2CD71F832CB5E3C500F9CF58 /* TestPlan.xctestplan in Resources */,
@@ -718,22 +714,25 @@
 			shellPath = /bin/sh;
 			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
 		};
-		2CBEB32C2CED6A8E00FB6623 /* ShellScript */ = {
+		2CBEB32C2CED6A8E00FB6623 /* Build Service File */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			files = (
 			);
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/GoogleService-Info.plist",
 			);
+			name = "Build Service File";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).app/GoogleService-Info.plist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ \"${CI}\" = \"true\" ]; then\n    if [ -n \"$FIREBASE_CONFIG\" ]; then\n        # Xcode Cloud specific paths\n        CI_PLIST_PATH=\"${CI_WORKSPACE}/${TARGETNAME}/GoogleService-Info.plist\"\n        \n        echo \"Creating GoogleService-Info.plist for Xcode Cloud build...\"\n        # Create directory if it doesn't exist\n        mkdir -p \"${CI_WORKSPACE}/${TARGETNAME}\"\n        \n        # Decode and write the file\n        echo \"$FIREBASE_CONFIG\" | base64 --decode > \"$CI_PLIST_PATH\"\n        \n        if [ $? -eq 0 ]; then\n            echo \"Successfully created GoogleService-Info.plist at $CI_PLIST_PATH\"\n            # Set strict permissions\n            chmod 600 \"$CI_PLIST_PATH\"\n            \n            # Verify file exists\n            if [ -f \"$CI_PLIST_PATH\" ]; then\n                echo \"Verified: File exists at $CI_PLIST_PATH\"\n            else\n                echo \"Error: File not found at $CI_PLIST_PATH\"\n                exit 1\n            fi\n        else\n            echo \"Error creating GoogleService-Info.plist\"\n            exit 1\n        fi\n    else\n        echo \"FIREBASE_CONFIG environment variable not found\"\n        exit 1\n    fi\nfi\n";
+			shellScript = "if [ \"${CI}\" = \"true\" ]; then\n    # Xcode Cloud Build\n    if [ -n \"$FIREBASE_CONFIG\" ]; then\n        echo \"Creating GoogleService-Info.plist from environment variable...\"\n        echo \"$FIREBASE_CONFIG\" | base64 --decode > \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\"\n    else\n        echo \"Error: FIREBASE_CONFIG environment variable not found\"\n        exit 1\n    fi\nelse\n    # Local Build\n    LOCAL_PLIST=\"${SRCROOT}/GoogleService-Info.plist\"\n    if [ -f \"$LOCAL_PLIST\" ]; then\n        echo \"Copying local GoogleService-Info.plist...\"\n        /bin/cp \"$LOCAL_PLIST\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\"\n    else\n        echo \"Error: Local GoogleService-Info.plist not found at $LOCAL_PLIST\"\n        exit 1\n    fi\nfi\n\n# Verify file exists in app bundle\nif [ -f \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\" ]; then\n    echo \"Successfully installed GoogleService-Info.plist in app bundle\"\nelse\n    echo \"Error: Failed to install GoogleService-Info.plist in app bundle\"\n    exit 1\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
