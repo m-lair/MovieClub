@@ -16,7 +16,8 @@ node_modules/
 # macOS and system files
 .DS_Store
 *.log
-
+MovieClub.xcodeproj/project.xcworkspace/xcuserdata/*
+MovieClub.xcodeproj/project.xcworkspace/xcuserdata/marcus.xcuserdata/*
 MovieClub.xcodeproj/xcuserdata/marcus.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
 MovieClub.xcodeproj/project.xcworkspace/xcuserdata/marcus.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
 MovieClub.xcodeproj/project.xcworkspace/xcuserdata/marcus.xcuserdatad/UserInterfaceState.xcuserstate
