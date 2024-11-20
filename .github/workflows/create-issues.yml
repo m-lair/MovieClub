@@ -20,6 +20,8 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+            const { Octokit } = require('@octokit/rest');
+            const github = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
             // Read and parse the JSON file
             const feedbackData = JSON.parse(fs.readFileSync('./feedback.json', 'utf8')).recentItems;
@@ -31,7 +33,7 @@ jobs:
             }
 
             // Iterate over the feedback entries
-            feedbackData.forEach(item => {
+            feedbackData.forEach(async item => {
               const feedbackContainer = item.value;
 
               // Validate the feedback container and its feedbacks
@@ -40,7 +42,7 @@ jobs:
                 return;
               }
 
-              feedbackContainer.feedbacks.forEach(feedback => {
+              feedbackContainer.feedbacks.forEach(async feedback => {
                 const {
                   comment = "No comment provided",
                   firstName = "Unknown",
@@ -52,23 +54,39 @@ jobs:
                   emailAddress = "No Email Provided"
                 } = feedback;
 
-                // Create an issue using the GitHub API
-                github.rest.issues.create({
+                const issueTitle = `Feedback: ${comment.substring(0, 50)}`;
+
+                // Search for existing issues with the same title
+                const { data: existingIssues } = await github.rest.issues.listForRepo({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  title: `Feedback: ${comment.substring(0, 50)}`,
-                  body: `
-                    **Feedback**: ${comment}
-
-                    **Details**:
-                    - User: ${firstName} ${lastName}
-                    - Email: ${emailAddress}
-                    - Device: ${deviceModel}
-                    - iOS Version: ${osVersion}
-                    - Build Number: ${buildNumber}
-                    - Timestamp: ${timestamp}
-                  `,
-                  labels: ['feedback', 'bug']
+                  state: 'open',
+                  labels: 'feedback',
+                  per_page: 100
                 });
+
+                const duplicateIssue = existingIssues.find(issue => issue.title === issueTitle);
+
+                if (!duplicateIssue) {
+                  // Create an issue using the GitHub API
+                  await github.rest.issues.create({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    title: issueTitle,
+                    body: `
+                      **Feedback**: ${comment}
+                      **Details**:
+                      - User: ${firstName} ${lastName}
+                      - Email: ${emailAddress}
+                      - Device: ${deviceModel}
+                      - iOS Version: ${osVersion}
+                      - Build Number: ${buildNumber}
+                      - Timestamp: ${timestamp}
+                    `,
+                    labels: ['feedback', 'bug']
+                  });
+                } else {
+                  console.log(`Duplicate issue found: ${issueTitle}`);
+                }
               });
             });
