@@ -722,17 +722,15 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/GoogleService-Info.plist",
 			);
 			name = "Build Service File";
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/$(PRODUCT_NAME).app/GoogleService-Info.plist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ \"${CI}\" = \"true\" ]; then\n    # Xcode Cloud Build\n    if [ -n \"$FIREBASE_CONFIG\" ]; then\n        echo \"Creating GoogleService-Info.plist from environment variable...\"\n        echo \"$FIREBASE_CONFIG\" | base64 --decode > \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\"\n    else\n        echo \"Error: FIREBASE_CONFIG environment variable not found\"\n        exit 1\n    fi\nelse\n    # Local Build\n    LOCAL_PLIST=\"${SRCROOT}/GoogleService-Info.plist\"\n    if [ -f \"$LOCAL_PLIST\" ]; then\n        echo \"Copying local GoogleService-Info.plist...\"\n        /bin/cp \"$LOCAL_PLIST\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\"\n    else\n        echo \"Error: Local GoogleService-Info.plist not found at $LOCAL_PLIST\"\n        exit 1\n    fi\nfi\n\n# Verify file exists in app bundle\nif [ -f \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\" ]; then\n    echo \"Successfully installed GoogleService-Info.plist in app bundle\"\nelse\n    echo \"Error: Failed to install GoogleService-Info.plist in app bundle\"\n    exit 1\nfi\n";
+			shellScript = "if [ \"${CI}\" = \"true\" ]; then\n    # Xcode Cloud Build\n    if [ -n \"$FIREBASE_CONFIG\" ]; then\n        echo \"Creating GoogleService-Info.plist from environment variable...\"\n        echo \"$FIREBASE_CONFIG\" | base64 --decode > \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\"\n    else\n        echo \"Error: FIREBASE_CONFIG environment variable not found\"\n        exit 1\n    fi\nelse\n    # Local Build\n    LOCAL_PLIST=\"${SRCROOT}/GoogleService-Info.plist\"\n    if [ -f \"$LOCAL_PLIST\" ]; then\n        echo \"Copying local GoogleService-Info.plist...\"\n        cp \"$LOCAL_PLIST\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\"\n    else\n        echo \"Error: Local GoogleService-Info.plist not found at $LOCAL_PLIST\"\n        exit 1\n    fi\nfi\n\n# Verify file exists in app bundle\nif [ -f \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\" ]; then\n    echo \"Successfully installed GoogleService-Info.plist in app bundle\"\nelse\n    echo \"Error: Failed to install GoogleService-Info.plist in app bundle\"\n    exit 1\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1012,6 +1010,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"MovieClub/Preview Content\"";
 				DEVELOPMENT_TEAM = 5Z6AC3LV9L;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Movie Club";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -1045,6 +1044,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"MovieClub/Preview Content\"";
 				DEVELOPMENT_TEAM = 5Z6AC3LV9L;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Movie Club";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
