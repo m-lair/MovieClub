@@ -17,24 +17,55 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const feedback = JSON.parse(fs.readFileSync('./feedback.json', 'utf8')).recentItems;
 
-            feedback.forEach(item => {
-              const { comment, firstName, lastName, deviceModel, osVersion, timestamp, buildNumber } = item.value.feedbacks[0];
-              github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: `Feedback: ${comment.substring(0, 50)}`,
-                body: `
-                  **Feedback**: ${comment}
+            // Read and parse the JSON file
+            const feedbackData = JSON.parse(fs.readFileSync('./feedback.json', 'utf8')).recentItems;
 
-                  **Details**:
-                  - User: ${firstName} ${lastName}
-                  - Device: ${deviceModel}
-                  - iOS Version: ${osVersion}
-                  - Build: ${buildNumber}
-                  - Timestamp: ${timestamp}
-                `,
-                labels: ['feedback', 'bug']
+            // Check if feedback data exists
+            if (!feedbackData || !Array.isArray(feedbackData)) {
+              console.error("No feedback data found in the JSON file.");
+              return;
+            }
+
+            // Iterate over the feedback entries
+            feedbackData.forEach(item => {
+              const feedbackContainer = item.value;
+
+              // Validate the feedback container and its feedbacks
+              if (!feedbackContainer || !feedbackContainer.feedbacks) {
+                console.warn("No feedbacks found for an item.");
+                return;
+              }
+
+              feedbackContainer.feedbacks.forEach(feedback => {
+                const {
+                  comment = "No comment provided",
+                  firstName = "Unknown",
+                  lastName = "Unknown",
+                  deviceModel = "Unknown Device",
+                  osVersion = "Unknown OS Version",
+                  timestamp = "No Timestamp",
+                  buildNumber = "Unknown Build",
+                  emailAddress = "No Email Provided"
+                } = feedback;
+
+                // Create an issue using the GitHub API
+                github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: `Feedback: ${comment.substring(0, 50)}`,
+                  body: `
+                    **Feedback**: ${comment}
+
+                    **Details**:
+                    - User: ${firstName} ${lastName}
+                    - Email: ${emailAddress}
+                    - Device: ${deviceModel}
+                    - iOS Version: ${osVersion}
+                    - Build Number: ${buildNumber}
+                    - Timestamp: ${timestamp}
+                  `,
+                  labels: ['feedback', 'bug']
+                });
               });
             });
