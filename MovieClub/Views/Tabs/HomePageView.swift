@@ -13,6 +13,7 @@ import SwiftUI
 struct HomePageView: View {
     @Environment(DataManager.self) var data: DataManager
     @Binding var navPath: NavigationPath
+    @State var isLoading: Bool = true
     
     var userClubs: [MovieClub] {
         data.userClubs
@@ -20,13 +21,15 @@ struct HomePageView: View {
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            if userClubs.isEmpty {
+            if isLoading {
                 VStack {
                     Spacer()
                     WaveLoadingView()
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if userClubs.isEmpty{
+                Text("You have no clubs yet")
             } else {
                 ScrollView {
                     VStack {
@@ -43,6 +46,9 @@ struct HomePageView: View {
                     }
                 }
             }
+        }
+        .onAppear {
+            isLoading = false
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
