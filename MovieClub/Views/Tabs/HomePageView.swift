@@ -48,6 +48,9 @@ struct HomePageView: View {
             }
         }
         .onAppear {
+            Task {
+                await data.fetchUserClubs()
+            }
             isLoading = false
         }
         .toolbar {

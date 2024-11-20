@@ -1,4 +1,5 @@
 import SwiftUI
+import Firebase
 import FirebaseFirestore
 
 struct NewClubView: View {
@@ -64,7 +65,7 @@ struct NewClubView: View {
     }
     //this method is getting clubs as nil because of the document id
     func getClubList() async throws -> [MovieClub] {
-        let snapshot = try await data.movieClubCollection().getDocuments()
+        let snapshot = try await data.movieClubCollection().whereField("isPublic", isEqualTo: "true").getDocuments()
         let clubList: [MovieClub] = try snapshot.documents.compactMap { document in
             
             var club = try document.data(as: MovieClub.self)

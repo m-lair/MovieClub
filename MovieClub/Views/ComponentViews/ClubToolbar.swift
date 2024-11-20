@@ -11,6 +11,7 @@ struct ClubToolbar: View {
     @Environment(DataManager.self) var data
     @Environment(\.dismiss) var dismiss
     let club: MovieClub
+    var onUpdate: ((MovieClub) -> Void)?
     
     var body: some View {
         Menu {
@@ -20,8 +21,11 @@ struct ClubToolbar: View {
                 Label("Report A Problem", systemImage: "exclamationmark.octagon")
             }
             
-            NavigationLink{
-                ClubEditView(movieClub: club)
+            NavigationLink {
+                ClubEditView(movieClub: club) { updatedClub in
+                    data.currentClub = updatedClub
+                    onUpdate?(updatedClub)
+                }
             } label: {
                 Label("Edit", systemImage: "pencil")
             }

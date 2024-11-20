@@ -77,7 +77,7 @@ extension DataManager {
             
             let fetchedComments = snapshot.documents.compactMap { document -> Comment? in
                 do {
-                    var comment = try document.data(as: Comment.self)
+                    let comment = try document.data(as: Comment.self)
                     comment.id = document.documentID
                     return comment
                 } catch {

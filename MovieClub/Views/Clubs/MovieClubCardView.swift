@@ -13,7 +13,7 @@ struct MovieClubCardView: View {
     var body: some View {
         ZStack{
             VStack{
-                AsyncImage(url: URL(string: movieClub.bannerUrl ?? "")) { phase in
+                AsyncImage(url: URL(string: "")) { phase in
                     if let image = phase.image {
                         image
                             .resizable()
