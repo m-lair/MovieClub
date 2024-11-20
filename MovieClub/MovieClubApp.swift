@@ -20,9 +20,8 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     func application(_ application: UIApplication,
                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
         application.registerForRemoteNotifications()
-        
+        configureFirebase()
         Messaging.messaging().delegate = self
-        
         UNUserNotificationCenter.current().delegate = self
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
         UNUserNotificationCenter.current().requestAuthorization(
@@ -101,7 +100,6 @@ struct MovieClubApp: App {
     @StateObject private var stateContainer = StateContainer()
     
     init() {
-        configureFirebase()
         print("MovieClubApp initializing")
     }
     

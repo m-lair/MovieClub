@@ -15,7 +15,6 @@
 		2C1100362CA8C93E004F54BC /* Firebase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1100352CA8C936004F54BC /* Firebase.swift */; };
 		2C11003C2CAC3A01004F54BC /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C11003B2CAC3A01004F54BC /* ErrorView.swift */; };
 		2C11003E2CAC766B004F54BC /* ErrorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C11003D2CAC7667004F54BC /* ErrorManager.swift */; };
-		2C11FFD72C9D4A23004F54BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2C11FFD62C9D4A23004F54BC /* GoogleService-Info.plist */; };
 		2C11FFDB2CA13330004F54BC /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C11FFDA2CA13330004F54BC /* Movie.swift */; };
 		2C11FFDD2CA13346004F54BC /* Club.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C11FFDC2CA13341004F54BC /* Club.swift */; };
 		2C11FFDF2CA1DFED004F54BC /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C11FFDE2CA1DFED004F54BC /* User.swift */; };
@@ -45,7 +44,6 @@
 		2C1326C22CD1AA770076E39C /* Announcement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1326C12CD1AA6D0076E39C /* Announcement.swift */; };
 		2C1326C52CD1AAF10076E39C /* BulletinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1326C42CD1AAF10076E39C /* BulletinView.swift */; };
 		2C1326C72CD1AB3D0076E39C /* AnnouncementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1326C62CD1AB3D0076E39C /* AnnouncementView.swift */; };
-		2C3580772CD9350E00DE7D47 /* TMDB-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2C3580762CD9350E00DE7D47 /* TMDB-Info.plist */; };
 		2C35807B2CDFE5A800DE7D47 /* WaveLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C35807A2CDFE5A800DE7D47 /* WaveLoadingView.swift */; };
 		2C4474F82C06DD310034204C /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4474F72C06DD310034204C /* HeaderView.swift */; };
 		2C4475002C06DE3A0034204C /* FeaturedMovieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C4474FF2C06DE3A0034204C /* FeaturedMovieView.swift */; };
@@ -119,7 +117,6 @@
 		2C1100352CA8C936004F54BC /* Firebase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Firebase.swift; sourceTree = "<group>"; };
 		2C11003B2CAC3A01004F54BC /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
 		2C11003D2CAC7667004F54BC /* ErrorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorManager.swift; sourceTree = "<group>"; };
-		2C11FFD62C9D4A23004F54BC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2C11FFDA2CA13330004F54BC /* Movie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Movie.swift; sourceTree = "<group>"; };
 		2C11FFDC2CA13341004F54BC /* Club.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Club.swift; sourceTree = "<group>"; };
 		2C11FFDE2CA1DFED004F54BC /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
@@ -141,7 +138,6 @@
 		2C1326C12CD1AA6D0076E39C /* Announcement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Announcement.swift; sourceTree = "<group>"; };
 		2C1326C42CD1AAF10076E39C /* BulletinView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BulletinView.swift; sourceTree = "<group>"; };
 		2C1326C62CD1AB3D0076E39C /* AnnouncementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementView.swift; sourceTree = "<group>"; };
-		2C3580762CD9350E00DE7D47 /* TMDB-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TMDB-Info.plist"; sourceTree = "<group>"; };
 		2C35807A2CDFE5A800DE7D47 /* WaveLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveLoadingView.swift; sourceTree = "<group>"; };
 		2C4474F72C06DD310034204C /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		2C4474FF2C06DE3A0034204C /* FeaturedMovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturedMovieView.swift; sourceTree = "<group>"; };
@@ -393,9 +389,7 @@
 		2C5DEC122BF1AC6C000EF232 = {
 			isa = PBXGroup;
 			children = (
-				2C3580762CD9350E00DE7D47 /* TMDB-Info.plist */,
 				2CD71F822CB5E3C500F9CF58 /* TestPlan.xctestplan */,
-				2C11FFD62C9D4A23004F54BC /* GoogleService-Info.plist */,
 				2C5DEC1D2BF1AC6C000EF232 /* MovieClub */,
 				2CD71F612CB352BB00F9CF58 /* SwiftTesting */,
 				2C11FFD32C9D4002004F54BC /* Frameworks */,
@@ -611,6 +605,7 @@
 			buildPhases = (
 				2C5DEC172BF1AC6C000EF232 /* Sources */,
 				2C5DEC182BF1AC6C000EF232 /* Frameworks */,
+				2CBEB32C2CED6A8E00FB6623 /* Build Service File */,
 				2C5DEC192BF1AC6C000EF232 /* Resources */,
 				2C11FFCC2C9D2984004F54BC /* ShellScript */,
 			);
@@ -687,11 +682,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2C3580772CD9350E00DE7D47 /* TMDB-Info.plist in Resources */,
 				2C5DEC262BF1AC6E000EF232 /* Preview Assets.xcassets in Resources */,
 				2C5DEC232BF1AC6E000EF232 /* Assets.xcassets in Resources */,
 				2CD71F832CB5E3C500F9CF58 /* TestPlan.xctestplan in Resources */,
-				2C11FFD72C9D4A23004F54BC /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -720,6 +713,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
+		};
+		2CBEB32C2CED6A8E00FB6623 /* Build Service File */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 12;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build Service File";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"${CI}\" = \"true\" ]; then\n    # Xcode Cloud Build\n    if [ -n \"$FIREBASE_CONFIG\" ]; then\n        echo \"Creating GoogleService-Info.plist from environment variable...\"\n        echo \"$FIREBASE_CONFIG\" | base64 --decode > \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\"\n    else\n        echo \"Error: FIREBASE_CONFIG environment variable not found\"\n        exit 1\n    fi\nelse\n    # Local Build\n    LOCAL_PLIST=\"${SRCROOT}/GoogleService-Info.plist\"\n    if [ -f \"$LOCAL_PLIST\" ]; then\n        echo \"Copying local GoogleService-Info.plist...\"\n        cp \"$LOCAL_PLIST\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\"\n    else\n        echo \"Error: Local GoogleService-Info.plist not found at $LOCAL_PLIST\"\n        exit 1\n    fi\nfi\n\n# Verify file exists in app bundle\nif [ -f \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\" ]; then\n    echo \"Successfully installed GoogleService-Info.plist in app bundle\"\nelse\n    echo \"Error: Failed to install GoogleService-Info.plist in app bundle\"\n    exit 1\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -917,6 +928,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_PKGINFO_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -974,6 +986,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_PKGINFO_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -997,6 +1010,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"MovieClub/Preview Content\"";
 				DEVELOPMENT_TEAM = 5Z6AC3LV9L;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Movie Club";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -1030,6 +1044,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"MovieClub/Preview Content\"";
 				DEVELOPMENT_TEAM = 5Z6AC3LV9L;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Movie Club";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
