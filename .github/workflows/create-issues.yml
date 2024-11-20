@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: '0 9 * * *' # Runs daily at 9 AM
 
+permissions:
+  issues: write
+
 jobs:
   create-issues:
     runs-on: ubuntu-latest
@@ -13,7 +16,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Parse Feedback JSON and Create Issues
-        uses: actions/github-script@v6
+        uses: actions/github-script@v6.3.0
         with:
           script: |
             const fs = require('fs');
