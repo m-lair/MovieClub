@@ -1,7 +1,0 @@
-  - name: testflight-feedback
-  # You may pin to the exact commit or the version.
-  # uses: lukas-ruzicka/testflight-feedback@c74d8222da878973e64ea0bb097067ac9c3d0a12
-  uses: lukas-ruzicka/testflight-feedback@1.0.3
-  with:
-    # Clears old screenshots from the repository (for issues closed 30+ days ago)
-    clearScreenshotsOnly: # optional
