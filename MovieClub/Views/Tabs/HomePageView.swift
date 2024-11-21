@@ -5,39 +5,42 @@
 //  Created by Marcus Lair on 5/7/24.
 //
 
+
+
 import SwiftUI
-import Observation
+
 
 struct HomePageView: View {
     @Environment(DataManager.self) var data: DataManager
     @Binding var navPath: NavigationPath
-    @State var isLoading: Bool = true
     
+    var userClubs: [MovieClub] {
+        data.userClubs
+    }
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            if isLoading {
+            if userClubs.isEmpty {
                 VStack {
                     Spacer()
                     WaveLoadingView()
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if data.userClubs.isEmpty{
-                Text("You have no clubs yet")
             } else {
                 ScrollView {
-                    ForEach(data.userClubs) { movieClub in
-                        NavigationLink(value: movieClub) {
-                            MovieClubCardView(movieClub: movieClub)
+                    VStack {
+                        ForEach(userClubs, id: \.self) { movieClub in
+                            NavigationLink(value: movieClub) {
+                                MovieClubCardView(movieClub: movieClub)
+                            }
                         }
                     }
                     .navigationDestination(for: MovieClub.self) { club in
                         ClubDetailView(navPath: $navPath, club: club)
+                            .navigationTitle(club.name)
+                            .navigationBarTitleDisplayMode(.inline)
                     }
-                }
-                .refreshable {
-                    await data.fetchUserClubs()
                 }
             }
         }
@@ -47,12 +50,6 @@ struct HomePageView: View {
                     Image(systemName: "plus")
                 }
             }
-        }
-        .task {
-            Task {
-                await data.fetchUserClubs()
-            }
-            isLoading = false
         }
         .navigationDestination(for: Path.self) { route in
             switch route {

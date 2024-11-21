@@ -5,11 +5,10 @@
 //  Created by Marcus Lair on 9/23/24.
 //
 import Foundation
-import Observation
+import SwiftData
 
-@Observable
+@Model
 final class Comment: Identifiable, Codable, Hashable, Equatable {
-    
     var id: String
     var userId: String
     var image: String? = ""
@@ -75,17 +74,8 @@ final class Comment: Identifiable, Codable, Hashable, Equatable {
         case parentId
         case likedBy
     }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-    
-    static func == (lhs: Comment, rhs: Comment) -> Bool {
-        lhs.id == rhs.id
-    }
 }
 
-@Observable
 class CommentNode: Identifiable {
     var id: String
     var comment: Comment

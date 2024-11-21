@@ -33,7 +33,9 @@ describe("createMovieClub", () => {
     const username = user.name || "test-user-name";
 
     movieClubData = {
+      bannerUrl: "Test Banner Url",
       description: "Test Description",
+      image: "Test Image",
       isPublic: true,
       name: "Test Club",
       numMembers: 1,
@@ -51,7 +53,9 @@ describe("createMovieClub", () => {
       .get();
     const movieClubDoc = snap.data();
 
+    assert.equal(movieClubDoc?.bannerUrl, movieClubData.bannerUrl);
     assert.equal(movieClubDoc?.description, movieClubData.description);
+    assert.equal(movieClubDoc?.image, movieClubData.image);
     assert.equal(movieClubDoc?.isPublic, movieClubData.isPublic);
     assert.equal(movieClubDoc?.name, movieClubData.name);
     assert.equal(movieClubDoc?.numMembers, movieClubData.numMembers);
@@ -105,11 +109,13 @@ describe("updateMovieClub", () => {
       id: movieClub.id,
       description: "Updated Description",
       isPublic: false,
+      image: "Updated Image",
       name: "Updated Test Club",
       numMembers: 2,
       ownerId: "Not Updated ownerId",
       ownerName: "Not Updated ownerName",
       timeInterval: 0,
+      bannerUrl: "Updated test banner URL",
     };
   });
 
@@ -121,7 +127,9 @@ describe("updateMovieClub", () => {
       .get();
     const movieClubDoc = snap.data();
 
+    assert.equal(movieClubDoc?.bannerUrl, movieClubData.bannerUrl);
     assert.equal(movieClubDoc?.description, movieClubData.description);
+    assert.equal(movieClubDoc?.image, movieClubData.image);
     assert.equal(movieClubDoc?.isPublic, movieClubData.isPublic);
     assert.equal(movieClubDoc?.name, movieClubData.name);
     assert.notEqual(movieClubDoc?.numMembers, movieClubData.numMembers);
