@@ -1,7 +1,8 @@
 # _config.yml
+theme: jekyll-theme-cayman
 title: MovieClub
 description: A community for movie enthusiasts.
 baseurl: "/movieclub" # If your site is published at https://yourusername.github.io/movieclub
 url: "https://m-lair.github.io"
-theme: jekyll-theme-cayman
+
 
