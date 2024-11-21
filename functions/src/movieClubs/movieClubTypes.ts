@@ -1,5 +1,7 @@
 export interface MovieClubData {
+  bannerUrl?: string;
   description: string;
+  image?: string;
   isPublic: boolean;
   name: string;
   numMembers: number;

@@ -19,14 +19,8 @@ extension DataManager {
         case unauthorized
         case invalidData
         case networkError(Error)
-        case custom(message: String)
         case unknownError
         
-    }
-    
-    struct MovieClubResponse: Codable {
-        let success: Bool
-        let message: String?
     }
     
     // MARK: - Create Movie Club
@@ -44,16 +38,12 @@ extension DataManager {
     // MARK: - Update Movie Club
     
     func updateMovieClub(movieClub: MovieClub) async throws {
-        let updateClub: Callable<MovieClub, MovieClubResponse> = functions.httpsCallable("movieClubs-updateMovieClub")
         do {
-            let result = try await updateClub(movieClub)
-            if result.success {
-                //Do nothing
-            } else {
-                throw ClubError.custom(message: result.message ?? "Unknown error")
-            }
+            print("updating movie club: \(movieClub.name)")
+            let result = try await  functions.httpsCallable("movieClubs-updateMovieClub").call(movieClub)
+            print("updated club: \(result)")
         } catch {
-            throw ClubError.networkError(error)
+            throw error
         }
     }
     
@@ -86,7 +76,8 @@ extension DataManager {
                 if let endDate = baseMovie?.endDate, endDate < Date() {
                     needsRotation = true
                 }
-            } else if self.suggestions.count > 0{
+            } else {
+                // No active movie, check if there are suggestions to rotate
                 needsRotation = true
             }
             
