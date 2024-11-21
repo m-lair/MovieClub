@@ -17,7 +17,6 @@ struct ClubDetailView: View {
     var body: some View {
         VStack {
             ClubTabView(tabs: tabs, selectedTabIndex: $selectedTabIndex)
-            
             TabView(selection: $selectedTabIndex) {
                 BulletinView()
                     .tag(0)
@@ -42,14 +41,10 @@ struct ClubDetailView: View {
             
         }
         .toolbar {
-            ClubToolbar(club: club) { updatedClub in
-                self.club = updatedClub
-                data.currentClub = updatedClub
-            }
+            ClubToolbar(club: $club)
         }
         .task {
             data.currentClub = club
-            await data.fetchUserClubs()
         }
         .onDisappear {
             data.currentClub = nil
@@ -57,5 +52,7 @@ struct ClubDetailView: View {
             data.movies = []
             data.suggestions = []
         }
+        .navigationTitle(club.name)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

@@ -10,8 +10,8 @@ import SwiftUI
 struct ClubToolbar: View {
     @Environment(DataManager.self) var data
     @Environment(\.dismiss) var dismiss
-    let club: MovieClub
-    var onUpdate: ((MovieClub) -> Void)?
+    @Binding var club: MovieClub
+
     
     var body: some View {
         Menu {
@@ -22,10 +22,7 @@ struct ClubToolbar: View {
             }
             
             NavigationLink {
-                ClubEditView(movieClub: club) { updatedClub in
-                    data.currentClub = updatedClub
-                    onUpdate?(updatedClub)
-                }
+                ClubEditView(movieClub: $club)
             } label: {
                 Label("Edit", systemImage: "pencil")
             }

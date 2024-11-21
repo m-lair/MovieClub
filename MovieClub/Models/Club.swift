@@ -6,7 +6,9 @@
 //
 
 import Foundation
+import Observation
 
+@Observable
 final class MovieClub: Identifiable, Codable, Hashable, Equatable {
     var id: String?
     var name: String
@@ -109,6 +111,7 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+
     }
     
     static func == (lhs: MovieClub, rhs: MovieClub) -> Bool {
