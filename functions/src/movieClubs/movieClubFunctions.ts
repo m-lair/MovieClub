@@ -31,7 +31,6 @@ exports.createMovieClub = functions.https.onCall(
       const movieClubRef = firestore.collection(MOVIE_CLUBS);
 
       const movieClubData: MovieClubData = {
-        bannerUrl: data.bannerUrl,
         description: data.description,
         isPublic: data.isPublic,
         name: data.name,
@@ -68,7 +67,7 @@ exports.updateMovieClub = functions.https.onCall(
   async (request: CallableRequest<UpdateMovieClubData>) => {
     try {
       const { data, auth } = request;
-
+      console.log("data", data);
       const { uid } = verifyAuth(auth);
 
       const requiredFields = ["id"];
@@ -89,9 +88,7 @@ exports.updateMovieClub = functions.https.onCall(
       }
 
       const movieClubUpdateData = {
-        ...(data.bannerUrl && { bannerUrl: data.bannerUrl }),
         ...(data.description && { description: data.description }),
-        ...(data.image && { image: data.image }),
         ...(data.isPublic != undefined && { isPublic: data.isPublic }),
         ...(data.name && { name: data.name }),
         ...(data.timeInterval && { timeInterval: data.timeInterval }),
@@ -99,12 +96,10 @@ exports.updateMovieClub = functions.https.onCall(
 
       await movieClubRef.update(movieClubUpdateData);
 
-      logVerbose("Movie Club updated successfully!");
+      return { success: true };
     } catch (error) {
-      handleCatchHttpsError(
-        `Error updating Movie Club ${request.data.id}:`,
-        error,
-      );
+      console.log(error)
+      handleCatchHttpsError("Error creating Suggestion:", error);
     }
-  },
+    }
 );

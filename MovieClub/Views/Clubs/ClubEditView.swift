@@ -5,36 +5,23 @@
 //  Created by Marcus Lair on 10/10/24.
 //
 
-/*
-   description: string;
-   image: string;
-   isPublic: boolean;
-   name: string;
-   ownerId: string;
-   ownerName: string;
-   timeInterval: string;
-
- */
-
 import SwiftUI
 import Foundation
-import PhotosUI
+
 
 struct ClubEditView: View {
-    
     @Environment(DataManager.self) var data: DataManager
+    @Environment(\.dismiss) var dismiss
     @State var errorShowing: Bool = false
     @State var errorMessage: String = ""
     
-    let movieClub: MovieClub
     @State var name = ""
     @State var description = ""
     @State var isPublic: Bool = false
-    @State var image: String = ""
-    @State var banner: UIImage?
-    @State var photoItem: PhotosPickerItem?
     @State var timeInterval: Int = 0
     @State var ownerId: String = ""
+    
+    @Binding var movieClub: MovieClub
     
     var body: some View {
         VStack(spacing: 5){
@@ -42,26 +29,23 @@ struct ClubEditView: View {
             Divider()
             TextField(movieClub.desc ?? " ", text: $description)
             Divider()
-            BannerSelector(banner: $banner, photoItem: $photoItem)
-            Divider()
             Toggle("Public", isOn: $isPublic)
             Divider()
-            TextField("Image", text: $image)
             Picker("Week Interval", selection: $timeInterval) {
-                ForEach(1..<4, id: \.self) { option in
+                ForEach(1..<5, id: \.self) { option in
                     Text("\(option)").tag(option)
                 }
             }
             .pickerStyle(.segmented)
-            Divider()
-            TextField("Owner Id", text: $ownerId)
-            Divider()
             Spacer()
             Button("Update") {
                 Task {
                    try await submit()
                 }
+                dismiss()
             }
+            .buttonStyle(.bordered)
+            .padding(.bottom, 10)
         }
         
         .alert(errorMessage, isPresented: $errorShowing) {
@@ -71,7 +55,6 @@ struct ClubEditView: View {
             name = movieClub.name
             description = movieClub.desc ?? ""
             isPublic = movieClub.isPublic
-            image = "no-image"
             timeInterval = movieClub.timeInterval
             ownerId = movieClub.ownerId
         }
@@ -90,7 +73,7 @@ struct ClubEditView: View {
         }
         guard !description.isEmpty else {
             errorShowing = true
-            errorMessage = "description cannot be empty"
+            errorMessage = "Description cannot be empty"
             return
         }
         guard timeInterval != 0 else {
@@ -102,6 +85,19 @@ struct ClubEditView: View {
         let updatedClub = MovieClub(id: movieClub.id, name: name, desc: description, ownerName: user.name, timeInterval: timeInterval, ownerId: ownerId, isPublic: isPublic)
         do {
             try await data.updateMovieClub(movieClub: updatedClub)
+            // Update only the necessary properties
+            movieClub.name = updatedClub.name
+            movieClub.desc = updatedClub.desc
+            movieClub.ownerName = updatedClub.ownerName
+            movieClub.timeInterval = updatedClub.timeInterval
+            movieClub.ownerId = updatedClub.ownerId
+            movieClub.isPublic = updatedClub.isPublic
+            
+            if let index = data.userClubs.firstIndex(where: { $0.id == movieClub.id }) {
+                print("updated club \(data.userClubs[index].id)")
+                data.userClubs[index] = movieClub
+            }
+            
         } catch {
             errorShowing = true
             errorMessage = "Error updating club: \(error)"

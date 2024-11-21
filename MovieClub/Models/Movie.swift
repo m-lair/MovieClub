@@ -1,9 +1,11 @@
 import Foundation
 import SwiftUI
+import Observation
 
 
 // MARK: - Base Movie Model (Firestore)
-struct Movie: Identifiable, Codable {
+@Observable
+final class Movie: Identifiable, Codable, Equatable, Hashable {
     // Firestore stored properties
     var id: String?
     let userId: String
@@ -49,12 +51,74 @@ struct Movie: Identifiable, Codable {
         self.endDate = endDate
         self.userName = userName
         self.likes = likes
+        self.likedBy = likedBy
         self.dislikes = dislikes
+        self.dislikedBy = dislikedBy
         self.numCollected = numCollected
+        self.collectedBy = collectedBy
         self.numComments = numComments
         self.apiData = apiData
         self.status = status
     }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decodeIfPresent(String.self, forKey: .id)
+        userId = try container.decode(String.self, forKey: .userId)
+        imdbId = try container.decode(String.self, forKey: .imdbId)
+        startDate = try container.decode(Date.self, forKey: .startDate)
+        endDate = try container.decode(Date.self, forKey: .endDate)
+        userName = try container.decode(String.self, forKey: .userName)
+        likes = try container.decode(Int.self, forKey: .likes)
+        dislikes = try container.decode(Int.self, forKey: .dislikes)
+        likedBy = try container.decode([String].self, forKey: .likedBy)
+        dislikedBy = try container.decode([String].self, forKey: .dislikedBy)
+        numCollected = try container.decode(Int.self, forKey: .numCollected)
+        collectedBy = try container.decode([String].self, forKey: .collectedBy)
+        numComments = try container.decode(Int.self, forKey: .numComments)
+        status = try container.decode(String.self, forKey: .status)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(userId, forKey: .userId)
+        try container.encode(startDate, forKey: .startDate)
+        try container.encode(endDate, forKey: .endDate)
+        try container.encode(userName, forKey: .userName)
+        try container.encode(imdbId, forKey: .imdbId)
+        try container.encode(likes, forKey: .likes)
+        try container.encode(likedBy, forKey: .likedBy)
+        try container.encode(dislikes, forKey: .dislikes)
+        
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId
+        case startDate
+        case endDate
+        case userName
+        case imdbId
+        case likes
+        case likedBy
+        case dislikes
+        case dislikedBy
+        case numCollected
+        case collectedBy
+        case numComments
+        case status
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: Movie, rhs: Movie) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    
 }
 
 // MARK: - Movie API Response (Raw API Data)
@@ -90,6 +154,8 @@ struct MovieAPIResponse: Codable, Equatable, Hashable {
         runtime = try container.decodeIfPresent(String.self, forKey: .runtime) ?? ""
         director = try container.decode(String.self, forKey: .director)
         actors = try container.decode(String.self, forKey: .actors)
+        
+        
     }
 }
 
