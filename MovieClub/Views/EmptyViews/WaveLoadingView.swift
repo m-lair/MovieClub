@@ -14,7 +14,6 @@ struct WaveLoadingView: View {
     private let animationDelay: Double = 0.1
 
     @State private var animate = false
-    @State private var timer: Timer?
 
     var body: some View {
         HStack(spacing: circleSize / 2) {
@@ -32,29 +31,16 @@ struct WaveLoadingView: View {
         }
         .frame(height: circleSize + (offsetAmount * 2))
         .onAppear {
-            startAnimation()
+            animate = true
         }
         .onDisappear {
-            stopAnimation()
+            animate = false
         }
     }
 
     private var waveAnimation: Animation {
         Animation
             .easeInOut(duration: animationDuration)
-            .repeatCount(1, autoreverses: true)
-    }
-
-    private func startAnimation() {
-        animate = true
-        timer = Timer.scheduledTimer(withTimeInterval: animationDuration * 2, repeats: true) { _ in
-            animate.toggle()
-        }
-    }
-
-    private func stopAnimation() {
-        timer?.invalidate()
-        timer = nil
-        animate = false
+            .repeatForever(autoreverses: true)
     }
 }
