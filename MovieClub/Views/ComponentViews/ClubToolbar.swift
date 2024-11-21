@@ -10,7 +10,8 @@ import SwiftUI
 struct ClubToolbar: View {
     @Environment(DataManager.self) var data
     @Environment(\.dismiss) var dismiss
-    let club: MovieClub
+    @Binding var club: MovieClub
+
     
     var body: some View {
         Menu {
@@ -20,8 +21,8 @@ struct ClubToolbar: View {
                 Label("Report A Problem", systemImage: "exclamationmark.octagon")
             }
             
-            NavigationLink{
-                ClubEditView(movieClub: club)
+            NavigationLink {
+                ClubEditView(movieClub: $club)
             } label: {
                 Label("Edit", systemImage: "pencil")
             }

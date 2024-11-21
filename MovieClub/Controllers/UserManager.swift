@@ -37,7 +37,6 @@ extension DataManager {
             print("error getting user document")
             return
         }
-        print("\(snapshot.data())")
         do {
             currentUser = try snapshot.data(as: User.self)
         } catch {
@@ -74,7 +73,7 @@ extension DataManager {
                         clubList.append(club)
                     }
                 }
-                print("clubList: \(clubList)")
+                print("clubList: \(clubList.map(\.id))")
                 return clubList
             }
             self.userClubs = clubs
