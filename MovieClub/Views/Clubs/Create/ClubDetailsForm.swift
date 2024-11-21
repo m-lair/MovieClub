@@ -88,8 +88,7 @@ struct ClubDetailsForm: View {
                       ownerName: user.name,
                       timeInterval: timeInterval,
                       ownerId: userId,
-                      isPublic: isPublic,
-                      bannerUrl: "no-image")
+                      isPublic: isPublic)
             
         do {
             try await data.createMovieClub(movieClub: movieClub)

@@ -1,14 +1,5 @@
-//
-//  ClubDetailView.swift
-//  MovieClub
-//
-//  Created by Marcus Lair on 5/13/24.
-//
-
 import SwiftUI
 import FirebaseFirestore
-
-
 
 struct ClubDetailView: View {
     let tabs: [String] = ["Bullentin", "Now Showing", "Upcoming", "Archives"]
@@ -21,13 +12,11 @@ struct ClubDetailView: View {
     @Binding var navPath: NavigationPath
     
     @State var isLoading: Bool = true
-    let club: MovieClub
+    @State var club: MovieClub
     
     var body: some View {
         VStack {
-            //HeaderView(movieClub: club)
             ClubTabView(tabs: tabs, selectedTabIndex: $selectedTabIndex)
-            
             TabView(selection: $selectedTabIndex) {
                 BulletinView()
                     .tag(0)
@@ -52,12 +41,10 @@ struct ClubDetailView: View {
             
         }
         .toolbar {
-            ClubToolbar(club: club)
-            
+            ClubToolbar(club: $club)
         }
         .task {
             data.currentClub = club
-            await data.fetchUserClubs()
         }
         .onDisappear {
             data.currentClub = nil
@@ -65,12 +52,7 @@ struct ClubDetailView: View {
             data.movies = []
             data.suggestions = []
         }
+        .navigationTitle(club.name)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
-
-/*
-#Preview {
-    ClubDetailView(movieClub: MovieClub.TestData[0])
-        .environment(DataManager())
-}
-*/
