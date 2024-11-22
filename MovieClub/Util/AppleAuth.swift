@@ -80,7 +80,7 @@ class AppleSignInManager: NSObject {
                     }
                     
                     Task {
-                        try await AuthManager().createUser(email: authResult.user.email!, password: "", displayName: authResult.user.displayName ?? "")
+                        try await DataManager().createUser(email: authResult.user.email!, password: "", displayName: authResult.user.displayName ?? "")
                     }
                     completion(.success(authResult))
                 }

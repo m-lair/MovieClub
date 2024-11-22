@@ -17,8 +17,12 @@ import FirebaseMessaging
 import FirebaseFunctions
 
 
-@Observable @MainActor
+@Observable
 class DataManager: Identifiable {
+    
+    var authCurrentUser: FirebaseAuth.User?
+    var authState: AuthStateDidChangeListenerHandle?
+    
     // MARK: - API Key
     var omdbKey: String
     
@@ -44,22 +48,22 @@ class DataManager: Identifiable {
     // MARK: - Firebase References
     var db: Firestore
     var functions: Functions
+    var auth: Auth
     
     // MARK: - Cleanup
     var commentsListener: ListenerRegistration?
     var suggestionsListener: ListenerRegistration?
     
-    init() throws {
+    init() {
         // Initialize API Key
-        guard
-            let key = ProcessInfo.processInfo.environment["OMDB_API_KEY"]
-        else {
-            throw DataError.invalidAPIKey
-        }
+        let key = ProcessInfo.processInfo.environment["OMDB_API_KEY"]
         db = Firestore.firestore()
         functions = Functions.functions()
-        omdbKey = key
+        auth = Auth.auth()
+        omdbKey = key ?? "invalid key"
+        registerStateListener()
     }
+    
     // MARK: - Collection References
     
     func movieClubCollection() -> CollectionReference {
@@ -68,6 +72,20 @@ class DataManager: Identifiable {
     
     func usersCollection() -> CollectionReference {
         return db.collection("users")
+    }
+    
+    func updateUser(with user: User) {
+        self.currentUser = user
+    }
+
+    func removeStateListener() {
+        if let authState = authState {
+            auth.removeStateDidChangeListener(authState)
+        }
+    }
+    
+    deinit {
+        removeStateListener()
     }
 }
 
