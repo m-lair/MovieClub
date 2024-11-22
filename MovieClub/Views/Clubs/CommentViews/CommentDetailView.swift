@@ -9,7 +9,6 @@ import SwiftUI
 
 struct CommentDetailView: View {
     @Environment(DataManager.self) private var data
-    @Environment(AuthManager.self) private var auth
     let comment: Comment
     var onReply: (Comment) -> Void
     @State var imageUrl: String = ""
@@ -114,7 +113,7 @@ struct CommentDetailView: View {
     }
     
     private func toggleLike() async {
-        guard let currentUserId = auth.authCurrentUser?.uid else { return }
+        guard let currentUserId = data.authCurrentUser?.uid else { return }
         if isLiked {
             isLiked = false
             likesCount -= 1

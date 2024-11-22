@@ -90,7 +90,6 @@ struct SettingsRowView<Destination: View>: View {
 
 struct LoginInformationView: View {
     @Environment(DataManager.self) var data
-    @Environment(AuthManager.self) var auth
     
     var body: some View {
         VStack {
@@ -116,7 +115,7 @@ struct LoginInformationView: View {
                     Spacer().frame(height: 20)
                     
                     Button {
-                        auth.signOut()
+                        data.signOut()
                     } label: {
                         Text("Logout")
                             .font(.headline)
@@ -132,7 +131,7 @@ struct LoginInformationView: View {
                         guard let userId = user.id else { return }
                         Task {
                             try await data.deleteUserAccount(userId: userId)
-                            auth.authCurrentUser = nil
+                            data.authCurrentUser = nil
                         }
                     } label: {
                         Text("Delete Account")

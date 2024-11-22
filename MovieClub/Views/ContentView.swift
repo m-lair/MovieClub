@@ -15,8 +15,7 @@ struct ContentView: View {
              notificationsPath,
              profilePath
     }
-    
-    @Environment(DataManager.self) var data: DataManager
+    @Environment(DataManager.self) var data
     @State private var selection: Tab = .clubsPath
     @State var clubsPath = NavigationPath()
     @State var discoverPath = NavigationPath()
