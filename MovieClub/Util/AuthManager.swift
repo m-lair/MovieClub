@@ -9,7 +9,6 @@ import Observation
 import Foundation
 import FirebaseAuth
 
-
 extension DataManager {
     
     // MARK: - Enums
@@ -25,6 +24,7 @@ extension DataManager {
         case invalidTokenIssuer
     }
     
+    // MARK: Validate Current User Token
     
     func checkUserAuthentication() async {
         guard let user = auth.currentUser else {
@@ -43,9 +43,9 @@ extension DataManager {
                 // Token is valid; user is authenticated
                 print("User is authenticated with UID: \(user.uid)")
                 self.authCurrentUser = user
-                
             }
         }
+        
         do {
             currentUser = try await fetchUserDocument(uid: user.uid)
         } catch {

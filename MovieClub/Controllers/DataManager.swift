@@ -20,6 +20,7 @@ import FirebaseFunctions
 @Observable
 class DataManager: Identifiable {
     
+    // MARK: Auth Items
     var authCurrentUser: FirebaseAuth.User?
     var authState: AuthStateDidChangeListenerHandle?
     
@@ -50,7 +51,7 @@ class DataManager: Identifiable {
     var functions: Functions
     var auth: Auth
     
-    // MARK: - Cleanup
+    // MARK: - Content Listeners
     var commentsListener: ListenerRegistration?
     var suggestionsListener: ListenerRegistration?
     
@@ -77,6 +78,8 @@ class DataManager: Identifiable {
     func updateUser(with user: User) {
         self.currentUser = user
     }
+    
+    // MARK: Cleanup
 
     func removeStateListener() {
         if let authState = authState {
@@ -84,8 +87,18 @@ class DataManager: Identifiable {
         }
     }
     
+    func removeCommentsListener() {
+        commentsListener?.remove()
+    }
+    
+    func removeSuggestionsListener() {
+        suggestionsListener?.remove()
+    }
+
     deinit {
         removeStateListener()
+        removeCommentsListener()
+        removeSuggestionsListener()
     }
 }
 
