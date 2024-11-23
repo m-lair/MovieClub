@@ -20,7 +20,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     func application(_ application: UIApplication,
                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
         application.registerForRemoteNotifications()
-        configureFirebase()
         Messaging.messaging().delegate = self
         UNUserNotificationCenter.current().delegate = self
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
@@ -72,102 +71,32 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     }
 }
 
-@Observable
-class AppState {
-    var isLoading = true
-    let authManager: AuthManager
-    let dataManager: DataManager
-    
-    init() async throws {
-        self.isLoading = true
-        self.authManager = AuthManager()
-        
-        do {
-            self.dataManager = try await DataManager()
-        } catch {
-            fatalError("Failed to initialize DataManager: \(error)")
-        }
-        
-        self.isLoading = false
-    }
-}
-
 @main
 struct MovieClubApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    
-    // Use StateObject for the initial state container
-    @StateObject private var stateContainer = StateContainer()
-    
+    @State var dataManager: DataManager
+    @State var isLoading: Bool = true
     init() {
-        print("MovieClubApp initializing")
+        configureFirebase()
+        dataManager = DataManager()
     }
     
     var body: some Scene {
         WindowGroup {
             Group {
-                if let appState = stateContainer.appState {
-                    MainContentView(appState: appState)
+                if isLoading {
+                    WaveLoadingView()
+                } else if dataManager.authCurrentUser != nil {
+                    ContentView()
                 } else {
-                    ProgressView("Initializing...")
-                        .onAppear {
-                            print("Showing loading view")
-                            stateContainer.initializeAppState()
-                        }
+                    LoginView()
                 }
             }
-        }
-    }
-}
-
-// State container to handle async initialization
-@MainActor
-@Observable class StateContainer: ObservableObject {
-    var appState: AppState?
-    
-    func initializeAppState() {
-        Task {
-            do {
-                self.appState = try await AppState()
-                print("AppState initialized successfully")
-            } catch {
-                print("Error initializing AppState: \(error)")
+            .task {
+                await dataManager.checkUserAuthentication()
+                isLoading = false
             }
         }
+        .environment(dataManager)
     }
 }
-struct MainContentView: View {
-    let appState: AppState
-    @Bindable var authManager: AuthManager
-    
-    init(appState: AppState) {
-        self.appState = appState
-        self.authManager = appState.authManager
-    }
-    
-    var body: some View {
-        Group {
-            if authManager.authCurrentUser != nil {
-                let _ = print("User is logged in - showing content view")
-                ContentView()
-                    .environment(appState.authManager)
-                    .environment(appState.dataManager)
-                    .task {
-                        do {
-                            try await appState.dataManager.fetchUser()
-                        } catch {
-                            print("Error fetching user: \(error)")
-                            authManager.authCurrentUser = nil
-                        }
-                    }
-            } else {
-                let _ = print("User is not logged in - showing login view")
-                LoginView()
-                    .environment(appState.authManager)
-                    .environment(appState.dataManager)
-            }
-        }
-    }
-}
-
-

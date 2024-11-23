@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ProfileDisplayView: View {
     @Environment(DataManager.self) private  var data
-    @Environment(AuthManager.self) private var auth
     @Environment(\.editMode) private var editMode
     @Environment(\.dismiss) private var dismiss
     
@@ -34,7 +33,7 @@ struct ProfileDisplayView: View {
                     .tabViewStyle(.page(indexDisplayMode: .never))
                     
                     Button {
-                        auth.signOut()
+                        data.signOut()
                     } label: {
                         Text("Sign Out")
                             .foregroundStyle(Color(.red))
@@ -50,8 +49,4 @@ struct ProfileDisplayView: View {
             }
         }
     }
-}
-
-#Preview {
-    ProfileDisplayView()
 }

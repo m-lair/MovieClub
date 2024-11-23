@@ -11,7 +11,6 @@ import FirebaseFirestore
 
 struct ClubDetailsForm: View {
     @Environment(DataManager.self) var data: DataManager
-    @Environment(AuthManager.self) var auth
     @Environment(\.dismiss) private var dismiss
     @Binding var navPath: NavigationPath
     

@@ -13,7 +13,6 @@ import FirebaseAuth
 struct LoginView: View {
     
     @Environment(DataManager.self) private var data
-    @Environment(AuthManager.self) private var auth
     @Environment(\.dismiss) private var dismiss
     @State var error: String = ""
     @State var errorShowing: Bool = false
@@ -94,7 +93,8 @@ struct LoginView: View {
         }
         print("Signing in...")
         do {
-            try await auth.signIn(email: userEmail, password: userPwd)
+            try await data.signIn(email: userEmail, password: userPwd)
+            
         } catch let error as NSError {
             switch error.userInfo[AuthErrorUserInfoNameKey] as? String {
             case "ERROR_INVALID_EMAIL":
