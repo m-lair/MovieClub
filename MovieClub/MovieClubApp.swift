@@ -11,6 +11,7 @@ import FirebaseCore
 import Foundation
 import UserNotifications
 import FirebaseAuth
+import FirebaseFunctions
 import AuthenticationServices
 import FirebaseFirestore
 import FirebaseMessaging
@@ -21,11 +22,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
         application.registerForRemoteNotifications()
         Messaging.messaging().delegate = self
-        UNUserNotificationCenter.current().delegate = self
-        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-        UNUserNotificationCenter.current().requestAuthorization(
-            options: authOptions,
-            completionHandler: {_, _ in })
         Analytics.setAnalyticsCollectionEnabled(true)
         return true
     }
@@ -52,22 +48,11 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     }
     
     func saveFCMTokenToFirestore(_ fcmToken: String) {
-        // Ensure the user is authenticated
-       /* guard let uid = Auth.auth().currentUser?.uid
-        else {
-            print("User is not authenticated. Cannot save FCM token.")
-            return
+        guard Auth.auth().currentUser != nil else { return }
+        let updateFCM: Callable<String, Bool?> = Functions.functions().httpsCallable("users-updateUserFCMToken")
+        Task {
+            let result = try await updateFCM(fcmToken)
         }
-        let db = Firestore.firestore()
-        let userRef = db.collection("users").document(uid)
-        
-        userRef.setData(["fcmToken": fcmToken], merge: true) { error in
-            if let error = error {
-                print("Error saving FCM token to Firestore: \(error.localizedDescription)")
-            } else {
-                print("FCM token successfully saved to Firestore")
-            }
-        }*/
     }
 }
 
@@ -75,10 +60,12 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
 struct MovieClubApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @State var dataManager: DataManager
+    @State var notifManager: NotificationManager
     @State var isLoading: Bool = true
     init() {
         configureFirebase()
         dataManager = DataManager()
+        notifManager = NotificationManager()
     }
     
     var body: some Scene {
@@ -98,5 +85,6 @@ struct MovieClubApp: App {
             }
         }
         .environment(dataManager)
+        .environment(notifManager)
     }
 }

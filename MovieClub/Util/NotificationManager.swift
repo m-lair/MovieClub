@@ -9,14 +9,31 @@ import Foundation
 import UserNotifications
 import Observation
 
-@MainActor
 @Observable
-class NotificationManager{
+class NotificationManager {
     private var hasPermission = false
     
     init() {
         Task{
             await getAuthStatus()
+        }
+    }
+    
+    func scheduleNotification(title: String, body: String, timeInterval: TimeInterval) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInterval, repeats: false)
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+        
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Failed to schedule notification: \(error)")
+            } else {
+                print("Notification scheduled successfully")
+            }
         }
     }
     

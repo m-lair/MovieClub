@@ -11,7 +11,7 @@ import Observation
 import FirebaseAuth
 
 struct LoginView: View {
-    
+    @Environment(NotificationManager.self) private var notif
     @Environment(DataManager.self) private var data
     @Environment(\.dismiss) private var dismiss
     @State var error: String = ""
@@ -29,6 +29,13 @@ struct LoginView: View {
     var body: some View {
         NavigationStack{
             VStack {
+                Button("Schedule Notification") {
+                    notif.scheduleNotification(
+                        title: "Test Notification",
+                        body: "This is a test notification",
+                        timeInterval: 5 // 5 seconds from now
+                    )
+                }
                 Spacer()
                 Text("Movie Club")
                     .font(.title)

@@ -17,6 +17,22 @@ import {
 import { CallableRequest } from "firebase-functions/https";
 import { USERS } from "src/utilities/collectionNames";
 
+exports.updateUserFCMToken = functions.https.onCall(
+  async (request) => {
+    try {
+      const { fcmToken, auth } = request.data;
+      const { uid } = verifyAuth(auth);
+
+      await firestore.collection("users").doc(uid).set({ fcmToken }, { merge: true });
+
+      return { success: true };
+    } catch (error: any) {
+      console.error("Error updating FCM token:", error);
+      throw new functions.https.HttpsError("internal", "Unable to update FCM token.");
+    }
+  }
+);
+
 exports.deleteUser = functions.https.onCall(
   async (request: CallableRequest<DeleteUserData>) => {
     try {

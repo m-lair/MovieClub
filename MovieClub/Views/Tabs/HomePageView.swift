@@ -9,6 +9,7 @@ import SwiftUI
 import Observation
 
 struct HomePageView: View {
+    @Environment(NotificationManager.self) var notif
     @Environment(DataManager.self) var data: DataManager
     @Binding var navPath: NavigationPath
     @State var isLoading: Bool = true
@@ -62,6 +63,11 @@ struct HomePageView: View {
         }
         .navigationTitle("Movie Clubs")
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            Task {
+                await notif.request()
+            }
+        }
     }
 }
 
