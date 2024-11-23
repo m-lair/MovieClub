@@ -35,7 +35,6 @@ struct NowShowingView: View {
         VStack {
             if let movie = movies.first {
                 let _ = print("movie.likedBy \(movie.likedBy)")
-                let _ = print("movie.collectedBy \(movie.collectedBy)")
                 ScrollView {
                     FeaturedMovieView(collected: collected, movie: movie)
                     HStack {
