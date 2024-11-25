@@ -86,7 +86,6 @@ export const setMovieFromSuggestion = async (uid: string, clubId: string, sugges
   };
 
   await movieCollectionRef.add(movieData);
-  await suggestionCollection.doc(uid).set(suggestionData);
 };
 
 exports.deleteMovieClubSuggestion = functions.https.onCall(
