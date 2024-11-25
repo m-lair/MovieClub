@@ -61,7 +61,6 @@ exports.createMovieClubSuggestion = functions.https.onCall(
 );
 
 export const setMovieFromSuggestion = async (uid: string, clubId: string, suggestionData: CreateMovieClubSuggestionData) => {
-  const suggestionCollection = getMovieClubSuggestionRef(clubId);
   const movieCollectionRef = getMovieRef(clubId);
   const clubDoc = await getMovieClubDocRef(clubId).get();
   const club = clubDoc.data() as MovieClubData;
@@ -94,7 +93,6 @@ exports.deleteMovieClubSuggestion = functions.https.onCall(
       const { data, auth } = request;
       const { uid } = verifyAuth(auth);
 
-      console.log(data);
       const suggestionRef = getMovieClubSuggestionDocRef(uid, data.clubId);
       await suggestionRef.delete();
 
