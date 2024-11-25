@@ -30,7 +30,7 @@ export interface UnlikeCommentData {
   commentId: string;
 }
 
-export interface PostCommentData extends CommentData, ReplyData, CommentDataAssociations {}
+export interface PostCommentData extends CommentData, ReplyData, CommentDataAssociations { }
 
 export interface DeleteCommentData extends CommentDataAssociations {
   id: string;

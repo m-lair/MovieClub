@@ -50,12 +50,12 @@ exports.createMovieClub = functions.https.onCall(
       });
 
       await firestore
-      .collection("users")
-      .doc(uid).collection("memberships")
-      .doc(movieClub.id).set({
-        movieClubName: movieClubData.name,
-        createdAt: Date.now(),
-      });
+        .collection("users")
+        .doc(uid).collection("memberships")
+        .doc(movieClub.id).set({
+          movieClubName: movieClubData.name,
+          createdAt: Date.now(),
+        });
 
       return movieClub.id;
     } catch (error) {

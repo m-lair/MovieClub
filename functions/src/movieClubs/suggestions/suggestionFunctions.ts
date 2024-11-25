@@ -26,7 +26,7 @@ exports.createMovieClubSuggestion = functions.https.onCall(
       await verifyMembership(uid, data.clubId);
 
       const suggestionCollection = getMovieClubSuggestionRef(data.clubId);
-      
+
       // Create base suggestion data
       const suggestionData: CreateMovieClubSuggestionData = {
         userName: data.userName,
@@ -39,20 +39,20 @@ exports.createMovieClubSuggestion = functions.https.onCall(
 
       // Check if suggestion collection is empty
       const suggestionsSnapshot = suggestionCollection.count;
-      
+
       if (suggestionsSnapshot.length === 0) {
         const activeMovieRef = await getMovieClubMovieStatus(data.clubId);
         if (activeMovieRef.empty) {
           setMovieFromSuggestion(uid, data.clubId, suggestionData);
-      } else {
-        // Otherwise, add to suggestions as normal
-        console.log("Suggestion is empty but there is an active movie");
-        await suggestionCollection.doc(uid).set(suggestionData);
+        } else {
+          // Otherwise, add to suggestions as normal
+          console.log("Suggestion is empty but there is an active movie");
+          await suggestionCollection.doc(uid).set(suggestionData);
+          return { success: true };
+        }
+
         return { success: true };
       }
-      
-      return { success: true };
-    }
     } catch (error) {
       console.log(error)
       handleCatchHttpsError("Error creating Suggestion:", error);
@@ -83,9 +83,9 @@ export const setMovieFromSuggestion = async (uid: string, movieClubId: string, s
     likedBy: [],
     dislikedBy: []
   };
-  
+
   await movieCollectionRef.add(movieData);
-  
+
 };
 
 exports.deleteMovieClubSuggestion = functions.https.onCall(
@@ -93,7 +93,7 @@ exports.deleteMovieClubSuggestion = functions.https.onCall(
     try {
       const { data, auth } = request;
       const { uid } = verifyAuth(auth);
-      
+
       console.log(data);
       const suggestionRef = getMovieClubSuggestionDocRef(uid, data.clubId);
       await suggestionRef.delete();
