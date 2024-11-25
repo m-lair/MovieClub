@@ -85,7 +85,7 @@ describe("membershipFunctions", () => {
       } catch (error: any) {
         assert.match(
           error.message,
-          /The function must be called with image, movieClubId, movieClubName, username./,
+          /The function must be called with clubId, clubName, userName./,
         );
       }
     });
@@ -159,7 +159,7 @@ describe("membershipFunctions", () => {
       } catch (error: any) {
         assert.match(
           error.message,
-          /The function must be called with movieClubId./,
+          /The function must be called with clubId./,
         );
       }
     });
