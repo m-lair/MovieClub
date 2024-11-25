@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions";
-import { firestore, firebaseAdmin } from "firestore";
+import { firebaseAdmin } from "firestore";
 import {
   handleCatchHttpsError,
   logVerbose,
@@ -7,18 +7,15 @@ import {
   verifyAuth,
   verifyRequiredFields,
 } from "helpers";
-import { 
-  DeleteCommentData, 
+import {
+  DeleteCommentData,
   PostCommentData,
   LikeCommentData,
-  UnlikeCommentData } from "./commentTypes";
+  UnlikeCommentData
+} from "./commentTypes";
 import { CallableRequest } from "firebase-functions/https";
-import {
-  COMMENTS,
-  MOVIE_CLUBS,
-  MOVIES,
-} from "src/utilities/collectionNames";
 import { verifyMembership } from "src/users/memberships/membershipHelpers";
+import { getCommentsDocRef, getCommentsRef } from "./commentHelpers";
 
 exports.postComment = functions.https.onCall(
   async (request: CallableRequest<PostCommentData>) => {
@@ -31,12 +28,7 @@ exports.postComment = functions.https.onCall(
       verifyRequiredFields(data, requiredFields);
       await verifyMembership(uid, data.clubId);
 
-      const commentsRef = firestore
-        .collection(MOVIE_CLUBS)
-        .doc(data.clubId)
-        .collection(MOVIES)
-        .doc(data.movieId)
-        .collection(COMMENTS);
+      const commentsRef = getCommentsRef(data.clubId, data.movieId)
 
       const commentData = {
         userId: uid,
@@ -49,9 +41,9 @@ exports.postComment = functions.https.onCall(
         likes: 0
       };
 
-        await commentsRef.add(commentData);
-        return { success: true };
-;
+      await commentsRef.add(commentData);
+      return { success: true };
+      ;
     } catch (error) {
       handleCatchHttpsError("Error posting comment:", error);
     }
@@ -64,24 +56,18 @@ exports.likeComment = functions.https.onCall(
       const { data, auth } = request;
 
       const { uid } = verifyAuth(auth);
-      
+
       const requiredFields = ['clubId', 'movieId', 'commentId'];
       verifyRequiredFields(data, requiredFields);
       await verifyMembership(uid, data.clubId);
 
-      const commentRef = firestore
-        .collection(MOVIE_CLUBS) // Assuming MOVIE_CLUBS = 'movieClubs'
-        .doc(data.clubId)
-        .collection(MOVIES) // Assuming MOVIES = 'movies'
-        .doc(data.movieId)
-        .collection(COMMENTS) // Assuming COMMENTS = 'comments'
-        .doc(data.commentId);
+      const commentRef = getCommentsDocRef(data.clubId, data.movieId, data.commentId)
 
-        await commentRef.update({
-          likedBy: firebaseAdmin.firestore.FieldValue.arrayUnion(uid),
-          likes: firebaseAdmin.firestore.FieldValue.increment(1),
-        });
-       
+      await commentRef.update({
+        likedBy: firebaseAdmin.firestore.FieldValue.arrayUnion(uid),
+        likes: firebaseAdmin.firestore.FieldValue.increment(1),
+      });
+
       return { success: true };
     } catch (error) {
       handleCatchHttpsError('Error liking comment:', error);
@@ -100,13 +86,7 @@ exports.unlikeComment = functions.https.onCall(
       verifyRequiredFields(data, requiredFields);
       await verifyMembership(uid, data.clubId);
 
-      const commentRef = firestore
-        .collection(MOVIE_CLUBS)
-        .doc(data.clubId)
-        .collection(MOVIES)
-        .doc(data.movieId)
-        .collection(COMMENTS)
-        .doc(data.commentId);
+      const commentRef = getCommentsDocRef(data.clubId, data.movieId, data.commentId)
 
       await commentRef.update({
         likedBy: firebaseAdmin.firestore.FieldValue.arrayRemove(uid),
@@ -131,13 +111,7 @@ exports.deleteComment = functions.https.onCall(
       const requiredFields = ["id", "movieClubId", "movieId"];
       verifyRequiredFields(request.data, requiredFields);
 
-      const commentRef = firestore
-        .collection(MOVIE_CLUBS)
-        .doc(data.clubId)
-        .collection(MOVIES)
-        .doc(data.movieId)
-        .collection(COMMENTS)
-        .doc(data.id);
+      const commentRef = getCommentsDocRef(data.clubId, data.movieId, data.id)
 
       const commentSnap = await commentRef.get();
       const commentData = commentSnap.data();
