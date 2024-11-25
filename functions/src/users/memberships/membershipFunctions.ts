@@ -19,7 +19,7 @@ exports.joinMovieClub = functions.https.onCall(
         "userName",
       ];
       verifyRequiredFields(data, requiredFields);
-      console.log("data", data);
+
       const movieClubRef = await getMovieClub(data.clubId)
       const movieClubData = movieClubRef.data();
 
@@ -57,7 +57,7 @@ exports.leaveMovieClub = functions.https.onCall(
     try {
       const { data, auth } = request;
       const { uid } = verifyAuth(auth);
-      console.log(data)
+
       const requiredFields = ["clubId"];
       verifyRequiredFields(data, requiredFields);
 

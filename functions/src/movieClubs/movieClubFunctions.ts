@@ -26,7 +26,7 @@ exports.createMovieClub = functions.https.onCall(
         "ownerName",
         "timeInterval",
       ];
-      verifyRequiredFields(request.data, requiredFields);
+      verifyRequiredFields(data, requiredFields);
 
       const movieClubRef = firestore.collection(MOVIE_CLUBS);
 

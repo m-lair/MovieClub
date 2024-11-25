@@ -60,9 +60,10 @@ exports.createMovieClubSuggestion = functions.https.onCall(
   }
 );
 
-export const setMovieFromSuggestion = async (uid: string, movieClubId: string, suggestionData: CreateMovieClubSuggestionData) => {
-  const movieCollectionRef = getMovieRef(movieClubId);
-  const clubDoc = await getMovieClubDocRef(movieClubId).get();
+export const setMovieFromSuggestion = async (uid: string, clubId: string, suggestionData: CreateMovieClubSuggestionData) => {
+  const suggestionCollection = getMovieClubSuggestionRef(clubId);
+  const movieCollectionRef = getMovieRef(clubId);
+  const clubDoc = await getMovieClubDocRef(clubId).get();
   const club = clubDoc.data() as MovieClubData;
 
   const startDate = new Date();
@@ -85,7 +86,7 @@ export const setMovieFromSuggestion = async (uid: string, movieClubId: string, s
   };
 
   await movieCollectionRef.add(movieData);
-
+  await suggestionCollection.doc(uid).set(suggestionData);
 };
 
 exports.deleteMovieClubSuggestion = functions.https.onCall(

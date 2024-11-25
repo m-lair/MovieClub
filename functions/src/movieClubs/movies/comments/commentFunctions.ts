@@ -108,11 +108,10 @@ exports.deleteComment = functions.https.onCall(
 
       const { uid } = verifyAuth(auth);
 
-      const requiredFields = ["id", "movieClubId", "movieId"];
+      const requiredFields = ["id", "clubId", "movieId"];
       verifyRequiredFields(request.data, requiredFields);
 
       const commentRef = getCommentsDocRef(data.clubId, data.movieId, data.id)
-
       const commentSnap = await commentRef.get();
       const commentData = commentSnap.data();
 
