@@ -9,5 +9,5 @@ title: Home
 Join us in exploring and discussing the latest and greatest in cinema!
 
 - [FAQ](./faq.html)
-- [Report a Bug](https://github.com/m-lair/MovieClubReporting/issues/new?template=bug_report.md)
-- [Request a Feature](https://github.com/m-lair/MovieClubReporting/issues/new?template=feature_request.md)
+- [Report a Bug](https://github.com/mney33/MovieClubReporting/issues/new?template=bug_report.md)
+- [Request a Feature](https://github.com/mney33/MovieClubReporting/issues/new?template=feature_request.md)
