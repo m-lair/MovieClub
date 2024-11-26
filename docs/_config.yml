@@ -1,8 +1,5 @@
-# _config.yml
-theme: jekyll-theme-leap-day
-title: MovieClub
-description: A community for movie enthusiasts.
-baseurl: "/movieclub" # If your site is published at https://yourusername.github.io/movieclub
-url: "https://m-lair.github.io"
-
-
+title: Slate theme
+description: Slate is a theme for GitHub Pages.
+show_downloads: true
+google_analytics:
+theme: jekyll-theme-slate
