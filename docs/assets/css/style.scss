@@ -9,5 +9,6 @@
   top: 0;
   left: 0;
   width: 10%; /* Make the image span the full width */
-  height: auto; /* Maintain the aspect ratio *
+  height: auto; /* Maintain the aspect ratio */
+  object-fit: cover; /* Ensure the image covers the space without stretching */
 }
