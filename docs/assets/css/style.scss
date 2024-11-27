@@ -2,3 +2,13 @@
 ---
 
 @import "jekyll-theme-slate";
+
+
+#header-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%; /* Make the image span the full width */
+  height: auto; /* Maintain the aspect ratio */
+  object-fit: cover; /* Ensure the image covers the space without stretching */
+}
