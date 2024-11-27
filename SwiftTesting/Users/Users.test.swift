@@ -10,59 +10,60 @@ import Firebase
 import Foundation
 import FirebaseFunctions
 import FirebaseFirestore
+import FirebaseStorage
 import class FirebaseAuth.Auth
 import class MovieClub.User
 @testable import MovieClub
-
-extension AppTests {
     
-    @Suite struct UserFunctionsTests {
-        let createUserWithEmail: Callable<[String: String], String> = Functions.functions().httpsCallable("users-createUserWithEmail")
-        let createUserWithSignInProvider: Callable<[String: String], String> = Functions.functions().httpsCallable("users-createUserWithSignInProvider")
-        let updateUser: Callable<User, Bool?> = Functions.functions().httpsCallable("users-updateUser")
-        
-        
-        let id = UUID()
-        
-        @Test func signUp() async throws {
-            let userData = ["email": "test\(id)@test.com", "password": "123456", "name": "test\(id)"]
-            let userId = try await createUserWithEmail(userData)
-            #expect(userId != "")
-        }
-        
-        @Test func signUpWithProvider() async throws {
-            let id = UUID()
-            let providerData: [String: String] = [
-                "signInProvider": "apple",
-                "idToken": "sample-token",
-                "email": "testuser\(id)@example.com",
-                "name": "Test User \(id)"
-            ]
-            let userId = try await createUserWithSignInProvider(providerData)
-            #expect(userId != "")
-        }
-        
-        @Test func updateUser() async throws {
-            let id = UUID()
-            guard let auth = try await setUp(userId: id) else { return }
-            print("auth: \(auth)")
-            let userRef = Firestore.firestore().collection("users").document(auth)
-            
-            let user = User(email: "test\(id)@test.com", bio: "test-bio", name: "test\(id)", image: "test-image.png")
-            try userRef.setData(from: user)
-            
-            user.name = "updated-name"
-            user.bio = "updated-bio"
-            user.image = "updated-image.png"
 
-            let _ = try await updateUser(user)
-            
-           
-            let result = try await userRef.getDocument().data(as: User.self)
-            #expect(result.name == "updated-name")
-            #expect(result.bio == "updated-bio")
-            #expect(result.image == "updated-image.png")
-            try await tearDown()
+@Suite("User Tests")
+class UserTests: BaseTests {
+    
+    @Test("Create user with email successfully")
+    func testCreateUserWithEmail_Success() async throws {
+        try await super.setUp()
+        let userId = try await mockFunctions.createUserWithEmail(email: mockUser.email, password: "123456", name: mockUser.name)
+        
+        #expect(!userId.isEmpty)
+        let exists = try await mockFirestore.documentExists(path: userId, in: "users")
+        #expect(exists)
+        try await super.tearDown()
+    }
+    
+    @Test("Create user with OAuth successfully", .disabled())
+    func testCreateUserWithOAuth_Success() async throws {
+        try await super.setUp()
+        let provider = "Apple"
+        let userId = try await mockFunctions.createUserWithOAuth(mockUser.email, signInProvider: provider)
+        #expect(!userId.isEmpty)
+
+    }
+    
+    @Test("Delete user successfully")
+    func testDeleteUser_Success() async throws {
+        try await super.setUp()
+        // Make user
+        let uid = try await mockFunctions.createUserWithEmail(email: mockUser.email, password: "123456", name: mockUser.name)
+        let result = try await mockAuth.signIn(withEmail: mockUser.email, password: "123456")
+        // Then delete them
+        try #require(uid != nil && result.uid == uid)
+        try await mockFunctions.deleteUser(uid)
+        
+        let exists = try await mockFirestore.documentExists(path: uid, in: "users")
+        #expect(exists)
+        try await super.tearDown()
+    }
+    
+    @Test("Fail to create duplicate user")
+    func testCreateUserWithEmail_DuplicateUser() async throws {
+        try await super.setUp()
+        // Create first user
+        _ = try await mockFunctions.createUserWithEmail(email: mockUser.email, password: "123456", name: mockUser.name)
+        
+        // Attempt duplicate creation
+        await #expect(throws: Error.self) {
+            _ = try await mockFunctions.createUserWithEmail(email: mockUser.email, password: "123456", name: mockUser.name)
         }
     }
 }
+

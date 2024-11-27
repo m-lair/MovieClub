@@ -71,8 +71,7 @@ extension DataManager {
             try auth.signOut()
             let result = try await functions.httpsCallable("users-createUserWithEmail").call([
                 "email": email,
-                "password": password,
-                "name": displayName
+                "password": password
             ])
             let uid = result.data as! String
             return uid

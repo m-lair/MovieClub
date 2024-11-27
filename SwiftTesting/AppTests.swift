@@ -8,26 +8,33 @@ import Testing
 import Firebase
 import Foundation
 import FirebaseFunctions
-import FirebaseAuth
 import FirebaseFirestore
+import FirebaseStorage
+import FirebaseAuth
+import class MovieClub.User
 @testable import MovieClub
 
-
-
-@Suite struct AppTests { }
-
-public func setUp(userId: UUID? = nil, clubId: UUID? = nil) async throws  -> String? {
-    if let userId {
-        let result = try await Auth.auth().createUser(withEmail: "test\(userId)@test.com", password: "123456")
-        return result.user.uid
+/// Base test class that provides common setup and teardown functionality
+class BaseTests {
+    // Shared test dependencies
+    var datamanager: DataManager!
+    var mockAuth: AuthService!
+    var mockFirestore: DatastoreService!
+    var mockFunctions: FunctionsService!
+    var mockUser: User!
+    
+    func setUp() async throws {
+        let uid = Int.random(in: 1...10)
+        mockAuth = TestFirebaseAuth()
+        mockFirestore = TestFirestore()
+        mockFunctions = TestFunctions()
+        mockUser = User(id: "001", email: "test\(uid)@example.com", name: "test-user-\(uid)")
     }
-    if let clubId {
-        let db = Firestore.firestore()
-        try await db.collection("movieclubs").document("\(clubId)").setData(["name": "testClub\(clubId)", "clubId": "testClub\(clubId)"])
+    
+    func tearDown() async throws {
+        mockAuth = nil
+        mockFirestore = nil
+        mockFunctions = nil
+        mockUser = nil
     }
-    return ""
-}
-
-public func tearDown() async throws {
-    try Auth.auth().signOut()
 }
