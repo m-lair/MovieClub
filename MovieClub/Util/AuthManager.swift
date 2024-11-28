@@ -66,10 +66,11 @@ extension DataManager {
 
     // MARK: - New User Creation
 
-    func createUser(email: String, password: String, displayName: String) async throws -> String {
+    func createUser(email: String, password: String, name: String) async throws -> String {
         do {
             try auth.signOut()
             let result = try await functions.httpsCallable("users-createUserWithEmail").call([
+                "name" : name,
                 "email": email,
                 "password": password
             ])

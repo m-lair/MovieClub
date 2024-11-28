@@ -503,50 +503,17 @@
 			children = (
 				2C741B2F2CF3D35B00E7C795 /* MockServices */,
 				2CD71F602CB352BB00F9CF58 /* AppTests.swift */,
-				2CD71F7C2CB3955100F9CF58 /* Clubs */,
-				2CD71FF02CBDDE8900F9CF58 /* Suggestions */,
 				2CD71F7D2CB3957300F9CF58 /* Users */,
 			);
 			path = SwiftTesting;
 			sourceTree = "<group>";
 		};
-		2CD71F7C2CB3955100F9CF58 /* Clubs */ = {
-			isa = PBXGroup;
-			children = (
-				2CD71F7F2CB3959500F9CF58 /* Movies */,
-			);
-			path = Clubs;
-			sourceTree = "<group>";
-		};
 		2CD71F7D2CB3957300F9CF58 /* Users */ = {
 			isa = PBXGroup;
 			children = (
-				2CD71FF82CC03CB800F9CF58 /* Memberships */,
 				2CD71F782CB394F100F9CF58 /* Users.test.swift */,
 			);
 			path = Users;
-			sourceTree = "<group>";
-		};
-		2CD71F7E2CB3958100F9CF58 /* Comments */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Comments;
-			sourceTree = "<group>";
-		};
-		2CD71F7F2CB3959500F9CF58 /* Movies */ = {
-			isa = PBXGroup;
-			children = (
-				2CD71F7E2CB3958100F9CF58 /* Comments */,
-			);
-			path = Movies;
-			sourceTree = "<group>";
-		};
-		2CD71FF02CBDDE8900F9CF58 /* Suggestions */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Suggestions;
 			sourceTree = "<group>";
 		};
 		2CD71FF32CBEFBF300F9CF58 /* Suggestions */ = {
@@ -555,13 +522,6 @@
 				2CD71FF42CBEFBFE00F9CF58 /* CreateSuggestion.swift */,
 			);
 			path = Suggestions;
-			sourceTree = "<group>";
-		};
-		2CD71FF82CC03CB800F9CF58 /* Memberships */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Memberships;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

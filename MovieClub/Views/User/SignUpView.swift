@@ -161,9 +161,8 @@ struct SignUpView: View {
     @MainActor func submit() async {
         if error == nil {
             do{
-                let uid = try await data.createUser(email: email, password:password, displayName:name)
+                let uid = try await data.createUser(email: email, password: password, name: name)
                 try await data.signIn(email: email, password: password)
-                dismiss()
             } catch {
                 self.error = error
             }

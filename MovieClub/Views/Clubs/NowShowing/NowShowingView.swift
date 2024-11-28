@@ -18,11 +18,10 @@ struct NowShowingView: View {
     @State private var isReplying = false
     @State private var replyToComment: Comment? = nil
     @FocusState private var isCommentInputFocused: Bool
-    
-    var movies: [Movie] { data.currentClub?.movies ?? []}
+    @State var movie: Movie? = nil
     var progress: Double {
         let now = Date()
-        if let movie = movies.first {
+        if let movie {
             let totalDuration = DateInterval(start: movie.startDate, end: movie.endDate).duration
             let elapsedDuration = DateInterval(start: movie.startDate, end: min(now, movie.endDate)).duration
             return (elapsedDuration / totalDuration)
@@ -33,7 +32,7 @@ struct NowShowingView: View {
     
     var body: some View {
         VStack {
-            if let movie = movies.first {
+            if let movie {
                 let _ = print("movie.likedBy \(movie.likedBy)")
                 ScrollView {
                     FeaturedMovieView(collected: collected, movie: movie)
@@ -44,7 +43,11 @@ struct NowShowingView: View {
                             .padding()
                         Spacer()
                         Button {
+                            guard
+                                let userId = data.currentUser?.id
+                            else { return }
                             collected = true
+                            self.movie?.collectedBy.append(userId)
                             Task {
                                 await collectPoster()
                             }
@@ -92,6 +95,16 @@ struct NowShowingView: View {
 
             } else {
                 WaveLoadingView()
+                    .refreshable {
+                        Task {
+                            await refreshClub()
+                        }
+                    }
+            }
+        }
+        .onAppear() {
+            Task {
+                await refreshClub()
             }
         }
         .alert("Error", isPresented: .constant(error != nil), actions: {
@@ -128,13 +141,19 @@ struct NowShowingView: View {
         isLoading = true
         defer { isLoading = false }
         print("clubId: \(data.clubId)")
-        _ = await data.fetchMovieClub(clubId: data.clubId)
+        let club = await data.fetchMovieClub(clubId: data.clubId)
+        if let club {
+            data.currentClub = club
+            movie = club.movies.first
+            updateCollectState()
+        }
+        
        
     }
     
     private func updateCollectState() {
         guard
-            let movie = movies.first,
+            let movie,
             let userId = data.currentUser?.id
         else { return }
         collected = movie.collectedBy.contains(userId)
@@ -142,7 +161,7 @@ struct NowShowingView: View {
     
     func collectPoster() async {
         guard
-            let movie = movies.first,
+            let movie,
             let movieId = movie.id,
             let clubName = data.currentClub?.name,
             let clubId = data.currentClub?.id
