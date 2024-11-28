@@ -12,7 +12,7 @@ struct NewClubView: View {
     var filteredClubs: [MovieClub] {
         clubList.filter { club in
             !data.userClubs.contains { $0.id == club.id } &&
-            (searchText.isEmpty || club.name.localizedStandardContains(searchText))
+            (searchText.isEmpty || club.name.localizedStandardContains(searchText)) && club.isPublic
         }
     }
 
