@@ -1,6 +1,5 @@
 const assert = require("assert");
 import { firebaseTest } from "test/testHelper";
-import { firestore } from "firestore";
 import {
   populateUserData,
   populateMovieClubData,
@@ -12,20 +11,24 @@ import { UpdateUserData } from "src/users/userTypes";
 import { UpdateMovieClubData } from "src/movieClubs/movieClubTypes";
 import {
   DeleteCommentData,
+  LikeCommentData,
   PostCommentData,
+  UnlikeCommentData,
 } from "src/movieClubs/movies/comments/commentTypes";
-import { COMMENTS, MOVIE_CLUBS, MOVIES } from "src/utilities/collectionNames";
 import { AuthData } from "firebase-functions/tasks";
 import { populateMembershipData } from "test/mocks/membership";
+import { getCommentsDocRef, getCommentsRef } from "src/movieClubs/movies/comments/commentHelpers";
 
 // @ts-expect-error it works but ts won't detect it for some reason
 // TODO: Figure out why ts can't detect the export on this
 // prettier-ignore
-const { deleteComment, postComment } = comments;
+const { deleteComment, postComment, likeComment, unlikeComment } = comments;
 
 describe("Comment Functions", () => {
   const postWrapped = firebaseTest.wrap(postComment);
   const deleteWrapped = firebaseTest.wrap(deleteComment);
+  const likeWrapped = firebaseTest.wrap(likeComment);
+  const unlikeWrapped = firebaseTest.wrap(unlikeComment);
 
   let user: UpdateUserData;
   let auth: AuthData;
@@ -44,7 +47,9 @@ describe("Comment Functions", () => {
       ownerName: user.name,
     });
     movie = await populateMovieData({ id: "1", movieClubId: movieClub.id });
+
     text = "This is a test comment";
+
     await populateMembershipData({
       userId: user.id,
       movieClubId: movieClub.id,
@@ -72,21 +77,16 @@ describe("Comment Functions", () => {
     it("should create a new comment", async () => {
       await postWrapped({ data: commentData, auth: auth });
 
-      const snap = await firestore
-        .collection(MOVIE_CLUBS)
-        .doc(movieClub.id)
-        .collection(MOVIES)
-        .doc(movie.id)
-        .collection(COMMENTS)
-        .where("userId", "==", user.id)
-        .get();
+      const commentsRef = getCommentsRef(movieClub.id, movie.id)
+      const snap = await commentsRef.where("userId", "==", user.id).get();
 
       assert(snap.docs?.length == 1);
 
       const commentDoc = snap.docs[0].data();
+
       assert.equal(commentDoc.text, text);
       assert.equal(commentDoc.userId, user.id);
-      assert.equal(commentDoc.username, user.name);
+      assert.equal(commentDoc.userName, user.name);
     });
 
     it("should error if the user isn't a member of the Movie Club", async () => {
@@ -106,7 +106,7 @@ describe("Comment Functions", () => {
       } catch (error: any) {
         assert.match(
           error.message,
-          /The function must be called with movieClubId, movieId, text, username./,
+          /The function must be called with clubId, movieId, text, userName./,
         );
       }
     });
@@ -144,27 +144,13 @@ describe("Comment Functions", () => {
     it("should delete a comment", async () => {
       let snap;
 
-      snap = await firestore
-        .collection(MOVIE_CLUBS)
-        .doc(movieClub.id)
-        .collection(MOVIES)
-        .doc(movie.id)
-        .collection(COMMENTS)
-        .doc(commentData.id)
-        .get();
+      snap = await getCommentsDocRef(movieClub.id, movie.id, commentData.id).get();
 
       assert.equal(snap.data()?.id, commentData.id);
 
       await deleteWrapped({ data: commentData, auth: auth });
 
-      snap = await firestore
-        .collection(MOVIE_CLUBS)
-        .doc(movieClub.id)
-        .collection(MOVIES)
-        .doc(movie.id)
-        .collection(COMMENTS)
-        .doc(commentData.id)
-        .get();
+      snap = await getCommentsDocRef(movieClub.id, movie.id, commentData.id).get();
 
       assert.equal(snap.data(), undefined);
     });
@@ -180,14 +166,7 @@ describe("Comment Functions", () => {
           /You cannot delete a comment that you don't own./,
         );
 
-        const snap = await firestore
-          .collection(MOVIE_CLUBS)
-          .doc(movieClub.id)
-          .collection(MOVIES)
-          .doc(movie.id)
-          .collection(COMMENTS)
-          .doc(commentData.id)
-          .get();
+        const snap = await getCommentsDocRef(movieClub.id, movie.id, commentData.id).get();
 
         assert.equal(snap.data()?.id, commentData.id);
       }
@@ -200,17 +179,10 @@ describe("Comment Functions", () => {
       } catch (error: any) {
         assert.match(
           error.message,
-          /The function must be called with id, movieClubId, movieId/,
+          /The function must be called with id, clubId, movieId/,
         );
 
-        const snap = await firestore
-          .collection(MOVIE_CLUBS)
-          .doc(movieClub.id)
-          .collection(MOVIES)
-          .doc(movie.id)
-          .collection(COMMENTS)
-          .doc(commentData.id)
-          .get();
+        const snap = await getCommentsDocRef(movieClub.id, movie.id, commentData.id).get();
 
         assert.equal(snap.data()?.id, commentData.id);
       }
@@ -223,16 +195,125 @@ describe("Comment Functions", () => {
       } catch (error: any) {
         assert.match(error.message, /auth object is undefined./);
 
-        const snap = await firestore
-          .collection(MOVIE_CLUBS)
-          .doc(movieClub.id)
-          .collection(MOVIES)
-          .doc(movie.id)
-          .collection(COMMENTS)
-          .doc(commentData.id)
-          .get();
+        const snap = await getCommentsDocRef(movieClub.id, movie.id, commentData.id).get();
 
         assert.equal(snap.data()?.id, commentData.id);
+      }
+    });
+  });
+
+  describe("likeComment", () => {
+    let commentData: LikeCommentData;
+
+    beforeEach(async () => {
+      commentData = {
+        commentId: "",
+        clubId: movieClub.id,
+        movieId: movie.id,
+      };
+
+      const comment = await populateCommentData({
+        movieClubId: movieClub.id,
+        movieId: movie.id,
+        userId: user.id,
+        username: user.name,
+      });
+
+      commentData.commentId = comment.id;
+    });
+
+    it("should increment the likes", async () => {
+      await likeWrapped({ data: commentData, auth: auth })
+      const snap = await getCommentsDocRef(movieClub.id, movie.id, commentData.commentId).get();
+
+      assert.equal(snap.data()?.likes, 1);
+    });
+
+    it("should add user to the likedBy array", async () => {
+      await likeWrapped({ data: commentData, auth: auth })
+
+      const snap = await getCommentsDocRef(movieClub.id, movie.id, commentData.commentId).get();
+
+      assert.deepEqual(snap.data()?.likedBy, [user.id]);
+    });
+
+    it("should error without required fields", async () => {
+      try {
+        await likeWrapped({ data: {}, auth: auth });
+        assert.fail("Expected error not thrown");
+      } catch (error: any) {
+        assert.match(
+          error.message,
+          /The function must be called with clubId, movieId, commentId./,
+        );
+      }
+    });
+
+    it("should error without auth", async () => {
+      try {
+        await likeWrapped({ data: {} });
+        assert.fail("Expected error not thrown");
+      } catch (error: any) {
+        assert.match(error.message, /auth object is undefined./);
+      }
+    });
+  });
+
+  describe("unlikeComment", () => {
+    let commentData: UnlikeCommentData;
+
+    beforeEach(async () => {
+      commentData = {
+        commentId: "",
+        clubId: movieClub.id,
+        movieId: movie.id,
+      };
+
+      const comment = await populateCommentData({
+        movieClubId: movieClub.id,
+        movieId: movie.id,
+        userId: user.id,
+        username: user.name,
+        likes: 1,
+        likedBy: [user.id]
+      });
+
+      commentData.commentId = comment.id;
+    });
+
+    it("should decerement the likes", async () => {
+      await unlikeWrapped({ data: commentData, auth: auth })
+      const snap = await getCommentsDocRef(movieClub.id, movie.id, commentData.commentId).get();
+
+      assert.equal(snap.data()?.likes, 0);
+    });
+
+    it("should remove user from the likedBy array", async () => {
+      await unlikeWrapped({ data: commentData, auth: auth })
+
+      const snap = await getCommentsDocRef(movieClub.id, movie.id, commentData.commentId).get();
+
+      assert.deepEqual(snap.data()?.likedBy, []);
+    });
+
+    it("should error without required fields", async () => {
+      try {
+        await unlikeWrapped({ data: {}, auth: auth });
+        assert.fail("Expected error not thrown");
+      } catch (error: any) {
+        assert.match(
+          error.message,
+          /The function must be called with clubId, movieId, commentId./,
+        );
+      }
+    });
+
+    it("should error without auth", async () => {
+      try {
+        await unlikeWrapped({ data: {} });
+        assert.fail("Expected error not thrown");
+      } catch (error: any) {
+        assert.match(error.message, /auth object is undefined./);
       }
     });
   });

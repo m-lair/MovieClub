@@ -115,7 +115,7 @@ struct ComingSoonView: View {
 
     private func computedDateString(for index: Int) -> String? {
         guard let startDate = startDate else { return nil }
-        let weeksToAdd = timeInterval * (index + 1)
+        let weeksToAdd = timeInterval * index
         return Calendar.current.date(byAdding: .weekOfYear, value: weeksToAdd, to: startDate)?
             .formatted(date: .abbreviated, time: .omitted)
     }

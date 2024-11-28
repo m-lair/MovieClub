@@ -1,6 +1,5 @@
-import { firestore } from "firestore";
 import { logError, logVerbose } from "helpers";
-import { COMMENTS, MOVIE_CLUBS, MOVIES } from "src/utilities/collectionNames";
+import { getCommentsDocRef } from "src/movieClubs/movies/comments/commentHelpers";
 
 export interface CommentMock {
   id: string;
@@ -8,6 +7,7 @@ export interface CommentMock {
   text: string;
   userId: string;
   username: string;
+  likedBy: Array<string>;
   likes: number;
   createdAt: number;
 }
@@ -31,17 +31,13 @@ export async function populateCommentData(
     text: params.text || "Test text",
     userId: params.id || "test-user-id",
     username: params.username || "Test User",
+    likedBy: params.likedBy || [],
     likes: params.likes || 0,
     createdAt: Date.now(),
   };
 
-  const commentsRef = firestore
-    .collection(MOVIE_CLUBS)
-    .doc(movieClubId)
-    .collection(MOVIES)
-    .doc(movieId)
-    .collection(COMMENTS)
-    .doc(id);
+  const commentsRef = getCommentsDocRef(movieClubId, movieId, id)
+  
   try {
     await commentsRef.set(commentData);
     logVerbose("comment data set");

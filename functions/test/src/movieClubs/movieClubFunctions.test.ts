@@ -1,16 +1,16 @@
 const assert = require("assert");
 import { firebaseTest } from "test/testHelper";
-import { firestore } from "firestore";
 import { movieClubs } from "index";
+import { populateMovieClubData } from "mocks";
+import { populateUserData, UserDataMock } from "test/mocks/user";
+import { MovieClubMock } from "test/mocks/movieclub";
+import { AuthData } from "firebase-functions/tasks";
+import { getMovieClub } from "src/movieClubs/movieClubHelpers";
+
 import {
   MovieClubData,
   UpdateMovieClubData,
 } from "src/movieClubs/movieClubTypes";
-import { populateMovieClubData } from "mocks";
-import { populateUserData, UserDataMock } from "test/mocks/user";
-import { MovieClubMock } from "test/mocks/movieclub";
-import { MOVIE_CLUBS } from "src/utilities/collectionNames";
-import { AuthData } from "firebase-functions/tasks";
 
 // @ts-expect-error it works but ts won't detect it for some reason
 // TODO: Figure out why ts can't detect the export on this
@@ -35,7 +35,6 @@ describe("createMovieClub", () => {
     movieClubData = {
       bannerUrl: "Test Banner Url",
       description: "Test Description",
-      image: "Test Image",
       isPublic: true,
       name: "Test Club",
       numMembers: 1,
@@ -47,15 +46,12 @@ describe("createMovieClub", () => {
 
   it("should create a new Movie Club", async () => {
     const movieClubId = await wrapped({ data: movieClubData, auth: auth });
-    const snap = await firestore
-      .collection(MOVIE_CLUBS)
-      .doc(movieClubId)
-      .get();
+    const snap = await getMovieClub(movieClubId);
+
     const movieClubDoc = snap.data();
 
     assert.equal(movieClubDoc?.bannerUrl, movieClubData.bannerUrl);
     assert.equal(movieClubDoc?.description, movieClubData.description);
-    assert.equal(movieClubDoc?.image, movieClubData.image);
     assert.equal(movieClubDoc?.isPublic, movieClubData.isPublic);
     assert.equal(movieClubDoc?.name, movieClubData.name);
     assert.equal(movieClubDoc?.numMembers, movieClubData.numMembers);
@@ -71,7 +67,7 @@ describe("createMovieClub", () => {
     } catch (error: any) {
       assert.match(
         error.message,
-        /The function must be called with bannerUrl, description, image, isPublic, name, ownerName, timeInterval./,
+        /The function must be called with description, isPublic, name, ownerName, timeInterval./,
       );
     }
   });
@@ -121,10 +117,7 @@ describe("updateMovieClub", () => {
 
   it("should update an existing Movie Club", async () => {
     await wrapped({ data: movieClubData, auth: auth });
-    const snap = await firestore
-      .collection(MOVIE_CLUBS)
-      .doc(movieClub.id)
-      .get();
+    const snap = await getMovieClub(movieClub.id);
     const movieClubDoc = snap.data();
 
     assert.equal(movieClubDoc?.bannerUrl, movieClubData.bannerUrl);
