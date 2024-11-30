@@ -15,7 +15,10 @@ struct HomePageView: View {
     @Binding var navPath: NavigationPath
     
     var userClubs: [MovieClub] {
-        data.userClubs
+        data.userClubs.sorted {
+            guard let date1 = $0.createdAt, let date2 = $1.createdAt else { return false }
+            return date1 > date2
+        }
     }
     var body: some View {
         ZStack {
@@ -59,6 +62,16 @@ struct HomePageView: View {
         }
         .navigationTitle("Movie Clubs")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear() {
+            Task {
+               await data.fetchUserClubs()
+            }
+        }
+        .refreshable {
+            Task {
+                await data.fetchUserClubs()
+            }
+        }
     }
 }
 

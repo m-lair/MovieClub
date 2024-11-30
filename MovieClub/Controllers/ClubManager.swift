@@ -71,7 +71,7 @@ extension DataManager {
             if let document = moviesSnapshot.documents.first {
                 baseMovie = try document.data(as: Movie.self)
                 baseMovie?.id = document.documentID
-                
+                print("baseMovie: \(baseMovie?.title ?? "no movie")")
                 // Check if the watch period has ended
                 if let endDate = baseMovie?.endDate, endDate < Date() {
                     needsRotation = true
@@ -107,6 +107,7 @@ extension DataManager {
                 if let apiMovie = try await fetchMovieDetails(for: baseMovie) {
                     baseMovie.apiData = MovieAPIData(from: apiMovie)
                 }
+                
                 movieClub.movieEndDate = baseMovie.endDate
                 movieClub.movies = [baseMovie]
             }

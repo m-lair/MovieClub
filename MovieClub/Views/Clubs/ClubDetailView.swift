@@ -55,9 +55,11 @@ struct ClubDetailView: View {
             ClubToolbar(club: club)
             
         }
-        .task {
+        .onAppear {
             data.currentClub = club
-            await data.fetchUserClubs()
+            Task {
+                await data.fetchMovieClub(clubId: club.id ?? "")
+            }
         }
         .onDisappear {
             data.currentClub = nil

@@ -64,6 +64,7 @@ class UserTests: BaseTests {
         await #expect(throws: Error.self) {
             _ = try await mockFunctions.createUserWithEmail(email: mockUser.email, password: "123456", name: mockUser.name)
         }
+        try await super.tearDown()
     }
 }
 
