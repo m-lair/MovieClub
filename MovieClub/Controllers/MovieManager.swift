@@ -44,7 +44,7 @@ extension DataManager {
     }
     
     func fetchMovieDetails(for movie: Movie) async throws -> MovieAPIResponse? {
-        let urlString = "https://omdbapi.com/?i=\(movie.imdbId)&apikey=ab92d369&plot=full"
+        let urlString = "https://omdbapi.com/?i=\(movie.imdbId)&apikey=\(omdbKey)&plot=full"
         
         guard let url = URL(string: urlString) else {
             print("Invalid URL: \(urlString)")
