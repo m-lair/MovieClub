@@ -3,4 +3,4 @@ description: Slow your roll
 show_downloads: true
 google_analytics:
 theme: jekyll-theme-slate
-color: FF0000
+background: '#FF0000'
