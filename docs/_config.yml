@@ -2,4 +2,5 @@ title: Movie Club
 description: Slow your roll
 show_downloads: true
 google_analytics:
-theme:
+theme: jekyll-theme-slate
+color: FF0000
