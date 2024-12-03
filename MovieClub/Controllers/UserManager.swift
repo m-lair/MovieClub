@@ -37,7 +37,6 @@ extension DataManager {
             print("error getting user document")
             return
         }
-        print("\(snapshot.data())")
         do {
             currentUser = try snapshot.data(as: User.self)
         } catch {

@@ -71,7 +71,6 @@ extension DataManager {
             if let document = moviesSnapshot.documents.first {
                 baseMovie = try document.data(as: Movie.self)
                 baseMovie?.id = document.documentID
-                
                 // Check if the watch period has ended
                 if let endDate = baseMovie?.endDate, endDate < Date() {
                     needsRotation = true

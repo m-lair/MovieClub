@@ -62,6 +62,7 @@
 		2C5DEC7E2BF1B3F6000EF232 /* HomePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5DEC762BF1B3F6000EF232 /* HomePageView.swift */; };
 		2C5DEC7F2BF1B3F6000EF232 /* AddToCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5DEC772BF1B3F6000EF232 /* AddToCalendarView.swift */; };
 		2C5DEC822BF1B3F6000EF232 /* StarRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5DEC752BF1B3F6000EF232 /* StarRatingView.swift */; };
+		2C741B312CF3D39A00E7C795 /* MockFirebaseServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C741B302CF3D39A00E7C795 /* MockFirebaseServices.swift */; };
 		2C8256962BF1B58C00D2ED12 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256952BF1B58C00D2ED12 /* ContentView.swift */; };
 		2C8256B72BF1BC1E00D2ED12 /* MovieRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256B62BF1BC1E00D2ED12 /* MovieRowView.swift */; };
 		2C8256BB2BF1BC9300D2ED12 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256BA2BF1BC9300D2ED12 /* LoginView.swift */; };
@@ -81,20 +82,15 @@
 		2CBEB31D2CE5A7D200FB6623 /* CollectionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBEB31C2CE5A7D200FB6623 /* CollectionItem.swift */; };
 		2CD71F622CB352BB00F9CF58 /* AppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71F602CB352BB00F9CF58 /* AppTests.swift */; };
 		2CD71F792CB3951900F9CF58 /* Users.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71F782CB394F100F9CF58 /* Users.test.swift */; };
-		2CD71F7B2CB3953E00F9CF58 /* Clubs.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71F7A2CB3952600F9CF58 /* Clubs.test.swift */; };
-		2CD71F812CB3963700F9CF58 /* Comments.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71F802CB3963100F9CF58 /* Comments.test.swift */; };
 		2CD71F832CB5E3C500F9CF58 /* TestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 2CD71F822CB5E3C500F9CF58 /* TestPlan.xctestplan */; };
 		2CD71FDC2CB856A900F9CF58 /* ClubEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FDB2CB856A900F9CF58 /* ClubEditView.swift */; };
 		2CD71FDE2CB995DD00F9CF58 /* ClubToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FDD2CB995DD00F9CF58 /* ClubToolbar.swift */; };
 		2CD71FE02CBAFFF100F9CF58 /* ImageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FDF2CBAFFEB00F9CF58 /* ImageManager.swift */; };
 		2CD71FE22CBB176D00F9CF58 /* BannerSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FE12CBB176D00F9CF58 /* BannerSelector.swift */; };
-		2CD71FE52CBC85BE00F9CF58 /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FE42CBC85B900F9CF58 /* HelperFunctions.swift */; };
 		2CD71FEB2CBCF0FA00F9CF58 /* Suggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FEA2CBCF0F600F9CF58 /* Suggestion.swift */; };
 		2CD71FED2CBD9E6A00F9CF58 /* SuggestionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FEC2CBD9E5E00F9CF58 /* SuggestionManager.swift */; };
-		2CD71FF22CBDDEB100F9CF58 /* Suggestions.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FF12CBDDE9D00F9CF58 /* Suggestions.test.swift */; };
 		2CD71FF52CBEFC9300F9CF58 /* CreateSuggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FF42CBEFBFE00F9CF58 /* CreateSuggestion.swift */; };
 		2CD71FF72CC035CB00F9CF58 /* MembershipManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FF62CC035BA00F9CF58 /* MembershipManager.swift */; };
-		2CD71FFA2CC03CD600F9CF58 /* Memberships.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FF92CC03CCF00F9CF58 /* Memberships.test.swift */; };
 		2CD71FFC2CC0A8DB00F9CF58 /* ClubTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FFB2CC0A89800F9CF58 /* ClubTabView.swift */; };
 /* End PBXBuildFile section */
 
@@ -157,6 +153,7 @@
 		2C5DEC762BF1B3F6000EF232 /* HomePageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePageView.swift; sourceTree = "<group>"; };
 		2C5DEC772BF1B3F6000EF232 /* AddToCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddToCalendarView.swift; sourceTree = "<group>"; };
 		2C5DEC792BF1B3F6000EF232 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
+		2C741B302CF3D39A00E7C795 /* MockFirebaseServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFirebaseServices.swift; sourceTree = "<group>"; };
 		2C8256952BF1B58C00D2ED12 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = Views/ContentView.swift; sourceTree = "<group>"; };
 		2C8256B62BF1BC1E00D2ED12 /* MovieRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovieRowView.swift; sourceTree = "<group>"; };
 		2C8256BA2BF1BC9300D2ED12 /* LoginView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
@@ -178,20 +175,15 @@
 		2CD71F602CB352BB00F9CF58 /* AppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTests.swift; sourceTree = "<group>"; };
 		2CD71F6F2CB35A4200F9CF58 /* Testing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Testing.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/Testing.framework; sourceTree = DEVELOPER_DIR; };
 		2CD71F782CB394F100F9CF58 /* Users.test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Users.test.swift; sourceTree = "<group>"; };
-		2CD71F7A2CB3952600F9CF58 /* Clubs.test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clubs.test.swift; sourceTree = "<group>"; };
-		2CD71F802CB3963100F9CF58 /* Comments.test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comments.test.swift; sourceTree = "<group>"; };
 		2CD71F822CB5E3C500F9CF58 /* TestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestPlan.xctestplan; sourceTree = "<group>"; };
 		2CD71FDB2CB856A900F9CF58 /* ClubEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubEditView.swift; sourceTree = "<group>"; };
 		2CD71FDD2CB995DD00F9CF58 /* ClubToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubToolbar.swift; sourceTree = "<group>"; };
 		2CD71FDF2CBAFFEB00F9CF58 /* ImageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageManager.swift; sourceTree = "<group>"; };
 		2CD71FE12CBB176D00F9CF58 /* BannerSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerSelector.swift; sourceTree = "<group>"; };
-		2CD71FE42CBC85B900F9CF58 /* HelperFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperFunctions.swift; sourceTree = "<group>"; };
 		2CD71FEA2CBCF0F600F9CF58 /* Suggestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suggestion.swift; sourceTree = "<group>"; };
 		2CD71FEC2CBD9E5E00F9CF58 /* SuggestionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionManager.swift; sourceTree = "<group>"; };
-		2CD71FF12CBDDE9D00F9CF58 /* Suggestions.test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suggestions.test.swift; sourceTree = "<group>"; };
 		2CD71FF42CBEFBFE00F9CF58 /* CreateSuggestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateSuggestion.swift; sourceTree = "<group>"; };
 		2CD71FF62CC035BA00F9CF58 /* MembershipManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipManager.swift; sourceTree = "<group>"; };
-		2CD71FF92CC03CCF00F9CF58 /* Memberships.test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Memberships.test.swift; sourceTree = "<group>"; };
 		2CD71FFB2CC0A89800F9CF58 /* ClubTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubTabView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -477,6 +469,14 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		2C741B2F2CF3D35B00E7C795 /* MockServices */ = {
+			isa = PBXGroup;
+			children = (
+				2C741B302CF3D39A00E7C795 /* MockFirebaseServices.swift */,
+			);
+			path = MockServices;
+			sourceTree = "<group>";
+		};
 		2CAEAB9F2C5C5C8100A0011A /* ComponentViews */ = {
 			isa = PBXGroup;
 			children = (
@@ -501,63 +501,19 @@
 		2CD71F612CB352BB00F9CF58 /* SwiftTesting */ = {
 			isa = PBXGroup;
 			children = (
+				2C741B2F2CF3D35B00E7C795 /* MockServices */,
 				2CD71F602CB352BB00F9CF58 /* AppTests.swift */,
-				2CD71FE32CBC85B300F9CF58 /* Helper */,
-				2CD71F7C2CB3955100F9CF58 /* Clubs */,
-				2CD71FF02CBDDE8900F9CF58 /* Suggestions */,
 				2CD71F7D2CB3957300F9CF58 /* Users */,
 			);
 			path = SwiftTesting;
 			sourceTree = "<group>";
 		};
-		2CD71F7C2CB3955100F9CF58 /* Clubs */ = {
-			isa = PBXGroup;
-			children = (
-				2CD71F7F2CB3959500F9CF58 /* Movies */,
-				2CD71F7A2CB3952600F9CF58 /* Clubs.test.swift */,
-			);
-			path = Clubs;
-			sourceTree = "<group>";
-		};
 		2CD71F7D2CB3957300F9CF58 /* Users */ = {
 			isa = PBXGroup;
 			children = (
-				2CD71FF82CC03CB800F9CF58 /* Memberships */,
 				2CD71F782CB394F100F9CF58 /* Users.test.swift */,
 			);
 			path = Users;
-			sourceTree = "<group>";
-		};
-		2CD71F7E2CB3958100F9CF58 /* Comments */ = {
-			isa = PBXGroup;
-			children = (
-				2CD71F802CB3963100F9CF58 /* Comments.test.swift */,
-			);
-			path = Comments;
-			sourceTree = "<group>";
-		};
-		2CD71F7F2CB3959500F9CF58 /* Movies */ = {
-			isa = PBXGroup;
-			children = (
-				2CD71F7E2CB3958100F9CF58 /* Comments */,
-			);
-			path = Movies;
-			sourceTree = "<group>";
-		};
-		2CD71FE32CBC85B300F9CF58 /* Helper */ = {
-			isa = PBXGroup;
-			children = (
-				2CD71FE42CBC85B900F9CF58 /* HelperFunctions.swift */,
-			);
-			path = Helper;
-			sourceTree = "<group>";
-		};
-		2CD71FF02CBDDE8900F9CF58 /* Suggestions */ = {
-			isa = PBXGroup;
-			children = (
-				2CD71FF12CBDDE9D00F9CF58 /* Suggestions.test.swift */,
-			);
-			path = Suggestions;
 			sourceTree = "<group>";
 		};
 		2CD71FF32CBEFBF300F9CF58 /* Suggestions */ = {
@@ -566,14 +522,6 @@
 				2CD71FF42CBEFBFE00F9CF58 /* CreateSuggestion.swift */,
 			);
 			path = Suggestions;
-			sourceTree = "<group>";
-		};
-		2CD71FF82CC03CB800F9CF58 /* Memberships */ = {
-			isa = PBXGroup;
-			children = (
-				2CD71FF92CC03CCF00F9CF58 /* Memberships.test.swift */,
-			);
-			path = Memberships;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -739,12 +687,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2CD71FE52CBC85BE00F9CF58 /* HelperFunctions.swift in Sources */,
-				2CD71FFA2CC03CD600F9CF58 /* Memberships.test.swift in Sources */,
-				2CD71F7B2CB3953E00F9CF58 /* Clubs.test.swift in Sources */,
 				2CD71F622CB352BB00F9CF58 /* AppTests.swift in Sources */,
-				2CD71F812CB3963700F9CF58 /* Comments.test.swift in Sources */,
-				2CD71FF22CBDDEB100F9CF58 /* Suggestions.test.swift in Sources */,
+				2C741B312CF3D39A00E7C795 /* MockFirebaseServices.swift in Sources */,
 				2CD71F792CB3951900F9CF58 /* Users.test.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1005,13 +949,14 @@
 				CODE_SIGN_ENTITLEMENTS = MovieClub/MovieClub.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 0;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"MovieClub/Preview Content\"";
 				DEVELOPMENT_TEAM = 5Z6AC3LV9L;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MovieClub/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Movie Club";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -1022,7 +967,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "duhmarcus.Movie-Club";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1040,12 +985,13 @@
 				CODE_SIGN_ENTITLEMENTS = MovieClub/MovieClub.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 0;
 				DEVELOPMENT_ASSET_PATHS = "\"MovieClub/Preview Content\"";
 				DEVELOPMENT_TEAM = 5Z6AC3LV9L;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MovieClub/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Movie Club";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -1056,7 +1002,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "duhmarcus.Movie-Club";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

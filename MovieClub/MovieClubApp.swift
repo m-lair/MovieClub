@@ -86,7 +86,7 @@ struct MovieClubApp: App {
             Group {
                 if isLoading {
                     WaveLoadingView()
-                } else if dataManager.authCurrentUser != nil {
+                } else if dataManager.authCurrentUser != nil && dataManager.currentUser != nil {
                     ContentView()
                 } else {
                     LoginView()

@@ -5,7 +5,7 @@ export const verifyRequiredFields = (
   data: Record<string, any>,
   requiredFields: Array<string>,
 ) => {
-  const missingFields = requiredFields.filter((field) => !data?.[field]);
+  const missingFields = requiredFields.filter((field) => data?.[field] == null);
 
   if (missingFields.length > 0) {
     throwHttpsError(

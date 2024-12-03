@@ -57,11 +57,10 @@ class DataManager: Identifiable {
     
     init() {
         // Initialize API Key
-        let key = ProcessInfo.processInfo.environment["OMDB_API_KEY"]
+        omdbKey = Bundle.main.infoDictionary?["OMDB_API_KEY"] as? String ?? "invalid api key"
         db = Firestore.firestore()
         functions = Functions.functions()
         auth = Auth.auth()
-        omdbKey = key ?? "invalid key"
         registerStateListener()
     }
     
@@ -112,7 +111,7 @@ extension DataManager {
         var errorDescription: String? {
             switch self {
             case .invalidAPIKey:
-                return "Could not load TMDB API key from configuration"
+                return "Could not load OMDB API key from configuration"
             case .firestoreError(let error):
                 return "Firestore error: \(error.localizedDescription)"
             case .userNotFound:
