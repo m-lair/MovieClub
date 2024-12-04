@@ -22,51 +22,39 @@ struct CollectButton: View {
     }
 }
 
-struct ReviewThumbs: View {
+struct ThumbsUpButton: View {
     @Binding var liked: Bool
-    @Binding var disliked: Bool
     var body: some View {
-        HStack {
-            Button {
-                thumbUpFunction()
-                liked.toggle()
-                if liked {
-                    disliked = false
-                }
-                
-            } label: {
-                Image(systemName: "hand.thumbsup.circle.fill")
-                    .resizable()
-                    .frame(width: 30, height: 30)
-                    .foregroundStyle(liked ? .green : .white)
-            }
+        
+        Button {
+            liked.toggle()
             
-            Button {
-                thumbDownFunction()
-                disliked.toggle()
-                if disliked {
-                    liked = false
-                }
-                
-            } label: {
-                Image(systemName: "hand.thumbsdown.circle.fill")
-                    .resizable()
-                    .frame(width: 30, height: 30)
-                    .foregroundStyle(disliked ? .red : .white)
-            }
+        } label: {
+            Image(systemName: "hand.thumbsup.circle.fill")
+                .resizable()
+                .frame(width: 30, height: 30)
+                .foregroundStyle(liked ? .green : .white)
         }
     }
-}
-
-func thumbUpFunction()
-{
-    //check state of dislike
-    //increment the number of likes
-}
-func thumbDownFunction()
-{
-    //check state of like
-    //decrement the number of likes
+    
 }
 
 
+struct ThumbsDownButton: View {
+    @Binding var disliked: Bool
+    var body: some View {
+        
+        
+        Button {
+            disliked.toggle()
+            
+        } label: {
+            Image(systemName: "hand.thumbsdown.circle.fill")
+                .resizable()
+                .frame(width: 30, height: 30)
+                .foregroundStyle(disliked ? .red : .white)
+        }
+        
+    }
+    
+}

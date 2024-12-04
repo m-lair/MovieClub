@@ -56,7 +56,21 @@ struct NowShowingView: View {
                             CollectButton(collected: $collected)
                         }
                         
-                        ReviewThumbs(liked: $liked, disliked: $disliked)
+                        ThumbsUpButton(liked: $liked)
+                            .onChange(of: liked) {
+                                Task {
+                                    await likeMovie()
+                                }
+                            }
+                        ThumbsDownButton(disliked: $disliked)
+                            .onChange(of: disliked) {
+                                Task {
+                                    await dislikeMovie()
+                                }
+                            }
+                        
+                       
+                        
                     }
                     .padding(.trailing, 20)
                     
@@ -176,5 +190,24 @@ struct NowShowingView: View {
             
         }
     }
+    
+    func likeMovie() async {
+        do {
+            try await data.likeMovie()
+        } catch {
+            self.error = error
+            
+        }
+    }
+    
+    func dislikeMovie() async{
+        do {
+            try await data.dislikeMovie()
+        } catch {
+            self.error = error
+            
+        }
+    }
 }
+
 

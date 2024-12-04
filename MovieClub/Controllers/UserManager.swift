@@ -204,6 +204,47 @@ extension DataManager {
         }
     }
     
+    func likeMovie() async throws {
+        guard
+            let userid = auth.currentUser?.uid
+        else {return}
+        if movieId.isEmpty || clubId.isEmpty {return}
+        
+        let parameters: [String: Any] = [
+            "movieId": movieId,
+            "clubId": clubId
+            ]
+        
+        do {
+            _ = try await functions.httpsCallable("movies-likeMovie").call(parameters)
+           
+        } catch {
+            throw error
+        }
+    }
+    
+    
+    func dislikeMovie() async throws {
+        guard
+            let userid = auth.currentUser?.uid
+        else {return}
+        if movieId.isEmpty || clubId.isEmpty {return}
+        
+        let parameters: [String: Any] = [
+            "movieId": movieId,
+            "clubId": clubId
+            ]
+        
+        do {
+            _ = try await functions.httpsCallable("movies-dislikeMovie").call(parameters)
+           
+        } catch {
+            throw error
+        }
+    }
+
+    
+    
     struct CollectionResponse: Codable {
         let success: Bool
         let message: String?
