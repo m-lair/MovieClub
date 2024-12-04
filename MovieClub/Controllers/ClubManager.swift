@@ -55,7 +55,7 @@ extension DataManager {
             return nil
         }
         do {
-            var movieClub = try snapshot.data(as: MovieClub.self)
+            let movieClub = try snapshot.data(as: MovieClub.self)
             movieClub.id = snapshot.documentID
             
             let moviesSnapshot = try await movieClubCollection()
@@ -108,6 +108,7 @@ extension DataManager {
                 }
                 movieClub.movieEndDate = baseMovie.endDate
                 movieClub.movies = [baseMovie]
+                movieClub.bannerUrl = baseMovie.poster
             }
             
             return movieClub

@@ -29,12 +29,8 @@ struct NewClubView: View {
                     }
                     Button("Join") {
                         Task {
-                            do {
-                                try await data.joinClub(club: club)
-                                dismiss()
-                            } catch {
-                                print("Error joining club: \(error)")
-                            }
+                            try await data.joinClub(club: club)
+                            dismiss()
                         }
                     }
                     .buttonBorderShape(.capsule)
