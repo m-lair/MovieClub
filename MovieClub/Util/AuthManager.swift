@@ -68,7 +68,6 @@ extension DataManager {
 
     func createUser(email: String, password: String, name: String) async throws -> String {
         do {
-            try auth.signOut()
             let result = try await functions.httpsCallable("users-createUserWithEmail").call([
                 "name" : name,
                 "email": email,
@@ -77,7 +76,6 @@ extension DataManager {
             let uid = result.data as! String
             return uid
         } catch {
-            print("Error \(error)")
             throw error
         }
     }
@@ -97,9 +95,7 @@ extension DataManager {
             let result = try await auth.signIn(withEmail: email, password: password)
             self.authCurrentUser = result.user
             registerStateListener()
-            try await fetchUser()
         } catch {
-            print(error.localizedDescription)
             throw error
         }
     }

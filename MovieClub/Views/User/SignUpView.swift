@@ -17,6 +17,8 @@ struct SignUpView: View {
     @Environment(DataManager.self) private var data
     @Environment(\.dismiss) var dismiss
     
+    @State private var isLoading: Bool = false
+    
     @State private var currentNonce: String? = nil
     @State private var error: Error?
     
@@ -111,25 +113,14 @@ struct SignUpView: View {
             
             Button {
                 Task {
-                    
                     await submit()
-                    
                 }
             } label: {
-                switch btnDisabled {
-                case true:
-                    Text("Signup")
-                        .foregroundColor(.white)
-                        .frame(width: 200, height: 50)
-                        .background(Color.gray)
-                        .cornerRadius(8)
-                case false:
-                    Text("Signup")
-                        .foregroundColor(.white)
-                        .frame(width: 200, height: 50)
-                        .background(Color.blue)
-                        .cornerRadius(8)
-                }
+                Text(isLoading ? "Loading..." : "Signup")
+                    .foregroundColor(.white)
+                    .frame(width: 200, height: 50)
+                    .background(btnDisabled ? Color.gray : Color.blue)
+                    .cornerRadius(8)
             }
             .disabled(btnDisabled)
             
@@ -158,10 +149,13 @@ struct SignUpView: View {
         }
     }
     
-    @MainActor func submit() async {
+    func submit() async {
+        isLoading = true
+        defer { isLoading = false }
+        
         if error == nil {
             do{
-                let uid = try await data.createUser(email: email, password: password, name: name)
+                _ = try await data.createUser(email: email, password: password, name: name)
                 try await data.signIn(email: email, password: password)
             } catch {
                 self.error = error
