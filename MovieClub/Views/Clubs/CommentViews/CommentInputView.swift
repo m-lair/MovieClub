@@ -33,13 +33,14 @@ struct CommentInputView: View {
         
         VStack {
             HStack {
-                TextField(textLabel, text: $commentText)
+                TextField(textLabel, text: $commentText, axis: .vertical) // Add axis parameter
                     .frame(maxHeight: 9)
                     .padding()
                     .overlay(
-                        Capsule().stroke(Color.white, lineWidth: 1) // Capsule border
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.white, lineWidth: 2)
                     )
-                    .lineLimit(5, reservesSpace: true)
+                    .lineLimit(1...5) // Use a range for min/max lines
                     .focused($isFocused)
                     .padding(2)
                 

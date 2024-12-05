@@ -8,14 +8,14 @@ struct NewClubView: View {
     @Binding var path: NavigationPath
     @State private var searchText: String = ""
     @State private var clubList: [MovieClub] = []
-
+    
     var filteredClubs: [MovieClub] {
         clubList.filter { club in
             !data.userClubs.contains { $0.id == club.id } &&
             (searchText.isEmpty || club.name.localizedStandardContains(searchText)) && club.isPublic
         }
     }
-
+    
     var body: some View {
         VStack {
             List(filteredClubs) { club in
@@ -60,7 +60,7 @@ struct NewClubView: View {
     }
     //this method is getting clubs as nil because of the document id
     func getClubList() async throws -> [MovieClub] {
-        let snapshot = try await data.movieClubCollection().getDocuments()
+        let snapshot = try await data.movieClubCollection().whereField("isPublic", isEqualTo: "true").getDocuments()
         let clubList: [MovieClub] = try snapshot.documents.compactMap { document in
             
             var club = try document.data(as: MovieClub.self)
