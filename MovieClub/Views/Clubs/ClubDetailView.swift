@@ -2,7 +2,7 @@ import SwiftUI
 import FirebaseFirestore
 
 struct ClubDetailView: View {
-    let tabs: [String] = ["Bullentin", "Now Showing", "Upcoming", "Archives"]
+    let tabs: [String] = ["Bulletin", "Now Showing", "Upcoming", "Archives"]
     
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.editMode) var editMode
