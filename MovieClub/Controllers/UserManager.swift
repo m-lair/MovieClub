@@ -51,7 +51,7 @@ extension DataManager {
     func fetchUserClubs() async {
         do {
             guard let user = currentUser else {
-                print("No user logged in")
+                authCurrentUser = nil
                 return
             }
             let snapshot = try await usersCollection().document(user.id ?? "")

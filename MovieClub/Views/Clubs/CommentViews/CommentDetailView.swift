@@ -36,7 +36,7 @@ struct CommentDetailView: View {
                 
                 Text(comment.text)
                     .font(.body)
-                    .lineLimit(0)
+                    .lineLimit(8)
                     .padding(.leading, 30)
                 
                 HStack {

@@ -5,9 +5,9 @@
 //  Created by Marcus Lair on 9/23/24.
 //
 import Foundation
-import SwiftData
+import Observation
 
-@Model
+@Observable
 final class Comment: Identifiable, Codable, Hashable, Equatable {
     var id: String
     var userId: String
@@ -63,6 +63,14 @@ final class Comment: Identifiable, Codable, Hashable, Equatable {
         try container.encode(parentId, forKey: .parentId)
     }
     
+    func hash(into hasher: inout Hasher) {
+             hasher.combine(id)
+         }
+
+         static func == (lhs: Comment, rhs: Comment) -> Bool {
+             lhs.id == rhs.id
+         }
+    
     enum CodingKeys: String, CodingKey {
         case id
         case userId
@@ -76,6 +84,7 @@ final class Comment: Identifiable, Codable, Hashable, Equatable {
     }
 }
 
+@Observable
 class CommentNode: Identifiable {
     var id: String
     var comment: Comment

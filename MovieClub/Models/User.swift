@@ -7,10 +7,10 @@
 
 import Foundation
 import FirebaseFunctions
-import SwiftData
+import Observation
 import SwiftUI
 
-@Model
+@Observable
 final class User: Identifiable, Codable, Hashable, Equatable {
     var id: String?
     var email: String

@@ -22,26 +22,23 @@ struct CommentInputView: View {
     @FocusState private var isFocused: Bool
     var textLabel: String {
         if replyToComment != nil {
-            return "Leave a Reply \(replyToComment?.userId)"
+            return "Leave a Reply \(replyToComment?.userName ?? "")"
         } else {
             return "Leave a Comment"
         }
     }
 
     var body: some View {
-        
-        
         VStack {
             HStack {
-                TextField(textLabel, text: $commentText)
-                    .frame(maxHeight: 9)
-                    .padding()
+                TextField(textLabel, text: $commentText, axis: .vertical)
+                    .padding(5)
+                    .lineLimit(5)
                     .overlay(
-                        Capsule().stroke(Color.white, lineWidth: 1) // Capsule border
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.white, lineWidth: 2)
                     )
-                    .lineLimit(5, reservesSpace: true)
                     .focused($isFocused)
-                    .padding(2)
                 
                 Button("", systemImage: "arrow.up.circle.fill") {
                     Task {
