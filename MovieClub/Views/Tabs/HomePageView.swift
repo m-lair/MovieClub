@@ -64,7 +64,7 @@ struct HomePageView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
             Task {
-               await data.fetchUserClubs()
+                await data.fetchUserClubs()
             }
         }
         .refreshable {

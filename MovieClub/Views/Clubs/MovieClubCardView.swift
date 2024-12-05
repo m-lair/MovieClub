@@ -10,64 +10,127 @@ import SwiftUI
 struct MovieClubCardView: View {
     let movieClub: MovieClub
     @State private var screenWidth = UIScreen.main.bounds.size.width
+    
     var body: some View {
-        ZStack{
-            VStack{
-                AsyncImage(url: URL(string: movieClub.bannerUrl ?? "")) { phase in
-                    if let image = phase.image {
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .padding(-20) /// expand the blur a bit to cover the edges
-                            .clipped() /// prevent blur overflow
-                            .frame(maxWidth: (screenWidth - 20))
-                            .blur(radius: 1.5, opaque: true)
-                            .mask(LinearGradient(stops:
-                                                    [.init(color: .white, location: 0),
-                                                     .init(color: .white, location: 0.85),
-                                                     .init(color: .clear, location: 1.0),], startPoint: .top, endPoint: .bottom))
-                    } else {
-                        Image(systemName: "house.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .padding(-20) /// expand the blur a bit to cover the edges
-                            .clipped() /// prevent blur overflow
-                            .frame(maxWidth: (screenWidth - 20))
-                            .opacity(0.5)
+        ZStack {
+            // Background layer for the card, with placeholder image or blurred actual image
+            VStack {
+                if let url = movieClub.bannerUrl, let imageUrl = URL(string: url) {
+                    AsyncImage(url: imageUrl) { phase in
+                        switch phase {
+                        case .empty:
+                            // Placeholder while loading
+                            Image(systemName: "photo")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(maxWidth: (screenWidth - 20), maxHeight: 185)
+                                .clipped()
+                                .blur(radius: 1.5)
+                                .mask(LinearGradient(
+                                    stops: [
+                                        .init(color: .white, location: 0),
+                                        .init(color: .white, location: 0.85),
+                                        .init(color: .clear, location: 1.0),
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                ))
+                        case .success(let image):
+                            // Loaded image
+                            image
+                                .resizable()
+                                .scaledToFill()
+                                .frame(maxWidth: (screenWidth - 20), maxHeight: 185)
+                                .clipped()
+                                .blur(radius: 1.5)
+                                .mask(LinearGradient(
+                                    stops: [
+                                        .init(color: .white, location: 0),
+                                        .init(color: .white, location: 0.85),
+                                        .init(color: .clear, location: 1.0),
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                ))
+                        case .failure:
+                            Image(systemName: "photo")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(maxWidth: (screenWidth - 20), maxHeight: 185)
+                                .clipped()
+                                .blur(radius: 1.5)
+                                .mask(LinearGradient(
+                                    stops: [
+                                        .init(color: .white, location: 0),
+                                        .init(color: .white, location: 0.85),
+                                        .init(color: .clear, location: 1.0),
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                ))
+                        @unknown default:
+                            Image(systemName: "photo")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(maxWidth: (screenWidth - 20), maxHeight: 185)
+                                .clipped()
+                                .blur(radius: 1.5)
+                                .mask(LinearGradient(
+                                    stops: [
+                                        .init(color: .white, location: 0),
+                                        .init(color: .white, location: 0.85),
+                                        .init(color: .clear, location: 1.0),
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                ))
+                        }
                     }
+                } else {
+                    // Fallback if no banner URL
+                    Image(systemName: "photo")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(maxWidth: (screenWidth - 20), maxHeight: 185)
+                        .clipped()
+                        .blur(radius: 1.5)
+                        .mask(LinearGradient(
+                            stops: [
+                                .init(color: .white, location: 0),
+                                .init(color: .white, location: 0.85),
+                                .init(color: .clear, location: 1.0),
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ))
                 }
             }
             .frame(width: (screenWidth - 20), height: 185)
-            .clipShape(.rect(cornerRadius: 25))
+            .clipShape(RoundedRectangle(cornerRadius: 25))
             .overlay(
                 RoundedRectangle(cornerRadius: 25)
                     .stroke(.white, lineWidth: 2)
             )
             .shadow(radius: 8)
             
-            VStack(alignment: .leading){
+            // Text layer
+            VStack(alignment: .leading) {
                 cardText.padding(.horizontal)
             }
             .foregroundColor(.white)
             .padding()
             .frame(maxWidth: (screenWidth - 20), maxHeight: 185, alignment: .bottomLeading)
-            
         }
     }
     
     var cardText: some View {
-        
-        VStack(alignment: .leading){
-            if !movieClub.name.isEmpty{
+        VStack(alignment: .leading) {
+            if !movieClub.name.isEmpty {
                 Text(movieClub.name)
                     .font(.title)
-                Text("Movie: \(movieClub.numMovies ?? 0)")
+                Text("Movies: \(movieClub.numMovies ?? 0)")
                 Text("Members: \(movieClub.numMembers ?? 0)")
-                    // You can add more information about the movie club here
-                
             }
-            
         }
     }
-    
 }

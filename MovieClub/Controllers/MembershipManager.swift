@@ -39,8 +39,7 @@ extension DataManager {
         do {
             let result = try await joinClub(membership)
             if result.success {
-                print("Suggestion created successfully")
-                await fetchUserClubs()
+                print("club joined successfully")
             } else {
                 print("Failed to join club: \(result.message ?? "Unknown error")")
                 throw MembershipError.custom(message: result.message ?? "Unknown error")

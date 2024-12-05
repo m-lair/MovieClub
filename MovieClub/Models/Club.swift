@@ -6,7 +6,9 @@
 //
 
 import Foundation
+import Observation
 
+@Observable
 final class MovieClub: Identifiable, Codable, Hashable, Equatable {
     var id: String?
     var name: String
@@ -18,7 +20,6 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
     var movieEndDate: Date?
     var ownerId: String
     var isPublic: Bool
-    var banner: Data?
     var bannerUrl: String?
     var numMovies: Int?
     var members: [Member]?
@@ -34,7 +35,6 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         timeInterval: Int,
         ownerId: String,
         isPublic: Bool,
-        banner: Data? = nil,
         bannerUrl: String? = "no-image",
         numMovies: Int = 0,
         members: [Member]? = [],
@@ -49,7 +49,6 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         self.timeInterval = timeInterval
         self.ownerId = ownerId
         self.isPublic = isPublic
-        self.banner = banner
         self.bannerUrl = bannerUrl
         self.numMovies = numMovies
         self.members = members
@@ -99,14 +98,10 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         case false :
             try container.encode("false", forKey: .isPublic)
         }
-        if let bannerData = banner {
-            let base64Image = bannerData.base64EncodedString() // Convert to Base64 string
-            try container.encode(base64Image, forKey: .banner) // Encode Base64 string
-        }
     }
     
     enum CodingKeys: String, CodingKey {
-        case id = "clubId"
+        case id
         case name
         case createdAt
         case numMembers
@@ -116,7 +111,6 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         case movieEndDate
         case ownerId
         case isPublic
-        case banner = "image"
         case bannerUrl
         case numMovies
     }
