@@ -96,6 +96,8 @@ struct MovieClubApp: App {
                 await dataManager.checkUserAuthentication()
                 isLoading = false
             }
+            .colorScheme(.dark)
+            
         }
         .environment(dataManager)
     }

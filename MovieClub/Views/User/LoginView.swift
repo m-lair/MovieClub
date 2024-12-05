@@ -14,7 +14,7 @@ struct LoginView: View {
     
     @Environment(DataManager.self) private var data
     @Environment(\.dismiss) private var dismiss
-    @State var error: String = ""
+    @State var error: Error? = nil
     @State var errorShowing: Bool = false
     @State private var userEmail = ""
     @State private var userPwd = ""
@@ -35,9 +35,6 @@ struct LoginView: View {
                     .fontWeight(.bold)
                     .fontDesign(.rounded)
                     .padding(.bottom, 50)
-                
-                Text(error)
-                    .foregroundStyle(.red)
                 
                 TextField("Username", text: $userEmail)
                     .padding()
@@ -80,35 +77,28 @@ struct LoginView: View {
                 }
             }
         }
-        .alert(error, isPresented: $errorShowing) {
-            Button("OK", role: .cancel) { }
-        }
+        .alert("Error", isPresented: .constant(error != nil), actions: {
+            Button("OK") {
+                error = nil
+            }
+        }, message: {
+            if let error = error {
+                Text(error.localizedDescription)
+            }
+        })
     }
     
     func handleSignIn() async throws {
         if userEmail.isEmpty || userPwd.isEmpty {
-            error = "Please enter an email and password."
-            errorShowing.toggle()
+            error = "Please enter an email and password." as? any Error
             return
         }
         print("Signing in...")
         do {
             try await data.signIn(email: userEmail, password: userPwd)
-            
-        } catch let error as NSError {
-            switch error.userInfo[AuthErrorUserInfoNameKey] as? String {
-            case "ERROR_INVALID_EMAIL":
-                self.error = "Please enter a valid email."
-            case "ERROR_WRONG_PASSWORD":
-                self.error = "Incorrect password."
-            case "ERROR_USER_NOT_FOUND":
-                self.error = "User not found."
-            case "ERROR_USER_DISABLED":
-                self.error = "User disabled."
-            default:
-                self.error = "Error signing in: \(error)"
-            }
-            errorShowing.toggle()
+            try await data.fetchUser()
+        } catch {
+            self.error = error
         }
     }
 }
