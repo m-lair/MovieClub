@@ -24,7 +24,7 @@ jobs:
 
       - name: Verify Google plist
         run: |
-            if [ ! -f ./GoogleService-Info.plist ]; then
+            if [ ! -f ../GoogleService-Info.plist ]; then
               echo "GoogleService-Info.plist not found!"
               exit 1
             fi
