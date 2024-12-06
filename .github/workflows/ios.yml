@@ -18,7 +18,9 @@ jobs:
 
       - name: Decode and write Google plist
         run: |
+          echo "Decoding ${G_SERVICE_64}..."
           echo "${{ secrets.G_SERVICE_64 }}" | base64 --decode > ./GoogleService-Info.plist
+          echo "Wrote to $(pwd)/GoogleService-Info.plist"
 
       - name: Verify Google plist
         run: |
@@ -34,6 +36,7 @@ jobs:
           scheme: MovieClub
           destination: platform=macOS
           action: build
+          workspace: MovieClub.xcworkspace
 
       - name: Test
         uses: sersoft-gmbh/xcodebuild-action@v3
