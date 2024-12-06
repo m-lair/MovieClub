@@ -27,7 +27,6 @@ jobs:
           scheme: MovieClub
           destination: platform=macOS
           action: build
-          output-formatter: none
 
       - name: Test
         uses: sersoft-gmbh/xcodebuild-action@v3
@@ -49,16 +48,6 @@ jobs:
         run: |
           cd functions
           npm install
-
-      - name: Build
-        run: |
-          scheme=$(cat default_scheme.txt)
-          xcodebuild build-for-testing -scheme "$scheme" -destination 'platform=iOS Simulator,name=iPhone 16'
-
-      - name: Test
-        run: |
-          scheme=$(cat default_scheme.txt)
-          xcodebuild test-without-building -scheme "$scheme" -destination 'platform=iOS Simulator,name=iPhone 16'
 
       - name: Test Firebase Functions
         run: |
