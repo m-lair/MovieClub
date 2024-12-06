@@ -8,54 +8,12 @@ on:
 
 jobs:
   build:
+
     runs-on: macos-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Resolve Swift Package Dependencies
-      run: swift package resolve
-
-    - name: Set Default Scheme
-      run: |
-        scheme_list=$(xcodebuild -list -json | tr -d "\n")
-        default_scheme=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
-        echo $default_scheme > default_scheme.txt
-        echo "Using default scheme: $default_scheme"
-      
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '20'
-
-    - name: Install Firebase CLI
-      run: npm install -g firebase-tools
-
+    - uses: actions/checkout@v4
     - name: Build
-      env:
-        scheme: ${{ 'default' }}
-        platform: ${{ 'iOS Simulator' }}
-      run: |
-        device=$(xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//")
-        if [ $scheme = default ]; then scheme=$(cat default_scheme.txt); fi
-        if [ "$(ls -A | grep -i \\.xcworkspace\$)" ]; then filetype_parameter="workspace" && file_to_build="$(ls -A | grep -i \\.xcworkspace\$)"; else filetype_parameter="project" && file_to_build="$(ls -A | grep -i \\.xcodeproj\$)"; fi
-        file_to_build=$(echo $file_to_build | awk '{$1=$1;print}')
-        xcodebuild build-for-testing -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
-
-    - name: Test
-      env:
-        scheme: ${{ 'default' }}
-        platform: ${{ 'iOS Simulator' }}
-      run: |
-        device=$(xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//")
-        if [ $scheme = default ]; then scheme=$(cat default_scheme.txt); fi
-        if [ "$(ls -A | grep -i \\.xcworkspace\$)" ]; then filetype_parameter="workspace" && file_to_build="$(ls -A | grep -i \\.xcworkspace\$)"; else filetype_parameter="project" && file_to_build="$(ls -A | grep -i \\.xcodeproj\$)"; fi
-        file_to_build=$(echo $file_to_build | awk '{$1=$1;print}')
-        xcodebuild test-without-building -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
-
-    - name: Test Firebase Functions
-      run: |
-        cd functions
-        npm install
-        npm test
+      run: swift build -v
+    - name: Run tests
+      run: swift test -v
