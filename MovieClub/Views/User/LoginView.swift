@@ -96,7 +96,6 @@ struct LoginView: View {
         print("Signing in...")
         do {
             try await data.signIn(email: userEmail, password: userPwd)
-            try await data.fetchUser()
         } catch {
             self.error = error
         }

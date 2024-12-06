@@ -62,11 +62,6 @@ struct HomePageView: View {
         }
         .navigationTitle("Movie Clubs")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear() {
-            Task {
-                await data.fetchUserClubs()
-            }
-        }
         .refreshable {
             Task {
                 await data.fetchUserClubs()

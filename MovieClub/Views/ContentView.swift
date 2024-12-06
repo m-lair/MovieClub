@@ -68,7 +68,6 @@ struct ContentView: View {
             .toolbarBackground(.gray, for: .navigationBar)
             .background(.black.opacity(0.1))
             .toolbarBackground(.visible, for: .tabBar)
-            
         }
     }
 }

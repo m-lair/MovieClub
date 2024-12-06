@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ClubToolbar: View {
     @Environment(DataManager.self) var data
+    @Environment(\.openURL) var openURL
     @Environment(\.dismiss) var dismiss
     @Binding var club: MovieClub
 
@@ -16,15 +17,16 @@ struct ClubToolbar: View {
     var body: some View {
         Menu {
             Button {
-                // Report a problem action
+                openURL(URL(string: "https://github.com/mney33/MovieClubReporting/issues/new/choose")!)
             } label: {
                 Label("Report A Problem", systemImage: "exclamationmark.octagon")
             }
-            
-            NavigationLink {
-                ClubEditView(movieClub: $club)
-            } label: {
-                Label("Edit", systemImage: "pencil")
+            if data.authCurrentUser?.uid == club.ownerId {
+                NavigationLink {
+                    ClubEditView(movieClub: $club)
+                } label: {
+                    Label("Edit", systemImage: "pencil")
+                }
             }
             
             Button {
