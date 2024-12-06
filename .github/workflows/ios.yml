@@ -23,7 +23,7 @@ jobs:
       - name: Decode and write Google plist
         run: |
           echo "Decoding ${G_SERVICE_64}..."
-          echo "${{ secrets.G_SERVICE_64 }}" | base64 --decode > ../GoogleService-Info.plist
+          echo "${{ secrets.G_SERVICE_64 }}" | base64 --decode > GoogleService-Info.plist
           
       - name: Build iOS app
         run: |
@@ -32,5 +32,10 @@ jobs:
       - name: Run Swift tests
         if: success()
         run: |
-          xcodebuild test -scheme MovieClub -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" | xcpretty
+          xcodebuild clean test \
+            -scheme MovieClub \
+            -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1" \
+            -enableCodeCoverage YES \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcpretty && exit ${PIPESTATUS[0]}
     
