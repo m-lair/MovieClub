@@ -36,7 +36,6 @@ jobs:
           scheme: MovieClub
           destination: platform=macOS
           action: build
-          workspace: MovieClub.xcworkspace
 
       - name: Test
         uses: sersoft-gmbh/xcodebuild-action@v3
