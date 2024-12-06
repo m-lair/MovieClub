@@ -537,7 +537,7 @@
 				2C5DEC172BF1AC6C000EF232 /* Sources */,
 				2C5DEC182BF1AC6C000EF232 /* Frameworks */,
 				2C5DEC192BF1AC6C000EF232 /* Resources */,
-				2C11FFCC2C9D2984004F54BC /* ShellScript */,
+				2C11FFCC2C9D2984004F54BC /* Run Script */,
 			);
 			buildRules = (
 			);
@@ -621,7 +621,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		2C11FFCC2C9D2984004F54BC /* ShellScript */ = {
+		2C11FFCC2C9D2984004F54BC /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 8;
 			files = (
@@ -635,6 +635,7 @@
 				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
 				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
 			);
+			name = "Run Script";
 			outputFileListPaths = (
 			);
 			outputPaths = (
@@ -982,7 +983,7 @@
 				2C1100322CA8C779004F54BC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		2C5DEC162BF1AC6C000EF232 /* Build configuration list for PBXProject "MovieClub" */ = {
 			isa = XCConfigurationList;
@@ -991,7 +992,7 @@
 				2C5DEC282BF1AC6E000EF232 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		2C5DEC292BF1AC6E000EF232 /* Build configuration list for PBXNativeTarget "MovieClub" */ = {
 			isa = XCConfigurationList;
@@ -1000,7 +1001,7 @@
 				2C5DEC2B2BF1AC6E000EF232 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 
