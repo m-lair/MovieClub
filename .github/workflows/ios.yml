@@ -27,7 +27,7 @@ jobs:
           scheme: MovieClub
           destination: platform=macOS
           action: build
-          output-formatter: plain
+          output-formatter: none
 
       - name: Test
         uses: sersoft-gmbh/xcodebuild-action@v3
