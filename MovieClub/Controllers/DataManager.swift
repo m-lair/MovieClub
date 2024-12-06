@@ -21,7 +21,7 @@ import FirebaseFunctions
 class DataManager: Identifiable {
     
     // MARK: Auth Items
-    var authCurrentUser: FirebaseAuth.User?
+    var authCurrentUser: FirebaseAuth.User? = nil
     var authState: AuthStateDidChangeListenerHandle?
     
     // MARK: - API Key

@@ -71,30 +71,33 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     }
 }
 
+
+
 @main
 struct MovieClubApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @State var dataManager: DataManager
     @State var isLoading: Bool = true
+    
     init() {
         configureFirebase()
         dataManager = DataManager()
+       
     }
     
     var body: some Scene {
         WindowGroup {
             Group {
-                if isLoading {
-                    WaveLoadingView()
-                } else if dataManager.authCurrentUser != nil {
+                if dataManager.authCurrentUser != nil {
                     ContentView()
                 } else {
                     LoginView()
                 }
             }
             .task {
-                await dataManager.checkUserAuthentication()
-                isLoading = false
+                Task {
+                   try await dataManager.fetchUser()
+                }
             }
             .colorScheme(.dark)
             

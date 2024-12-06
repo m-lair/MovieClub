@@ -30,6 +30,7 @@ struct NewClubView: View {
                     Button("Join") {
                         Task {
                             try await data.joinClub(club: club)
+                            data.userClubs.append(club)
                             dismiss()
                         }
                     }

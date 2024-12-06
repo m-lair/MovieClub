@@ -74,8 +74,6 @@ struct ClubDetailsForm: View {
         return imageData.base64EncodedString()
     }
     
-    
-    @MainActor
     private func submit() async throws{
         guard
             let user = data.currentUser,
@@ -92,9 +90,9 @@ struct ClubDetailsForm: View {
             
         do {
             try await data.createMovieClub(movieClub: movieClub)
+            data.userClubs.append(movieClub)
         }catch{
             print("error submitting club \(error)")
-            
         }
     }
 }
