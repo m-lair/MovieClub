@@ -23,11 +23,11 @@ jobs:
       - name: Build
         uses: sersoft-gmbh/xcodebuild-action@v3
         with:
-            project: MovieClub.xcodeproj
-            scheme: MovieClub
-            destination: platform=macOS
-            action: build
-            xcpretty: false
+          project: MovieClub.xcodeproj
+          scheme: MovieClub
+          destination: platform=macOS
+          action: build
+          output-formatter: plain
 
       - name: Test
         uses: sersoft-gmbh/xcodebuild-action@v3
