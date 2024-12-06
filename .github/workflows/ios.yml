@@ -14,16 +14,8 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.0'
-
-    - name: Install Bundler
-      run: gem install bundler
-
-    - name: Install dependencies
-      run: bundle install
+    - name: Resolve Swift Package Dependencies
+      run: swift package resolve
 
     - name: Set Default Scheme
       run: |
@@ -40,19 +32,6 @@ jobs:
     - name: Install Firebase CLI
       run: npm install -g firebase-tools
 
-    - name: Install functions dependencies
-      working-directory: functions
-      run: npm install
-
-    - name: Compile TypeScript
-      working-directory: functions
-      run: tsc
-
-    - name: Start Firebase emulators
-      working-directory: functions
-      run: |
-        firebase emulators:start &
-        sleep 10 # Wait for emulators to start
     - name: Build
       env:
         scheme: ${{ 'default' }}
@@ -74,7 +53,7 @@ jobs:
         if [ "$(ls -A | grep -i \\.xcworkspace\$)" ]; then filetype_parameter="workspace" && file_to_build="$(ls -A | grep -i \\.xcworkspace\$)"; else filetype_parameter="project" && file_to_build="$(ls -A | grep -i \\.xcodeproj\$)"; fi
         file_to_build=$(echo $file_to_build | awk '{$1=$1;print}')
         xcodebuild test-without-building -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
-    
+
     - name: Test Firebase Functions
       run: |
         cd functions
