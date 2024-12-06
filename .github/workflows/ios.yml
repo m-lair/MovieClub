@@ -29,7 +29,8 @@ jobs:
         run: |
           xcodebuild clean build -scheme MovieClub -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" CODE_SIGNING_ALLOWED=NO -allowProvisioningUpdates | xcpretty
 
-      - name: Run Swift tests using Test Plan
+      - name: Run Swift tests
         if: success()
         run: |
-          xcodebuild test-without-building -xctestrun TestPlan.xctestrun -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" | xcpretty
+          xcodebuild test -scheme MovieClub -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" | xcpretty
+    
