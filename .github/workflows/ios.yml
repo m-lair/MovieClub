@@ -16,6 +16,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Decode and write Google plist
+        run: |
+          echo "${{ secrets.G_SERVICE_64 }}" | base64 --decode > ./GoogleService-Info.plist
+
       - name: Build
         uses: sersoft-gmbh/xcodebuild-action@v3
         with:
