@@ -24,6 +24,6 @@ jobs:
           
       - name: Build iOS app
         run: |
-              xcodebuild clean build -scheme MovieClub -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest"
+              xcodebuild clean build -scheme MovieClub -destination -allowProvisioningUpdates "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest"
     
     
