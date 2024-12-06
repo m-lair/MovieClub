@@ -20,6 +20,13 @@ jobs:
         run: |
           echo "${{ secrets.G_SERVICE_64 }}" | base64 --decode > ./GoogleService-Info.plist
 
+      - name: Verify Google plist
+        run: |
+            if [ ! -f ./GoogleService-Info.plist ]; then
+              echo "GoogleService-Info.plist not found!"
+              exit 1
+            fi
+
       - name: Build
         uses: sersoft-gmbh/xcodebuild-action@v3
         with:
