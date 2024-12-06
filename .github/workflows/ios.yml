@@ -34,7 +34,7 @@ jobs:
         run: |
           xcodebuild test \
             -scheme MovieClub \
-            -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=17.4" \
+            -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" \
             -enableCodeCoverage YES \
             CODE_SIGNING_ALLOWED=NO \
             | xcpretty && exit ${PIPESTATUS[0]}
