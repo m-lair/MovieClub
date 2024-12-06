@@ -33,10 +33,10 @@ struct ClubToolbar: View {
                 Task {
                     do {
                         try await data.leaveClub(club: club)
+                        data.userClubs.removeAll(where: { $0.id == club.id })
                     } catch {
                         print("Error leaving club: \(error)")
                     }
-                    await data.fetchUserClubs()
                     dismiss()
                 }
             } label: {

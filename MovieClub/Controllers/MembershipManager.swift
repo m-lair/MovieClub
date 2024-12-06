@@ -63,6 +63,7 @@ extension DataManager {
         let requestData: [String: String] = ["clubId": clubId]
         do {
             _ = try await leaveClub(requestData)
+            
         } catch {
             throw MembershipError.leaveFailure
         }
