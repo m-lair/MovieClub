@@ -28,6 +28,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd functions
+          echo $(pwd)
           npm install
           tsc
 
