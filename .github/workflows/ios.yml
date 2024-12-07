@@ -1,0 +1,54 @@
+name: iOS starter workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+
+      - name: Set up Xcode 16
+        run: sudo xcode-select -s /Applications/Xcode_16.app
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Decode and write Google plist
+        run: |
+          echo "Decoding ${G_SERVICE_64}..."
+          echo "${{ secrets.G_SERVICE_64 }}" | base64 --decode > GoogleService-Info.plist
+
+      - name: Install dependencies
+        run: |
+          cd functions
+          echo $(pwd)
+          npm install
+          tsc
+
+      - name: Complile Functions
+        run: |
+          cd lib
+          npm install
+          npm run serve
+          
+      - name: Build iOS app
+        run: |
+          xcodebuild clean build -scheme MovieClub -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" CODE_SIGNING_ALLOWED=NO -allowProvisioningUpdates | xcpretty
+
+      - name: Run Swift tests
+        if: success()
+        run: |
+          xcodebuild test \
+            -scheme MovieClub \
+            -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" \
+            -enableCodeCoverage YES \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcpretty && exit ${PIPESTATUS[0]}
+    
