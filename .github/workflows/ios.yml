@@ -24,6 +24,18 @@ jobs:
         run: |
           echo "Decoding ${G_SERVICE_64}..."
           echo "${{ secrets.G_SERVICE_64 }}" | base64 --decode > GoogleService-Info.plist
+
+      - name: Install dependencies
+        run: |
+          cd functions
+          npm install
+          tsc
+
+      - name: Complile Functions
+        run: |
+          cd lib
+          npm install
+          npm run serve
           
       - name: Build iOS app
         run: |
