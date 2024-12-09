@@ -38,23 +38,14 @@ jobs:
       - name: Start Firebase Emulators in Background
         run: |
           firebase emulators:start > firebase.log 2>&1 &
-          echo "Waiting for emulators to start..."
           sleep 30
 
-      - name: Decode and Place Google Service Info Plist
+      - name: Decode Google Service Info Plist
         run: |
-          # First, decode the plist
-          echo "Decoding GoogleService-Info.plist..."
-          echo "${{ secrets.G_SERVICE_64 }}" | base64 --decode > MovieClub/GoogleService-Info.plist
-          
-          # Print working directory and verification
-          echo "Current directory structure:"
-          pwd
-          ls -la MovieClub/GoogleService-Info.plist
-          echo "Project root contents:"
-          ls -la
-          echo "MovieClub directory contents:"
-          ls -la MovieClub/
+          echo "${{ secrets.G_SERVICE_64 }}" | base64 --decode > GoogleService-Info.plist
+          cp GoogleService-Info.plist MovieClub/
+          mkdir -p /Users/runner/Library/Developer/Xcode/DerivedData/MovieClub-*/Build/Products/Debug-iphonesimulator/MovieClub.app
+          find /Users/runner/Library/Developer/Xcode/DerivedData/MovieClub-* -name "MovieClub.app" -type d -exec cp GoogleService-Info.plist {} \;
 
       - name: Run Swift Tests
         env:
@@ -62,12 +53,6 @@ jobs:
           FUNCTIONS_EMULATOR_HOST: localhost:5001
           AUTH_EMULATOR_HOST: localhost:9099
         run: |
-          # For debugging purposes
-          echo "Test execution directory:"
-          pwd
-          echo "Verifying plist location before tests:"
-          ls -la MovieClub/GoogleService-Info.plist
-          
           xcodebuild test \
             -scheme MovieClub \
             -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" \
