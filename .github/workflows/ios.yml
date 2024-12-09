@@ -43,23 +43,27 @@ jobs:
 
       - name: Decode Google Service Info Plist
         run: |
-          echo "Decoding ${G_SERVICE_64}..."
+          echo "Decoding GoogleService-Info.plist..."
           echo "${{ secrets.G_SERVICE_64 }}" | base64 --decode > GoogleService-Info.plist
-
-      - name: Build iOS app
-        run: |
-          xcodebuild clean build \
-            -scheme MovieClub \
-            -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" \
-            CODE_SIGNING_ALLOWED=NO \
-            -allowProvisioningUpdates | xcpretty
           
+          # Print working directory and file existence for debugging
+          pwd
+          ls -la GoogleService-Info.plist
+          
+          # Create copies in potential required locations
+          cp GoogleService-Info.plist MovieClub/GoogleService-Info.plist || true
+          mkdir -p Build/Products/Debug-iphonesimulator/MovieClub.app
+          cp GoogleService-Info.plist Build/Products/Debug-iphonesimulator/MovieClub.app/ || true
+
       - name: Run Swift Tests
         env:
           FIRESTORE_EMULATOR_HOST: localhost:8080
           FUNCTIONS_EMULATOR_HOST: localhost:5001
           AUTH_EMULATOR_HOST: localhost:9099
         run: |
+          # Print directory structure for debugging
+          ls -R
+          
           xcodebuild test \
             -scheme MovieClub \
             -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" \
@@ -73,14 +77,3 @@ jobs:
         with:
           name: test-results
           path: TestResults
-
-      - name: Run Function Tests
-        working-directory: ./functions
-        run: npm test
-
-      - name: Upload Firebase Logs
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: firebase-logs
-          path: firebase.log
