@@ -39,8 +39,7 @@ jobs:
         run: |
           firebase emulators:start > firebase.log 2>&1 &
           echo "Waiting for emulators to start..."
-          sleep 30  # Give emulators time to start
-          echo "Emulators should be ready"
+          sleep 30
 
       - name: Decode Google Service Info Plist
         run: |
@@ -54,7 +53,7 @@ jobs:
             -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" \
             CODE_SIGNING_ALLOWED=NO \
             -allowProvisioningUpdates | xcpretty
-
+          
       - name: Run Swift Tests
         env:
           FIRESTORE_EMULATOR_HOST: localhost:8080
@@ -66,18 +65,14 @@ jobs:
             -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" \
             -enableCodeCoverage YES \
             CODE_SIGNING_ALLOWED=NO \
-            -resultBundlePath TestResults \
-            -enablePerformanceTestsDiagnostics YES \
-            | xcpretty && exit ${PIPESTATUS[0]}
-    
+            -resultBundlePath TestResults
+
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v3
         with:
           name: test-results
-          path: |
-                TestResults
-                xcodebuild.log
+          path: TestResults
 
       - name: Run Function Tests
         working-directory: ./functions
