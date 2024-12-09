@@ -18,7 +18,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '18'
 
       - name: Set up Xcode
         run: sudo xcode-select -s /Applications/Xcode_16.app
@@ -41,19 +41,20 @@ jobs:
           echo "Waiting for emulators to start..."
           sleep 30
 
-      - name: Decode Google Service Info Plist
+      - name: Decode and Place Google Service Info Plist
         run: |
+          # First, decode the plist
           echo "Decoding GoogleService-Info.plist..."
-          echo "${{ secrets.G_SERVICE_64 }}" | base64 --decode > GoogleService-Info.plist
+          echo "${{ secrets.G_SERVICE_64 }}" | base64 --decode > MovieClub/GoogleService-Info.plist
           
-          # Print working directory and file existence for debugging
+          # Print working directory and verification
+          echo "Current directory structure:"
           pwd
-          ls -la GoogleService-Info.plist
-          
-          # Create copies in potential required locations
-          cp GoogleService-Info.plist MovieClub/GoogleService-Info.plist || true
-          mkdir -p Build/Products/Debug-iphonesimulator/MovieClub.app
-          cp GoogleService-Info.plist Build/Products/Debug-iphonesimulator/MovieClub.app/ || true
+          ls -la MovieClub/GoogleService-Info.plist
+          echo "Project root contents:"
+          ls -la
+          echo "MovieClub directory contents:"
+          ls -la MovieClub/
 
       - name: Run Swift Tests
         env:
@@ -61,8 +62,11 @@ jobs:
           FUNCTIONS_EMULATOR_HOST: localhost:5001
           AUTH_EMULATOR_HOST: localhost:9099
         run: |
-          # Print directory structure for debugging
-          ls -R
+          # For debugging purposes
+          echo "Test execution directory:"
+          pwd
+          echo "Verifying plist location before tests:"
+          ls -la MovieClub/GoogleService-Info.plist
           
           xcodebuild test \
             -scheme MovieClub \
