@@ -28,7 +28,6 @@ jobs:
       - name: Install dependencies
         run: |
           cd functions
-          echo $(pwd)
           npm install 
           npm install -g typescript
           tsc
@@ -36,8 +35,7 @@ jobs:
       - name: Complile Functions
         run: |
           echo "Compiling functions..."
-          echo $(ls)
-          cd lib
+          cd functions/lib
           npm install
           npm run serve
           
