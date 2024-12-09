@@ -30,6 +30,7 @@ jobs:
           cd functions
           echo $(pwd)
           npm install
+          npm install -g typescript
           tsc
 
       - name: Complile Functions
