@@ -29,12 +29,13 @@ jobs:
         run: |
           cd functions
           echo $(pwd)
-          npm install
-          npm install -g typescript
+          npm install -g
           tsc
 
       - name: Complile Functions
         run: |
+          echo "Compiling functions..."
+          echo $(ls)
           cd lib
           npm install
           npm run serve
