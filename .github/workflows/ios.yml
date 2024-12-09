@@ -67,17 +67,17 @@ jobs:
             -enableCodeCoverage YES \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath TestResults \
-            -configuration Debug \
-            -debugger | tee xcodebuild.log && exit ${PIPESTATUS[0]}
-
+            -enablePerformanceTestsDiagnostics YES \
+            | xcpretty && exit ${PIPESTATUS[0]}
+    
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v3
         with:
           name: test-results
           path: |
-            TestResults
-            xcodebuild.log
+                TestResults
+                xcodebuild.log
 
       - name: Run Function Tests
         working-directory: ./functions
