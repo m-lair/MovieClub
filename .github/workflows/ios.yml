@@ -74,10 +74,20 @@ jobs:
       - name: Install and Build Functions
         working-directory: ./functions
         run: |
-          npm ci
+          # Check if package-lock.json exists
+          if [ -f "package-lock.json" ]; then
+            npm ci
+          else
+            npm install
+          fi
           npm install -g typescript
           tsc
-          cd lib && npm ci
+          cd lib
+          if [ -f "package-lock.json" ]; then
+            npm ci
+          else
+            npm install
+          fi
           
       - name: Setup Service Account
         run: |
