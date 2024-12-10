@@ -24,35 +24,34 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_16.app
 
       - name: Install Firebase Tools
-        run: npm install -g firebase-tools --silent
+        run: npm install -g firebase-tools
 
       - name: Install and Build Functions
         run: |
           cd functions
-          npm install --silent
-          npm install -g typescript --silent
+          npm install
+          npm install -g typescript
           tsc
           cd lib
-          npm install --silent
+          npm install
 
       - name: Start Firebase Emulators in Background
         run: |
-          firebase emulators:start > /dev/null 2>&1 &
+          firebase emulators:start > firebase.log 2>&1 &
           sleep 30
 
-      - name: Build App
-        run: xcodebuild build \
-          -scheme MovieClub \
-          -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" \
-          -quiet \
-          CODE_SIGNING_ALLOWED=NO
+      - name: Build app
+        run: |
+          xcodebuild build-for-testing \
+            -scheme MovieClub \
+            -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" \
+            CODE_SIGNING_ALLOWED=NO
 
-      - name: Decode Google Service Info Plist
+      - name: Setup GoogleService-Info.plist
         run: |
           echo "${{ secrets.G_SERVICE_64 }}" | base64 --decode > GoogleService-Info.plist
-          cp GoogleService-Info.plist MovieClub/
-          find /Users/runner/Library/Developer/Xcode/DerivedData \
-            -name "MovieClub.app" -type d -exec cp GoogleService-Info.plist {} \;
+          derived_data_path=$(xcodebuild -showBuildSettings | grep BUILT_PRODUCTS_DIR | awk -F ' = ' '{print $2}')
+          cp GoogleService-Info.plist "$derived_data_path/MovieClub.app/"
 
       - name: Run Swift Tests
         env:
@@ -60,6 +59,7 @@ jobs:
           FUNCTIONS_EMULATOR_HOST: localhost:5001
           AUTH_EMULATOR_HOST: localhost:9099
         run: |
-          xcodebuild test \
+          xcodebuild test-without-building \
             -scheme MovieClub \
-            -destination "pl
+            -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" \
+            CODE_SIGNING_ALLOWED=NO
