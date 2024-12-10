@@ -19,14 +19,6 @@ jobs:
     outputs:
       emulator-check: ${{ steps.save-script.outputs.content }}
     steps:
-      - name: Cache Firebase emulators
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/firebase/emulators
-          key: ${{ runner.os }}-firebase-emulators-${{ hashFiles('~/.cache/firebase/emulators/**') }}
-          restore-keys: |
-            ${{ runner.os }}-firebase-emulators-
-
       - name: Create emulator check script
         id: save-script
         run: |
@@ -41,7 +33,7 @@ jobs:
             
             while ! nc -z localhost $port; do
               if [ $attempt -ge $max_attempts ]; then
-                echo "$service emulator failed to start on port $port"
+                echo "::warning::$service emulator failed to start on port $port"
                 exit 1
               fi
               echo "Waiting for $service emulator... (attempt $attempt/$max_attempts)"
@@ -50,40 +42,28 @@ jobs:
             done
             echo "$service emulator is running on port $port"
           }
-
-          # Create basic firebase.json if it doesn't exist
-          if [ ! -f "firebase.json" ]; then
-            echo "{
-              \"firestore\": {
-                \"rules\": \"firestore.rules\"
-              },
-              \"functions\": {
-                \"source\": \"functions\"
-              }
-            }" > firebase.json
-          fi
-
-          # Create basic firestore.rules if it doesn't exist
-          if [ ! -f "firestore.rules" ]; then
-            echo "rules_version = \"2\";
-            service cloud.firestore {
-              match /databases/{database}/documents {
-                match /{document=**} {
-                  allow read, write: if true;
-                }
-              }
-            }" > firestore.rules
-          fi
           
-          export FIREBASE_TOKEN="dummy-token"
-          firebase emulators:start --project=${{ env.FIREBASE_PROJECT }} --only auth,database,firestore,functions --no-download-emulators &
+          # Check for required files and log status
+          echo "Checking configuration files..."
+          [ ! -f "firestore.rules" ] && echo "::warning::firestore.rules not found - emulator will use default permissions"
+          [ ! -f "functions/index.js" ] && echo "::warning::functions/index.js not found - function definitions may be incomplete"
+          [ ! -f "firebase.json" ] && echo "::warning::firebase.json not found - using default configuration"
+          
+          # Start emulators with detailed logging
+          echo "Starting Firebase emulators..."
+          firebase emulators:start --project=${{ env.FIREBASE_PROJECT }} --only auth,database,firestore,functions 2>&1 | tee emulator_startup.log &
+          
           echo "Waiting for emulators to start..."
           
+          # Check emulator ports
           check_port 9099 "Auth"
           check_port 8080 "Firestore"
           check_port 5001 "Functions"
           
+          # Log completion status
           echo "All emulators are running!"
+          echo "Emulator startup log summary:"
+          grep -E "warning|error|succeeded|running" emulator_startup.log || true
           ' >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
 
@@ -107,22 +87,10 @@ jobs:
       - name: Install and Build Functions
         working-directory: ./functions
         run: |
-          # Check if package-lock.json exists
-          if [ -f "package-lock.json" ]; then
-            npm ci
-          else
-            npm install
-          fi
+          npm ci
           npm install -g typescript
-          # Update firebase-functions to latest
-          npm install --save firebase-functions@latest
           tsc
-          cd lib
-          if [ -f "package-lock.json" ]; then
-            npm ci
-          else
-            npm install
-          fi
+          cd lib && npm ci
           
       - name: Setup Service Account
         run: |
