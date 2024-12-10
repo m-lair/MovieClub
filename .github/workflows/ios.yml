@@ -1,5 +1,4 @@
 name: iOS Firebase Testing Workflow
-
 on:
   push:
     branches:
@@ -7,25 +6,24 @@ on:
   pull_request:
     branches:
       - main
-
 jobs:
   test:
     runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+      
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
+      
       - name: Set up Xcode
         run: sudo xcode-select -s /Applications/Xcode_16.app
-
+      
       - name: Install Firebase Tools
         run: npm install -g firebase-tools
-
+      
       - name: Install and Build Functions
         run: |
           cd functions
@@ -34,32 +32,48 @@ jobs:
           tsc
           cd lib
           npm install
-
+      
       - name: Start Firebase Emulators in Background
         run: |
           firebase emulators:start > firebase.log 2>&1 &
           sleep 30
-
+      
+      - name: Install xcpretty
+        run: gem install xcpretty
+      
       - name: Build app
         run: |
-          xcodebuild build-for-testing \
+          set -o pipefail && xcodebuild build-for-testing \
             -scheme MovieClub \
             -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" \
-            CODE_SIGNING_ALLOWED=NO
-
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO | xcpretty
+      
+      - name: Debug Build Directory
+        run: |
+          echo "Listing build directory contents:"
+          ls -R build/
+      
       - name: Setup GoogleService-Info.plist
         run: |
           echo "${{ secrets.G_SERVICE_64 }}" | base64 --decode > GoogleService-Info.plist
-          derived_data_path=$(xcodebuild -showBuildSettings | grep BUILT_PRODUCTS_DIR | awk -F ' = ' '{print $2}')
-          cp GoogleService-Info.plist "$derived_data_path/MovieClub.app/"
-
+          app_path=$(find build -name "MovieClub.app" -type d)
+          echo "Found app path: $app_path"
+          if [ -n "$app_path" ]; then
+            cp GoogleService-Info.plist "$app_path/"
+          else
+            echo "Error: MovieClub.app directory not found"
+            exit 1
+          fi
+      
       - name: Run Swift Tests
         env:
           FIRESTORE_EMULATOR_HOST: localhost:8080
           FUNCTIONS_EMULATOR_HOST: localhost:5001
           AUTH_EMULATOR_HOST: localhost:9099
         run: |
-          xcodebuild test-without-building \
+          set -o pipefail && xcodebuild test-without-building \
             -scheme MovieClub \
             -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" \
-            CODE_SIGNING_ALLOWED=NO
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO | xcpretty
