@@ -87,10 +87,30 @@ jobs:
       - name: Install and Build Functions
         working-directory: ./functions
         run: |
-          npm ci
+          echo "Installing main functions dependencies..."
+          if [ -f "package-lock.json" ]; then
+            npm ci
+          else
+            echo "No package-lock.json found in functions directory, using npm install"
+            npm install
+          fi
+          
+          echo "Installing typescript globally..."
           npm install -g typescript
+          
+          echo "Running typescript compilation..."
           tsc
-          cd lib && npm ci
+          
+          echo "Installing lib dependencies..."
+          cd lib
+          if [ -f "package-lock.json" ]; then
+            npm ci
+          else
+            echo "No package-lock.json found in lib directory, using npm install"
+            npm install
+          fi
+          
+          echo "Function setup completed"
           
       - name: Setup Service Account
         run: |
