@@ -41,7 +41,7 @@ jobs:
       - name: Start and Verify Firebase Emulators
         run: |
           # Start emulators
-          firebase emulators:start &
+          firebase emulators:start --project=movieclub-93714 --only auth,database,firestore,functions &
           echo "Waiting for emulators to start..."
           
           # Function to check if a port is responding
@@ -127,7 +127,7 @@ jobs:
       - name: Start and Verify Firebase Emulators
         run: |
           # Start emulators
-          firebase emulators:start &
+          firebase emulators:start --project=movieclub-93714 --only auth,database,firestore,functions &
           echo "Waiting for emulators to start..."
           
           # Function to check if a port is responding
