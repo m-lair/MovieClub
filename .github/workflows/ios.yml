@@ -19,6 +19,14 @@ jobs:
     outputs:
       emulator-check: ${{ steps.save-script.outputs.content }}
     steps:
+      - name: Cache Firebase emulators
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/firebase/emulators
+          key: ${{ runner.os }}-firebase-emulators-${{ hashFiles('~/.cache/firebase/emulators/**') }}
+          restore-keys: |
+            ${{ runner.os }}-firebase-emulators-
+
       - name: Create emulator check script
         id: save-script
         run: |
@@ -42,8 +50,33 @@ jobs:
             done
             echo "$service emulator is running on port $port"
           }
+
+          # Create basic firebase.json if it doesn't exist
+          if [ ! -f "firebase.json" ]; then
+            echo "{
+              \"firestore\": {
+                \"rules\": \"firestore.rules\"
+              },
+              \"functions\": {
+                \"source\": \"functions\"
+              }
+            }" > firebase.json
+          fi
+
+          # Create basic firestore.rules if it doesn't exist
+          if [ ! -f "firestore.rules" ]; then
+            echo "rules_version = \"2\";
+            service cloud.firestore {
+              match /databases/{database}/documents {
+                match /{document=**} {
+                  allow read, write: if true;
+                }
+              }
+            }" > firestore.rules
+          fi
           
-          firebase emulators:start --project=${{ env.FIREBASE_PROJECT }} --only auth,database,firestore,functions &
+          export FIREBASE_TOKEN="dummy-token"
+          firebase emulators:start --project=${{ env.FIREBASE_PROJECT }} --only auth,database,firestore,functions --no-download-emulators &
           echo "Waiting for emulators to start..."
           
           check_port 9099 "Auth"
@@ -81,6 +114,8 @@ jobs:
             npm install
           fi
           npm install -g typescript
+          # Update firebase-functions to latest
+          npm install --save firebase-functions@latest
           tsc
           cd lib
           if [ -f "package-lock.json" ]; then
