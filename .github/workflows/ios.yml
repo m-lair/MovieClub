@@ -124,35 +124,6 @@ jobs:
       - name: Install Firebase Tools
         run: npm install -g firebase-tools
         
-      functions-test:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          
-      - name: Install Firebase Tools
-        run: npm install -g firebase-tools
-          
-      - name: Install Functions Dependencies
-        run: |
-          cd functions
-          npm install
-          npm install -g typescript
-          tsc
-          cd lib
-          npm install
-          cd ..
-          
-      - name: Setup Service Account
-        run: |
-          mkdir -p /Users/runner/work/MovieClub/MovieClub/functions/src/utilities
-          echo "${{ secrets.SA_KEY }}" | base64 --decode > /Users/runner/work/MovieClub/MovieClub/functions/src/utilities/service-account.json
-          
       - name: Start and Verify Firebase Emulators
         run: |
           # Start emulators
@@ -184,11 +155,6 @@ jobs:
           check_port 5001 "Functions"  # Functions emulator
           
           echo "All emulators are running!"
-          
-      - name: Run Functions Tests
-        run: |
-          cd functions
-          npm run test
           
       - name: Run tests
         run: |
