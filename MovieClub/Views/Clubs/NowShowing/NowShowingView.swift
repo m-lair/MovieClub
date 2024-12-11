@@ -139,15 +139,13 @@ struct NowShowingView: View {
     func refreshClub() async {
         isLoading = true
         defer { isLoading = false }
-        print("clubId: \(data.clubId)")
+        if data.clubId.isEmpty { return }
         let club = await data.fetchMovieClub(clubId: data.clubId)
         if let club {
             data.currentClub = club
             movie = club.movies.first
             updateCollectState()
         }
-        
-       
     }
     
     private func updateCollectState() {
