@@ -96,6 +96,7 @@ extension DataManager {
             registerStateListener()
             try await fetchUser()
         } catch {
+            signOut()
             throw error
         }
     }
