@@ -42,6 +42,7 @@ extension DataManager {
             currentUser = try snapshot.data(as: User.self)
         } catch {
             print("error parsing user document")
+            signOut()
             throw error
         }
         await fetchUserClubs()

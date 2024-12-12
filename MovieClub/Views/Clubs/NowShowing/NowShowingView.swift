@@ -19,6 +19,8 @@ struct NowShowingView: View {
     @State private var replyToComment: Comment? = nil
     @FocusState private var isCommentInputFocused: Bool
     @State var movie: Movie? = nil
+    @State private var scrollToCommentId: String? = nil
+    
     var progress: Double {
         let now = Date()
         if let movie {
@@ -33,65 +35,81 @@ struct NowShowingView: View {
     var body: some View {
         VStack {
             if let movie {
-                ScrollView {
-                    FeaturedMovieView(collected: collected, movie: movie)
-                    HStack {
-                        Label("\(movie.userName)", systemImage: "hand.point.up.left.fill")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .padding()
-                        Spacer()
-                        Button {
-                            guard
-                                let userId = data.currentUser?.id
-                            else { return }
-                            collected = true
-                            self.movie?.collectedBy.append(userId)
-                            Task {
-                                await collectPoster()
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        FeaturedMovieView(collected: collected, movie: movie)
+                        HStack {
+                            Label("\(movie.userName)", systemImage: "hand.point.up.left.fill")
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .padding()
+                            Spacer()
+                            Button {
+                                guard
+                                    let userId = data.currentUser?.id
+                                else { return }
+                                collected = true
+                                self.movie?.collectedBy.append(userId)
+                                Task {
+                                    await collectPoster()
+                                }
+                                collected = true
+                            } label: {
+                                CollectButton(collected: $collected)
                             }
-                            collected = true
-                        } label: {
-                            CollectButton(collected: $collected)
+                            
+                            ReviewThumbs(liked: $liked, disliked: $disliked)
+                        }
+                        .padding(.trailing, 20)
+                        
+                        HStack {
+                            Text(movie.startDate, format: .dateTime.day().month())
+                                .font(.title3)
+                                .textCase(.uppercase)
+                            
+                            ProgressView(value: progress)
+                                .progressViewStyle(ClubProgressViewStyle())
+                                .frame(height: 10)
+                            
+                            Text(movie.endDate, format: .dateTime.day().month())
+                                .font(.title3)
+                                .textCase(.uppercase)
                         }
                         
-                        ReviewThumbs(liked: $liked, disliked: $disliked)
+                        CommentsView(onReply: { comment in
+                            replyToComment = comment
+                            isReplying = true
+                            isCommentInputFocused = true
+                        })
+                        
+                        // Add a spacer view at the bottom that we can scroll to
+                        Color.clear
+                            .frame(height: 1)
+                            .id("bottomComment")
                     }
-                    .padding(.trailing, 20)
-                    
-                    HStack {
-                        Text(movie.startDate, format: .dateTime.day().month())
-                            .font(.title3)
-                            .textCase(.uppercase)
-                        
-                        ProgressView(value: progress)
-                            .progressViewStyle(ClubProgressViewStyle())
-                            .frame(height: 10)
-                        
-                        Text(movie.endDate, format: .dateTime.day().month())
-                            .font(.title3)
-                            .textCase(.uppercase)
-                        
+                    .scrollDismissesKeyboard(.interactively)
+                    .scrollIndicators(.hidden)
+                    .onChange(of: movie.collectedBy) {
+                        updateCollectState()
                     }
-                    CommentsView(onReply: { comment in
-                        replyToComment = comment
-                        isReplying = true
-                        isCommentInputFocused = true
-                    })
+                    .onChange(of: scrollToCommentId) {
+                        if let scrollToCommentId {
+                            withAnimation {
+                                proxy.scrollTo("bottomComment", anchor: .bottom)
+                            }
+                        }
+                    }
+                    .onAppear {
+                        updateCollectState()
+                    }
                 }
-                .scrollDismissesKeyboard(.interactively)
-                .scrollIndicators(.hidden)
-                .onChange(of: movie.collectedBy) {
-                    updateCollectState()
-                }
-                .onAppear {
-                    updateCollectState()
-                }
+                
                 if let movieId = movie.id {
-                    CommentInputView(movieId: movieId, replyToComment:  $replyToComment)
-                        .focused($isCommentInputFocused)
+                    CommentInputView(movieId: movieId, replyToComment: $replyToComment, onCommentPosted: {
+                        scrollToCommentId = UUID().uuidString // Trigger scroll on comment posted
+                    })
+                    .focused($isCommentInputFocused)
                 }
-
             } else {
                 WaveLoadingView()
                     .refreshable {
