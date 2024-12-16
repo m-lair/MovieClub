@@ -9,160 +9,173 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(DataManager.self) var data
+    @Environment(\.dismiss) var dismiss
+
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    SettingsSectionView(headerText: "Account", headerColor: .orange) {
-                        SettingsRowView(icon: "person.circle", label: "Login Information", destination: LoginInformationView())
-                        SettingsRowView(icon: "house", label: "Addresses", destination: AddressesView())
-                        SettingsRowView(icon: "creditcard", label: "Payment Methods", destination: PaymentMethodsView())
-                        SettingsRowView(icon: "person.3", label: "Referral Dashboard", destination: ReferralDashboardView())
+            if let user = data.currentUser {
+               SettingsDivider()
+                VStack(alignment: .leading) {
+                    NavigationLink(destination: LoginInformationView()) {
+                        HStack {
+                            Circle()
+                                .frame(width: 60, height: 60)
+                                .padding(.leading)
+                            
+                            VStack(alignment: .leading) {
+                                Text(user.name)
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                
+                                Text("Edit Username, Email, and Password")
+                                    .font(.caption)
+                                    .fontWeight(.light)
+                            }
+                        }
+                        Spacer()
                     }
-                    
-                    SettingsSectionView(headerText: "Orders & Subscriptions", headerColor: .green) {
-                        SettingsRowView(icon: "shippingbox", label: "Orders", destination: OrdersView())
-                        SettingsRowView(icon: "calendar", label: "Subscriptions", destination: SubscriptionsView())
-                        SettingsRowView(icon: "arrowshape.turn.up.backward", label: "My Returns", destination: MyReturnsView())
-                    }
-                    
-                }
-                .padding()
-            }
-            .background(Color.black.edgesIgnoringSafeArea(.all)) // For dark mode style
-        }
-    }
-}
-
-struct SettingsSectionView<Content: View>: View {
-    let headerText: String
-    let headerColor: Color
-    let content: Content
-    
-    init(headerText: String, headerColor: Color, @ViewBuilder content: () -> Content) {
-        self.headerText = headerText
-        self.headerColor = headerColor
-        self.content = content()
-    }
-    
-    var body: some View {
-        VStack(spacing: 0) { // No spacing to merge header and content
-            Text(headerText)
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding()
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(headerColor)
             
-            VStack(spacing: 10) {
-                content
+                    SettingsDivider()
+                        .padding(.bottom)
+                    
+                    Label {
+                        Text("Settings")
+                            .font(.largeTitle)
+                            .fontWeight(.heavy)
+                    } icon: {
+                        Image(systemName: "gearshape.fill")
+                            .foregroundStyle(.gray)
+                    }
+                    .font(.largeTitle)
+                    .padding(.top)
+                    .padding(.leading, 5)
+                    
+                    SettingsDivider()
+                    
+                    SettingsRowView(icon: "bell.fill", label: "Notifications", destination: NotifSettingsView())
+                        
+                    SettingsDivider()
+                    
+                    SettingsRowView(icon: "info.circle.fill", label: "About", destination: AboutView())
+                    
+                    SettingsDivider()
+                    
+                    SettingsRowView(icon: "accessibility.fill", label: "Accessibility", destination: AccessibilityView())
+                    
+                    SettingsDivider()
+                }
+                Spacer()
             }
-            .padding()
-            .background(Color.gray.opacity(0.2))
         }
-        .cornerRadius(10) // Overall card effect
-        .padding(.horizontal) // Padding around each card for spacing
+        .toolbar {
+            ToolbarItem {
+                Button("Sign Out") {
+                    data.signOut()
+                }
+                .foregroundStyle(.red)
+            }
+        }
+        .toolbarRole(.editor)
     }
 }
 
 struct SettingsRowView<Destination: View>: View {
     let icon: String
     let label: String
-    let destination: Destination // Generic destination view
+    let destination: Destination
     
     var body: some View {
-        NavigationLink(destination: destination) { // Use NavigationLink for navigation
+        NavigationLink(destination: destination) {
             HStack {
                 Image(systemName: icon)
-                    .foregroundColor(.white)
-                    .padding(.trailing, 10)
+                    .foregroundColor(.gray)
+                    .padding(.horizontal)
                 Text(label)
                     .foregroundColor(.white)
                 Spacer()
+                Image(systemName: "chevron.right")
+                    .padding(.trailing)
             }
+            .padding(.leading)
             .padding(.vertical, 8)
-            .padding(.horizontal)
-            .background(Color.gray.opacity(0.15))
-            .cornerRadius(8)
         }
     }
 }
 
 struct LoginInformationView: View {
     @Environment(DataManager.self) var data
+    @State var name: String = ""
+    @State var email: String = ""
+    @State var bio: String = ""
     
     var body: some View {
-        VStack {
-            if let user = data.currentUser {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("User Information")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .padding(.bottom, 10)
+        if let user = data.currentUser {
+            VStack {
+                AviSelector()
+                    .padding(.vertical)
+                
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Username")
+                        .padding(5)
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
                     
-                    HStack {
-                        Text("Name:")
-                            .fontWeight(.bold)
-                        Text(user.name)
-                    }
+                    TextField(text: $name, label: { Text(user.name).foregroundStyle(.white) })
+                        .padding(.leading, 10)
                     
-                    HStack {
-                        Text("Email:")
-                            .fontWeight(.bold)
-                        Text(user.email)
-                    }
                     
-                    Spacer().frame(height: 20)
+                    Text("Email")
+                        .padding(5)
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
                     
-                    Button {
-                        data.signOut()
-                    } label: {
-                        Text("Logout")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.red)
-                            .cornerRadius(10)
-                    }
-                    .padding(.top, 10)
+                    TextField(text: $email, label: { Text(user.email).foregroundStyle(.white) })
+                        .padding(.leading, 10)
                     
-                    Button {
-                        guard let userId = user.id else { return }
-                        Task {
-                            try await data.deleteUserAccount(userId: userId)
-                            data.authCurrentUser = nil
-                        }
-                    } label: {
-                        Text("Delete Account")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.red)
-                            .cornerRadius(10)
-                    }
-                    .padding(.top, 10)
                 }
-                .padding()
-                .background(Color(UIColor.systemGray6))
-                .cornerRadius(12)
-                .shadow(radius: 5)
-                .padding()
-            } else {
-                Text("No user information available.")
-                    .foregroundColor(.gray)
-                    .italic()
-                    .padding()
+                .padding(5)
+                .frame(maxWidth: UIScreen.main.bounds.width - 40)
+                .background(RoundedRectangle(cornerRadius: 5).fill(Color(red: 29/255, green: 29/255, blue: 29/255)))
+                
+                Button {
+                    guard let userId = user.id else { return }
+                    Task {
+                        try await data.deleteUserAccount(userId: userId)
+                        data.authCurrentUser = nil
+                    }
+                } label: {
+                    Text("Delete Account")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.red)
+                        .cornerRadius(10)
+                }
+                .padding(.top, 20)
+                .frame(maxWidth: UIScreen.main.bounds.width - 40)
+                
+                Spacer()
             }
         }
     }
 }
 
+struct SettingsDivider: View {
+    let color: Color = .gray
+    let width: CGFloat = 1
+    var body: some View {
+        Rectangle()
+            .fill(color)
+            .frame(height: width)
+            .edgesIgnoringSafeArea(.horizontal)
+            .opacity(0.5)
+    }
+}
 
-struct AddressesView: View { var body: some View { Text("Addresses Screen") } }
-struct PaymentMethodsView: View { var body: some View { Text("Payment Methods Screen") } }
+
+struct NotifSettingsView: View { var body: some View { Text("Notifications Settings Screen") } }
 struct ReferralDashboardView: View { var body: some View { Text("Referral Dashboard Screen") } }
-struct OrdersView: View { var body: some View { Text("Orders Screen") } }
-struct SubscriptionsView: View { var body: some View { Text("Subscriptions Screen") } }
-struct MyReturnsView: View { var body: some View { Text("My Returns Screen") } }
+struct AboutView: View { var body: some View { Text("About Screen") } }
+struct AccessibilityView: View { var body: some View { Text("Accessibility Screen") } }
