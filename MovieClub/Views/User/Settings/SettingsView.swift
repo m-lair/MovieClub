@@ -105,6 +105,9 @@ struct SettingsRowView<Destination: View>: View {
 
 struct LoginInformationView: View {
     @Environment(DataManager.self) var data
+    @Environment(\.dismiss) var dismiss
+    @State var error: Error? = nil
+    @State var editing = false
     @State var name: String = ""
     @State var email: String = ""
     @State var bio: String = ""
@@ -112,8 +115,8 @@ struct LoginInformationView: View {
     var body: some View {
         if let user = data.currentUser {
             VStack {
-                AviSelector()
-                    .padding(.vertical)
+                //AviSelector()
+                  //  .padding(.vertical)
                 
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Username")
@@ -123,8 +126,7 @@ struct LoginInformationView: View {
                     
                     TextField(text: $name, label: { Text(user.name).foregroundStyle(.white) })
                         .padding(.leading, 10)
-                    
-                    
+                    Divider()
                     Text("Email")
                         .padding(5)
                         .font(.headline)
@@ -157,6 +159,84 @@ struct LoginInformationView: View {
                 .frame(maxWidth: UIScreen.main.bounds.width - 40)
                 
                 Spacer()
+            }
+            .toolbar {
+                if editing {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Done") {
+                            Task {
+                                await submit()
+                            }
+                            dismiss()
+                        }
+                    }
+                }
+            }
+            .alert("Error", isPresented: .constant(error != nil), actions: {
+                Button("OK") {
+                    error = nil
+                }
+            }, message: {
+                if let error = error {
+                    Text(error.localizedDescription)
+                }
+            })
+            .onChange(of: [name, email, bio]) {
+                editing = true
+                if name.isEmpty && email.isEmpty && bio.isEmpty {
+                    editing = false
+                }
+            }
+        }
+    }
+    
+    func submit() async {
+        guard let currentUser = data.currentUser else { return }
+        
+        // Start with the current values
+        var updatedName = currentUser.name
+        var updatedEmail = currentUser.email
+        var updatedBio = currentUser.bio
+
+        // Apply updates only if non-empty and different
+        if !name.isEmpty, name != currentUser.name {
+            updatedName = name
+        }
+
+        if !email.isEmpty, email != currentUser.email {
+            updatedEmail = email
+        }
+
+        if !bio.isEmpty, bio != currentUser.bio {
+            updatedBio = bio
+        }
+
+        // Check if anything changed by comparing fields
+        let somethingChanged =
+            (updatedName != currentUser.name) ||
+            (updatedEmail != currentUser.email) ||
+            (updatedBio != currentUser.bio)
+
+        // Proceed only if there's an actual change
+        if somethingChanged {
+            do {
+                // Create a new user instance with updated values
+                let updatedUser = User(email: updatedEmail, bio: updatedBio, name: updatedName)
+                
+                // Perform the update
+                try await data.updateUserDetails(user: updatedUser)
+                
+                // After a successful update, set currentUser to the updated instance
+                // If currentUser is a class, you could also just update its properties
+                // directly instead of creating a new instance:
+                currentUser.email = updatedEmail
+                currentUser.name = updatedName
+                currentUser.bio = updatedBio
+
+                // If desired, you can explicitly update `data.currentUser` as well:
+                data.currentUser = currentUser
+            } catch {
+                self.error = error
             }
         }
     }
