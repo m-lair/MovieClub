@@ -20,19 +20,31 @@ struct UserEditView: View {
     @State var bio: String = ""
     
     var body: some View {
-        VStack{
+        VStack(spacing: 10){
             if let user = data.currentUser {
-                if editMode?.wrappedValue.isEditing == true {
-                    Form {
-                        TextField("Name", text: $name, prompt: Text(user.name))
-                        TextField("Bio", text: $bio, prompt: Text(user.bio ?? "No bio yet"))
+                Text(user.bio ?? "")
+                    .font(.caption)
+                    .frame(width: 200, height: 100)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 5)
+                            .stroke(.gray, lineWidth: 1)
+                    )
+                
+                Button {
+                    guard let userId = user.id else { return }
+                    Task {
+                        try await data.deleteUserAccount(userId: userId)
+                        data.authCurrentUser = nil
                     }
+                } label: {
+                    Text("Delete Account")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.red)
+                        .cornerRadius(10)
                 }
-            }
-        }
-        .onChange(of: editMode?.wrappedValue) {
-            Task{
-               try await submit()
             }
         }
         .alert(errorMessage, isPresented: $errorShowing) {
