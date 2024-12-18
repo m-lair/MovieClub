@@ -93,9 +93,10 @@ extension DataManager {
     func signIn(email: String, password: String) async throws {
         do {
             let result = try await auth.signIn(withEmail: email, password: password)
-            self.authCurrentUser = result.user
             registerStateListener()
+            try await fetchUser()
         } catch {
+            signOut()
             throw error
         }
     }

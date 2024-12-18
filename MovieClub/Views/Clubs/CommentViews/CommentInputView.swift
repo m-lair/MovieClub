@@ -1,10 +1,3 @@
-//
-//  CommentInputView.swift
-//  MovieClub
-//
-//  Created by Marcus Lair on 6/10/24.
-//
-
 import SwiftUI
 import FirebaseFunctions
 import Firebase
@@ -15,11 +8,11 @@ struct CommentInputView: View {
     @State var errorShowing: Bool = false
     @State private var commentText: String = ""
     
-   
-    //var movieClub: MovieClub
     let movieId: String
     @Binding var replyToComment: Comment?
     @FocusState private var isFocused: Bool
+    var onCommentPosted: () -> Void
+    
     var textLabel: String {
         if replyToComment != nil {
             return "Leave a Reply \(replyToComment?.userName ?? "")"
@@ -43,9 +36,6 @@ struct CommentInputView: View {
                 Button("", systemImage: "arrow.up.circle.fill") {
                     Task {
                         await submitComment()
-                        commentText = ""
-                        replyToComment = nil
-                        isFocused = false
                     }
                 }
                 .foregroundColor(Color(uiColor: .systemBlue))
@@ -83,19 +73,21 @@ struct CommentInputView: View {
             likes: 0,
             parentId: replyToCommentID
         )
+        commentText = ""
+        replyToComment = nil
+        isFocused = false
         
         do {
             try await data.postComment(clubId: data.clubId, movieId: movieId, comment: newComment)
             // Clear input fields after successful post
-            
             commentText = ""
             replyToComment = nil
             isFocused = false
+            onCommentPosted() // Call the callback after successful comment post
             
         } catch {
             errorShowing.toggle()
             self.error = "Failed to post comment: \(error.localizedDescription)"
         }
     }
-
 }
