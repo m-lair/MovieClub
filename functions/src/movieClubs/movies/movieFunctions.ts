@@ -8,7 +8,7 @@ import {
   verifyRequiredFields,
 } from "helpers";
 import { verifyMembership } from "src/users/memberships/membershipHelpers";
-import { MovieData } from "./movieTypes";
+import { MovieData, MovieLikeRequest } from "./movieTypes";
 import { MovieClubData } from "../movieClubTypes";
 import { SuggestionData } from "../suggestions/suggestionTypes";
 import { getMovieClubDocRef } from "../movieClubHelpers";
@@ -92,6 +92,106 @@ exports.rotateMovie = functions.https.onCall(
     } catch (error) {
       console.error('Error rotating movie:', error);
       handleCatchHttpsError('Error rotating movie:', error);
+    }
+  }
+);
+
+export const likeMovie = functions.https.onCall(
+  async (request: CallableRequest<MovieLikeRequest>) => {
+    try {
+      const { data, auth } = request;
+      const { uid } = verifyAuth(auth);
+      const { movieId, clubId } = data;
+      
+      verifyRequiredFields(data, ["movieId", "clubId"]);
+
+      // Get reference to the movie document in the club's subcollection
+      const movieRef = getMovieClubDocRef(clubId).collection('movies').doc(movieId);
+      const movieDoc = await movieRef.get();
+      
+      if (!movieDoc.exists) {
+        throw new functions.https.HttpsError('not-found', 'Movie not found in club.');
+      }
+
+      const movieData = movieDoc.data();
+      
+      // Initialize arrays if they don't exist
+      const likedBy = movieData?.likedBy || [];
+      const dislikedBy = movieData?.dislikedBy || [];
+      
+      // Remove from dislikedBy if it exists
+      const dislikeIndex = dislikedBy.indexOf(uid);
+      if (dislikeIndex > -1) {
+        dislikedBy.splice(dislikeIndex, 1);
+      }
+
+      // Add user to likedBy array and increment likes
+      likedBy.push(uid);
+      const likes = (movieData?.likes || 0) + 1;
+      
+      // Update the movie document
+      await movieRef.update({
+        likes,
+        likedBy,
+        dislikedBy
+      });
+
+      logVerbose('Movie liked successfully!');
+      return { success: true };
+      
+    } catch (error) {
+      console.error('Error liking movie:', error);
+      handleCatchHttpsError('Error liking movie:', error);
+    }
+  }
+);
+
+export const dislikeMovie = functions.https.onCall(
+  async (request: CallableRequest<MovieLikeRequest>) => {
+    try {
+      const { data, auth } = request;
+      const { uid } = verifyAuth(auth);
+      const { movieId, clubId } = data;
+      
+      verifyRequiredFields(data, ["movieId", "clubId"]);
+
+      // Get reference to the movie document in the club's subcollection
+      const movieRef = getMovieClubDocRef(clubId).collection('movies').doc(movieId);
+      const movieDoc = await movieRef.get();
+      
+      if (!movieDoc.exists) {
+        throw new functions.https.HttpsError('not-found', 'Movie not found in club.');
+      }
+
+      const movieData = movieDoc.data();
+      
+      // Initialize arrays if they don't exist
+      const likedBy = movieData?.likedBy || [];
+      const dislikedBy = movieData?.dislikedBy || [];
+
+      // Remove from likedBy if it exists
+      const likeIndex = likedBy.indexOf(uid);
+      if (likeIndex > -1) {
+        likedBy.splice(likeIndex, 1);
+      }
+
+      // Add user to dislikedBy array and decrement likes if necessary
+      dislikedBy.push(uid);
+      const likes = likeIndex > -1 ? Math.max(0, (movieData?.likes || 1) - 1) : (movieData?.likes || 0);
+      
+      // Update the movie document
+      await movieRef.update({
+        likes,
+        likedBy,
+        dislikedBy
+      });
+
+      logVerbose('Movie disliked successfully!');
+      return { success: true };
+      
+    } catch (error) {
+      console.error('Error disliking movie:', error);
+      handleCatchHttpsError('Error disliking movie:', error);
     }
   }
 );

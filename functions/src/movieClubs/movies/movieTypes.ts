@@ -15,3 +15,8 @@ export interface MovieData {
 export interface CreateMovieData extends MovieData {
   id: string;
 }
+
+export interface MovieLikeRequest {
+  movieId: string;
+  clubId: string;
+}
