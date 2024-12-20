@@ -10,6 +10,9 @@ export interface MovieData {
   collectedBy: string[];
   likedBy: string[];
   dislikedBy: string[];
+  userId: string;
+  userName: string;
+  movieClubId: string;
 }
 
 export interface CreateMovieData extends MovieData {
