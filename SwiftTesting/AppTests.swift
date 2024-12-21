@@ -23,6 +23,13 @@ class BaseTests {
     var mockFunctions: FunctionsService!
     var mockUser: User!
     
+    init() async throws {
+        // Only configure Firebase if it hasn't been configured yet
+        if FirebaseApp.app() == nil {
+            FirebaseApp.configure()
+        }
+    }
+    
     func setUp() async throws {
         let uid = Int.random(in: 1...100)
         mockAuth = TestFirebaseAuth()
