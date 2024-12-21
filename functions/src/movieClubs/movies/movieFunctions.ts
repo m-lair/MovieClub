@@ -73,6 +73,7 @@ exports.rotateMovie = functions.https.onCall(
         startDate: startDate,
         endDate: endDate,
         collectedBy: [],
+        movieClubId: clubId,
         likedBy: [],
         dislikedBy: []
       };
