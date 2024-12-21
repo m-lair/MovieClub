@@ -28,7 +28,8 @@ class BaseTests {
         mockAuth = TestFirebaseAuth()
         mockFirestore = TestFirestore()
         mockFunctions = TestFunctions()
-        mockUser = User(id: "001", email: "test\(uid)@example.com", name: "test-user-\(uid)")
+        mockUser = User(id: "\(uid)", email: "test\(uid)@example.com", name: "test-user-\(uid)")
+        print(mockUser.name)
     }
     
     func tearDown() async throws {
