@@ -88,7 +88,7 @@ struct MovieClubApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                if dataManager.authCurrentUser != nil {
+                if dataManager.authCurrentUser != nil && dataManager.currentUser != nil {
                     ContentView()
                 } else {
                     LoginView()

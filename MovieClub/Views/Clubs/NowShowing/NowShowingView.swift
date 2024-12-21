@@ -1,169 +1,152 @@
-//
-//  NowShowingView.swift
-//  MovieClub
-//
-//  Created by Marcus Lair on 7/20/24.
-//
-
 import SwiftUI
 
 struct NowShowingView: View {
+    // MARK: - Environment & State
     @Environment(DataManager.self) private var data: DataManager
-    @State var error: Error? = nil
-    @State var isLoading: Bool = false
-    @State var errorMessage: String = ""
-    @State var collected: Bool = false
-    @State var liked: Bool = false
-    @State var disliked: Bool = false
+    @FocusState private var isCommentInputFocused: Bool
+    
+    @State private var error: Error? = nil
+    @State private var isLoading = false
+    @State private var collected = false
+    @State private var liked = false
+    @State private var disliked = false
     @State private var isReplying = false
     @State private var replyToComment: Comment? = nil
-    @FocusState private var isCommentInputFocused: Bool
-    @State var movie: Movie? = nil
+    @State private var movie: Movie? = nil
     @State private var scrollToCommentId: String? = nil
-    
-    var progress: Double {
-        let now = Date()
-        if let movie {
-            let totalDuration = DateInterval(start: movie.startDate, end: movie.endDate).duration
-            let elapsedDuration = DateInterval(start: movie.startDate, end: min(now, movie.endDate)).duration
-            return (elapsedDuration / totalDuration)
-        }
-        return 0
-    }
     @State private var width = UIScreen.main.bounds.width
     
+    // MARK: - Computed Properties
+    private var progress: Double {
+        guard let movie else { return 0 }
+        
+        let now = Date()
+        let totalDuration = DateInterval(start: movie.startDate, end: movie.endDate).duration
+        let elapsedDuration = DateInterval(start: movie.startDate, end: min(now, movie.endDate)).duration
+        return elapsedDuration / totalDuration
+    }
+    
+    // MARK: - Body
     var body: some View {
         VStack {
             if let movie {
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        FeaturedMovieView(collected: collected, movie: movie)
-                        HStack {
-                            Label("\(movie.userName)", systemImage: "hand.point.up.left.fill")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .padding()
-                            Spacer()
-                            Button {
-                                guard
-                                    let userId = data.currentUser?.id
-                                else { return }
-                                collected = true
-                                self.movie?.collectedBy.append(userId)
-                                Task {
-                                    await collectPoster()
-                                }
-                                collected = true
-                            } label: {
-                                CollectButton(collected: $collected)
-                            }
-                            
-                            ReviewThumbs(liked: $liked, disliked: $disliked)
-                        }
-                        .padding(.trailing, 20)
-                        
-                        HStack {
-                            Text(movie.startDate, format: .dateTime.day().month())
-                                .font(.title3)
-                                .textCase(.uppercase)
-                            
-                            ProgressView(value: progress)
-                                .progressViewStyle(ClubProgressViewStyle())
-                                .frame(height: 10)
-                            
-                            Text(movie.endDate, format: .dateTime.day().month())
-                                .font(.title3)
-                                .textCase(.uppercase)
-                        }
-                        
-                        CommentsView(onReply: { comment in
-                            replyToComment = comment
-                            isReplying = true
-                            isCommentInputFocused = true
-                        })
-                        
-                        // Add a spacer view at the bottom that we can scroll to
-                        Color.clear
-                            .frame(height: 1)
-                            .id("bottomComment")
-                    }
-                    .scrollDismissesKeyboard(.interactively)
-                    .scrollIndicators(.hidden)
-                    .onChange(of: movie.collectedBy) {
-                        updateCollectState()
-                    }
-                    .onChange(of: scrollToCommentId) {
-                        if let scrollToCommentId {
-                            withAnimation {
-                                proxy.scrollTo("bottomComment", anchor: .bottom)
-                            }
-                        }
-                    }
-                    .onAppear {
-                        updateCollectState()
-                    }
-                }
-                
-                if let movieId = movie.id {
-                    CommentInputView(movieId: movieId, replyToComment: $replyToComment, onCommentPosted: {
-                        scrollToCommentId = UUID().uuidString // Trigger scroll on comment posted
-                    })
-                    .focused($isCommentInputFocused)
-                }
+                movieContent(movie)
             } else {
-                WaveLoadingView()
-                    .refreshable {
-                        Task {
-                            await refreshClub()
-                        }
-                    }
+                loadingView
             }
         }
-        .onAppear() {
-            Task {
-                await refreshClub()
-            }
+        .onAppear {
+            Task { await refreshClub() }
         }
-        .alert("Error", isPresented: .constant(error != nil), actions: {
-            Button("OK") {
-                error = nil
-            }
-        }, message: {
-            if let error = error {
-                Text(error.localizedDescription)
-            }
-        })
+        .alert("Error", isPresented: .constant(error != nil)) {
+            Button("OK") { error = nil }
+        } message: {
+            if let error { Text(error.localizedDescription) }
+        }
     }
     
-    struct ClubProgressViewStyle: ProgressViewStyle {
-        func makeBody(configuration: Configuration) -> some View {
-            ZStack(alignment: .leading) {
-                // Background rectangle (empty bar)
-                Rectangle()
-                    .foregroundColor(Color.gray.opacity(0.5))
-                   
-                
-                // Foreground rectangle (filled bar based on progress)
-                if let fractionCompleted = configuration.fractionCompleted {
-                    Rectangle()
-                        .foregroundColor(.white)
-                        .frame(width: CGFloat(fractionCompleted) * 200) // Scale width based on fractionCompleted
-                        
+    // MARK: - View Components
+    @ViewBuilder
+    private func movieContent(_ movie: Movie) -> some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(spacing: 0) {
+                    FeaturedMovieView(collected: collected, movie: movie)
+                    userInfoHeader(movie)
+                    progressBar
+                    CommentsView(onReply: handleReply)
+                    
+                    Color.clear
+                        .frame(height: 1)
+                        .id("bottomComment")
                 }
             }
-            .padding(.horizontal)
+            .scrollDismissesKeyboard(.interactively)
+            .scrollIndicators(.hidden)
+            .onChange(of: movie.collectedBy) { updateCollectState() }
+            .onChange(of: scrollToCommentId) {
+                if scrollToCommentId != nil {
+                    withAnimation {
+                        proxy.scrollTo("bottomComment", anchor: .bottom)
+                    }
+                }
+            }
+            .onAppear { updateCollectState() }
+        }
+        
+        if let movieId = movie.id {
+            CommentInputView(
+                movieId: movieId,
+                replyToComment: $replyToComment,
+                onCommentPosted: handleCommentPosted
+            )
+            .focused($isCommentInputFocused)
         }
     }
-    func refreshClub() async {
-        isLoading = true
-        defer { isLoading = false }
-        if data.clubId.isEmpty { return }
-        let club = await data.fetchMovieClub(clubId: data.clubId)
-        if let club {
-            data.currentClub = club
-            movie = club.movies.first
-            updateCollectState()
+    
+    private var loadingView: some View {
+        WaveLoadingView()
+            .refreshable {
+                Task { await refreshClub() }
+            }
+    }
+    
+    private func userInfoHeader(_ movie: Movie) -> some View {
+        HStack {
+            Label("\(movie.userName)", systemImage: "hand.point.up.left.fill")
+                .font(.title)
+                .fontWeight(.bold)
+                .padding()
+            
+            Spacer()
+            
+            Button {
+                collected = true
+                Task { await collectPoster() }
+            } label: {
+                CollectButton(collected: $collected)
+            }
+            
+            ReviewThumbs(liked: $liked, disliked: $disliked)
+                .onChange(of: liked) {
+                    if disliked && !liked {
+                        Task { try await likeMovie() }
+                    }
+                }
+                .onChange(of: disliked) {
+                    if !disliked && liked {
+                        Task { try await dislikeMovie() }
+                    }
+                }
         }
+        .padding(.trailing, 20)
+    }
+    
+    private var progressBar: some View {
+        HStack {
+            Text(movie?.startDate ?? Date(), format: .dateTime.day().month())
+                .font(.title3)
+                .textCase(.uppercase)
+            
+            ProgressView(value: progress)
+                .progressViewStyle(ClubProgressViewStyle())
+                .frame(height: 10)
+            
+            Text(movie?.endDate ?? Date(), format: .dateTime.day().month())
+                .font(.title3)
+                .textCase(.uppercase)
+        }
+    }
+    
+    // MARK: - Helper Methods
+    private func handleReply(_ comment: Comment) {
+        replyToComment = comment
+        isReplying = true
+        isCommentInputFocused = true
+    }
+    
+    private func handleCommentPosted() {
+        scrollToCommentId = UUID().uuidString
     }
     
     private func updateCollectState() {
@@ -171,25 +154,87 @@ struct NowShowingView: View {
             let movie,
             let userId = data.currentUser?.id
         else { return }
+        
         collected = movie.collectedBy.contains(userId)
+        liked = movie.likedBy.contains(userId)
+        disliked = movie.dislikedBy.contains(userId)
     }
     
-    func collectPoster() async {
+    private func refreshClub() async {
+        isLoading = true
+        defer { isLoading = false }
+        
+        guard !data.clubId.isEmpty else { return }
+        
+        if let club = await data.fetchMovieClub(clubId: data.clubId) {
+            data.currentClub = club
+            movie = club.movies.first
+            updateCollectState()
+        }
+    }
+    
+    private func collectPoster() async {
         guard
             let movie,
             let movieId = movie.id,
             let clubName = data.currentClub?.name,
-            let clubId = data.currentClub?.id
+            let clubId = data.currentClub?.id,
+            let userId = data.currentUser?.id
         else { return }
         
+        let collectionItem = CollectionItem(
+            id: movieId,
+            imdbId: movie.imdbId,
+            clubId: clubId,
+            clubName: clubName,
+            colorStr: "green"
+        )
         
-        let collectionItem = CollectionItem(id: movieId,  imdbId: movie.imdbId, clubId: clubId, clubName: clubName, colorStr: "green")
         do {
+            movie.collectedBy.append(userId)
             try await data.collectPoster(collectionItem: collectionItem)
         } catch {
             self.error = error
+        }
+    }
+    
+    private func likeMovie() async throws {
+        guard
+            let userId = data.currentUser?.id else { return }
+        do {
+            movie?.likedBy.append(userId)
+            try await data.likeMovie()
+        } catch {
+            self.error = error
+        }
+    }
+    
+    private func dislikeMovie() async throws {
+        guard
+            let userId = data.currentUser?.id else { return }
+        do {
+            movie?.dislikedBy.append(userId)
+            try await data.dislikeMovie()
             
+        } catch {
+            self.error = error
         }
     }
 }
 
+// MARK: - Progress View Style
+struct ClubProgressViewStyle: ProgressViewStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        ZStack(alignment: .leading) {
+            Rectangle()
+                .foregroundColor(Color.gray.opacity(0.5))
+            
+            if let fractionCompleted = configuration.fractionCompleted {
+                Rectangle()
+                    .foregroundColor(.white)
+                    .frame(width: CGFloat(fractionCompleted) * 200)
+            }
+        }
+        .padding(.horizontal)
+    }
+}

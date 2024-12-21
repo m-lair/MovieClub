@@ -81,6 +81,7 @@ export const setMovieFromSuggestion = async (uid: string, clubId: string, sugges
     endDate: endDate,
     collectedBy: [],
     likedBy: [],
+    movieClubId: clubId,
     dislikedBy: []
   };
 
