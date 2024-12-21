@@ -24,7 +24,7 @@ class BaseTests {
     var mockUser: User!
     
     func setUp() async throws {
-        let uid = Int.random(in: 1...10)
+        let uid = Int.random(in: 1...100)
         mockAuth = TestFirebaseAuth()
         mockFirestore = TestFirestore()
         mockFunctions = TestFunctions()
