@@ -1,0 +1,214 @@
+name: iOS Firebase Testing Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  XCODE_VERSION: '/Applications/Xcode_16.app'
+  NODE_VERSION: '20'
+  FIREBASE_PROJECT: 'movieclub-93714'
+  
+jobs:
+  setup-firebase:
+    runs-on: macos-latest
+    outputs:
+      emulator-check: ${{ steps.save-script.outputs.content }}
+    steps:
+      - name: Create emulator check script
+        id: save-script
+        run: |
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "content<<$EOF" >> $GITHUB_OUTPUT
+          echo '
+          check_port() {
+            local port=$1
+            local service=$2
+            local max_attempts=30
+            local attempt=1
+            
+            while ! nc -z localhost $port; do
+              if [ $attempt -ge $max_attempts ]; then
+                echo "::warning::$service emulator failed to start on port $port"
+                exit 1
+              fi
+              echo "Waiting for $service emulator... (attempt $attempt/$max_attempts)"
+              sleep 2
+              attempt=$((attempt + 1))
+            done
+            echo "$service emulator is running on port $port"
+          }
+          
+          # Check for required files and log status
+          echo "Checking configuration files..."
+          [ ! -f "firestore.rules" ] && echo "::warning::firestore.rules not found - emulator will use default permissions"
+          [ ! -f "functions/index.js" ] && echo "::warning::functions/index.js not found - function definitions may be incomplete"
+          [ ! -f "firebase.json" ] && echo "::warning::firebase.json not found - using default configuration"
+          
+          # Start emulators with detailed logging
+          echo "Starting Firebase emulators..."
+          firebase emulators:start --project=${{ env.FIREBASE_PROJECT }} --only auth,database,firestore,functions 2>&1 | tee emulator_startup.log &
+          
+          echo "Waiting for emulators to start..."
+          
+          # Check emulator ports
+          check_port 9099 "Auth"
+          check_port 8080 "Firestore"
+          check_port 5001 "Functions"
+          
+          # Log completion status
+          echo "All emulators are running!"
+          echo "Emulator startup log summary:"
+          grep -E "warning|error|succeeded|running" emulator_startup.log || true
+          ' >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
+  functions-test:
+    runs-on: macos-latest
+    needs: setup-firebase
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          
+      - name: Install Firebase Tools
+        run: npm install -g firebase-tools
+          
+      - name: Install and Build Functions
+        working-directory: ./functions
+        run: |
+          echo "Installing main functions dependencies..."
+          if [ -f "package-lock.json" ]; then
+            npm ci
+          else
+            echo "No package-lock.json found in functions directory, using npm install"
+            npm install
+          fi
+          
+          echo "Installing typescript globally..."
+          npm install -g typescript
+          
+          echo "Running typescript compilation..."
+          tsc
+          
+          echo "Installing lib dependencies..."
+          cd lib
+          if [ -f "package-lock.json" ]; then
+            npm ci
+          else
+            echo "No package-lock.json found in lib directory, using npm install"
+            npm install
+          fi
+          
+          echo "Function setup completed"
+          
+      - name: Setup Service Account
+        run: |
+          mkdir -p /Users/runner/work/MovieClub/MovieClub/functions/src/utilities
+          echo "${{ secrets.SA_KEY }}" | base64 --decode > /Users/runner/work/MovieClub/MovieClub/functions/src/utilities/service-account.json
+          
+      - name: Start Firebase Emulators
+        run: ${{ needs.setup-firebase.outputs.emulator-check }}
+
+      - name: Run Functions Tests
+        working-directory: ./functions
+        run: npm run test
+
+  ios-build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Set up Xcode
+        run: sudo xcode-select -s ${{ env.XCODE_VERSION }}
+        
+      - name: Cache iOS build
+        uses: actions/cache@v3
+        with:
+          path: build
+          key: ${{ runner.os }}-ios-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-ios-build-
+          
+      - name: Setup GoogleService-Info.plist
+        run: echo "${{ secrets.G_SERVICE_64 }}" | base64 --decode > GoogleService-Info.plist
+          
+      - name: Build app for testing
+        run: |
+          set -o pipefail && xcodebuild build-for-testing \
+          -scheme MovieClub \
+          -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" \
+          -derivedDataPath build \
+          CODE_SIGNING_ALLOWED=NO \
+          OTHER_SWIFT_FLAGS="-D DEBUG" \
+          | tee xcodebuild_build.log | xcpretty --simple
+        
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-logs
+          path: xcodebuild_build.log
+
+#  ios-test:
+#    needs: [setup-firebase, ios-build]
+#    runs-on: macos-latest
+#    continue-on-error: true
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#        
+#      - name: Set up Xcode
+#        run: sudo xcode-select -s ${{ env.XCODE_VERSION }}
+#        
+#      - name: Restore iOS build cache
+#        uses: actions/cache@v3
+#        with:
+#          path: build
+#          key: ${{ runner.os }}-ios-build-${{ github.sha }}
+#
+#      - name: Setup Service Account
+#        run: |
+#          mkdir -p /Users/runner/work/MovieClub/MovieClub/functions/src/utilities
+#          echo "${{ secrets.SA_KEY }}" | base64 --decode > /Users/runner/work/MovieClub/MovieClub/functions/src/utilities/service-account.json
+#        
+#      - name: Setup GoogleService-Info.plist
+#        run: echo "${{ secrets.G_SERVICE_64 }}" | base64 --decode > GoogleService-Info.plist
+#
+#      - name: Install Firebase Tools
+#        run: npm install -g firebase-tools
+#        
+#      - name: Start Firebase Emulators
+#        run: ${{ needs.setup-firebase.outputs.emulator-check }}
+#          
+#      - name: Run tests
+#        run: |
+#          set -o pipefail && xcodebuild test \
+#          -project MovieClub.xcodeproj \
+#          -scheme MovieClub \
+#          -sdk iphonesimulator \
+#          -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" \
+#          | tee xcodebuild_test.log | xcpretty --simple --color
+#          
+#      - name: Upload test logs
+#        if: always()
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: test-logs
+#          path: xcodebuild_test.log

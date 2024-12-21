@@ -536,9 +536,8 @@
 			buildPhases = (
 				2C5DEC172BF1AC6C000EF232 /* Sources */,
 				2C5DEC182BF1AC6C000EF232 /* Frameworks */,
-				2CBEB32C2CED6A8E00FB6623 /* Build Service File */,
 				2C5DEC192BF1AC6C000EF232 /* Resources */,
-				2C11FFCC2C9D2984004F54BC /* ShellScript */,
+				2C11FFCC2C9D2984004F54BC /* Run Script */,
 			);
 			buildRules = (
 			);
@@ -622,10 +621,9 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		2C11FFCC2C9D2984004F54BC /* ShellScript */ = {
+		2C11FFCC2C9D2984004F54BC /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 12;
+			buildActionMask = 8;
 			files = (
 			);
 			inputFileListPaths = (
@@ -637,31 +635,14 @@
 				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
 				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
 			);
+			name = "Run Script";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
+			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
 			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
-		};
-		2CBEB32C2CED6A8E00FB6623 /* Build Service File */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 12;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Build Service File";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if [ \"${CI}\" = \"true\" ]; then\n    # Xcode Cloud Build\n    if [ -n \"$FIREBASE_CONFIG\" ]; then\n        echo \"Creating GoogleService-Info.plist from environment variable...\"\n        echo \"$FIREBASE_CONFIG\" | base64 --decode > \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\"\n    else\n        echo \"Error: FIREBASE_CONFIG environment variable not found\"\n        exit 1\n    fi\nelse\n    # Local Build\n    LOCAL_PLIST=\"${SRCROOT}/GoogleService-Info.plist\"\n    if [ -f \"$LOCAL_PLIST\" ]; then\n        echo \"Copying local GoogleService-Info.plist...\"\n        cp \"$LOCAL_PLIST\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\"\n    else\n        echo \"Error: Local GoogleService-Info.plist not found at $LOCAL_PLIST\"\n        exit 1\n    fi\nfi\n\n# Verify file exists in app bundle\nif [ -f \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/GoogleService-Info.plist\" ]; then\n    echo \"Successfully installed GoogleService-Info.plist in app bundle\"\nelse\n    echo \"Error: Failed to install GoogleService-Info.plist in app bundle\"\n    exit 1\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1002,7 +983,7 @@
 				2C1100322CA8C779004F54BC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		2C5DEC162BF1AC6C000EF232 /* Build configuration list for PBXProject "MovieClub" */ = {
 			isa = XCConfigurationList;
@@ -1011,7 +992,7 @@
 				2C5DEC282BF1AC6E000EF232 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		2C5DEC292BF1AC6E000EF232 /* Build configuration list for PBXNativeTarget "MovieClub" */ = {
 			isa = XCConfigurationList;
@@ -1020,7 +1001,7 @@
 				2C5DEC2B2BF1AC6E000EF232 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 
