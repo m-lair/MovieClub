@@ -31,11 +31,12 @@ class BaseTests {
     }
     
     func setUp() async throws {
-        let uid = Int.random(in: 1...10)
+        let uid = Int.random(in: 1...100)
         mockAuth = TestFirebaseAuth()
         mockFirestore = TestFirestore()
         mockFunctions = TestFunctions()
-        mockUser = User(id: "001", email: "test\(uid)@example.com", name: "test-user-\(uid)")
+        mockUser = User(id: "\(uid)", email: "test\(uid)@example.com", name: "test-user-\(uid)")
+        print(mockUser.name)
     }
     
     func tearDown() async throws {

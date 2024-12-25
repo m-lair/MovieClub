@@ -76,7 +76,6 @@ extension DataManager {
                         clubList.append(club)
                     }
                 }
-                print("clubList: \(clubList)")
                 return clubList
             }
             self.userClubs = clubs
@@ -202,6 +201,39 @@ extension DataManager {
                 print("poster collect failed: \(result.message ?? "Unknown error")")
                 throw SuggestionError.custom(message: result.message ?? "Unknown error")
             }
+        } catch {
+            throw error
+        }
+    }
+    
+    func likeMovie() async throws {
+        print("in like movie")
+        if movieId.isEmpty || clubId.isEmpty {return}
+        
+        let parameters: [String: Any] = [
+            "movieId": movieId,
+            "clubId": clubId
+        ]
+        
+        do {
+            print("calling like movie")
+            _ = try await functions.httpsCallable("movies-likeMovie").call(parameters)
+        } catch {
+            throw error
+        }
+    }
+
+
+    func dislikeMovie() async throws {
+        if movieId.isEmpty || clubId.isEmpty {return}
+        
+        let parameters: [String: Any] = [
+            "movieId": movieId,
+            "clubId": clubId
+        ]
+        
+        do {
+            _ = try await functions.httpsCallable("movies-dislikeMovie").call(parameters)
         } catch {
             throw error
         }

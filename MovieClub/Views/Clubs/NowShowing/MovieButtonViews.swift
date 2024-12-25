@@ -28,7 +28,6 @@ struct ReviewThumbs: View {
     var body: some View {
         HStack {
             Button {
-                thumbUpFunction()
                 liked.toggle()
                 if liked {
                     disliked = false
@@ -42,7 +41,6 @@ struct ReviewThumbs: View {
             }
             
             Button {
-                thumbDownFunction()
                 disliked.toggle()
                 if disliked {
                     liked = false
@@ -57,16 +55,4 @@ struct ReviewThumbs: View {
         }
     }
 }
-
-func thumbUpFunction()
-{
-    //check state of dislike
-    //increment the number of likes
-}
-func thumbDownFunction()
-{
-    //check state of like
-    //decrement the number of likes
-}
-
 
