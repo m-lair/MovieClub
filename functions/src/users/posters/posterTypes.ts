@@ -4,6 +4,7 @@ export interface PosterData {
     colorStr: string;
     clubId: string;
     clubName: string;
+    collectedDate: Date;
 }
 
 export interface CollectPosterData extends PosterData {

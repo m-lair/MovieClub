@@ -15,6 +15,7 @@ final class CollectionItem: Identifiable, Codable, Hashable, Equatable {
     var clubId: String
     var clubName: String
     var posterUrl: String
+    var collectedDate: Date?
     
     init(
         id: String? = nil,
@@ -22,13 +23,15 @@ final class CollectionItem: Identifiable, Codable, Hashable, Equatable {
         clubId: String,
         clubName: String,
         colorStr: String,
-        posterUrl: String = ""
+        posterUrl: String = "",
+        collectedDate: Date? = nil
     ) {
         self.id = id
         self.imdbId = imdbId
         self.clubId = clubId
         self.clubName = clubName
         self.posterUrl = posterUrl
+        self.collectedDate = collectedDate
         self.colorStr = colorStr
     }
 
@@ -39,6 +42,7 @@ final class CollectionItem: Identifiable, Codable, Hashable, Equatable {
         case clubId
         case clubName
         case posterUrl
+        case collectedDate
     }
     
     var color: Color {
