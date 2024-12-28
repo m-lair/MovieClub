@@ -17,6 +17,7 @@ final class Movie: Identifiable, Codable, Equatable, Hashable {
     var likedBy: [String] = []
     var dislikedBy: [String] = []
     var collectedBy: [String] = []
+    var movieClubId: String
     
     // Analytics & Social Data
     var likes: Int
@@ -42,6 +43,7 @@ final class Movie: Identifiable, Codable, Equatable, Hashable {
         likedBy: [String] = [],
         dislikedBy: [String] = [],
         collectedBy: [String] = [],
+        movieClubId: String = "",
         apiData: MovieAPIData? = nil
     ) {
         self.id = id
@@ -56,6 +58,7 @@ final class Movie: Identifiable, Codable, Equatable, Hashable {
         self.dislikedBy = dislikedBy
         self.numCollected = numCollected
         self.collectedBy = collectedBy
+        self.movieClubId = movieClubId
         self.numComments = numComments
         self.apiData = apiData
         self.status = status
@@ -77,6 +80,7 @@ final class Movie: Identifiable, Codable, Equatable, Hashable {
         collectedBy = try container.decode([String].self, forKey: .collectedBy)
         numComments = try container.decode(Int.self, forKey: .numComments)
         status = try container.decode(String.self, forKey: .status)
+        movieClubId = try container.decode(String.self, forKey: .movieClubId)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -106,6 +110,7 @@ final class Movie: Identifiable, Codable, Equatable, Hashable {
         case dislikedBy
         case numCollected
         case collectedBy
+        case movieClubId
         case numComments
         case status
     }
