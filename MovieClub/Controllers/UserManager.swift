@@ -106,8 +106,7 @@ extension DataManager {
         do {
             print("username: \(user.name)")
             let updateUser: Callable<User, Bool?> = functions.httpsCallable("users-updateUser")
-            let result = try await updateUser(user)
-            try await fetchUser()
+            _ = try await updateUser(user)
         } catch {
             throw error
         }

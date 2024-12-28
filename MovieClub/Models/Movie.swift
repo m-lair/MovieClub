@@ -80,6 +80,7 @@ final class Movie: Identifiable, Codable, Equatable, Hashable {
         collectedBy = try container.decode([String].self, forKey: .collectedBy)
         numComments = try container.decode(Int.self, forKey: .numComments)
         status = try container.decode(String.self, forKey: .status)
+
         movieClubId = try container.decodeIfPresent(String.self, forKey: .movieClubId) ?? ""
     }
     
