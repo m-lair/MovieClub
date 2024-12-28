@@ -16,7 +16,7 @@ struct ClubDetailsForm: View {
     
     @State private var photoItem: PhotosPickerItem?
     @State private var name = ""
-    @State private var isPublic = false // Default to private
+    @State private var isPublic = true // Default to public
     @State private var selectedOwnerIndex = 0
     @State private var timeInterval: Int = 2
     @State private var screenWidth = UIScreen.main.bounds.size.width

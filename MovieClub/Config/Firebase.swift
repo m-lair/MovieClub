@@ -32,15 +32,11 @@ func configureFirebase() {
 #endif
 }
 
-#if DEBUG
 private func configureEmulators() {
     // Auth emulator
     Auth.auth().useEmulator(withHost: "127.0.0.1", port: 9099)
-    Auth.auth().settings?.isAppVerificationDisabledForTesting = true
-    
     // Cloud Functions emulator
     Functions.functions().useEmulator(withHost: "127.0.0.1", port: 5001)
-    
     // Firestore emulator
     let settings = Firestore.firestore().settings
     settings.host = "127.0.0.1:8080"
@@ -48,7 +44,7 @@ private func configureEmulators() {
     settings.isSSLEnabled = false
     Firestore.firestore().settings = settings
 }
-#endif
+
     
     
 
