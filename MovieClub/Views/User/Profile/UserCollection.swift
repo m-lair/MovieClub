@@ -10,7 +10,12 @@ import FirebaseFirestore
 
 struct UserCollectionView: View {
     @Environment(DataManager.self) private var data: DataManager
-
+    var collection: [CollectionItem] {
+        data.currentCollection.sorted {
+            guard let date1 = $0.collectedDate, let date2 = $1.collectedDate else { return false }
+            return date1 > date2
+        }
+    }
     let flexibleColumns = [
         GridItem(.flexible(minimum: 50, maximum: 200)),
         GridItem(.flexible(minimum: 50, maximum: 200)),
@@ -20,7 +25,7 @@ struct UserCollectionView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: flexibleColumns, spacing: 10) {
-                ForEach(data.currentCollection) { item in
+                ForEach(collection) { item in
                     VStack {
                         if let url = URL(string: item.posterUrl) {
                             AsyncImage(url: url) { phase in

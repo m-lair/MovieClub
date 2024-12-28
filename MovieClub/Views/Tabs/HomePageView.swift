@@ -17,7 +17,7 @@ struct HomePageView: View {
     var userClubs: [MovieClub] {
         data.userClubs.sorted {
             guard let date1 = $0.createdAt, let date2 = $1.createdAt else { return false }
-            return date1 > date2
+            return date1 < date2
         }
     }
     var body: some View {

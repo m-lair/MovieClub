@@ -19,7 +19,7 @@ exports.collectPoster = functions.https.onCall(
         const { uid } = verifyAuth(auth);
         const requiredFields = ["id", "clubId"];
         verifyRequiredFields(data, requiredFields);
-
+        data.collectedDate = new Date();
         const posterRef = getPosterDocRef(uid, data.id);
         await posterRef.set(data);
         

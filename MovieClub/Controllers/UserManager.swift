@@ -159,7 +159,7 @@ extension DataManager {
         let collectionItems = try snapshot.documents.map { document -> CollectionItem in
             try document.data(as: CollectionItem.self)
         }
-        
+        if collectionItems == self.currentCollection { return currentCollection }
         let items = try await withThrowingTaskGroup(of: CollectionItem?.self) { group in
             for item in collectionItems {
                 group.addTask { [self] in
