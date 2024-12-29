@@ -23,3 +23,11 @@ export interface MovieLikeRequest {
   movieId: string;
   clubId: string;
 }
+
+export interface MovieReactionData {
+  likes: number;
+  likedBy: string[];
+  dislikes: number;
+  dislikedBy: string[];
+  
+}

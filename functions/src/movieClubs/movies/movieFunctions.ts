@@ -8,12 +8,13 @@ import {
   verifyRequiredFields,
 } from "helpers";
 import { verifyMembership } from "src/users/memberships/membershipHelpers";
-import { MovieData, MovieLikeRequest } from "./movieTypes";
+import { MovieData, MovieLikeRequest, MovieReactionData } from "./movieTypes";
 import { MovieClubData } from "../movieClubTypes";
 import { SuggestionData } from "../suggestions/suggestionTypes";
 import { getMovieClubDocRef } from "../movieClubHelpers";
 import { getActiveMovieDoc, getMovieRef } from "./movieHelpers";
 import { getNextSuggestionDoc } from "../suggestions/suggestionHelpers";
+import { firebaseAdmin } from "firestore";
 
 
 // Cloud Function to rotate the movie
@@ -97,102 +98,80 @@ exports.rotateMovie = functions.https.onCall(
   }
 );
 
-export const likeMovie = functions.https.onCall(
-  async (request: CallableRequest<MovieLikeRequest>) => {
+export const handleMovieReaction = functions.https.onCall(
+  async (request: CallableRequest<MovieLikeRequest & { isLike: boolean }>) => {
     try {
       const { data, auth } = request;
       const { uid } = verifyAuth(auth);
-      const { movieId, clubId } = data;
+      const { movieId, clubId, isLike } = data;
       
-      verifyRequiredFields(data, ["movieId", "clubId"]);
-
-      // Get reference to the movie document in the club's subcollection
+      verifyRequiredFields(data, ["movieId", "clubId", "isLike"]);
+      
       const movieRef = getMovieClubDocRef(clubId).collection('movies').doc(movieId);
-      const movieDoc = await movieRef.get();
       
-      if (!movieDoc.exists) {
-        throw new functions.https.HttpsError('not-found', 'Movie not found in club.');
-      }
-
-      const movieData = movieDoc.data();
-      
-      // Initialize arrays if they don't exist
-      const likedBy = movieData?.likedBy || [];
-      const dislikedBy = movieData?.dislikedBy || [];
-      
-      // Remove from dislikedBy if it exists
-      const dislikeIndex = dislikedBy.indexOf(uid);
-      if (dislikeIndex > -1) {
-        dislikedBy.splice(dislikeIndex, 1);
-      }
-
-      // Add user to likedBy array and increment likes
-      likedBy.push(uid);
-      const likes = (movieData?.likes || 0) + 1;
-      
-      // Update the movie document
-      await movieRef.update({
-        likes,
-        likedBy,
-        dislikedBy
+      return await firebaseAdmin.firestore().runTransaction(async (transaction) => {
+        const movieDoc = await transaction.get(movieRef);
+        
+        if (!movieDoc.exists) {
+          throw new functions.https.HttpsError('not-found', 'Movie not found in club.');
+        }
+        
+        const movieData = movieDoc.data() as MovieReactionData;
+        const updates: Partial<MovieReactionData> = {};
+        
+        const currentLikedBy = new Set(movieData?.likedBy || []);
+        const currentDislikedBy = new Set(movieData?.dislikedBy || []);
+        
+        if (isLike) {
+          if (currentLikedBy.has(uid)) {
+            // Remove like
+            currentLikedBy.delete(uid);
+            updates.likes = (movieData?.likes || 1) - 1;
+          } else {
+            // Add like
+            currentLikedBy.add(uid);
+            if (currentDislikedBy.has(uid)) {
+              // If was previously disliked, decrement dislikes
+              currentDislikedBy.delete(uid);
+              updates.dislikes = (movieData?.dislikes || 1) - 1;
+            }
+            updates.likes = (movieData?.likes || 0) + 1;
+          }
+        } else {
+          if (currentDislikedBy.has(uid)) {
+            // Remove dislike
+            currentDislikedBy.delete(uid);
+            updates.dislikes = (movieData?.dislikes || 1) - 1;
+          } else {
+            // Add dislike
+            currentDislikedBy.add(uid);
+            if (currentLikedBy.has(uid)) {
+              // If was previously liked, decrement likes
+              currentLikedBy.delete(uid);
+              updates.likes = (movieData?.likes || 1) - 1;
+            }
+            updates.dislikes = (movieData?.dislikes || 0) + 1;
+          }
+        }
+        
+        updates.likedBy = Array.from(currentLikedBy);
+        updates.dislikedBy = Array.from(currentDislikedBy);
+        
+        transaction.update(movieRef, updates);
+        
+        logVerbose(`Movie ${isLike ? 'like' : 'dislike'} operation successful`);
+        return { 
+          success: true,
+          newState: {
+            liked: currentLikedBy.has(uid),
+            disliked: currentDislikedBy.has(uid)
+          }
+        };
       });
-
-      logVerbose('Movie liked successfully!');
-      return { success: true };
       
     } catch (error) {
-      console.error('Error liking movie:', error);
-      handleCatchHttpsError('Error liking movie:', error);
-    }
-  }
-);
-
-export const dislikeMovie = functions.https.onCall(
-  async (request: CallableRequest<MovieLikeRequest>) => {
-    try {
-      const { data, auth } = request;
-      const { uid } = verifyAuth(auth);
-      const { movieId, clubId } = data;
-      
-      verifyRequiredFields(data, ["movieId", "clubId"]);
-
-      // Get reference to the movie document in the club's subcollection
-      const movieRef = getMovieClubDocRef(clubId).collection('movies').doc(movieId);
-      const movieDoc = await movieRef.get();
-      
-      if (!movieDoc.exists) {
-        throw new functions.https.HttpsError('not-found', 'Movie not found in club.');
-      }
-
-      const movieData = movieDoc.data();
-      
-      // Initialize arrays if they don't exist
-      const likedBy = movieData?.likedBy || [];
-      const dislikedBy = movieData?.dislikedBy || [];
-
-      // Remove from likedBy if it exists
-      const likeIndex = likedBy.indexOf(uid);
-      if (likeIndex > -1) {
-        likedBy.splice(likeIndex, 1);
-      }
-
-      // Add user to dislikedBy array and decrement likes if necessary
-      dislikedBy.push(uid);
-      const likes = likeIndex > -1 ? Math.max(0, (movieData?.likes || 1) - 1) : (movieData?.likes || 0);
-      
-      // Update the movie document
-      await movieRef.update({
-        likes,
-        likedBy,
-        dislikedBy
-      });
-
-      logVerbose('Movie disliked successfully!');
-      return { success: true };
-      
-    } catch (error) {
-      console.error('Error disliking movie:', error);
-      handleCatchHttpsError('Error disliking movie:', error);
+      console.error(`Error in movie reaction:`, error);
+      handleCatchHttpsError('Error processing movie reaction:', error);
     }
   }
 );
