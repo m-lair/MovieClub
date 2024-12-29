@@ -108,16 +108,7 @@ struct NowShowingView: View {
             }
             
             ReviewThumbs(liked: $liked, disliked: $disliked)
-                .onChange(of: liked) {
-                    if disliked && !liked {
-                        Task { try await likeMovie() }
-                    }
-                }
-                .onChange(of: disliked) {
-                    if !disliked && liked {
-                        Task { try await dislikeMovie() }
-                    }
-                }
+                
         }
         .padding(.trailing, 20)
     }
@@ -193,29 +184,6 @@ struct NowShowingView: View {
         do {
             movie.collectedBy.append(userId)
             try await data.collectPoster(collectionItem: collectionItem)
-        } catch {
-            self.error = error
-        }
-    }
-    
-    private func likeMovie() async throws {
-        guard
-            let userId = data.currentUser?.id else { return }
-        do {
-            movie?.likedBy.append(userId)
-            try await data.likeMovie()
-        } catch {
-            self.error = error
-        }
-    }
-    
-    private func dislikeMovie() async throws {
-        guard
-            let userId = data.currentUser?.id else { return }
-        do {
-            movie?.dislikedBy.append(userId)
-            try await data.dislikeMovie()
-            
         } catch {
             self.error = error
         }

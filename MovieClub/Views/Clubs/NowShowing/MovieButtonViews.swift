@@ -23,16 +23,27 @@ struct CollectButton: View {
 }
 
 struct ReviewThumbs: View {
+    @Environment(DataManager.self) var data
     @Binding var liked: Bool
     @Binding var disliked: Bool
     var body: some View {
         HStack {
             Button {
+                let wasLiked = liked
                 liked.toggle()
+                
                 if liked {
                     disliked = false
+                    Task {
+                        do {
+                            try await likeMovie()
+                        } catch {
+                            // Revert on failure
+                            liked = wasLiked
+                            print("Failed to like movie: \(error)")
+                        }
+                    }
                 }
-                
             } label: {
                 Image(systemName: "hand.thumbsup.circle.fill")
                     .resizable()
@@ -41,11 +52,21 @@ struct ReviewThumbs: View {
             }
             
             Button {
+                let wasDisliked = disliked
                 disliked.toggle()
+                
                 if disliked {
                     liked = false
+                    Task {
+                        do {
+                            try await dislikeMovie()
+                        } catch {
+                            // Revert on failure
+                            disliked = wasDisliked
+                            print("Failed to dislike movie: \(error)")
+                        }
+                    }
                 }
-                
             } label: {
                 Image(systemName: "hand.thumbsdown.circle.fill")
                     .resizable()
@@ -54,5 +75,14 @@ struct ReviewThumbs: View {
             }
         }
     }
+    
+    func likeMovie() async throws {
+        try await data.handleMovieReaction(isLike: true)
+    }
+
+    func dislikeMovie() async throws {
+        try await data.handleMovieReaction(isLike: false)
+    }
 }
+
 

@@ -282,38 +282,24 @@ extension DataManager {
         }
     }
     
-    func likeMovie() async throws {
-        print("in like movie")
-        if movieId.isEmpty || clubId.isEmpty {return}
+    func handleMovieReaction(isLike: Bool) async throws {
+        if movieId.isEmpty || clubId.isEmpty { return }
         
         let parameters: [String: Any] = [
             "movieId": movieId,
-            "clubId": clubId
+            "clubId": clubId,
+            "isLike": isLike
         ]
         
         do {
-            print("calling like movie")
-            _ = try await functions.httpsCallable("movies-likeMovie").call(parameters)
+            print("calling \(isLike ? "like" : "dislike") movie")
+            _ = try await functions.httpsCallable("movies-handleMovieReaction").call(parameters)
         } catch {
+            print("Failed to \(isLike ? "like" : "dislike") movie: \(error)")
             throw error
         }
     }
 
-
-    func dislikeMovie() async throws {
-        if movieId.isEmpty || clubId.isEmpty {return}
-        
-        let parameters: [String: Any] = [
-            "movieId": movieId,
-            "clubId": clubId
-        ]
-        
-        do {
-            _ = try await functions.httpsCallable("movies-dislikeMovie").call(parameters)
-        } catch {
-            throw error
-        }
-    }
     
     struct CollectionResponse: Codable {
         let success: Bool
