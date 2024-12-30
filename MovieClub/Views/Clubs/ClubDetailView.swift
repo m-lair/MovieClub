@@ -30,13 +30,6 @@ struct ClubDetailView: View {
                 ArchivesView()
                     .tag(3)
             }
-            .refreshable {
-                Task {
-                    if !data.clubId.isEmpty {
-                        try await data.fetchMovies(clubId: data.clubId)
-                    }
-                }
-            }
             .tabViewStyle(.page(indexDisplayMode: .never))
             
         }

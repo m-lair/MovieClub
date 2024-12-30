@@ -111,7 +111,7 @@ extension DataManager {
             }
             
             // If we have a base movie, fetch API data
-            if var baseMovie = baseMovie {
+            if let baseMovie = baseMovie {
                 // Fetch API data for the movie
                 if let apiMovie = try await fetchMovieDetails(for: baseMovie) {
                     baseMovie.apiData = MovieAPIData(from: apiMovie)
