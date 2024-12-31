@@ -90,7 +90,6 @@ struct ClubDetailsForm: View {
             
         do {
             try await data.createMovieClub(movieClub: movieClub)
-            data.userClubs.append(movieClub)
         }catch{
             print("error submitting club \(error)")
         }

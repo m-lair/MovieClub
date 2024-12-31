@@ -34,7 +34,9 @@ extension DataManager {
     func createMovieClub(movieClub: MovieClub) async throws {
         let createClub: Callable<MovieClub, String> = functions.httpsCallable("movieClubs-createMovieClub")
         do {
-            _ = try await createClub(movieClub)
+            let clubId = try await createClub(movieClub)
+            movieClub.id = clubId
+            userClubs.append(movieClub)
         } catch {
             print("unable to create movie club: \(movieClub.name)")
             throw error
@@ -111,7 +113,7 @@ extension DataManager {
             }
             
             // If we have a base movie, fetch API data
-            if var baseMovie = baseMovie {
+            if let baseMovie = baseMovie {
                 // Fetch API data for the movie
                 if let apiMovie = try await fetchMovieDetails(for: baseMovie) {
                     baseMovie.apiData = MovieAPIData(from: apiMovie)

@@ -12,7 +12,7 @@ struct NowShowingView: View {
     @State private var disliked = false
     @State private var isReplying = false
     @State private var replyToComment: Comment? = nil
-    @State private var movie: Movie? = nil
+    private var movie: Movie? { data.currentClub?.movies.first }
     @State private var scrollToCommentId: String? = nil
     @State private var width = UIScreen.main.bounds.width
     
@@ -71,7 +71,6 @@ struct NowShowingView: View {
                     }
                 }
             }
-            .onAppear { updateCollectState() }
         }
         
         if let movieId = movie.id {
@@ -159,7 +158,6 @@ struct NowShowingView: View {
         
         if let club = await data.fetchMovieClub(clubId: data.clubId) {
             data.currentClub = club
-            movie = club.movies.first
             updateCollectState()
         }
     }
@@ -178,7 +176,7 @@ struct NowShowingView: View {
             imdbId: movie.imdbId,
             clubId: clubId,
             clubName: clubName,
-            colorStr: "green"
+            colorStr: ""
         )
         
         do {
