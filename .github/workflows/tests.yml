@@ -14,17 +14,62 @@ env:
   FIREBASE_PROJECT: 'movieclub-93714'
   
 jobs:
-  setup-firebase:
+  test-firebase:
     runs-on: macos-latest
-    outputs:
-      emulator-check: ${{ steps.save-script.outputs.content }}
     steps:
-      - name: Create emulator check script
-        id: save-script
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          
+      - name: Install Firebase Tools
+        run: npm install -g firebase-tools
+          
+      - name: Install and Build Functions
         run: |
-          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "content<<$EOF" >> $GITHUB_OUTPUT
-          echo '
+          echo "Installing main functions dependencies..."
+          cd functions
+
+          if [ -f "package-lock.json" ]; then
+            npm ci
+          else
+            echo "No package-lock.json found in $(pwd) directory, using npm install"
+            npm install
+          fi
+          
+          echo "Installing typescript globally..."
+          npm install -g typescript
+          
+          echo "Running typescript compilation..."
+          tsc
+          
+          echo "Installing lib dependencies..."
+          cd lib
+          if [ -f "package-lock.json" ]; then
+            npm ci
+          else
+            echo "No package-lock.json found in lib directory, using npm install"
+            npm install
+          fi
+
+          echo "creating .env file"
+          cd ..
+          echo "PROJECT_ID=movieclub-93714" > .env
+          
+          echo "Function setup completed"
+          
+      - name: Setup Service Account
+        run: |
+          echo "${{ secrets.SA_KEY }}" | base64 --decode > ${{ github.workspace }}/functions/lib/src/utilities/service-account.json
+          echo "${{ secrets.SA_KEY }}" | base64 --decode > ${{ github.workspace }}/functions/src/utilities/service-account.json
+
+      - name: Setup Firebase Emulators
+        run: |
           check_port() {
             local port=$1
             local service=$2
@@ -45,8 +90,12 @@ jobs:
           
           # Check for required files and log status
           echo "Checking configuration files..."
+
+          cd functions
+          cd lib
+
           [ ! -f "firestore.rules" ] && echo "::warning::firestore.rules not found - emulator will use default permissions"
-          [ ! -f "functions/index.js" ] && echo "::warning::functions/index.js not found - function definitions may be incomplete"
+          [ ! -f "index.js" ] && echo "::warning::index.js not found - function definitions may be incomplete"
           [ ! -f "firebase.json" ] && echo "::warning::firebase.json not found - using default configuration"
           
           # Start emulators with detailed logging
@@ -64,65 +113,11 @@ jobs:
           echo "All emulators are running!"
           echo "Emulator startup log summary:"
           grep -E "warning|error|succeeded|running" emulator_startup.log || true
-          ' >> $GITHUB_OUTPUT
-          echo "$EOF" >> $GITHUB_OUTPUT
-
-  functions-test:
-    runs-on: macos-latest
-    needs: setup-firebase
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
-          
-      - name: Install Firebase Tools
-        run: npm install -g firebase-tools
-          
-      - name: Install and Build Functions
-        working-directory: ./functions
-        run: |
-          echo "Installing main functions dependencies..."
-          if [ -f "package-lock.json" ]; then
-            npm ci
-          else
-            echo "No package-lock.json found in functions directory, using npm install"
-            npm install
-          fi
-          
-          echo "Installing typescript globally..."
-          npm install -g typescript
-          
-          echo "Running typescript compilation..."
-          tsc
-          
-          echo "Installing lib dependencies..."
-          cd lib
-          if [ -f "package-lock.json" ]; then
-            npm ci
-          else
-            echo "No package-lock.json found in lib directory, using npm install"
-            npm install
-          fi
-          
-          echo "Function setup completed"
-          
-      - name: Setup Service Account
-        run: |
-          mkdir -p /Users/runner/work/MovieClub/MovieClub/functions/src/utilities
-          echo "${{ secrets.SA_KEY }}" | base64 --decode > /Users/runner/work/MovieClub/MovieClub/functions/src/utilities/service-account.json
-          
-      - name: Start Firebase Emulators
-        run: ${{ needs.setup-firebase.outputs.emulator-check }}
 
       - name: Run Functions Tests
-        working-directory: ./functions
-        run: npm run test
+        run: |
+          cd functions
+          npm run test
 
   ios-build:
     runs-on: macos-latest
