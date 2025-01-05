@@ -120,13 +120,12 @@ jobs:
       - name: Setup Service Account
         run: |
           echo "${{ secrets.SA_KEY }}" | base64 --decode > ${{ github.workspace }}/functions/lib/src/utilities/service-account.json
-          echo "${{ secrets.SA_KEY }}" | base64 --decode > ${{ github.workspace }}/functions/src/utilities/service-account.json
 
       - name: Start Firebase Emulators
         run: ${{ needs.setup-firebase.outputs.emulator-check }}
 
       - name: Run Functions Tests
-        working-directory: "./functions"
+        working-directory: ./functions
         run: npm run test
 
   ios-build:
