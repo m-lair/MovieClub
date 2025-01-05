@@ -31,9 +31,9 @@ jobs:
         run: npm install -g firebase-tools
           
       - name: Install and Build Functions
+        working-directory: "./functions"
         run: |
           echo "Installing main functions dependencies..."
-          cd functions
 
           if [ -f "package-lock.json" ]; then
             npm ci
@@ -69,6 +69,7 @@ jobs:
           echo "${{ secrets.SA_KEY }}" | base64 --decode > ${{ github.workspace }}/functions/src/utilities/service-account.json
 
       - name: Setup Firebase Emulators
+        working-directory: "./functions/lib"
         run: |
           check_port() {
             local port=$1
@@ -91,9 +92,6 @@ jobs:
           # Check for required files and log status
           echo "Checking configuration files..."
 
-          cd functions
-          cd lib
-
           [ ! -f "firestore.rules" ] && echo "::warning::firestore.rules not found - emulator will use default permissions"
           [ ! -f "index.js" ] && echo "::warning::index.js not found - function definitions may be incomplete"
           [ ! -f "firebase.json" ] && echo "::warning::firebase.json not found - using default configuration"
@@ -115,9 +113,8 @@ jobs:
           grep -E "warning|error|succeeded|running" emulator_startup.log || true
 
       - name: Run Functions Tests
-        run: |
-          cd functions
-          npm run test
+        working-directory: "./functions"
+        run: npm run test
 
   ios-build:
     runs-on: macos-latest
