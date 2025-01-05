@@ -85,7 +85,7 @@ jobs:
         run: npm install -g firebase-tools
           
       - name: Install and Build Functions
-        working-directory: "./functions"
+        working-directory: ./functions
         run: |
           echo "Installing main functions dependencies..."
 
@@ -118,8 +118,7 @@ jobs:
           echo "Function setup completed"
           
       - name: Setup Service Account
-        run: |
-          echo "${{ secrets.SA_KEY }}" | base64 --decode > ${{ github.workspace }}/functions/src/utilities/service-account.json
+        run: echo "${{ secrets.SA_KEY }}" | base64 --decode > ${{ github.workspace }}/functions/src/utilities/service-account.json
 
       - name: Start Firebase Emulators
         run: ${{ needs.setup-firebase.outputs.emulator-check }}
