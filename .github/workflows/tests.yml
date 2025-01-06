@@ -67,7 +67,7 @@ jobs:
           ' >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
 
-  test-firebase:
+  functions-test:
     runs-on: macos-latest
     needs: setup-firebase
     steps:
