@@ -1,7 +1,24 @@
 const { logError, logVerbose } = require("helpers");
 const { firestore, firebaseAdmin } = require("firestore");
 
-async function populateMovieData(params = {}) {
+export interface MovieMock {
+  id: string;
+  title: string;
+  director: string;
+  plot: string;
+  author: string;
+  authorId: string;
+  authorAvi: string;
+  likes: number;
+  likedBy: string[];
+  created: string;
+  endDate: string;
+  movieClubId?: string;
+}
+
+type MovieClubMockParams = Partial<MovieMock>;
+
+export async function populateMovieData(params: MovieClubMockParams = {}) {
   logVerbose("Populating movie data...");
   const MoviceClubId = params.movieClubId || "test-club";
   const movieId = params.id || "test-movie";
@@ -13,6 +30,8 @@ async function populateMovieData(params = {}) {
     author: params.author || "Test user",
     authorId: params.authorId || "test-user",
     authorAvi: params.authorAvi || "Test Image",
+    likes: params.likes || 0,
+    likedBy: params.likedBy || [],
     created: firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
     endDate: firebaseAdmin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
   };
@@ -27,5 +46,3 @@ async function populateMovieData(params = {}) {
 
   return movieData;
 }
-
-module.exports = { populateMovieData };
