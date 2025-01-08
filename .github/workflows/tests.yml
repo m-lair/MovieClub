@@ -88,10 +88,11 @@ jobs:
         working-directory: ./functions
         run: |
           echo "Installing main functions dependencies..."
+
           if [ -f "package-lock.json" ]; then
             npm ci
           else
-            echo "No package-lock.json found in functions directory, using npm install"
+            echo "No package-lock.json found in $(pwd) directory, using npm install"
             npm install
           fi
           
@@ -109,14 +110,16 @@ jobs:
             echo "No package-lock.json found in lib directory, using npm install"
             npm install
           fi
+
+          echo "creating .env file"
+          cd ..
+          echo "PROJECT_ID=movieclub-93714" > .env
           
           echo "Function setup completed"
           
       - name: Setup Service Account
-        run: |
-          mkdir -p /Users/runner/work/MovieClub/MovieClub/functions/src/utilities
-          echo "${{ secrets.SA_KEY }}" | base64 --decode > /Users/runner/work/MovieClub/MovieClub/functions/src/utilities/service-account.json
-          
+        run: echo "${{ secrets.SA_KEY }}" | base64 --decode > ${{ github.workspace }}/functions/src/utilities/service-account.json
+
       - name: Start Firebase Emulators
         run: ${{ needs.setup-firebase.outputs.emulator-check }}
 
