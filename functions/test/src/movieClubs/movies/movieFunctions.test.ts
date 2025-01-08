@@ -65,7 +65,7 @@ describe("Movie Functions", () => {
       assert.equal(updatedMovieDoc?.likes, 1)
     })
 
-    it.only("adds the user's name to likedBy", async () => {
+    it("adds the user's name to likedBy", async () => {
       const movieDocSnap = await getMovieDocRef(movie.id, movieClub.id).get()
       const movieDoc = movieDocSnap.data();
 
