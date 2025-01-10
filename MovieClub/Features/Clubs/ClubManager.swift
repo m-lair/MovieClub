@@ -115,8 +115,8 @@ extension DataManager {
             // If we have a base movie, fetch API data
             if let baseMovie = baseMovie {
                 // Fetch API data for the movie
-                if let apiMovie = try await fetchMovieDetails(for: baseMovie) {
-                    baseMovie.apiData = MovieAPIData(from: apiMovie)
+                if let apiMovie = try await tmdb.fetchMovieDetails(baseMovie.imdbId) {
+                    baseMovie.apiData = apiMovie
                 }
                 movieClub.movieEndDate = baseMovie.endDate
                 movieClub.movies = [baseMovie]

@@ -126,7 +126,7 @@ final class Movie: Identifiable, Codable, Equatable, Hashable {
 }
 
 // Unified struct for decoding and processing TMDB data
-struct MovieAPIData: Codable, Equatable, Hashable {
+struct MovieAPIData: Codable, Equatable, Hashable, Identifiable {
     let imdbId: String
     let title: String
     let plot: String
@@ -135,6 +135,35 @@ struct MovieAPIData: Codable, Equatable, Hashable {
     let runtime: Int
     let director: String
     let cast: [String]
+    
+    var id: String { imdbId }
+    var backdropHorizontal: String?
+    var backdropVertical: String?
+
+
+    init(
+        imdbId: String,
+        title: String,
+        plot: String,
+        poster: String,
+        releaseYear: Int,
+        runtime: Int,
+        director: String,
+        cast: [String],
+        backdropHorizontal: String? = nil,
+        backdropVertical: String? = nil
+    ) {
+        self.imdbId = imdbId
+        self.title = title
+        self.plot = plot
+        self.poster = poster
+        self.releaseYear = releaseYear
+        self.runtime = runtime
+        self.director = director
+        self.cast = cast
+        self.backdropHorizontal = backdropHorizontal
+        self.backdropVertical = backdropVertical
+    }
 
     enum CodingKeys: String, CodingKey {
         case imdbId = "imdbID"
