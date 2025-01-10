@@ -31,7 +31,7 @@ extension DataManager {
             .getDocuments()
         
         for document in moviesSnapshot.documents {
-            var baseMovie = try document.data(as: Movie.self)
+            let baseMovie = try document.data(as: Movie.self)
             baseMovie.id = document.documentID
             
             // Fetch and attach API data to the movie
@@ -56,6 +56,7 @@ extension DataManager {
         }
     }
     
+    // MARK: - Query for Movies
     func fetchTMDBMovies(query: String) async throws -> [MovieAPIData] {
         guard !query.isEmpty else { return [] }
 
