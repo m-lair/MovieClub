@@ -47,9 +47,29 @@ class APIController {
         
         let data = try await fetchData(from: url)
         
+        // We'll decode into a small wrapper for "results" array of TMDBFindMovie
+        struct SearchResponse: Codable {
+            let results: [TMDBFindMovie]
+        }
+        
         do {
-            let response = try JSONDecoder().decode(ApiResponse<MovieAPIData>.self, from: data)
-            return response.results
+            let response = try JSONDecoder().decode(SearchResponse.self, from: data)
+            
+            // Now map each TMDBFindMovie to your existing MovieAPIData
+            return response.results.map { tmdb in
+                let posterURL = "https://image.tmdb.org/t/p/w500\(tmdb.posterPath ?? "")"
+                let releaseYear = parseYear(from: tmdb.releaseDate)
+                return MovieAPIData(
+                    imdbId: String(tmdb.id),     // TMDB numeric ID
+                    title: tmdb.title,
+                    plot: tmdb.overview,
+                    poster: posterURL,
+                    releaseYear: releaseYear,
+                    runtime: 0,
+                    director: "Unknown",
+                    cast: []
+                )
+            }
         } catch {
             throw APIError.decodingFailed(error)
         }
