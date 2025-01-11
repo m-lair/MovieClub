@@ -13,67 +13,158 @@ struct CreateSuggestionView: View {
     
     @State var search: String = ""
     @FocusState var isSearching: Bool
-    @State var searchResults: [MovieSearchResult] = []
+    @State var searchResults: [MovieAPIData] = []
     
     @State var errorMessage: String = ""
     @State var errorShowing: Bool = false
     
     var body: some View {
         NavigationStack {
-            VStack {
-                Text("Create Suggestion")
-                    .font(.title)
-                    .padding()
-                
-                TextField("Search for a movie", text: $search)
-                    .padding()
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .focused($isSearching)
-                    .onChange(of: search) {
-                        Task {
-                            try await searchMovies()
-                        }
-                    }
-                
-                List(searchResults, id: \.id) { movie in
-                    Button{
-                        Task {
-                            try await submitSuggestion(imdbId: movie.id)
-                        }
-                    } label: {
-                        VStack(alignment: .leading) {
-                            Text(movie.title)
-                                .font(.headline)
-                            Text(movie.year)
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
+            content
+                .alert(errorMessage, isPresented: $errorShowing) {
+                    Button("OK", role: .cancel) {}
+                }
+                .toolbar {
+                    // For a "Cancel" or "Close" button, if desired
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button("Cancel") { dismiss() }
                     }
                 }
-                Spacer()
-            }
-            .alert(errorMessage, isPresented: $errorShowing) {
-                Button("OK", role: .cancel) { }
-            }
+        }
+    }
+}
+
+// MARK: - Extracted Subviews/Properties
+extension CreateSuggestionView {
+    
+    /// The entire "body" contents, broken out for clarity
+    @ViewBuilder
+    private var content: some View {
+        ZStack {
+            backgroundGradient
+            mainVStack
         }
     }
     
+    /// The background gradient
+    private var backgroundGradient: some View {
+        LinearGradient(
+            gradient: Gradient(colors: [.gray.opacity(0.2), .red.opacity(0.3)]),
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+    }
+    
+    /// The primary VStack with title, search field, and list
+    @ViewBuilder
+    private var mainVStack: some View {
+        VStack {
+            Text("Create Suggestion")
+                .font(.largeTitle)
+                .fontWeight(.semibold)
+                .padding(.top, 16)
+            
+            searchTextField
+            
+            if !searchResults.isEmpty {
+                resultsList
+            } else {
+                Spacer()
+                Text("Type above to search for a movie...")
+                    .foregroundColor(.secondary)
+                Spacer()
+            }
+        }
+        .padding(.bottom, 16)
+    }
+    
+    /// The search field
+    private var searchTextField: some View {
+        TextField("Search for a movie", text: $search)
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(lineWidth: 3)
+            )
+            .padding(.horizontal)
+            .focused($isSearching)
+            .onChange(of: search) {
+                Task {
+                    try await searchMovies()
+                }
+            }
+    }
+    
+    /// The list of search results
+    private var resultsList: some View {
+        List(searchResults, id: \.id) { movie in
+            Button {
+                Task {
+                    try await submitSuggestion(imdbId: movie.id)
+                }
+            } label: {
+                HStack(alignment: .top, spacing: 16) {
+                    // Poster thumbnail
+                    AsyncImage(url: URL(string: movie.poster)) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 60, height: 90)
+                                .cornerRadius(6)
+                        default:
+                            Color.gray
+                                .frame(width: 60, height: 90)
+                                .cornerRadius(6)
+                        }
+                    }
+                    
+                    // Info
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(movie.title)
+                            .font(.headline)
+                        
+                        Text("\(movie.releaseYear)")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        // Optional short snippet of plot
+                        if !movie.plot.isEmpty {
+                            Text(movie.plot)
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                                .lineLimit(2)
+                                .truncationMode(.tail)
+                        }
+                    }
+                }
+            }
+        }
+        .scrollContentBackground(.hidden)
+        .listStyle(.insetGrouped)
+    }
+}
+
+// MARK: - Networking/Logic
+extension CreateSuggestionView {
     func searchMovies() async throws {
         guard !search.isEmpty else {
             searchResults = []
             return
         }
         
-        // Debounce search
-        try? await Task.sleep(nanoseconds: 500_000) // 0.05 seconds
+        // Optional "debounce"
+        try? await Task.sleep(nanoseconds: 300_000_000)
         
-        // Check if search text hasn't changed
-        guard search == search else { return }
+        guard !search.isEmpty else { return }
         
         do {
-            searchResults = try await data.searchMovies(query: search)
+            searchResults = try await data.fetchTMDBMovies(query: search)
         } catch {
-            // do nothing
+            errorMessage = "Something went wrong: \(error.localizedDescription)"
+            errorShowing = true
         }
     }
     
@@ -83,25 +174,20 @@ struct CreateSuggestionView: View {
             let username = data.currentUser?.name,
             let userId = data.currentUser?.id
         else {
-            errorMessage = "invalid user data"
+            errorMessage = "Invalid user data"
             errorShowing = true
             return
         }
-        let newSuggestion = Suggestion(imdbId: imdbId, userId: userId, userImage: "image", userName: username, clubId: clubId)
         
-        if data.movieId.isEmpty && data.suggestions.isEmpty {
-            let startDate = Date()
-            guard
-                let timeinterval = data.currentClub?.timeInterval,
-                let endDate = Calendar.current.date(byAdding: .weekOfYear, value: timeinterval, to: startDate)
-            else {
-                errorMessage = "something went wrong"
-                errorShowing = true
-                return
-            }
-        }
-        let result = try await data.createSuggestion(suggestion: newSuggestion)
+        let newSuggestion = Suggestion(
+            imdbId: imdbId,
+            userId: userId,
+            userImage: "image",
+            userName: username,
+            clubId: clubId
+        )
+        
+        let _ = try await data.createSuggestion(suggestion: newSuggestion)
         dismiss()
     }
 }
-
