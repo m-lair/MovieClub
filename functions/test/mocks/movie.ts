@@ -11,6 +11,8 @@ export interface MovieMock {
   authorAvi: string;
   likes: number;
   likedBy: string[];
+  dislikes: number;
+  dislikedBy: string[];
   created: string;
   endDate: string;
   movieClubId?: string;
@@ -32,6 +34,8 @@ export async function populateMovieData(params: MovieClubMockParams = {}) {
     authorAvi: params.authorAvi || "Test Image",
     likes: params.likes || 0,
     likedBy: params.likedBy || [],
+    dislikes: params.dislikes || 0,
+    dislikedBy: params.dislikedBy || [],
     created: firebaseAdmin.firestore.Timestamp.fromDate(new Date()),
     endDate: firebaseAdmin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
   };
