@@ -210,5 +210,25 @@ exports.likeMovie = functions.https.onCall(
 exports.dislikeMovie = functions.https.onCall(
   async (request: CallableRequest<LikeMovieData>) => {
 
+    try {
+      const { data, auth } = request;
+      const { uid } = verifyAuth(auth);
+
+      const requiredFields = ["movieClubId", "movieId", "name"];
+      verifyRequiredFields(data, requiredFields);
+
+      await verifyMembership(uid, data.movieClubId);
+
+      const movieDocRef = getMovieDocRef(data.movieId, data.movieClubId)
+
+      await movieDocRef.update({
+        dislikedBy: firebaseAdmin.firestore.FieldValue.arrayUnion(data.name),
+        dislikes: firebaseAdmin.firestore.FieldValue.increment(1),
+      });
+
+      return { success: true };
+    } catch (error) {
+      handleCatchHttpsError('Error liking comment:', error);
+    }
   }
 )

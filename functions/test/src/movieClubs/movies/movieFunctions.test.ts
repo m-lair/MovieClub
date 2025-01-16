@@ -20,32 +20,36 @@ describe("Movie Functions", () => {
   const likeWrapped = firebaseTest.wrap(likeMovie);
   const dislikeWrapped = firebaseTest.wrap(likeMovie);
 
+  let auth: AuthData;
+  let movieClub: UpdateMovieClubData;
+  let movie: MovieMock;
+  let user: UpdateUserData;
+ 
+
+  beforeEach(async () => {
+    const userMock = await populateUserData();
+    user = userMock.user;
+    auth = userMock.auth;
+
+    movieClub = await populateMovieClubData({
+      id: "1",
+      ownerId: user.id,
+      ownerName: user.name,
+    });
+
+    movie = await populateMovieData({ id: "1", movieClubId: movieClub.id });
+
+    await populateMembershipData({
+      userId: user.id,
+      movieClubId: movieClub.id,
+    });
+  });
+
   describe("likeMovie", () => {
 
-    let auth: AuthData;
-    let movieClub: UpdateMovieClubData;
-    let movie: MovieMock;
-    let user: UpdateUserData;
     let likeMovieData: LikeMovieData;
-
+    
     beforeEach(async () => {
-      const userMock = await populateUserData();
-      user = userMock.user;
-      auth = userMock.auth;
-
-      movieClub = await populateMovieClubData({
-        id: "1",
-        ownerId: user.id,
-        ownerName: user.name,
-      });
-
-      movie = await populateMovieData({ id: "1", movieClubId: movieClub.id });
-
-      await populateMembershipData({
-        userId: user.id,
-        movieClubId: movieClub.id,
-      });
-
       likeMovieData = {
         movieClubId: movieClub.id,
         movieId: movie.id,
@@ -101,7 +105,45 @@ describe("Movie Functions", () => {
   })
 
   describe("dislikeMovie", () => {
+    const dislikeWrapped = firebaseTest.wrap(dislikeMovie);
 
+    let dislikeMovieData: LikeMovieData;
+
+    beforeEach(async () => {
+      dislikeMovieData = {
+        movieClubId: movieClub.id,
+        movieId: movie.id,
+        name: user.name
+      }
+    })
+
+    it.only("increments dislikes by 1", async () => {
+      const movieDocSnap = await getMovieDocRef(movie.id, movieClub.id).get();
+      const movieDoc = movieDocSnap.data();
+      console.log(movieDoc)
+      assert.equal(movieDoc?.dislikes, 0)
+
+      await dislikeWrapped({ data: dislikeMovieData, auth: auth });
+
+      const updatedMovieDocSnap = await getMovieDocRef(movie.id, movieClub.id).get()
+      const updatedMovieDoc = updatedMovieDocSnap.data();
+
+      assert.equal(updatedMovieDoc?.dislikes, 1)
+    })
+
+    it("adds the user's name to dislikedBy", async () => {
+      const movieDocSnap = await getMovieDocRef(movie.id, movieClub.id).get()
+      const movieDoc = movieDocSnap.data();
+
+      assert.deepEqual(movieDoc?.dislikedBy, [])
+
+      await dislikeWrapped({ data: dislikeMovieData, auth: auth });
+
+      const updatedMovieDocSnap = await getMovieDocRef(movie.id, movieClub.id).get()
+      const updatedMovieDoc = updatedMovieDocSnap.data();
+
+      assert.deepEqual(updatedMovieDoc?.dislikedBy, [user.name])
+    })
   })
  }
 )
