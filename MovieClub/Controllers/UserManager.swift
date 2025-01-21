@@ -168,7 +168,7 @@ extension DataManager {
                                 .collection("movieclubs")
                                 .document(item.clubId)
                                 .collection("movies")
-                                .document(item.id ?? "")
+                                .document(item.movieId ?? "")
                                 .getDocument()
                             
                             guard let movieData = movieDoc.data(),
@@ -296,11 +296,5 @@ extension DataManager {
             print("Failed to \(isLike ? "like" : "dislike") movie: \(error)")
             throw error
         }
-    }
-
-    
-    struct CollectionResponse: Codable {
-        let success: Bool
-        let message: String?
     }
 }

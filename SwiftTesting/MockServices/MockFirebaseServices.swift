@@ -61,7 +61,7 @@ protocol FunctionsService {
     func rotateMovie(movieId: String) async throws
     
     // MARK: - Posters
-    func collectPoster(movieId: String, posterUrl: String, clubId: String, id: String) async throws
+    func collectPoster(poster: CollectionItem) async throws
 }
 
 
@@ -275,10 +275,10 @@ actor TestFunctions: FunctionsService {
     }
     
     // MARK: - Posters
-    func collectPoster(movieId: String, posterUrl: String, clubId: String, id: String) async throws {
-        _ = try await functions
-            .httpsCallable("posters-collectPoster")
-            .call(["movieId": movieId, "posterUrl": posterUrl, "clubId": clubId, "id": id])
+    func collectPoster(poster: CollectionItem) async throws {
+        let collectPoster: Callable<CollectionItem, CollectionResponse> = functions.httpsCallable("posters-collectPoster")
+        let result = try await collectPoster.call(poster)
+        
     }
 }
 

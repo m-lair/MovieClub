@@ -172,7 +172,7 @@ struct NowShowingView: View {
         else { return }
         
         let collectionItem = CollectionItem(
-            id: movieId,
+            movieId: movieId,
             imdbId: movie.imdbId,
             clubId: clubId,
             clubName: clubName,
