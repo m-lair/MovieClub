@@ -24,7 +24,7 @@ class UserTests: BaseTests {
         try await super.setUp()
         let uid = UUID().uuidString
         let user = User(email: "test\(uid)@example.com", name: "createUserWithEmail\(uid)")
-        let userId = try await mockFunctions.createUserWithEmail(email: mockUser.email, password: "123456", name: mockUser.name)
+        let userId = try await mockFunctions.createUserWithEmail(email: user.email, password: "123456", name: user.name)
         #expect(!userId.isEmpty)
         
         let exists = try await mockFirestore.documentExists(path: userId, in: "users")
