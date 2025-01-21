@@ -21,8 +21,16 @@ exports.collectPoster = functions.https.onCall(
         verifyRequiredFields(data, requiredFields);
         data.collectedDate = new Date();
         const posterRef = getPosterDocRef(uid, data.movieId);
-        await posterRef.set(data);
+      
+        const posterDoc = await posterRef.get();
+        if (posterDoc.exists) {
+          throw new functions.https.HttpsError(
+          "already-exists",
+          "Poster has already been collected."
+          );
+        }
         
+        await posterRef.set(data);
         logVerbose("Poster collected successfully!");
 
         // update movie stats

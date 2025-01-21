@@ -19,6 +19,7 @@ import class MovieClub.User
 @Suite("User Tests")
 class UserTests: BaseTests {
     
+    
     @Test("Create user with email successfully")
     func testCreateUserWithEmail_Success() async throws {
         try await super.setUp()

@@ -25,8 +25,17 @@ class PostersTests: BaseTests {
         try await super.setUp()
         let userId = try await super.createTestUserAuth()
         
+        let item = CollectionItem(
+            movieId: "test-movie",
+            imdbId: "tt8765432",
+            clubId: "anotherClubId",
+            clubName: "Another Club",
+            colorStr: "red",
+            posterUrl: "poster-url"
+        )
+        
         // 3) Call DataManager method to store it (whatever you actually have)
-        try await mockFunctions.collectPoster(movieId: "test-movie", posterUrl: "poster-url", clubId: "test-club", id: "test-id")
+        try await mockFunctions.collectPoster(poster: item)
         let docExists = try await mockFirestore.documentExists(path: "test-movie", in: "users/\(userId)/posters")
         #expect(docExists)
         #expect(true)
@@ -36,21 +45,23 @@ class PostersTests: BaseTests {
     @Test("Fail to add a duplicate poster")
     func testAddPoster_Fail() async throws {
         try await super.setUp()
+        let userId = try await super.createTestUserAuth()
         
-        let userId = mockUser.id ?? ""
+        // define the item (poster)
         let item = CollectionItem(
+            movieId: "test-movie",
             imdbId: "tt8765432",
             clubId: "anotherClubId",
             clubName: "Another Club",
-            colorStr: "red"
+            colorStr: "red",
+            posterUrl: "poster-url"
         )
+        // add poster once
+        try await mockFunctions.collectPoster(poster: item)
         
-        // Add it once
-        
-        
-        // Add it again -> expect an error or some duplicate handling
+        // attempt to add same poster again
         await #expect(throws: Error.self) {
-            try await mockFunctions.collectPoster(movieId: "test-poster", posterUrl: "url", clubId: item.clubId, id: userId)
+            try await mockFunctions.collectPoster(poster: item)
         }
         
         try await super.tearDown()
