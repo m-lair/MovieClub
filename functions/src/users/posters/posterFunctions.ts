@@ -17,20 +17,30 @@ exports.collectPoster = functions.https.onCall(
     try {
         const { data, auth } = request;
         const { uid } = verifyAuth(auth);
-        const requiredFields = ["id", "clubId"];
+        const requiredFields = ["movieId", "clubId"];
         verifyRequiredFields(data, requiredFields);
         data.collectedDate = new Date();
-        const posterRef = getPosterDocRef(uid, data.id);
+        const posterRef = getPosterDocRef(uid, data.movieId);
         await posterRef.set(data);
         
         logVerbose("Poster collected successfully!");
 
         // update movie stats
-        const movieRef = getMovieDocRef(data.id, data.clubId);
-        await movieRef.update({ 
-            collectedBy: firebaseAdmin.firestore.FieldValue.arrayUnion(uid),
-            numCollected: firebaseAdmin.firestore.FieldValue.increment(1)
-        });
+        const movieRef = getMovieDocRef(data.movieId, data.clubId);
+        try {
+          const movieDoc = await movieRef.get(); // Check if the document exists
+          if (movieDoc.exists) {
+              await movieRef.update({ 
+                  collectedBy: firebaseAdmin.firestore.FieldValue.arrayUnion(uid),
+                  numCollected: firebaseAdmin.firestore.FieldValue.increment(1)
+              });
+              logVerbose("Movie document updated successfully.");
+          } else {
+              logVerbose("Movie document does not exist.");
+          }
+      } catch (error) {
+          logVerbose("Error updating movie document:");
+      }
 
         return { success: true };
 

@@ -22,9 +22,11 @@ class UserTests: BaseTests {
     @Test("Create user with email successfully")
     func testCreateUserWithEmail_Success() async throws {
         try await super.setUp()
+        let uid = UUID().uuidString
+        let user = User(email: "test\(uid)@example.com", name: "createUserWithEmail\(uid)")
         let userId = try await mockFunctions.createUserWithEmail(email: mockUser.email, password: "123456", name: mockUser.name)
-        
         #expect(!userId.isEmpty)
+        
         let exists = try await mockFirestore.documentExists(path: userId, in: "users")
         #expect(exists)
         try await super.tearDown()
@@ -42,15 +44,20 @@ class UserTests: BaseTests {
     @Test("Delete user successfully")
     func testDeleteUser_Success() async throws {
         try await super.setUp()
-        // Make user
-        let uid = try await mockFunctions.createUserWithEmail(email: mockUser.email, password: "123456", name: mockUser.name)
-        let result = try await mockAuth.signIn(withEmail: mockUser.email, password: "123456")
-        // Then delete them
-        try #require(uid != nil && result.uid == uid)
-        try await mockFunctions.deleteUser(uid)
         
-        let exists = try await mockFirestore.documentExists(path: uid, in: "users")
+        // Create User
+        let uid = UUID().uuidString
+        let userId = try await mockFunctions.createUserWithEmail(email: mockUser.email, password: "123456", name: mockUser.name)
+        let user = try await mockAuth.signIn(withEmail: mockUser.email, password: "123456")
+        mockAuth.currentUser = user
+        
+        // Delete Them
+        try await mockFunctions.deleteUser(userId)
+        let exists = try await mockFirestore.documentExists(path: userId, in: "users")
+       
+        let document = try await mockFirestore.document(userId, in: "users")
         #expect(exists)
+        #expect(document?["name"] as! String == "[deleted user]")
         try await super.tearDown()
     }
     

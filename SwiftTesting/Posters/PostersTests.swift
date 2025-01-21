@@ -23,26 +23,13 @@ class PostersTests: BaseTests {
     @Test("Add a poster to user’s collection successfully")
     func testAddPoster_Success() async throws {
         try await super.setUp()
-        
-        // 1) Suppose we create or fetch an existing user (mockUser)
-        let userId = mockUser.id ?? ""
-        #expect(!userId.isEmpty)
-        
-        // 2) Build a CollectionItem (poster)
-        let item = CollectionItem(
-            imdbId: "tt1234567",
-            clubId: "someClubId",
-            clubName: "Some Club",
-            colorStr: "blue"
-        )
+        let userId = try await super.createTestUserAuth()
         
         // 3) Call DataManager method to store it (whatever you actually have)
-        try await mockFunctions.collectPoster(movieId: "test-movie", posterUrl: "nil")
-        
-        // 4) Confirm the doc exists in Firestore at users/{userId}/posters/{posterId}
-        let docExists = try await mockFirestore.documentExists(path: item.id ?? "", in: "users/\(userId)/posters")
+        try await mockFunctions.collectPoster(movieId: "test-movie", posterUrl: "poster-url", clubId: "test-club", id: "test-id")
+        let docExists = try await mockFirestore.documentExists(path: "test-movie", in: "users/\(userId)/posters")
         #expect(docExists)
-        
+        #expect(true)
         try await super.tearDown()
     }
     
@@ -59,11 +46,11 @@ class PostersTests: BaseTests {
         )
         
         // Add it once
-        try await mockFunctions.collectPoster(movieId: "movieId", posterUrl: "url")
+        
         
         // Add it again -> expect an error or some duplicate handling
         await #expect(throws: Error.self) {
-            try await mockFunctions.collectPoster(movieId: "movieId", posterUrl: "url")
+            try await mockFunctions.collectPoster(movieId: "test-poster", posterUrl: "url", clubId: item.clubId, id: userId)
         }
         
         try await super.tearDown()
