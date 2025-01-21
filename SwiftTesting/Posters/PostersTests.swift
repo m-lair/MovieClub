@@ -5,14 +5,6 @@
 //  Created by Marcus Lair on 1/11/25.
 //
 
-
-//
-//  Posters.test.swift
-//  MovieClubTests
-//
-//  Created by Marcus Lair on 1/12/25.
-//
-
 import Testing
 import class MovieClub.DataManager
 @testable import MovieClub
