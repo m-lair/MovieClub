@@ -185,7 +185,7 @@ extension DataManager {
                     
                     async let posterUrlTask: String? = {
                         do {
-                            return try await fetchPosterUrl(imdbId: item.imdbId)
+                            return try await tmdb.fetchPosterUrl(imdbId: item.imdbId)
                         } catch {
                             print("Error fetching poster URL: \(error)")
                             return nil
@@ -246,24 +246,7 @@ extension DataManager {
             return "green"
         }
     }
-    
-    func fetchPosterUrl(imdbId: String) async throws -> String {
-        let urlString = "https://www.omdbapi.com/?i=\(imdbId)&apikey=\(omdbKey)"
-        
-        guard let url = URL(string: urlString) else {
-            throw URLError(.badURL)
-        }
-        
-        let (data, _) = try await URLSession.shared.data(from: url)
-        
-        struct APIResponse: Decodable {
-            let Poster: String?
-        }
-        
-        let apiResponse = try JSONDecoder().decode(APIResponse.self, from: data)
-        return apiResponse.Poster ?? ""
-    }
-    
+
     func collectPoster(collectionItem: CollectionItem) async throws {
         let collectPoster: Callable<CollectionItem, CollectionResponse> = functions.httpsCallable("posters-collectPoster")
         

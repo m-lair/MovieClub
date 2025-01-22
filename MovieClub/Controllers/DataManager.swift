@@ -24,9 +24,6 @@ class DataManager: Identifiable {
     var authCurrentUser: FirebaseAuth.User? = nil
     var authState: AuthStateDidChangeListenerHandle?
     
-    // MARK: - API Key
-    var omdbKey: String
-    
     var comments: [CommentNode] = []
     var suggestions: [Suggestion] = []
     var movies: [Movie] = []
@@ -55,12 +52,16 @@ class DataManager: Identifiable {
     var commentsListener: ListenerRegistration?
     var suggestionsListener: ListenerRegistration?
     
+    // MARK: - TMDB (The Movie Database) Conroller
+    var tmdb: APIController
+    
     init() {
         // Initialize API Key
-        omdbKey = Bundle.main.infoDictionary?["OMDB_API_KEY"] as? String ?? "invalid api key"
+        let omdbKey = Bundle.main.infoDictionary?["OMDB_API_KEY"] as? String ?? "invalid api key"
         db = Firestore.firestore()
         functions = Functions.functions()
         auth = Auth.auth()
+        tmdb = APIController(apiKey: omdbKey)
         registerStateListener()
     }
     

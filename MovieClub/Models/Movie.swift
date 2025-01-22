@@ -123,50 +123,11 @@ final class Movie: Identifiable, Codable, Equatable, Hashable {
     static func == (lhs: Movie, rhs: Movie) -> Bool {
         lhs.id == rhs.id
     }
-    
-    
 }
 
-// MARK: - Movie API Response (Raw API Data)
-struct MovieAPIResponse: Codable, Equatable, Hashable {
+// Unified struct for decoding and processing TMDB data
+struct MovieAPIData: Codable, Equatable, Hashable, Identifiable {
     let imdbId: String
-    let title: String
-    let plot: String
-    let poster: String
-    let year: String
-    let runtime: String
-    let director: String
-    let actors: String
-    
-    enum CodingKeys: String, CodingKey {
-        case imdbId = "imdbID"
-        case title = "Title"
-        case plot = "Plot"
-        case poster = "Poster"
-        case year = "Year"
-        case runtime = "Runtime"
-        case director = "Director"
-        case actors = "Actors"
-    }
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        imdbId = try container.decode(String.self, forKey: .imdbId)
-        title = try container.decode(String.self, forKey: .title)
-        plot = try container.decodeIfPresent(String.self, forKey: .plot) ?? ""
-        poster = try container.decodeIfPresent(String.self, forKey: .poster) ?? ""
-        year = try container.decode(String.self, forKey: .year)
-        runtime = try container.decodeIfPresent(String.self, forKey: .runtime) ?? ""
-        director = try container.decode(String.self, forKey: .director)
-        actors = try container.decode(String.self, forKey: .actors)
-        
-        
-    }
-}
-
-// MARK: - Movie API Data (Processed API Data)
-struct MovieAPIData: Codable, Equatable, Hashable {
     let title: String
     let plot: String
     let poster: String
@@ -175,15 +136,59 @@ struct MovieAPIData: Codable, Equatable, Hashable {
     let director: String
     let cast: [String]
     
-    
-    init(from response: MovieAPIResponse) {
-        self.title = response.title
-        self.plot = response.plot
-        self.poster = response.poster
-        self.releaseYear = Int(response.year) ?? 0
-        self.runtime = response.runtime.components(separatedBy: " ").first.flatMap { Int($0) } ?? 0
-        self.director = response.director
-        self.cast = response.actors.components(separatedBy: ", ")
+    var id: String { imdbId }
+    var backdropHorizontal: String?
+    var backdropVertical: String?
+
+
+    init(
+        imdbId: String,
+        title: String,
+        plot: String,
+        poster: String,
+        releaseYear: Int,
+        runtime: Int,
+        director: String,
+        cast: [String],
+        backdropHorizontal: String? = nil,
+        backdropVertical: String? = nil
+    ) {
+        self.imdbId = imdbId
+        self.title = title
+        self.plot = plot
+        self.poster = poster
+        self.releaseYear = releaseYear
+        self.runtime = runtime
+        self.director = director
+        self.cast = cast
+        self.backdropHorizontal = backdropHorizontal
+        self.backdropVertical = backdropVertical
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case imdbId = "imdbID"
+        case title = "Title"
+        case plot = "Plot"
+        case poster = "Poster"
+        case releaseYear = "Year"
+        case runtime = "Runtime"
+        case director = "Director"
+        case cast = "Actors"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        imdbId = try container.decode(String.self, forKey: .imdbId)
+        title = try container.decode(String.self, forKey: .title)
+        plot = try container.decodeIfPresent(String.self, forKey: .plot) ?? ""
+        poster = try container.decodeIfPresent(String.self, forKey: .poster) ?? ""
+        releaseYear = Int(try container.decode(String.self, forKey: .releaseYear)) ?? 0
+        runtime = try container.decodeIfPresent(String.self, forKey: .runtime)?
+            .components(separatedBy: " ").first.flatMap { Int($0) } ?? 0
+        director = try container.decodeIfPresent(String.self, forKey: .director) ?? "Unknown"
+        cast = try container.decodeIfPresent(String.self, forKey: .cast)?
+            .components(separatedBy: ", ") ?? []
     }
 }
 
