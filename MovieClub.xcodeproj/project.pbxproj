@@ -91,6 +91,7 @@
 		2CD71FF72CC035CB00F9CF58 /* MembershipManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FF62CC035BA00F9CF58 /* MembershipManager.swift */; };
 		2CD71FFC2CC0A8DB00F9CF58 /* ClubTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FFB2CC0A89800F9CF58 /* ClubTabView.swift */; };
 		2CF7AF662D4158E3006A8EBD /* PosterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF7AF652D4158DC006A8EBD /* PosterManager.swift */; };
+		2CF7AF692D415C2C006A8EBD /* PostersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF7AF672D415C2C006A8EBD /* PostersTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -183,6 +184,7 @@
 		2CD71FF62CC035BA00F9CF58 /* MembershipManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipManager.swift; sourceTree = "<group>"; };
 		2CD71FFB2CC0A89800F9CF58 /* ClubTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubTabView.swift; sourceTree = "<group>"; };
 		2CF7AF652D4158DC006A8EBD /* PosterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PosterManager.swift; sourceTree = "<group>"; };
+		2CF7AF672D415C2C006A8EBD /* PostersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostersTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -457,6 +459,7 @@
 		2CD71F612CB352BB00F9CF58 /* SwiftTesting */ = {
 			isa = PBXGroup;
 			children = (
+				2CF7AF682D415C2C006A8EBD /* Posters */,
 				2C741B2F2CF3D35B00E7C795 /* MockServices */,
 				2CD71F602CB352BB00F9CF58 /* AppTests.swift */,
 				2CD71F7D2CB3957300F9CF58 /* Users */,
@@ -575,6 +578,14 @@
 				2C11FFE22CA274C1004F54BC /* Comment.swift */,
 			);
 			path = Comments;
+			sourceTree = "<group>";
+		};
+		2CF7AF682D415C2C006A8EBD /* Posters */ = {
+			isa = PBXGroup;
+			children = (
+				2CF7AF672D415C2C006A8EBD /* PostersTests.swift */,
+			);
+			path = Posters;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -721,6 +732,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CF7AF692D415C2C006A8EBD /* PostersTests.swift in Sources */,
 				2CD71F622CB352BB00F9CF58 /* AppTests.swift in Sources */,
 				2C741B312CF3D39A00E7C795 /* MockFirebaseServices.swift in Sources */,
 				2CD71F792CB3951900F9CF58 /* Users.test.swift in Sources */,
