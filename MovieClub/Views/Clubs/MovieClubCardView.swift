@@ -10,99 +10,43 @@ import SwiftUI
 struct MovieClubCardView: View {
     let movieClub: MovieClub
     @State private var screenWidth = UIScreen.main.bounds.size.width
+   
+    var featuredMovie: Movie? {
+        // Maybe the club stores an array of movies, or a reference to a “featured” one
+        movieClub.movies.first
+    }
     
     var body: some View {
         ZStack {
-            // Background layer for the card, with placeholder image or blurred actual image
+            // Background layer for the card
             VStack {
-                if let url = movieClub.bannerUrl, let imageUrl = URL(string: url) {
-                    AsyncImage(url: imageUrl) { phase in
+                // 1) Try to use the club’s featuredMovie’s vertical backdrop
+                if let movie = featuredMovie,
+                   let verticalBackdrop = movie.apiData?.backdropHorizontal,
+                   let backdropUrl = URL(string: verticalBackdrop) {
+                    
+                    AsyncImage(url: backdropUrl) { phase in
                         switch phase {
                         case .empty:
-                            // Placeholder while loading
-                            Image(systemName: "photo")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(maxWidth: (screenWidth - 20), maxHeight: 185)
-                                .clipped()
-                                .blur(radius: 1.5)
-                                .mask(LinearGradient(
-                                    stops: [
-                                        .init(color: .white, location: 0),
-                                        .init(color: .white, location: 0.85),
-                                        .init(color: .clear, location: 1.0),
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                ))
+                            placeholderImage
                         case .success(let image):
-                            // Loaded image
                             image
                                 .resizable()
                                 .scaledToFill()
                                 .frame(maxWidth: (screenWidth - 20), maxHeight: 185)
                                 .clipped()
-                                .blur(radius: 1.5)
-                                .mask(LinearGradient(
-                                    stops: [
-                                        .init(color: .white, location: 0),
-                                        .init(color: .white, location: 0.85),
-                                        .init(color: .clear, location: 1.0),
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                ))
+                                
+                                .mask(gradientMask)
                         case .failure:
-                            Image(systemName: "photo")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(maxWidth: (screenWidth - 20), maxHeight: 185)
-                                .clipped()
-                                .blur(radius: 1.5)
-                                .mask(LinearGradient(
-                                    stops: [
-                                        .init(color: .white, location: 0),
-                                        .init(color: .white, location: 0.85),
-                                        .init(color: .clear, location: 1.0),
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                ))
+                            placeholderImage
                         @unknown default:
-                            Image(systemName: "photo")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(maxWidth: (screenWidth - 20), maxHeight: 185)
-                                .clipped()
-                                .blur(radius: 1.5)
-                                .mask(LinearGradient(
-                                    stops: [
-                                        .init(color: .white, location: 0),
-                                        .init(color: .white, location: 0.85),
-                                        .init(color: .clear, location: 1.0),
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                ))
+                            placeholderImage
                         }
                     }
-                } else {
-                    // Fallback if no banner URL
-                    Image(systemName: "photo")
-                        .resizable()
-                        .scaledToFill()
-                        .frame(maxWidth: (screenWidth - 20), maxHeight: 185)
-                        .clipped()
-                        .blur(radius: 1.5)
-                        .mask(LinearGradient(
-                            stops: [
-                                .init(color: .white, location: 0),
-                                .init(color: .white, location: 0.85),
-                                .init(color: .clear, location: 1.0),
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        ))
+                }
+                // 3) If none of the above, show a final fallback image
+                else {
+                    placeholderImage
                 }
             }
             .frame(width: (screenWidth - 20), height: 185)
@@ -121,6 +65,29 @@ struct MovieClubCardView: View {
             .padding()
             .frame(maxWidth: (screenWidth - 20), maxHeight: 185, alignment: .bottomLeading)
         }
+    }
+    
+    // The fallback image used in multiple spots
+    var placeholderImage: some View {
+        Image(systemName: "photo")
+            .resizable()
+            .scaledToFill()
+            .frame(maxWidth: (screenWidth - 20), maxHeight: 185)
+            .clipped()
+            .mask(gradientMask)
+    }
+    
+    // The gradient mask used to fade out the bottom
+    var gradientMask: some View {
+        LinearGradient(
+            stops: [
+                .init(color: .white, location: 0),
+                .init(color: .white, location: 0.85),
+                .init(color: .clear, location: 1.0),
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
     }
     
     var cardText: some View {

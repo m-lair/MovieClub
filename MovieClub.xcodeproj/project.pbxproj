@@ -77,6 +77,7 @@
 		2CAEABA12C5C5C9300A0011A /* BlurredBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */; };
 		2CBAE7992CE10B6F00A7C0AC /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBAE7982CE10B6F00A7C0AC /* SettingsView.swift */; };
 		2CBEB31D2CE5A7D200FB6623 /* CollectionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBEB31C2CE5A7D200FB6623 /* CollectionItem.swift */; };
+		2CD39CEA2D2A32D7003D6398 /* APIController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD39CE92D2A32D7003D6398 /* APIController.swift */; };
 		2CD71F622CB352BB00F9CF58 /* AppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71F602CB352BB00F9CF58 /* AppTests.swift */; };
 		2CD71F792CB3951900F9CF58 /* Users.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71F782CB394F100F9CF58 /* Users.test.swift */; };
 		2CD71F832CB5E3C500F9CF58 /* TestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 2CD71F822CB5E3C500F9CF58 /* TestPlan.xctestplan */; };
@@ -166,6 +167,7 @@
 		2CAEABA42C6A7FD500A0011A /* MovieClub.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MovieClub.entitlements; sourceTree = "<group>"; };
 		2CBAE7982CE10B6F00A7C0AC /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		2CBEB31C2CE5A7D200FB6623 /* CollectionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionItem.swift; sourceTree = "<group>"; };
+		2CD39CE92D2A32D7003D6398 /* APIController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIController.swift; sourceTree = "<group>"; };
 		2CD71F602CB352BB00F9CF58 /* AppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTests.swift; sourceTree = "<group>"; };
 		2CD71F6F2CB35A4200F9CF58 /* Testing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Testing.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/Testing.framework; sourceTree = DEVELOPER_DIR; };
 		2CD71F782CB394F100F9CF58 /* Users.test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Users.test.swift; sourceTree = "<group>"; };
@@ -281,6 +283,7 @@
 		2C11FFF42CA37FC1004F54BC /* Util */ = {
 			isa = PBXGroup;
 			children = (
+				2CD39CE92D2A32D7003D6398 /* APIController.swift */,
 				2CD71FDF2CBAFFEB00F9CF58 /* ImageManager.swift */,
 				2C11003D2CAC7667004F54BC /* ErrorManager.swift */,
 				2C11FFFF2CA3856B004F54BC /* AuthManager.swift */,
@@ -698,6 +701,7 @@
 				2C4475022C06DE4F0034204C /* CommentsView.swift in Sources */,
 				2C87B2AB2C6C072E00A49B2B /* UserMembershipsView.swift in Sources */,
 				2C44751B2C4C63AB0034204C /* NowShowingView.swift in Sources */,
+				2CD39CEA2D2A32D7003D6398 /* APIController.swift in Sources */,
 				2C8256C12BF1E8FE00D2ED12 /* ProfileView.swift in Sources */,
 				2C1326BE2CCACF820076E39C /* ArchivesView.swift in Sources */,
 				2C8256BD2BF1E63800D2ED12 /* NewClubView.swift in Sources */,
