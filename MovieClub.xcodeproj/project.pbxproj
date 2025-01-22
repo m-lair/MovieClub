@@ -283,12 +283,12 @@
 		2C11FFF42CA37FC1004F54BC /* Util */ = {
 			isa = PBXGroup;
 			children = (
+				2CF7AF632D4152C4006A8EBD /* Auth */,
+				2CF7AF622D4152BD006A8EBD /* Notifications */,
 				2CD39CE92D2A32D7003D6398 /* APIController.swift */,
 				2CD71FDF2CBAFFEB00F9CF58 /* ImageManager.swift */,
 				2C11003D2CAC7667004F54BC /* ErrorManager.swift */,
-				2C11FFFF2CA3856B004F54BC /* AuthManager.swift */,
-				2C11FFF22CA37FC1004F54BC /* AppleAuth.swift */,
-				2C11FFF32CA37FC1004F54BC /* NotificationManager.swift */,
+				2C5DEC412BF1B12D000EF232 /* DataManager.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -392,14 +392,13 @@
 		2C5DEC1D2BF1AC6C000EF232 /* MovieClub */ = {
 			isa = PBXGroup;
 			children = (
+				2CF7AF5B2D415273006A8EBD /* Features */,
 				2C1100342CA8C92F004F54BC /* Config */,
 				2CAEABA42C6A7FD500A0011A /* MovieClub.entitlements */,
 				2C5DEC1E2BF1AC6C000EF232 /* MovieClubApp.swift */,
 				2C8256952BF1B58C00D2ED12 /* ContentView.swift */,
 				2C5DEC742BF1B3F6000EF232 /* Views */,
 				2C11FFF42CA37FC1004F54BC /* Util */,
-				2C5DEC3E2BF1B081000EF232 /* Controllers */,
-				2C5DEC3D2BF1B06C000EF232 /* Models */,
 				2C5DEC222BF1AC6E000EF232 /* Assets.xcassets */,
 				2C5DEC242BF1AC6E000EF232 /* Preview Content */,
 			);
@@ -412,37 +411,6 @@
 				2C5DEC252BF1AC6E000EF232 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
-			sourceTree = "<group>";
-		};
-		2C5DEC3D2BF1B06C000EF232 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				2CBEB31C2CE5A7D200FB6623 /* CollectionItem.swift */,
-				2C1326C12CD1AA6D0076E39C /* Announcement.swift */,
-				2C1326B32CC9E9F70076E39C /* Notification.swift */,
-				2CD71FEA2CBCF0F600F9CF58 /* Suggestion.swift */,
-				2C11FFE22CA274C1004F54BC /* Comment.swift */,
-				2C11FFDC2CA13341004F54BC /* Club.swift */,
-				2C11FFF92CA3816E004F54BC /* UserMembership.swift */,
-				2C11FFEA2CA37B8F004F54BC /* Member.swift */,
-				2C11FFDA2CA13330004F54BC /* Movie.swift */,
-				2C11FFDE2CA1DFED004F54BC /* User.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
-		2C5DEC3E2BF1B081000EF232 /* Controllers */ = {
-			isa = PBXGroup;
-			children = (
-				2CD71FF62CC035BA00F9CF58 /* MembershipManager.swift */,
-				2CD71FEC2CBD9E5E00F9CF58 /* SuggestionManager.swift */,
-				2C1100052CA386C8004F54BC /* CommentManager.swift */,
-				2C1100032CA3868C004F54BC /* MovieManager.swift */,
-				2C1100012CA385D8004F54BC /* ClubManager.swift */,
-				2C5DEC412BF1B12D000EF232 /* DataManager.swift */,
-				2C11FFFD2CA38380004F54BC /* UserManager.swift */,
-			);
-			path = Controllers;
 			sourceTree = "<group>";
 		};
 		2C5DEC742BF1B3F6000EF232 /* Views */ = {
@@ -508,6 +476,102 @@
 				2CD71FF42CBEFBFE00F9CF58 /* CreateSuggestion.swift */,
 			);
 			path = Suggestions;
+			sourceTree = "<group>";
+		};
+		2CF7AF5B2D415273006A8EBD /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				2CF7AF642D4152F4006A8EBD /* Comments */,
+				2CF7AF612D4152A8006A8EBD /* Posters */,
+				2CF7AF602D41529B006A8EBD /* Suggestions */,
+				2CF7AF5F2D415296006A8EBD /* Movies */,
+				2CF7AF5E2D415290006A8EBD /* Clubs */,
+				2CF7AF5D2D415289006A8EBD /* Memberships */,
+				2CF7AF5C2D415283006A8EBD /* Users */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		2CF7AF5C2D415283006A8EBD /* Users */ = {
+			isa = PBXGroup;
+			children = (
+				2C11FFDE2CA1DFED004F54BC /* User.swift */,
+				2C11FFFD2CA38380004F54BC /* UserManager.swift */,
+			);
+			path = Users;
+			sourceTree = "<group>";
+		};
+		2CF7AF5D2D415289006A8EBD /* Memberships */ = {
+			isa = PBXGroup;
+			children = (
+				2CD71FF62CC035BA00F9CF58 /* MembershipManager.swift */,
+				2C11FFF92CA3816E004F54BC /* UserMembership.swift */,
+				2C11FFEA2CA37B8F004F54BC /* Member.swift */,
+			);
+			path = Memberships;
+			sourceTree = "<group>";
+		};
+		2CF7AF5E2D415290006A8EBD /* Clubs */ = {
+			isa = PBXGroup;
+			children = (
+				2C1100012CA385D8004F54BC /* ClubManager.swift */,
+				2C11FFDC2CA13341004F54BC /* Club.swift */,
+				2C1326C12CD1AA6D0076E39C /* Announcement.swift */,
+			);
+			path = Clubs;
+			sourceTree = "<group>";
+		};
+		2CF7AF5F2D415296006A8EBD /* Movies */ = {
+			isa = PBXGroup;
+			children = (
+				2C1100032CA3868C004F54BC /* MovieManager.swift */,
+				2C11FFDA2CA13330004F54BC /* Movie.swift */,
+			);
+			path = Movies;
+			sourceTree = "<group>";
+		};
+		2CF7AF602D41529B006A8EBD /* Suggestions */ = {
+			isa = PBXGroup;
+			children = (
+				2CD71FEC2CBD9E5E00F9CF58 /* SuggestionManager.swift */,
+				2CD71FEA2CBCF0F600F9CF58 /* Suggestion.swift */,
+			);
+			path = Suggestions;
+			sourceTree = "<group>";
+		};
+		2CF7AF612D4152A8006A8EBD /* Posters */ = {
+			isa = PBXGroup;
+			children = (
+				2CBEB31C2CE5A7D200FB6623 /* CollectionItem.swift */,
+			);
+			path = Posters;
+			sourceTree = "<group>";
+		};
+		2CF7AF622D4152BD006A8EBD /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				2C11FFF32CA37FC1004F54BC /* NotificationManager.swift */,
+				2C1326B32CC9E9F70076E39C /* Notification.swift */,
+			);
+			path = Notifications;
+			sourceTree = "<group>";
+		};
+		2CF7AF632D4152C4006A8EBD /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				2C11FFFF2CA3856B004F54BC /* AuthManager.swift */,
+				2C11FFF22CA37FC1004F54BC /* AppleAuth.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		2CF7AF642D4152F4006A8EBD /* Comments */ = {
+			isa = PBXGroup;
+			children = (
+				2C1100052CA386C8004F54BC /* CommentManager.swift */,
+				2C11FFE22CA274C1004F54BC /* Comment.swift */,
+			);
+			path = Comments;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
