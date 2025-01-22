@@ -16,62 +16,6 @@ import class FirebaseAuth.User
 import class MovieClub.User
 @testable import MovieClub
 
-// MARK: - Firebase Service Protocols
-protocol AuthService {
-    var currentUser: FirebaseAuth.User? { get set }
-    func signIn(withEmail email: String, password: String) async throws -> FirebaseAuth.User
-    func signOut() async throws
-    func createUser(withEmail email: String, password: String) async throws -> FirebaseAuth.User
-}
-
-protocol DatastoreService {
-    func document(_ path: String, in collection: String) async throws -> [String: Any]?
-    func setDocument(_ data: [String: Any], at path: String, in collection: String) async throws
-    func deleteDocument(at path: String, in collection: String) async throws
-    func documentExists(path: String, in collection: String) async throws -> Bool
-}
-
-protocol FunctionsService {
-    // MARK: - Users
-    func createUserWithEmail(email: String, password: String, name: String) async throws -> String
-    func createUserWithOAuth(_ email: String, signInProvider: String) async throws -> String
-    func updateUser(userId: String, email: String?, displayName: String?) async throws
-    func deleteUser(_ id: String) async throws
-    
-    // MARK: - Comments
-    func postComment(movieId: String, text: String) async throws -> String
-    func likeComment(commentId: String) async throws
-    func unlikeComment(commentId: String) async throws
-    func deleteComment(commentId: String) async throws
-    
-    // MARK: - Suggestions
-    func createMovieClubSuggestion(clubId: String, suggestion: String) async throws -> String
-    func deleteMovieClubSuggestion(suggestionId: String) async throws
-    
-    // MARK: - Memberships
-    func joinMovieClub(clubId: String, userId: String) async throws
-    func leaveMovieClub(clubId: String, userId: String) async throws
-    
-    // MARK: - Movie Clubs
-    func createMovieClub(name: String, description: String) async throws -> String
-    func updateMovieClub(clubId: String, name: String?, description: String?) async throws
-    
-    // MARK: - Movies
-    func handleMovieReaction(movieId: String, reaction: String) async throws
-    func rotateMovie(movieId: String) async throws
-    
-    // MARK: - Posters
-    func collectPoster(poster: CollectionItem) async throws
-}
-
-
-protocol StorageService {
-    func uploadFile(_ data: Data, path: String) async throws -> URL
-    func downloadFile(at path: String) async throws -> Data?
-    func deleteFile(at path: String) async throws
-}
-
-
 // MARK: - Live Firebase Implementations
 actor TestFirebaseAuth: @preconcurrency AuthService {
     private let auth: Auth
