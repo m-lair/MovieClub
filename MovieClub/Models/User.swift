@@ -71,3 +71,8 @@ final class User: Identifiable, Codable, Hashable, Equatable {
         lhs.id == rhs.id
     }
 }
+
+struct UserResponse: Codable {
+    let success: Bool
+    let message: String?
+}

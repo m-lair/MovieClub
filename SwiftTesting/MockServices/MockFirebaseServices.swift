@@ -167,8 +167,8 @@ actor TestFunctions: FunctionsService {
             .httpsCallable("users-updateUser")
             .call([
                 "userId": userId,
-                "email": email as Any,
-                "displayName": displayName as Any
+                "email": email,
+                "name": displayName
             ])
     }
     
