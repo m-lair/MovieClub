@@ -12,6 +12,7 @@ import FirebaseFunctions
 import FirebaseFirestore
 import FirebaseStorage
 import FirebaseAuth
+import class MovieClub.Comment
 @testable import MovieClub
 
 protocol FunctionsService {
@@ -22,7 +23,7 @@ protocol FunctionsService {
     func deleteUser(_ id: String) async throws
     
     // MARK: - Comments
-    func postComment(movieId: String, text: String) async throws -> String
+    func postComment(movieId: String, clubId: String, comment: Comment) async throws -> String
     func likeComment(commentId: String) async throws
     func unlikeComment(commentId: String) async throws
     func deleteComment(commentId: String) async throws

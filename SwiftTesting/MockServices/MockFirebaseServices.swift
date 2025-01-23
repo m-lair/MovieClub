@@ -11,9 +11,9 @@ import Foundation
 import FirebaseFunctions
 import FirebaseFirestore
 import FirebaseStorage
-import class FirebaseAuth.Auth
-import class FirebaseAuth.User
+import FirebaseAuth
 import class MovieClub.User
+import class MovieClub.Comment
 @testable import MovieClub
 
 // MARK: - Live Firebase Implementations
@@ -123,10 +123,10 @@ actor TestFunctions: FunctionsService {
     }
     
     // MARK: - Comments
-    func postComment(movieId: String, text: String) async throws -> String {
+    func postComment(movieId: String, clubId: String, comment: Comment) async throws -> String {
         let result = try await functions
             .httpsCallable("comments-postComment")
-            .call(["movieId": movieId, "text": text])
+            .call(["movieId": movieId, "userName": comment.userName, "text": comment.text, "userId": comment.userId, "clubId": clubId])
         
         guard let commentId = result.data as? String else {
             throw URLError(.badServerResponse)
