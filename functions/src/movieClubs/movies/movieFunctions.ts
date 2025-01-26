@@ -221,10 +221,16 @@ exports.dislikeMovie = functions.https.onCall(
 
       const movieDocRef = getMovieDocRef(data.movieId, data.movieClubId)
 
-      await movieDocRef.update({
+      let params = {
         dislikedBy: firebaseAdmin.firestore.FieldValue.arrayUnion(data.name),
-        dislikes: firebaseAdmin.firestore.FieldValue.increment(1),
-      });
+        likedBy: firebaseAdmin.firestore.FieldValue.arrayRemove(data.name),
+      }
+
+      if (data.undo){
+        params.dislikedBy = firebaseAdmin.firestore.FieldValue.arrayRemove(data.name)
+      }
+
+      await movieDocRef.update(params);
 
       return { success: true };
     } catch (error) {
