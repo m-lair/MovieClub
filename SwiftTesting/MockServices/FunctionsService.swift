@@ -24,9 +24,9 @@ protocol FunctionsService {
     
     // MARK: - Comments
     func postComment(movieId: String, clubId: String, comment: Comment) async throws -> String
-    func likeComment(commentId: String) async throws
-    func unlikeComment(commentId: String) async throws
-    func deleteComment(commentId: String) async throws
+    func likeComment(commentId: String, clubId: String, movieId: String) async throws
+    func unlikeComment(commentId: String, clubId: String, movieId: String) async throws
+    func deleteComment(commentId: String, clubId: String, movieId: String) async throws
     
     // MARK: - Suggestions
     func createMovieClubSuggestion(clubId: String, suggestion: String) async throws -> String

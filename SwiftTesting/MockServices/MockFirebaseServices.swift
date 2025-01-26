@@ -124,38 +124,42 @@ actor TestFunctions: FunctionsService {
     
     // MARK: - Comments
     func postComment(movieId: String, clubId: String, comment: Comment) async throws -> String {
-        let result = try await functions
-            .httpsCallable("comments-postComment")
-            .call(["movieId": movieId, "userName": comment.userName, "text": comment.text, "userId": comment.userId, "clubId": clubId])
-        
-        guard let commentId = result.data as? String else {
-            throw URLError(.badServerResponse)
+        do {
+            let result = try await functions
+                .httpsCallable("comments-postComment")
+                .call(["movieId": movieId, "userName": comment.userName, "text": comment.text, "userId": comment.userId, "clubId": clubId])
+            return result.data as! String
+        } catch {
+            throw error
         }
-        return commentId
     }
     
-    func likeComment(commentId: String) async throws {
-        _ = try await functions
-            .httpsCallable("comments.likeComment")
-            .call(["commentId": commentId])
+    func likeComment(commentId: String, clubId: String, movieId: String) async throws {
+        do {
+            _ = try await functions
+                .httpsCallable("comments-likeComment")
+                .call(["commentId": commentId, "clubId": clubId, "movieId": movieId])
+        } catch {
+            print(error)
+        }
     }
     
-    func unlikeComment(commentId: String) async throws {
+    func unlikeComment(commentId: String, clubId: String, movieId: String) async throws {
         _ = try await functions
-            .httpsCallable("comments.unlikeComment")
-            .call(["commentId": commentId])
+            .httpsCallable("comments-unlikeComment")
+            .call(["commentId": commentId, "clubId": clubId, "movieId": movieId])
     }
     
-    func deleteComment(commentId: String) async throws {
+    func deleteComment(commentId: String, clubId: String, movieId: String) async throws {
         _ = try await functions
-            .httpsCallable("comments.deleteComment")
-            .call(["commentId": commentId])
+            .httpsCallable("comments-deleteComment")
+            .call(["id": commentId, "clubId": clubId, "movieId": movieId])
     }
     
     // MARK: - Suggestions
     func createMovieClubSuggestion(clubId: String, suggestion: String) async throws -> String {
         let result = try await functions
-            .httpsCallable("suggestions.createMovieClubSuggestion")
+            .httpsCallable("suggestions-createMovieClubSuggestion")
             .call(["clubId": clubId, "suggestion": suggestion])
         
         guard let suggestionId = result.data as? String else {
