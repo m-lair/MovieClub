@@ -234,7 +234,7 @@ exports.dislikeMovie = functions.https.onCall(
 
       return { success: true };
     } catch (error) {
-      handleCatchHttpsError('Error liking comment:', error);
+      handleCatchHttpsError('Error disliking comment:', error);
     }
   }
 )
