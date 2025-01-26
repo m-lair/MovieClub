@@ -17,8 +17,10 @@ import { MovieMock } from "test/mocks/movie";
 const { likeMovie, dislikeMovie } = movies;
 
 describe("Movie Functions", () => {
+  const likeWrapped = firebaseTest.wrap(likeMovie);
+  const dislikeWrapped = firebaseTest.wrap(likeMovie);
+
   describe("likeMovie", () => {
-    const likeWrapped = firebaseTest.wrap(likeMovie);
 
     let auth: AuthData;
     let movieClub: UpdateMovieClubData;
@@ -51,20 +53,6 @@ describe("Movie Functions", () => {
       }
     })
 
-    it("increments likes by 1", async () => {
-      const movieDocSnap = await getMovieDocRef(movie.id, movieClub.id).get()
-      const movieDoc = movieDocSnap.data();
-
-      assert.equal(movieDoc?.likes, 0)
-
-      await likeWrapped({ data: likeMovieData, auth: auth });
-
-      const updatedMovieDocSnap = await getMovieDocRef(movie.id, movieClub.id).get()
-      const updatedMovieDoc = updatedMovieDocSnap.data();
-
-      assert.equal(updatedMovieDoc?.likes, 1)
-    })
-
     it("adds the user's name to likedBy", async () => {
       const movieDocSnap = await getMovieDocRef(movie.id, movieClub.id).get()
       const movieDoc = movieDocSnap.data();
@@ -77,6 +65,38 @@ describe("Movie Functions", () => {
       const updatedMovieDoc = updatedMovieDocSnap.data();
 
       assert.deepEqual(updatedMovieDoc?.likedBy, [user.name])
+    })
+
+    it("removes the user's name from dislikedBy", async () => {
+      await dislikeWrapped({ data: likeMovieData, auth: auth });
+      const movieDocSnap = await getMovieDocRef(movie.id, movieClub.id).get()
+      const movieDoc = movieDocSnap.data();
+
+      assert.deepEqual(movieDoc?.dislikedBy, [user.name])
+
+      await likeWrapped({ data: likeMovieData, auth: auth });
+
+      const updatedMovieDocSnap = await getMovieDocRef(movie.id, movieClub.id).get()
+      const updatedMovieDoc = updatedMovieDocSnap.data();
+
+      assert.deepEqual(updatedMovieDoc?.dislikedBy, [])
+    })
+
+    it("removes the user's name from likedBy with undo", async () => {
+      await likeWrapped({ data: likeMovieData, auth: auth });
+      const movieDocSnap = await getMovieDocRef(movie.id, movieClub.id).get()
+      const movieDoc = movieDocSnap.data();
+
+      assert.deepEqual(movieDoc?.likedBy, [user.name])
+
+      likeMovieData.undo = true
+
+      await likeWrapped({ data: likeMovieData, auth: auth });
+
+      const updatedMovieDocSnap = await getMovieDocRef(movie.id, movieClub.id).get()
+      const updatedMovieDoc = updatedMovieDocSnap.data();
+
+      assert.deepEqual(updatedMovieDoc?.likedBy, [])
     })
   })
 

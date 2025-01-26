@@ -35,4 +35,5 @@ export interface LikeMovieData {
   movieClubId: string;
   movieId: string;
   name: string;
+  undo?: boolean;
 }

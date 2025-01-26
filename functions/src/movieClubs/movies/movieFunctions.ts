@@ -189,10 +189,16 @@ exports.likeMovie = functions.https.onCall(
 
       const movieDocRef = getMovieDocRef(data.movieId, data.movieClubId)
 
-      await movieDocRef.update({
+      let params = {
         likedBy: firebaseAdmin.firestore.FieldValue.arrayUnion(data.name),
-        likes: firebaseAdmin.firestore.FieldValue.increment(1),
-      });
+        dislikedBy: firebaseAdmin.firestore.FieldValue.arrayRemove(data.name)
+      }
+
+      if (data.undo) {
+        params.likedBy = firebaseAdmin.firestore.FieldValue.arrayRemove(data.name)
+      }
+
+      await movieDocRef.update(params);
 
       return { success: true };
     } catch (error) {
