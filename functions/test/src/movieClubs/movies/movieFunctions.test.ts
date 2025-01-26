@@ -117,7 +117,7 @@ describe("Movie Functions", () => {
       }
     })
 
-    it.only("increments dislikes by 1", async () => {
+    it("increments dislikes by 1", async () => {
       const movieDocSnap = await getMovieDocRef(movie.id, movieClub.id).get();
       const movieDoc = movieDocSnap.data();
       console.log(movieDoc)
@@ -143,6 +143,22 @@ describe("Movie Functions", () => {
       const updatedMovieDoc = updatedMovieDocSnap.data();
 
       assert.deepEqual(updatedMovieDoc?.dislikedBy, [user.name])
+    })
+
+    it("removes the user's name from likedBy", async () => {
+      await likeWrapped({ data: dislikeMovieData, auth: auth });
+
+      const movieDocSnap = await getMovieDocRef(movie.id, movieClub.id).get()
+      const movieDoc = movieDocSnap.data();
+
+      assert.deepEqual(movieDoc?.likedBy, [user.name]);
+
+      await dislikeWrapped({ data: dislikeMovieData, auth: auth });
+
+      const updatedMovieDocSnap = await getMovieDocRef(movie.id, movieClub.id).get();
+      const updatedMovieDoc = updatedMovieDocSnap.data();
+
+      assert.deepEqual(updatedMovieDoc?.likedBy, [])
     })
   })
  }
