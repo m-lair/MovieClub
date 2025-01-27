@@ -36,7 +36,6 @@ extension DataManager {
                     // Create tasks for both Firebase and poster URL fetching
                     async let movieDataTask: (likes: Int, dislikes: Int)? = {
                         do {
-                            print("getting original movie data: \(item.movieId)")
                             let movieDoc = try await db
                                 .collection("movieclubs")
                                 .document(item.clubId)
