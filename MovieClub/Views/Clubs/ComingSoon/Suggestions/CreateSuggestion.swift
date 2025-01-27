@@ -126,7 +126,7 @@ extension CreateSuggestionView {
                         Text(movie.title)
                             .font(.headline)
                         
-                        Text("\(movie.releaseYear)")
+                        Text(String(movie.releaseYear))
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                         
