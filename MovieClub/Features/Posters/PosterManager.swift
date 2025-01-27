@@ -23,17 +23,20 @@ extension DataManager {
         guard let user = currentUser,
               let userId = user.id
         else { return [] }
-        
+        print("begin fetching collection items")
         let snapshot = try await usersCollection().document(userId).collection("posters").getDocuments()
         let collectionItems = try snapshot.documents.map { document -> CollectionItem in
-            try document.data(as: CollectionItem.self)
+            print("decoding document data")
+            return try document.data(as: CollectionItem.self)
         }
+        print("getting additional movie data")
         let items = try await withThrowingTaskGroup(of: CollectionItem?.self) { group in
             for item in collectionItems {
                 group.addTask { [self] in
                     // Create tasks for both Firebase and poster URL fetching
                     async let movieDataTask: (likes: Int, dislikes: Int)? = {
                         do {
+                            print("getting original movie data: \(item.movieId)")
                             let movieDoc = try await db
                                 .collection("movieclubs")
                                 .document(item.clubId)
@@ -69,8 +72,6 @@ extension DataManager {
                     
                     // Calculate color based on movie data
                     let color: String
-                    print("movie likes \(movieData.likes)")
-                    print("movie dislikes \(movieData.dislikes)")
                     
                     if movieData.dislikes == 0 && movieData.likes == 0 {
                         color = "black"
