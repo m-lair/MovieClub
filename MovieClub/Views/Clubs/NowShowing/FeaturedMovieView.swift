@@ -45,10 +45,8 @@ struct FeaturedMovieView: View {
                     .frame(width: width, height: 510)
             }
             
-            // MARK: - Gradient Overlay (optional)
-            // (helps readability if the backdrop is bright)
             LinearGradient(
-                gradient: Gradient(colors: [.black.opacity(0.6), .clear]),
+                gradient: Gradient(colors: [.black.opacity(1.0), .clear]),
                 startPoint: .bottom,
                 endPoint: .top
             )

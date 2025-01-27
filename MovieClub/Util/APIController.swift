@@ -120,54 +120,64 @@ class APIController {
     }
     
     func fetchMovieFullDetails(tmdbId: Int, baseData: MovieAPIData) async throws -> MovieAPIData {
-        // Build a URL: /movie/{tmdb_id}?append_to_response=credits
         let endpoint = "/movie/\(tmdbId)"
         guard let url = buildURL(endpoint: endpoint, queryItems: [
             "append_to_response": "credits"
         ]) else {
             throw APIError.invalidURL
         }
-        
+
         let data = try await fetchData(from: url)
-        
-        // Decode the details
         let details = try JSONDecoder().decode(TMDBDetailsResponse.self, from: data)
-        
-        // Figure out the director
+
+        // Director / Cast
         let directorName = details.credits?.crew.first(where: { $0.job == "Director" })?.name ?? "Unknown"
-        
-        // Map cast (limit or grab them all, your choice)
         let castNames = details.credits?.cast.map { $0.name } ?? []
-        
-        // Build backdrop URLs
-        // Example: building a backdrop for horizontal usage
+
+        // Base backdrops from the main movie details
         let horizontalBackdrop = details.backdropPath.map {
             "https://image.tmdb.org/t/p/w1280\($0)"
         }
-
-        // Example: building a backdrop for vertical usage
-        let verticalBackdrop = details.backdropPath.map {
+        var verticalBackdrop = details.backdropPath.map {
             "https://image.tmdb.org/t/p/w780\($0)"
+        }
+        
+        // If there's a collection, see if that same part has a different backdrop
+        if let collection = details.belongsToCollection {
+            // fetch the full collection
+            let collectionDetails = try await fetchCollectionDetails(collectionId: collection.id)
+
+                // Step B: also fetch the images for the entire collection
+                let collectionImages = try await fetchCollectionImages(collectionId: collection.id)
+
+                // Step C: pick some unique backdrop that’s different from the main movie’s
+                // For example, maybe you just pick the first backdrop that isn't the same path
+            if let mainBackdropPath = details.backdropPath {
+                if let differentBackdrop = collectionImages.backdrops.first(where: { $0.filePath != mainBackdropPath }) {
+                    let altBackdropURL = "https://image.tmdb.org/t/p/w780\(differentBackdrop.filePath)"
+                    verticalBackdrop = altBackdropURL
+                    print("Using unique vertical backdrop from collection images: \(altBackdropURL)")
+                }
+            }
         }
 
         let updatedData = MovieAPIData(
             imdbId: baseData.imdbId,
             title: baseData.title,
             plot: baseData.plot,
-            poster: baseData.poster,                        // w500
+            poster: baseData.poster,
             releaseYear: baseData.releaseYear,
             runtime: details.runtime ?? 0,
             director: directorName,
             cast: castNames,
-            backdropHorizontal: horizontalBackdrop, // w1280
-            backdropVertical: verticalBackdrop      // w780
+            backdropHorizontal: horizontalBackdrop,
+            backdropVertical: verticalBackdrop
         )
-        
+
         return updatedData
     }
 
 
-    
     func fetchPopularMovies() async throws -> [MovieAPIData] {
         let endpoint = "/movie/popular"
         guard let url = buildURL(endpoint: endpoint) else {
@@ -211,8 +221,18 @@ class APIController {
             throw APIError.decodingFailed(error)
         }
     }
-
     
+    private func fetchCollectionDetails(collectionId: Int) async throws -> TMDBCollectionDetail {
+        let endpoint = "/collection/\(collectionId)"
+        guard let url = buildURL(endpoint: endpoint) else {
+            throw APIError.invalidURL
+        }
+
+        let data = try await fetchData(from: url)
+        let collectionResponse = try JSONDecoder().decode(TMDBCollectionDetail.self, from: data)
+        return collectionResponse
+    }
+
     // MARK: - Private Helpers
     private func buildURL(endpoint: String, queryItems: [String: String] = [:]) -> URL? {
         var components = URLComponents(string: baseURL + endpoint)
@@ -255,6 +275,7 @@ class APIController {
         let overview: String
         let posterPath: String?
         let releaseDate: String?
+        let backdropPath: String?
 
         enum CodingKeys: String, CodingKey {
             case id
@@ -262,6 +283,26 @@ class APIController {
             case overview
             case posterPath = "poster_path"
             case releaseDate = "release_date"
+            case backdropPath = "backdrop_path"
+        }
+    }
+    
+    // This struct represents the full JSON you get from /collection/{collectionId}.
+    private struct TMDBCollectionDetail: Codable {
+        let id: Int
+        let name: String
+        let overview: String?
+        let posterPath: String?
+        let backdropPath: String?
+        let parts: [TMDBFindMovie]
+
+        enum CodingKeys: String, CodingKey {
+            case id
+            case name
+            case overview
+            case posterPath = "poster_path"
+            case backdropPath = "backdrop_path"
+            case parts
         }
     }
     
@@ -269,11 +310,13 @@ class APIController {
         let runtime: Int?
         let backdropPath: String?
         let credits: TMDBCredits?
+        let belongsToCollection: TMDBCollection?
         
         enum CodingKeys: String, CodingKey {
             case runtime
             case backdropPath = "backdrop_path"
             case credits
+            case belongsToCollection = "belongs_to_collection"
         }
     }
 
@@ -289,5 +332,50 @@ class APIController {
     private struct TMDBCrew: Codable {
         let name: String
         let job: String
+    }
+    
+    private struct TMDBCollection: Codable {
+        let id: Int
+        let name: String
+        let posterPath: String?
+        let backdropPath: String?
+
+        enum CodingKeys: String, CodingKey {
+            case id
+            case name
+            case posterPath = "poster_path"
+            case backdropPath = "backdrop_path"
+        }
+    }
+    
+    private struct TMDBCollectionImages: Codable {
+        let id: Int
+        let backdrops: [TMDBImage]
+        let posters: [TMDBImage]
+    }
+
+    private struct TMDBImage: Codable {
+        let filePath: String
+        let aspectRatio: Double?
+        let height: Int?
+        let width: Int?
+        
+        enum CodingKeys: String, CodingKey {
+            case filePath = "file_path"
+            case aspectRatio = "aspect_ratio"
+            case height
+            case width
+        }
+    }
+    
+    private func fetchCollectionImages(collectionId: Int) async throws -> TMDBCollectionImages {
+        let endpoint = "/collection/\(collectionId)/images"
+        guard let url = buildURL(endpoint: endpoint) else {
+            throw APIError.invalidURL
+        }
+
+        let data = try await fetchData(from: url)
+        let images = try JSONDecoder().decode(TMDBCollectionImages.self, from: data)
+        return images
     }
 }

@@ -36,7 +36,7 @@ final class CollectionItem: Identifiable, Codable, Hashable, Equatable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case movieId
+        case movieId = "id"
         case colorStr
         case imdbId
         case clubId
