@@ -16,9 +16,9 @@ import { MovieMock } from "test/mocks/movie";
 // prettier-ignore
 const { likeMovie, dislikeMovie } = movies;
 
-describe("Movie Functions", () => {
+describe.only("Movie Functions", () => {
   const likeWrapped = firebaseTest.wrap(likeMovie);
-  const dislikeWrapped = firebaseTest.wrap(likeMovie);
+  const dislikeWrapped = firebaseTest.wrap(dislikeMovie);
 
   let auth: AuthData;
   let movieClub: UpdateMovieClubData;
@@ -73,6 +73,7 @@ describe("Movie Functions", () => {
 
     it("removes the user's name from dislikedBy", async () => {
       await dislikeWrapped({ data: likeMovieData, auth: auth });
+
       const movieDocSnap = await getMovieDocRef(movie.id, movieClub.id).get()
       const movieDoc = movieDocSnap.data();
 
@@ -88,6 +89,7 @@ describe("Movie Functions", () => {
 
     it("removes the user's name from likedBy with undo", async () => {
       await likeWrapped({ data: likeMovieData, auth: auth });
+
       const movieDocSnap = await getMovieDocRef(movie.id, movieClub.id).get()
       const movieDoc = movieDocSnap.data();
 
@@ -105,8 +107,6 @@ describe("Movie Functions", () => {
   })
 
   describe("dislikeMovie", () => {
-    const dislikeWrapped = firebaseTest.wrap(dislikeMovie);
-
     let dislikeMovieData: LikeMovieData;
 
     beforeEach(async () => {
