@@ -98,6 +98,7 @@
 		2CF7AFD02D41B3D8006A8EBD /* FunctionsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF7AFCF2D41B3D8006A8EBD /* FunctionsService.swift */; };
 		2CF7AFD22D41B417006A8EBD /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF7AFD12D41B417006A8EBD /* StorageService.swift */; };
 		2CF7AFD72D41B841006A8EBD /* CommentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF7AFD62D41B837006A8EBD /* CommentTests.swift */; };
+		2CF7B1D62D4AAD86006A8EBD /* ClubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF7B1D52D4AAD7C006A8EBD /* ClubTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -197,6 +198,7 @@
 		2CF7AFCF2D41B3D8006A8EBD /* FunctionsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionsService.swift; sourceTree = "<group>"; };
 		2CF7AFD12D41B417006A8EBD /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
 		2CF7AFD62D41B837006A8EBD /* CommentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentTests.swift; sourceTree = "<group>"; };
+		2CF7B1D52D4AAD7C006A8EBD /* ClubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -481,6 +483,7 @@
 				2CF7AFD32D41B5F1006A8EBD /* Comments */,
 				2CD71F7D2CB3957300F9CF58 /* Users */,
 				2CF7AF682D415C2C006A8EBD /* Posters */,
+				2CF7B1D12D4AAC9E006A8EBD /* Clubs */,
 			);
 			path = SwiftTesting;
 			sourceTree = "<group>";
@@ -612,6 +615,14 @@
 				2CF7AFD62D41B837006A8EBD /* CommentTests.swift */,
 			);
 			path = Comments;
+			sourceTree = "<group>";
+		};
+		2CF7B1D12D4AAC9E006A8EBD /* Clubs */ = {
+			isa = PBXGroup;
+			children = (
+				2CF7B1D52D4AAD7C006A8EBD /* ClubTests.swift */,
+			);
+			path = Clubs;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -762,6 +773,7 @@
 				2CF7AF692D415C2C006A8EBD /* PostersTests.swift in Sources */,
 				2CF7AFD02D41B3D8006A8EBD /* FunctionsService.swift in Sources */,
 				2CD71F622CB352BB00F9CF58 /* AppTests.swift in Sources */,
+				2CF7B1D62D4AAD86006A8EBD /* ClubTests.swift in Sources */,
 				2CF7AFCA2D41B361006A8EBD /* AuthService.swift in Sources */,
 				2CF7AFD72D41B841006A8EBD /* CommentTests.swift in Sources */,
 				2CF7AFCE2D41B3AB006A8EBD /* DatastoreService.swift in Sources */,

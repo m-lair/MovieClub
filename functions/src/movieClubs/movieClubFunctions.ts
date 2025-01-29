@@ -20,7 +20,7 @@ exports.createMovieClub = functions.https.onCall(
 
       const requiredFields = [
         //"bannerUrl",
-        "description",
+        //"description",
         "isPublic",
         "name",
         "ownerName",

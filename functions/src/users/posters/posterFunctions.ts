@@ -17,10 +17,10 @@ exports.collectPoster = functions.https.onCall(
     try {
         const { data, auth } = request;
         const { uid } = verifyAuth(auth);
-        const requiredFields = ["movieId", "clubId"];
+        const requiredFields = ["id", "clubId"];
         verifyRequiredFields(data, requiredFields);
         data.collectedDate = new Date();
-        const posterRef = getPosterDocRef(uid, data.movieId);
+        const posterRef = getPosterDocRef(uid, data.id);
       
         const posterDoc = await posterRef.get();
         if (posterDoc.exists) {
@@ -34,7 +34,7 @@ exports.collectPoster = functions.https.onCall(
         logVerbose("Poster collected successfully!");
 
         // update movie stats
-        const movieRef = getMovieDocRef(data.movieId, data.clubId);
+        const movieRef = getMovieDocRef(data.id, data.clubId);
         try {
           const movieDoc = await movieRef.get(); // Check if the document exists
           if (movieDoc.exists) {
@@ -50,8 +50,7 @@ exports.collectPoster = functions.https.onCall(
           logVerbose("Error updating movie document:");
       }
 
-        return { success: true };
-
+      return posterRef.id;
     } catch (error) {
         console.log(error)
         handleCatchHttpsError("Error deleting Suggestion:", error);

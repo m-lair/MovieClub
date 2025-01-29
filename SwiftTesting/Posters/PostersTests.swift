@@ -26,11 +26,9 @@ class PostersTests: BaseTests {
             posterUrl: "poster-url"
         )
         
-        // 3) Call DataManager method to store it (whatever you actually have)
-        try await mockFunctions.collectPoster(poster: item)
-        let docExists = try await mockFirestore.documentExists(path: "test-movie", in: "users/\(userId)/posters")
+        let posterId = try await mockFunctions.collectPoster(poster: item)
+        let docExists = try await mockFirestore.documentExists(path: "\(posterId)", in: "users/\(userId)/posters")
         #expect(docExists)
-        #expect(true)
         try await super.tearDown()
     }
     
@@ -49,7 +47,7 @@ class PostersTests: BaseTests {
             posterUrl: "poster-url"
         )
         // add poster once
-        try await mockFunctions.collectPoster(poster: item)
+        let posterId = try await mockFunctions.collectPoster(poster: item)
         
         // attempt to add same poster again
         await #expect(throws: Error.self) {
