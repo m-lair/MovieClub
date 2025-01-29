@@ -41,9 +41,8 @@ exports.postComment = functions.https.onCall(
         likes: 0
       };
 
-      await commentsRef.add(commentData);
-      return { success: true };
-      ;
+      const docRef = await commentsRef.add(commentData);
+      return docRef.id;
     } catch (error) {
       handleCatchHttpsError("Error posting comment:", error);
     }

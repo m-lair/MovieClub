@@ -79,7 +79,7 @@
 		2CBEB31D2CE5A7D200FB6623 /* CollectionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBEB31C2CE5A7D200FB6623 /* CollectionItem.swift */; };
 		2CD39CEA2D2A32D7003D6398 /* APIController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD39CE92D2A32D7003D6398 /* APIController.swift */; };
 		2CD71F622CB352BB00F9CF58 /* AppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71F602CB352BB00F9CF58 /* AppTests.swift */; };
-		2CD71F792CB3951900F9CF58 /* Users.test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71F782CB394F100F9CF58 /* Users.test.swift */; };
+		2CD71F792CB3951900F9CF58 /* UsersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71F782CB394F100F9CF58 /* UsersTests.swift */; };
 		2CD71F832CB5E3C500F9CF58 /* TestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 2CD71F822CB5E3C500F9CF58 /* TestPlan.xctestplan */; };
 		2CD71FDC2CB856A900F9CF58 /* ClubEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FDB2CB856A900F9CF58 /* ClubEditView.swift */; };
 		2CD71FDE2CB995DD00F9CF58 /* ClubToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FDD2CB995DD00F9CF58 /* ClubToolbar.swift */; };
@@ -92,6 +92,12 @@
 		2CD71FFC2CC0A8DB00F9CF58 /* ClubTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FFB2CC0A89800F9CF58 /* ClubTabView.swift */; };
 		2CF7AF662D4158E3006A8EBD /* PosterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF7AF652D4158DC006A8EBD /* PosterManager.swift */; };
 		2CF7AF692D415C2C006A8EBD /* PostersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF7AF672D415C2C006A8EBD /* PostersTests.swift */; };
+		2CF7AF6B2D415E1E006A8EBD /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2CF7AF6A2D415E1E006A8EBD /* GoogleService-Info.plist */; };
+		2CF7AFCA2D41B361006A8EBD /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF7AFC92D41B361006A8EBD /* AuthService.swift */; };
+		2CF7AFCE2D41B3AB006A8EBD /* DatastoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF7AFCD2D41B3AB006A8EBD /* DatastoreService.swift */; };
+		2CF7AFD02D41B3D8006A8EBD /* FunctionsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF7AFCF2D41B3D8006A8EBD /* FunctionsService.swift */; };
+		2CF7AFD22D41B417006A8EBD /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF7AFD12D41B417006A8EBD /* StorageService.swift */; };
+		2CF7AFD72D41B841006A8EBD /* CommentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF7AFD62D41B837006A8EBD /* CommentTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -172,7 +178,7 @@
 		2CD39CE92D2A32D7003D6398 /* APIController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIController.swift; sourceTree = "<group>"; };
 		2CD71F602CB352BB00F9CF58 /* AppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTests.swift; sourceTree = "<group>"; };
 		2CD71F6F2CB35A4200F9CF58 /* Testing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Testing.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/Testing.framework; sourceTree = DEVELOPER_DIR; };
-		2CD71F782CB394F100F9CF58 /* Users.test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Users.test.swift; sourceTree = "<group>"; };
+		2CD71F782CB394F100F9CF58 /* UsersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersTests.swift; sourceTree = "<group>"; };
 		2CD71F822CB5E3C500F9CF58 /* TestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestPlan.xctestplan; sourceTree = "<group>"; };
 		2CD71FDB2CB856A900F9CF58 /* ClubEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubEditView.swift; sourceTree = "<group>"; };
 		2CD71FDD2CB995DD00F9CF58 /* ClubToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubToolbar.swift; sourceTree = "<group>"; };
@@ -185,6 +191,12 @@
 		2CD71FFB2CC0A89800F9CF58 /* ClubTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubTabView.swift; sourceTree = "<group>"; };
 		2CF7AF652D4158DC006A8EBD /* PosterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PosterManager.swift; sourceTree = "<group>"; };
 		2CF7AF672D415C2C006A8EBD /* PostersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostersTests.swift; sourceTree = "<group>"; };
+		2CF7AF6A2D415E1E006A8EBD /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		2CF7AFC92D41B361006A8EBD /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		2CF7AFCD2D41B3AB006A8EBD /* DatastoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatastoreService.swift; sourceTree = "<group>"; };
+		2CF7AFCF2D41B3D8006A8EBD /* FunctionsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionsService.swift; sourceTree = "<group>"; };
+		2CF7AFD12D41B417006A8EBD /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
+		2CF7AFD62D41B837006A8EBD /* CommentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -376,6 +388,7 @@
 		2C5DEC122BF1AC6C000EF232 = {
 			isa = PBXGroup;
 			children = (
+				2CF7AF6A2D415E1E006A8EBD /* GoogleService-Info.plist */,
 				2CD71F822CB5E3C500F9CF58 /* TestPlan.xctestplan */,
 				2C5DEC1D2BF1AC6C000EF232 /* MovieClub */,
 				2CD71F612CB352BB00F9CF58 /* SwiftTesting */,
@@ -434,6 +447,10 @@
 			isa = PBXGroup;
 			children = (
 				2C741B302CF3D39A00E7C795 /* MockFirebaseServices.swift */,
+				2CF7AFD12D41B417006A8EBD /* StorageService.swift */,
+				2CF7AFCF2D41B3D8006A8EBD /* FunctionsService.swift */,
+				2CF7AFCD2D41B3AB006A8EBD /* DatastoreService.swift */,
+				2CF7AFC92D41B361006A8EBD /* AuthService.swift */,
 			);
 			path = MockServices;
 			sourceTree = "<group>";
@@ -459,10 +476,11 @@
 		2CD71F612CB352BB00F9CF58 /* SwiftTesting */ = {
 			isa = PBXGroup;
 			children = (
-				2CF7AF682D415C2C006A8EBD /* Posters */,
 				2C741B2F2CF3D35B00E7C795 /* MockServices */,
 				2CD71F602CB352BB00F9CF58 /* AppTests.swift */,
+				2CF7AFD32D41B5F1006A8EBD /* Comments */,
 				2CD71F7D2CB3957300F9CF58 /* Users */,
+				2CF7AF682D415C2C006A8EBD /* Posters */,
 			);
 			path = SwiftTesting;
 			sourceTree = "<group>";
@@ -470,7 +488,7 @@
 		2CD71F7D2CB3957300F9CF58 /* Users */ = {
 			isa = PBXGroup;
 			children = (
-				2CD71F782CB394F100F9CF58 /* Users.test.swift */,
+				2CD71F782CB394F100F9CF58 /* UsersTests.swift */,
 			);
 			path = Users;
 			sourceTree = "<group>";
@@ -588,6 +606,14 @@
 			path = Posters;
 			sourceTree = "<group>";
 		};
+		2CF7AFD32D41B5F1006A8EBD /* Comments */ = {
+			isa = PBXGroup;
+			children = (
+				2CF7AFD62D41B837006A8EBD /* CommentTests.swift */,
+			);
+			path = Comments;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -694,6 +720,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C5DEC262BF1AC6E000EF232 /* Preview Assets.xcassets in Resources */,
+				2CF7AF6B2D415E1E006A8EBD /* GoogleService-Info.plist in Resources */,
 				2C5DEC232BF1AC6E000EF232 /* Assets.xcassets in Resources */,
 				2CD71F832CB5E3C500F9CF58 /* TestPlan.xctestplan in Resources */,
 			);
@@ -733,9 +760,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				2CF7AF692D415C2C006A8EBD /* PostersTests.swift in Sources */,
+				2CF7AFD02D41B3D8006A8EBD /* FunctionsService.swift in Sources */,
 				2CD71F622CB352BB00F9CF58 /* AppTests.swift in Sources */,
+				2CF7AFCA2D41B361006A8EBD /* AuthService.swift in Sources */,
+				2CF7AFD72D41B841006A8EBD /* CommentTests.swift in Sources */,
+				2CF7AFCE2D41B3AB006A8EBD /* DatastoreService.swift in Sources */,
+				2CF7AFD22D41B417006A8EBD /* StorageService.swift in Sources */,
 				2C741B312CF3D39A00E7C795 /* MockFirebaseServices.swift in Sources */,
-				2CD71F792CB3951900F9CF58 /* Users.test.swift in Sources */,
+				2CD71F792CB3951900F9CF58 /* UsersTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

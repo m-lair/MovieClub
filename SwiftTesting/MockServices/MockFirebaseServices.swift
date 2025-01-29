@@ -11,66 +11,10 @@ import Foundation
 import FirebaseFunctions
 import FirebaseFirestore
 import FirebaseStorage
-import class FirebaseAuth.Auth
-import class FirebaseAuth.User
+import FirebaseAuth
 import class MovieClub.User
+import class MovieClub.Comment
 @testable import MovieClub
-
-// MARK: - Firebase Service Protocols
-protocol AuthService {
-    var currentUser: FirebaseAuth.User? { get set }
-    func signIn(withEmail email: String, password: String) async throws -> FirebaseAuth.User
-    func signOut() async throws
-    func createUser(withEmail email: String, password: String) async throws -> FirebaseAuth.User
-}
-
-protocol DatastoreService {
-    func document(_ path: String, in collection: String) async throws -> [String: Any]?
-    func setDocument(_ data: [String: Any], at path: String, in collection: String) async throws
-    func deleteDocument(at path: String, in collection: String) async throws
-    func documentExists(path: String, in collection: String) async throws -> Bool
-}
-
-protocol FunctionsService {
-    // MARK: - Users
-    func createUserWithEmail(email: String, password: String, name: String) async throws -> String
-    func createUserWithOAuth(_ email: String, signInProvider: String) async throws -> String
-    func updateUser(userId: String, email: String?, displayName: String?) async throws
-    func deleteUser(_ id: String) async throws
-    
-    // MARK: - Comments
-    func postComment(movieId: String, text: String) async throws -> String
-    func likeComment(commentId: String) async throws
-    func unlikeComment(commentId: String) async throws
-    func deleteComment(commentId: String) async throws
-    
-    // MARK: - Suggestions
-    func createMovieClubSuggestion(clubId: String, suggestion: String) async throws -> String
-    func deleteMovieClubSuggestion(suggestionId: String) async throws
-    
-    // MARK: - Memberships
-    func joinMovieClub(clubId: String, userId: String) async throws
-    func leaveMovieClub(clubId: String, userId: String) async throws
-    
-    // MARK: - Movie Clubs
-    func createMovieClub(name: String, description: String) async throws -> String
-    func updateMovieClub(clubId: String, name: String?, description: String?) async throws
-    
-    // MARK: - Movies
-    func handleMovieReaction(movieId: String, reaction: String) async throws
-    func rotateMovie(movieId: String) async throws
-    
-    // MARK: - Posters
-    func collectPoster(poster: CollectionItem) async throws
-}
-
-
-protocol StorageService {
-    func uploadFile(_ data: Data, path: String) async throws -> URL
-    func downloadFile(at path: String) async throws -> Data?
-    func deleteFile(at path: String) async throws
-}
-
 
 // MARK: - Live Firebase Implementations
 actor TestFirebaseAuth: @preconcurrency AuthService {
@@ -179,39 +123,43 @@ actor TestFunctions: FunctionsService {
     }
     
     // MARK: - Comments
-    func postComment(movieId: String, text: String) async throws -> String {
-        let result = try await functions
-            .httpsCallable("comments-postComment")
-            .call(["movieId": movieId, "text": text])
-        
-        guard let commentId = result.data as? String else {
-            throw URLError(.badServerResponse)
+    func postComment(movieId: String, clubId: String, comment: Comment) async throws -> String {
+        do {
+            let result = try await functions
+                .httpsCallable("comments-postComment")
+                .call(["movieId": movieId, "userName": comment.userName, "text": comment.text, "userId": comment.userId, "clubId": clubId])
+            return result.data as! String
+        } catch {
+            throw error
         }
-        return commentId
     }
     
-    func likeComment(commentId: String) async throws {
-        _ = try await functions
-            .httpsCallable("comments.likeComment")
-            .call(["commentId": commentId])
+    func likeComment(commentId: String, clubId: String, movieId: String) async throws {
+        do {
+            _ = try await functions
+                .httpsCallable("comments-likeComment")
+                .call(["commentId": commentId, "clubId": clubId, "movieId": movieId])
+        } catch {
+            print(error)
+        }
     }
     
-    func unlikeComment(commentId: String) async throws {
+    func unlikeComment(commentId: String, clubId: String, movieId: String) async throws {
         _ = try await functions
-            .httpsCallable("comments.unlikeComment")
-            .call(["commentId": commentId])
+            .httpsCallable("comments-unlikeComment")
+            .call(["commentId": commentId, "clubId": clubId, "movieId": movieId])
     }
     
-    func deleteComment(commentId: String) async throws {
+    func deleteComment(commentId: String, clubId: String, movieId: String) async throws {
         _ = try await functions
-            .httpsCallable("comments.deleteComment")
-            .call(["commentId": commentId])
+            .httpsCallable("comments-deleteComment")
+            .call(["id": commentId, "clubId": clubId, "movieId": movieId])
     }
     
     // MARK: - Suggestions
     func createMovieClubSuggestion(clubId: String, suggestion: String) async throws -> String {
         let result = try await functions
-            .httpsCallable("suggestions.createMovieClubSuggestion")
+            .httpsCallable("suggestions-createMovieClubSuggestion")
             .call(["clubId": clubId, "suggestion": suggestion])
         
         guard let suggestionId = result.data as? String else {
