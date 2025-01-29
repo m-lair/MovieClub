@@ -72,7 +72,7 @@ extension DataManager {
         let suggestionsRef = movieClubCollection()
             .document(clubId)
             .collection("suggestions")
-            .order(by: "createdAt", descending: true)
+            .order(by: "createdAt", descending: false)
         
         // Remove existing listener if any
         suggestionsListener?.remove()

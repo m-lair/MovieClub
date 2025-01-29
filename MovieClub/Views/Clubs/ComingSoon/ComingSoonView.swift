@@ -10,6 +10,7 @@ import FirebaseFirestore
 
 import SwiftUI
 import FirebaseFirestore
+import FirebaseAuth
 
 struct ComingSoonView: View {
     @Environment(DataManager.self) var data: DataManager
@@ -84,15 +85,17 @@ struct ComingSoonView: View {
                         Text(suggestion.userName)
                         Spacer()
                         Text(computedDateString(for: index) ?? "No Date")
-                        Button(action: {
-                            Task {
-                                await deleteSuggestion(for: suggestion)
+                        if suggestion.userId == Auth.auth().currentUser?.uid {
+                            Button(action: {
+                                Task {
+                                    await deleteSuggestion(for: suggestion)
+                                }
+                            }) {
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
                             }
-                        }) {
-                            Image(systemName: "trash")
-                                .foregroundColor(.red)
+                            .buttonStyle(BorderlessButtonStyle())
                         }
-                        .buttonStyle(BorderlessButtonStyle())
                     }
                     .padding(.vertical, 8)
                 }
