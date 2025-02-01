@@ -6,20 +6,21 @@
 //
 
 import Foundation
+import FirebaseFirestore
 import SwiftUI
 
-struct Notification: Identifiable {
-    let id: UUID
+struct Notification: Identifiable, Codable {
+    @DocumentID var id: String?
     let clubName: String
     let userName: String
     let othersCount: Int?
     let message: String
-    let time: String
+    let createdAt: Date
     let type: NotificationType
 }
 
 
-enum NotificationType {
+enum NotificationType: String, Codable {
     case liked
     case replied
     case collected

@@ -22,7 +22,7 @@ struct NotificationView: View {
                     .foregroundColor(.white)
                     .lineLimit(2)
 
-                Text(notification.time)
+                Text(notification.createdAt .formatted(date: .abbreviated, time: .shortened))
                     .font(.system(size: 12))
                     .foregroundColor(.gray)
             }

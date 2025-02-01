@@ -78,27 +78,25 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
 struct MovieClubApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @State var dataManager: DataManager? = nil
+    @State var notifManager: NotificationManager? = nil
     @State var isLoading: Bool = true
     
     var body: some Scene {
         WindowGroup {
             Group {
-                if let dataManager {
+                if let dataManager, let notifManager {
                     HomeView()
                         .environment(dataManager)
+                        .environment(notifManager)
                 } else {
                     WaveLoadingView()
                         .onAppear {
                             dataManager = DataManager()
+                            notifManager = NotificationManager()
                         }
                 }
             }
-           
-            
             .colorScheme(.dark)
-            
-            
         }
-       
     }
 }
