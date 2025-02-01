@@ -13,6 +13,7 @@ import FirebaseFirestore
 import FirebaseStorage
 import FirebaseAuth
 import class MovieClub.Comment
+import class MovieClub.MovieClub
 @testable import MovieClub
 
 protocol FunctionsService {
@@ -37,13 +38,13 @@ protocol FunctionsService {
     func leaveMovieClub(clubId: String, userId: String) async throws
     
     // MARK: - Movie Clubs
-    func createMovieClub(name: String, description: String) async throws -> String
-    func updateMovieClub(clubId: String, name: String?, description: String?) async throws
+    func createMovieClub(movieClub: MovieClub) async throws -> String
+    func updateMovieClub(movieClub: MovieClub) async throws -> String?
     
     // MARK: - Movies
     func handleMovieReaction(movieId: String, reaction: String) async throws
     func rotateMovie(movieId: String) async throws
     
     // MARK: - Posters
-    func collectPoster(poster: CollectionItem) async throws
+    func collectPoster(poster: CollectionItem) async throws -> String
 }

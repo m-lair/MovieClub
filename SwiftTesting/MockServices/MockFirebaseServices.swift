@@ -14,6 +14,7 @@ import FirebaseStorage
 import FirebaseAuth
 import class MovieClub.User
 import class MovieClub.Comment
+import class MovieClub.MovieClub
 @testable import MovieClub
 
 // MARK: - Live Firebase Implementations
@@ -188,25 +189,18 @@ actor TestFunctions: FunctionsService {
     }
     
     // MARK: - Movie Clubs
-    func createMovieClub(name: String, description: String) async throws -> String {
-        let result = try await functions
-            .httpsCallable("movieClubs.createMovieClub")
-            .call(["name": name, "description": description])
+    func createMovieClub(movieClub: MovieClub) async throws -> String {
+        return try await functions
+            .httpsCallable("movieClubs-createMovieClub")
+            .call(movieClub)
         
-        guard let clubId = result.data as? String else {
-            throw URLError(.badServerResponse)
-        }
-        return clubId
     }
     
-    func updateMovieClub(clubId: String, name: String?, description: String?) async throws {
-        _ = try await functions
-            .httpsCallable("movieClubs.updateMovieClub")
-            .call([
-                "clubId": clubId,
-                "name": name as Any,
-                "description": description as Any
-            ])
+    func updateMovieClub(movieClub: MovieClub) async throws -> String? {
+        return try await functions
+            .httpsCallable("movieClubs-updateMovieClub")
+            .call(movieClub)
+                
     }
     
     // MARK: - Movies
@@ -223,10 +217,8 @@ actor TestFunctions: FunctionsService {
     }
     
     // MARK: - Posters
-    func collectPoster(poster: CollectionItem) async throws {
-        let collectPoster: Callable<CollectionItem, CollectionResponse> = functions.httpsCallable("posters-collectPoster")
-        let result = try await collectPoster.call(poster)
-        
+    func collectPoster(poster: CollectionItem) async throws -> String{
+        return try await functions.httpsCallable("posters-collectPoster").call(poster)
     }
 }
 

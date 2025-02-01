@@ -8,5 +8,5 @@ export interface PosterData {
 }
 
 export interface CollectPosterData extends PosterData {
-    movieId: string;
+    id: string;
 }

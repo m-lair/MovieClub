@@ -67,7 +67,7 @@ describe("createMovieClub", () => {
     } catch (error: any) {
       assert.match(
         error.message,
-        /The function must be called with description, isPublic, name, ownerName, timeInterval./,
+        /The function must be called with isPublic, name, ownerName, timeInterval./,
       );
     }
   });
