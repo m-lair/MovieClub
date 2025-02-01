@@ -9,7 +9,6 @@ import Foundation
 import UserNotifications
 import Observation
 
-@MainActor
 @Observable
 class NotificationManager{
     private var hasPermission = false

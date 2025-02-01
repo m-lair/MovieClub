@@ -19,6 +19,7 @@ import FirebaseAnalytics
 class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication,
                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
+        configureFirebase()
         application.registerForRemoteNotifications()
         Messaging.messaging().delegate = self
         UNUserNotificationCenter.current().delegate = self
@@ -53,7 +54,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     
     func saveFCMTokenToFirestore(_ fcmToken: String) {
         // Ensure the user is authenticated
-       /* guard let uid = Auth.auth().currentUser?.uid
+       guard let uid = Auth.auth().currentUser?.uid
         else {
             print("User is not authenticated. Cannot save FCM token.")
             return
@@ -67,7 +68,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
             } else {
                 print("FCM token successfully saved to Firestore")
             }
-        }*/
+        }
     }
 }
 
@@ -76,32 +77,28 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
 @main
 struct MovieClubApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @State var dataManager: DataManager
+    @State var dataManager: DataManager? = nil
     @State var isLoading: Bool = true
-    
-    init() {
-        configureFirebase()
-        dataManager = DataManager()
-       
-    }
     
     var body: some Scene {
         WindowGroup {
             Group {
-                if dataManager.authCurrentUser != nil && dataManager.currentUser != nil {
-                    ContentView()
+                if let dataManager {
+                    HomeView()
+                        .environment(dataManager)
                 } else {
-                    LoginView()
+                    WaveLoadingView()
+                        .onAppear {
+                            dataManager = DataManager()
+                        }
                 }
             }
-            .task {
-                Task {
-                   try await dataManager.fetchUser()
-                }
-            }
+           
+            
             .colorScheme(.dark)
             
+            
         }
-        .environment(dataManager)
+       
     }
 }
