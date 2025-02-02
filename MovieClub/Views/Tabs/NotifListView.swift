@@ -15,17 +15,16 @@ struct NotificationListView: View {
         ScrollView {
             VStack {
                 ForEach(notifManager.notifications, id: \.id) { notification in
-                    NotificationView(notification: notification)
+                    NotificationItemView(notification: notification)
                     Divider()
+                }
+                .refreshable {
+                    await notifManager.fetchUserNotifications()
                 }
             }
         }
         .navigationTitle("Notifications")
         .task {
-            await notifManager.fetchUserNotifications()
-            print("notificationList \(notifManager.notifications.first)")
-        }
-        .refreshable {
             await notifManager.fetchUserNotifications()
         }
     }

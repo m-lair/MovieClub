@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 
-struct NotificationView: View {
+struct NotificationItemView: View {
     let notification: Notification
 
     var body: some View {
