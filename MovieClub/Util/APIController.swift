@@ -76,26 +76,22 @@ class APIController {
     }
     
     func fetchMovieDetails(_ imdbId: String) async throws -> MovieAPIData? {
-        let endpoint = "/find/\(imdbId)"
+        let endpoint = "/movie/\(imdbId)"
         guard let url = buildURL(endpoint: endpoint) else {
             throw APIError.invalidURL
         }
         
         let data = try await fetchData(from: url)
-        let response = try JSONDecoder().decode(TMDBFindResponse.self, from: data)
-        
-        guard let firstResult = response.movieResults.first else {
-            return nil
-        }
+        let response = try JSONDecoder().decode(TMDBFindMovie.self, from: data)
         
         // Quick partial data from "/find"
-        let posterFullPath = "https://image.tmdb.org/t/p/w500\(firstResult.posterPath ?? "")"
-        let releaseYear = parseYear(from: firstResult.releaseDate)
+        let posterFullPath = "https://image.tmdb.org/t/p/w500\(response.posterPath ?? "")"
+        let releaseYear = parseYear(from: response.releaseDate)
 
         let baseData = MovieAPIData(
             imdbId: imdbId,
-            title: firstResult.title,
-            plot: firstResult.overview,
+            title: response.title,
+            plot: response.overview,
             poster: posterFullPath,
             releaseYear: releaseYear,
             runtime: 0,
@@ -104,7 +100,7 @@ class APIController {
         )
         
         // Now get the FULL details
-        let fullyLoaded = try await fetchMovieFullDetails(tmdbId: firstResult.id, baseData: baseData)
+        let fullyLoaded = try await fetchMovieFullDetails(tmdbId: response.id, baseData: baseData)
         
         return fullyLoaded
     }
@@ -236,7 +232,7 @@ class APIController {
     // MARK: - Private Helpers
     private func buildURL(endpoint: String, queryItems: [String: String] = [:]) -> URL? {
         var components = URLComponents(string: baseURL + endpoint)
-        var items = [URLQueryItem(name: "api_key", value: apiKey), URLQueryItem(name: "external_source", value: "imdb_id")]
+        var items = [URLQueryItem(name: "api_key", value: apiKey)]
         for (key, value) in queryItems {
             items.append(URLQueryItem(name: key, value: value))
         }
