@@ -63,6 +63,9 @@ class DataManager: Identifiable {
         auth = Auth.auth()
         tmdb = APIController(apiKey: omdbKey)
         registerStateListener()
+        Task {
+            try await fetchUser()
+        }
     }
     
     // MARK: - Collection References

@@ -6,21 +6,23 @@
 //
 
 import Foundation
+import FirebaseFirestore
 import SwiftUI
 
-struct Notification: Identifiable {
-    let id: UUID
+struct Notification: Identifiable, Codable {
+    @DocumentID var id: String?
     let clubName: String
     let userName: String
     let othersCount: Int?
     let message: String
-    let time: String
+    let createdAt: Date
     let type: NotificationType
 }
 
 
-enum NotificationType {
+enum NotificationType: String, Codable {
     case liked
+    case commented
     case replied
     case collected
 
@@ -32,6 +34,8 @@ enum NotificationType {
             return "arrowshape.turn.up.left.fill"
         case .collected:
             return "square.and.arrow.down.fill"
+        case .commented:
+            return "bubble.left.fill"
         }
     }
 
@@ -43,6 +47,8 @@ enum NotificationType {
             return .blue
         case .collected:
             return .yellow
+        case .commented:
+            return .gray
         }
     }
 }

@@ -1,6 +1,7 @@
 export interface UserData {
   bio?: string;
   image?: string;
+  fcmToken?: string;
   name: string;
   createdAt?: number;
 }

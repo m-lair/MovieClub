@@ -68,7 +68,7 @@ extension DataManager {
         }
         
         do {
-            var movieClub = try snapshot.data(as: MovieClub.self)
+            let movieClub = try snapshot.data(as: MovieClub.self)
             movieClub.id = snapshot.documentID
 
             // 1) Get total number of movies for this club

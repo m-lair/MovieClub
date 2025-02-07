@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  MainTabView.swift
 //  MovieClub
 //
 //  Created by Marcus Lair on 5/12/24.
@@ -8,7 +8,7 @@
 import SwiftUI
 
 
-struct ContentView: View {
+struct MainTabView: View {
     enum Tab {
         case clubsPath,
              discoverPath,
@@ -75,7 +75,7 @@ struct ContentView: View {
 //this is working better but double tap still wont send you home
 //need a way to set navPath base on the Tab.
 //if tapped == self.selected, rest that Stack
-extension ContentView {
+extension MainTabView {
     private func tabSelection() -> Binding<Tab> {
         Binding { //this is the get block
             self.selection

@@ -48,6 +48,21 @@ extension DataManager {
         await fetchUserClubs()
     }
     
+    func storeFCMTokenIfAuthenticated(token: String) async {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            print("No current user, cannot store FCM token yet.")
+            return
+        }
+        do {
+            try await db.collection("users")
+                .document(uid)
+                .setData(["fcmToken": token], merge: true)
+            print("Successfully saved FCM token for user \(uid).")
+        } catch {
+            print("Error saving FCM token: \(error)")
+        }
+    }
+    
     // MARK: - Fetch User Clubs
     
     func fetchUserClubs() async {
