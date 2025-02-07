@@ -47,7 +47,7 @@ struct NotificationItemView: View {
         if let othersCount = notification.othersCount {
             return "[\(notification.clubName)] \(notification.userName) and \(othersCount) others \(notification.message)"
         } else {
-            return "[\(notification.clubName)] \(notification.userName) \(notification.message)"
+            return "[\(notification.clubName)] \(notification.message)"
         }
     }
 }

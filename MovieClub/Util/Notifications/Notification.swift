@@ -22,6 +22,7 @@ struct Notification: Identifiable, Codable {
 
 enum NotificationType: String, Codable {
     case liked
+    case commented
     case replied
     case collected
 
@@ -33,6 +34,8 @@ enum NotificationType: String, Codable {
             return "arrowshape.turn.up.left.fill"
         case .collected:
             return "square.and.arrow.down.fill"
+        case .commented:
+            return "bubble.left.fill"
         }
     }
 
@@ -44,6 +47,8 @@ enum NotificationType: String, Codable {
             return .blue
         case .collected:
             return .yellow
+        case .commented:
+            return .gray
         }
     }
 }
