@@ -20,24 +20,33 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     func application(_ application: UIApplication,
                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
         configureFirebase()
-        application.registerForRemoteNotifications()
+        
+        configureUserNotifications()
+        
         Messaging.messaging().delegate = self
-        UNUserNotificationCenter.current().delegate = self
-        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-        UNUserNotificationCenter.current().requestAuthorization(
-            options: authOptions,
-            completionHandler: {_, _ in })
         Analytics.setAnalyticsCollectionEnabled(true)
         return true
+    }
+    
+    private func configureUserNotifications() {
+        UNUserNotificationCenter.current().delegate = self
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if let error = error {
+                print("Error requesting notification permissions: \(error)")
+            }
+            if granted {
+                DispatchQueue.main.async {
+                    UIApplication.shared.registerForRemoteNotifications()
+                }
+            } else {
+                print("User declined notification permissions.")
+            }
+        }
     }
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
             Messaging.messaging().apnsToken = deviceToken
         }
-    // Handle notification in the foreground
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
-        return [.banner, .sound, .badge]
-    }
 
     // Handle notification when user interacts with it
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
@@ -46,9 +55,16 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     }
     
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        if let fcm = Messaging.messaging().fcmToken {
-            //print("fcm: \(fcm)")
-            saveFCMTokenToFirestore(fcm)
+        guard let fcmToken = fcmToken else { return }
+        // 1) If the user is logged in, store it immediately.
+        if Auth.auth().currentUser?.uid != nil {
+            Task {
+                print("calling storeFCMTokenIfAuthenticated")
+                await DataManager().storeFCMTokenIfAuthenticated(token: fcmToken)
+            }
+        } else {
+            // 2) If no user is logged in yet, store it for later in UserDefaults (optional).
+            UserDefaults.standard.set(fcmToken, forKey: "pendingFCMToken")
         }
     }
     

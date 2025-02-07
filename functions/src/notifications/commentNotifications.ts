@@ -12,7 +12,7 @@ export const notifyClubMembersOnComment = onDocumentCreated(
       return null;
     }
 
-    const { clubId, movieId } = event.params;
+    const { clubId } = event.params;
     const commentData = snapshot.data() as CommentData;
     const commentAuthorId = commentData.userId;
 
@@ -44,28 +44,14 @@ export const notifyClubMembersOnComment = onDocumentCreated(
         if (!fcmToken) return null;
 
         // Create notification payload
-        const payload: admin.messaging.Message = {
+        // 3) Build the notification message
+        const payload = {
           token: fcmToken,
           notification: {
-            title: "New Club Comment",
-            body: `New comment in ${clubName} by ${userData?.name}`,
-          },
-          data: {
-            type: "club_comment",
-            clubId,
-            movieId,
-            commentId: snapshot.id,
-            deepLink: `movieclubs/${clubId}/movies/${movieId}`
-          },
-          apns: {
-            payload: {
-              aps: {
-                sound: "default",
-                badge: 1
-              }
-            }
-          }
-        };
+          title: "New Comments in ${clubName}!",
+          body: `${commentData.userName} commented in ${clubName}!`,
+      },
+    }
 
         // Send notification
         try {
