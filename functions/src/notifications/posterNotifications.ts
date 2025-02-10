@@ -7,32 +7,35 @@ import { getMovie } from "src/movieClubs/movies/movieHelpers";
 import { getMovieClub } from "src/movieClubs/movieClubHelpers";
 
 export const notifyPosterCollected = onDocumentUpdated(
-    "movieclubs/{clubId}/movies/{movieId}",
-    async (event) => {
+  "movieclubs/{clubId}/movies/{movieId}",
+  async (event) => {
     const beforeData = event.data?.before.data() as MovieData;
     const afterData = event.data?.after.data() as MovieData;
     if (!beforeData || !afterData) {
-          console.log("Missing poster data");
-          return null;
+      console.log("Missing poster data");
+      return null;
     }
+
     // Compare collectedBy arrays
     const beforeCollectors: string[] = beforeData.collectedBy || [];
     const afterCollectors: string[] = afterData.collectedBy || [];
-    const newCollectors = afterCollectors.filter((userId) => !beforeCollectors.includes(userId));
-    if (newCollectors.length === 0) {
-          console.log("No new collectors.");
-          return null;
-    }
-    
-    // Get New Collectors info
-    const collectorPromises = newCollectors.map((userId) =>
-        getUser(userId)
+    const newCollectors = afterCollectors.filter(
+      (userId) => !beforeCollectors.includes(userId)
     );
+    if (newCollectors.length === 0) {
+      console.log("No new collectors.");
+      return null;
+    }
+
+    // Get new collectors info
+    const collectorPromises = newCollectors.map((userId) => getUser(userId));
     const collectorSnapshots = await Promise.all(collectorPromises);
-    const collectorData = collectorSnapshots.map((snapshot) => snapshot.data() as UserData);
+    const collectorData = collectorSnapshots.map(
+      (snapshot) => snapshot.data() as UserData
+    );
     if (collectorData.length === 0) {
-          console.log("No collector data found");
-          return null;
+      console.log("No collector data found");
+      return null;
     }
 
     // Get the movie author (assume movie doc holds the original author's id)
@@ -45,64 +48,71 @@ export const notifyPosterCollected = onDocumentUpdated(
     const clubSnapshot = await getMovieClub(clubId);
     const clubName = clubSnapshot.data()?.name || "Unnamed Club";
 
-    // Send notification to movie author
+    // Get the movie author's user data
     const authorSnapshot = await getUser(movieAuthorId);
     const authorData = authorSnapshot.data() as UserData;
     if (!authorData) {
-          console.log("Movie author not found");
-          return null;
+      console.log("Movie author not found");
+      return null;
     }
 
     const fcmToken = authorData.fcmToken;
     if (!fcmToken) {
-          console.log("Movie author has no FCM token");
-          return null;
+      console.log("Movie author has no FCM token");
+      return null;
     }
+
+    // For each new collector, send a notification to the movie author
     for (const collector of collectorData) {
-          const userName = collector.name;
-          if (!fcmToken) {
-                console.log("Collector has no FCM token");
-                continue;
-          }
-    const payload = {
-          token: fcmToken,
-          notification: {
-                title: "Poster Collected",
-                body: `Your movie has a new collector: ${userName}`,
-          },
-          data: {
-                type: "collected",
-                clubId: clubId,
-                movieId: movieData.imdbId
-          },
-        };
+      const userName = collector.name;
 
-        try {
-            const messageId = await admin.messaging().send(payload);
-            console.log(
-              `Like notification sent to ${movieAuthorId}, msg id: ${messageId}`
-            );
-          } catch (error) {
-            console.error(`Failed to send like notification to ${movieAuthorId}`, error);
-          }
+      const payload = {
+        token: fcmToken,
+        notification: {
+          title: "Poster Collected",
+          body: `Your movie has a new collector: ${userName}`,
+        },
+        data: {
+          type: "collected",
+          clubId: clubId,
+          movieId: movieData.imdbId, // or use movieId if preferred
+        },
+      };
 
-          // Write a notification document to the movie author's notifications collection
-          try {
-            await admin
-              .firestore()
-              .collection(`users/${movieAuthorId}/notifications`)
-              .add({
-                clubName: clubName,
-                userName: userName,
-                othersCount: null,
-                message: `Your movie has a new collector!`,
-                createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                type: "collected",
-              });
-            console.log("Like notification document written for", movieAuthorId);
-          } catch (error) {
-            console.error("Failed to write like notification document:", error);
-          }
-        }
+      try {
+        const messageId = await admin.messaging().send(payload);
+        console.log(
+          `Collected notification sent to ${movieAuthorId}, msg id: ${messageId}`
+        );
+      } catch (error) {
+        console.error(
+          `Failed to send collected notification to ${movieAuthorId}:`,
+          error
+        );
+      }
+
+      // Write a notification document to the movie author's notifications collection
+      try {
+        await admin
+          .firestore()
+          .collection(`users/${movieAuthorId}/notifications`)
+          .add({
+            clubName: clubName,
+            userName: userName,
+            othersCount: null,
+            message: "Your movie has a new collector!",
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            type: "collected",
+          });
+        console.log("Collected notification document written for", movieAuthorId);
+      } catch (error) {
+        console.error(
+          "Failed to write collected notification document:",
+          error
+        );
+      }
     }
+
+    return { success: true };
+  }
 );
