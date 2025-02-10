@@ -1,7 +1,9 @@
 import { onDocumentCreated, onDocumentUpdated } from "firebase-functions/v2/firestore";
 import * as admin from "firebase-admin";
 import { CommentData } from "../movieClubs/movies/comments/commentTypes";
+import { getMovieClub } from "../movieClubs/movieClubHelpers";
 import { UserData } from "src/users/userTypes";
+import { getUser } from "src/users/userHelpers";
 
 export const notifyClubMembersOnComment = onDocumentCreated(
   "movieclubs/{clubId}/movies/{movieId}/comments/{commentId}",
@@ -30,12 +32,12 @@ export const notifyClubMembersOnComment = onDocumentCreated(
 
       // 3. Get user data for all members in parallel
       const userPromises = memberIds.map((userId) =>
-        admin.firestore().doc(`users/${userId}`).get()
+        getUser(userId)
       );
       const userSnapshots = await Promise.all(userPromises);
 
       // Get club info
-      const clubSnapshot = await admin.firestore().doc(`movieclubs/${clubId}`).get();
+      const clubSnapshot = await getMovieClub(clubId);
       const clubName = clubSnapshot.data()?.name || "Unnamed Club";
 
       // 4. Prepare and send notifications

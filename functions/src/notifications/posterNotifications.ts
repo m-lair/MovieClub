@@ -2,6 +2,9 @@ import { onDocumentUpdated } from "firebase-functions/v2/firestore";
 import * as admin from "firebase-admin";
 import { MovieData } from "../movieClubs/movies/movieTypes";
 import { UserData } from "src/users/userTypes";
+import { getUser } from "src/users/userHelpers";
+import { getMovie } from "src/movieClubs/movies/movieHelpers";
+import { getMovieClub } from "src/movieClubs/movieClubHelpers";
 
 export const notifyPosterCollected = onDocumentUpdated(
     "movieclubs/{clubId}/movies/{movieId}",
@@ -23,7 +26,7 @@ export const notifyPosterCollected = onDocumentUpdated(
     
     // Get New Collectors info
     const collectorPromises = newCollectors.map((userId) =>
-        admin.firestore().doc(`users/${userId}`).get()
+        getUser(userId)
     );
     const collectorSnapshots = await Promise.all(collectorPromises);
     const collectorData = collectorSnapshots.map((snapshot) => snapshot.data() as UserData);
@@ -34,16 +37,16 @@ export const notifyPosterCollected = onDocumentUpdated(
 
     // Get the movie author (assume movie doc holds the original author's id)
     const { clubId, movieId } = event.params;
-    const movieSnapshot = await admin.firestore().doc(`movieclubs/${clubId}/movies/${movieId}`).get();
+    const movieSnapshot = await getMovie(clubId, movieId);
     const movieData = movieSnapshot.data() as MovieData;
     const movieAuthorId = movieData.userId;
 
     // Get club info
-    const clubSnapshot = await admin.firestore().doc(`movieclubs/${clubId}`).get();
+    const clubSnapshot = await getMovieClub(clubId);
     const clubName = clubSnapshot.data()?.name || "Unnamed Club";
 
     // Send notification to movie author
-    const authorSnapshot = await admin.firestore().doc(`users/${movieAuthorId}`).get();
+    const authorSnapshot = await getUser(movieAuthorId);
     const authorData = authorSnapshot.data() as UserData;
     if (!authorData) {
           console.log("Movie author not found");
