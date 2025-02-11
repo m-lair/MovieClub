@@ -374,4 +374,43 @@ class APIController {
         let images = try JSONDecoder().decode(TMDBCollectionImages.self, from: data)
         return images
     }
+    
+    func fetchTrendingMovies() async throws -> [MovieAPIData] {
+        // TMDB trending movie endpoint (weekly)
+        let endpoint = "/trending/movie/week"
+        guard let url = buildURL(endpoint: endpoint) else {
+            throw APIError.invalidURL
+        }
+
+        let data = try await fetchData(from: url)
+
+        // We can decode into a local struct that matches TMDB's response shape
+        struct TrendingResponse: Codable {
+            let results: [TMDBFindMovie]
+        }
+
+        do {
+            // Decode the JSON into an array of TMDBFindMovie
+            let response = try JSONDecoder().decode(TrendingResponse.self, from: data)
+            
+            // Convert each TMDBFindMovie into your MovieAPIData
+            return response.results.map { tmdb in
+                let posterURL = "https://image.tmdb.org/t/p/w500\(tmdb.posterPath ?? "")"
+                let releaseYear = parseYear(from: tmdb.releaseDate)
+                return MovieAPIData(
+                    imdbId: String(tmdb.id),
+                    title: tmdb.title,
+                    plot: tmdb.overview,
+                    poster: posterURL,
+                    releaseYear: releaseYear,
+                    runtime: 0,
+                    director: "Unknown",
+                    cast: []
+                )
+            }
+        } catch {
+            throw APIError.decodingFailed(error)
+        }
+    }
+
 }
