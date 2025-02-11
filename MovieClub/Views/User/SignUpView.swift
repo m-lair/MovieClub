@@ -71,7 +71,7 @@ struct SignUpView: View {
             .signInWithAppleButtonStyle(.black)
             .frame(height: 45)
             .padding(.horizontal, 50)
-            
+            .hidden()
             
             
             Divider()

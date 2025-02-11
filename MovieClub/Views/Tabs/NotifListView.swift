@@ -18,10 +18,11 @@ struct NotificationListView: View {
                     NotificationItemView(notification: notification)
                     Divider()
                 }
-                .refreshable {
-                    await notifManager.fetchUserNotifications()
-                }
+                
             }
+        }
+        .refreshable {
+            await notifManager.fetchUserNotifications()
         }
         .navigationTitle("Notifications")
         .task {
