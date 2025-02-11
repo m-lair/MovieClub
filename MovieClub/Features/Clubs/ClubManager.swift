@@ -68,7 +68,7 @@ extension DataManager {
         }
         
         do {
-            let movieClub = try snapshot.data(as: MovieClub.self)
+            var movieClub = try snapshot.data(as: MovieClub.self)
             movieClub.id = snapshot.documentID
 
             // 1) Get total number of movies for this club
@@ -140,6 +140,7 @@ extension DataManager {
                 // Assign to your club model
                 movieClub.movieEndDate = baseMovie.endDate
                 movieClub.movies = [baseMovie]
+                movieClub.suggestions = try await fetchSuggestions(clubId: snapshot.documentID)
                 movieClub.bannerUrl = baseMovie.poster
                 
             }
