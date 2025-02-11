@@ -43,7 +43,9 @@ export const notifyPosterCollected = onDocumentUpdated(
     const movieSnapshot = await getMovie(clubId, movieId);
     const movieData = movieSnapshot.data() as MovieData;
     const movieAuthorId = movieData.userId;
-
+    if (!movieAuthorId) {
+      console.log("Movie doc is missing a userId field.");
+    }
     // Get club info
     const clubSnapshot = await getMovieClub(clubId);
     const clubName = clubSnapshot.data()?.name || "Unnamed Club";
