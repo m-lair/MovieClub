@@ -8,40 +8,34 @@
 import SwiftUI
 import FirebaseFirestore
 
+
 struct UserCollectionView: View {
     @Environment(DataManager.self) private var data: DataManager
+
     var collection: [CollectionItem] {
         data.currentCollection.sorted {
             guard let date1 = $0.collectedDate, let date2 = $1.collectedDate else { return false }
             return date1 > date2
         }
     }
-    let flexibleColumns = [
-        GridItem(.flexible(minimum: 50, maximum: 200)),
-        GridItem(.flexible(minimum: 50, maximum: 200)),
-        GridItem(.flexible(minimum: 50, maximum: 200))
+    
+    // Two columns. Feel free to adjust the minimum widths and spacing to make them bigger/smaller.
+    private let columns = [
+        GridItem(.flexible(minimum: 140), spacing: 16),
+        GridItem(.flexible(minimum: 140), spacing: 16)
     ]
 
     var body: some View {
         ScrollView {
-            LazyVGrid(columns: flexibleColumns, spacing: 10) {
+            LazyVGrid(columns: columns) {
                 ForEach(collection) { item in
                     VStack {
                         if let url = URL(string: item.posterUrl) {
-                            AsyncImage(url: url) { phase in
-                                switch phase {
-                                case .success(let image):
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(maxHeight: 250)
-                                        .clipped()
-                                case .failure, .empty:
-                                    PlaceholderView()
-                                @unknown default:
-                                    PlaceholderView()
-                                }
+                            CachedAsyncImage(url: url) {
+                                PlaceholderView()
                             }
+                            .aspectRatio(2/3, contentMode: .fill) // gives that taller poster look
+                            .clipped()
                         } else {
                             PlaceholderView()
                         }
@@ -50,11 +44,11 @@ struct UserCollectionView: View {
                         Rectangle()
                             .stroke(item.color, lineWidth: 2)
                     )
-                    .padding()
                 }
             }
-            .padding()
+            .padding(.top) // spacing on the left/right
         }
+        .scrollIndicators(.hidden)
         .onAppear {
             Task {
                 await data.fetchCurrentCollection()
@@ -66,11 +60,13 @@ struct UserCollectionView: View {
     private func PlaceholderView() -> some View {
         Rectangle()
             .fill(Color.gray)
-            .frame(maxHeight: 250)
+            // match the same aspect ratio so you don’t get size jumps
+            .aspectRatio(2/3, contentMode: .fill)
             .overlay(
                 Text("?")
                     .font(.largeTitle)
                     .foregroundColor(.white)
             )
+            .clipped()
     }
 }

@@ -8,45 +8,58 @@
 import SwiftUI
 
 struct ProfileDisplayView: View {
-    @Environment(DataManager.self) private  var data
+    @Environment(DataManager.self) private var data
     @Environment(\.editMode) private var editMode
     @Environment(\.dismiss) private var dismiss
     
     let tabs: [String] = ["Clubs", "Collection"]
     @State var selectedTabIndex: Int = 0
+    
     var body: some View {
-        VStack {
-            if let user = data.currentUser {
-                if editMode?.wrappedValue.isEditing == false {
+        NavigationStack {
+            VStack {
+                if let user = data.currentUser, !isEditing {
+                    // Basic Info
                     Text(user.name)
                         .font(.title)
                     Text(user.bio ?? "")
                     
+                    // Custom tab bar
                     ClubTabView(tabs: tabs, selectedTabIndex: $selectedTabIndex)
-                    
+                        .frame(maxHeight: 30)
+                    // Actual pages
                     TabView(selection: $selectedTabIndex) {
                         UserMembershipsView()
                             .tag(0)
                         UserCollectionView()
                             .tag(1)
                     }
-                    .tabViewStyle(.page(indexDisplayMode: .never))
-                    
+                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                    // Sign Out (hidden?)
                     Button {
                         data.signOut()
                     } label: {
                         Text("Sign Out")
-                            .foregroundStyle(Color(.red))
-                            .padding()
+                            .foregroundColor(.red)
                     }
                     .hidden()
                 }
             }
-        }
-        .toolbar {
-            NavigationLink(destination: SettingsView()) {
-                Image(systemName: "gearshape")
+            .padding()
+            .navigationTitle("Profile")
+            .toolbar {
+                NavigationLink(destination: SettingsView()) {
+                    Image(systemName: "gearshape")
+                }
             }
+            // Remove bottom safe area if desired
+            .edgesIgnoringSafeArea(.bottom)
         }
+    }
+    
+    private var isEditing: Bool {
+        editMode?.wrappedValue.isEditing == true
     }
 }
