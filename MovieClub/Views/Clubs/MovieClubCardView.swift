@@ -42,32 +42,24 @@ struct MovieClubCardView: View {
                         if let movie = featuredMovie,
                            let verticalBackdrop = movie.apiData?.backdropHorizontal,
                            let backdropUrl = URL(string: verticalBackdrop) {
-
-                            AsyncImage(url: backdropUrl) { phase in
-                                switch phase {
-                                case .empty:
-                                    Color.black
-                                case .success(let image):
-                                    image
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: cardWidth - 20, height: cardHeight * 0.6)
-                                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                                        .opacity(0.8)
-                                        .onAppear {
-                                            updateBannerColor(with: backdropUrl)
-                                        }
-                                case .failure:
-                                    Color.black
-                                @unknown default:
-                                    Color.black
-                                }
+                            
+                            CachedAsyncImage(url: backdropUrl, placeholder: {
+                                // Placeholder view (e.g. black or a spinner)
+                                Color.black
+                            })
+                            .scaledToFill()
+                            .frame(width: cardWidth - 20, height: cardHeight * 0.6)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .opacity(0.8)
+                            .onAppear {
+                                updateBannerColor(with: backdropUrl)
                             }
 
                             VStack(alignment: .leading) {
                                 Spacer()
                                 Text(movieClub.name)
                                     .font(.headline)
+                                    .shadow(color: .black, radius: 2)
                                     .fontWeight(.bold)
                                     .padding(.horizontal)
 
@@ -76,7 +68,7 @@ struct MovieClubCardView: View {
                                     .fill(bannerColor)
                                     .frame(width: cardWidth - 20, height: cardHeight * 0.15)
                                     .overlay(
-                                        Text("Now Showing: \(movie.title) (\(movie.releaseYear))")
+                                        Text("Now Showing: \(movie.title) (\(movie.yearFormatted))")
                                             .foregroundColor(.white)
                                             .font(.caption)
                                             .padding(.leading)
