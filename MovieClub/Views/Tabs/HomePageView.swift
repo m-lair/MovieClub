@@ -32,9 +32,18 @@ struct HomePageView: View {
                 // Original layout without extra padding/spacing changes
                 if userClubs.isEmpty {
                     VStack {
-                        ForEach(userClubs, id: \.id) { movieClub in
-                            NavigationLink(value: movieClub) {
-                                MovieClubCardView(movieClub: movieClub)
+                        Spacer()
+                        Text("No clubs Found")
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    ScrollView {
+                        VStack {
+                            ForEach(userClubs, id: \.self) { movieClub in
+                                NavigationLink(value: movieClub) {
+                                    MovieClubCardView(movieClub: movieClub)
+                                }
                             }
                         }
                         .navigationDestination(for: MovieClub.self) { club in
