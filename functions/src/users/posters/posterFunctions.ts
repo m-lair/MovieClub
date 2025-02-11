@@ -53,7 +53,7 @@ exports.collectPoster = functions.https.onCall(
       return posterRef.id;
     } catch (error) {
         console.log(error)
-        handleCatchHttpsError("Error deleting Suggestion:", error);
+        handleCatchHttpsError("Error Collecting Poster:", error);
     }
   }
 );

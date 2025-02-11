@@ -36,7 +36,7 @@ struct LoginView: View {
                     .fontDesign(.rounded)
                     .padding(.bottom, 50)
                 
-                TextField("Username", text: $userEmail)
+                TextField("Email", text: $userEmail)
                     .padding()
                     .background(Color.gray.opacity(0.1))
                     .cornerRadius(8)

@@ -101,8 +101,9 @@ extension DataManager {
                 baseMovie = try document.data(as: Movie.self)
                 baseMovie?.id = document.documentID
                 
-                // Check if the watch period has ended
-                if let endDate = baseMovie?.endDate, endDate < Date() {
+                // Check if the watch period has ended (using dates standardized to midnight)
+                if let endDate = baseMovie?.endDate,
+                   endDate.midnight < Date().midnight {
                     needsRotation = true
                 }
             } else if self.suggestions.count > 0 {
@@ -176,5 +177,12 @@ extension DataManager {
         let url = try await storageRef.downloadURL()
         //print("Club image URL: \(url)")
         return url.absoluteString
+    }
+}
+
+extension Date {
+    /// Returns the date set to midnight (00:00) for the current day.
+    var midnight: Date {
+        return Calendar.current.startOfDay(for: self)
     }
 }
