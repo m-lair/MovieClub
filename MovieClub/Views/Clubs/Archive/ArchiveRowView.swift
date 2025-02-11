@@ -17,21 +17,7 @@ struct ArchiveRowView: View {
                 Text(movie.title)
                     .font(.system(size: 22, weight: .bold))
                     .foregroundColor(.white)
-                
-                Spacer()
-                
                 HStack {
-                    VStack(alignment: .leading) {
-                        Text("SEPT 04")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(.gray)
-                        Text("SEPT 18")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(.gray)
-                    }
-                    
-                    Spacer()
-                    
                     Text("Presented by:")
                         .font(.system(size: 12))
                         .foregroundColor(.gray)
@@ -40,16 +26,32 @@ struct ArchiveRowView: View {
                         .font(.system(size: 12, weight: .bold))
                         .foregroundColor(.white)
                 }
+                Spacer()
+                
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text("\(movie.startDate.formatted(date: .abbreviated, time: .omitted))")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.gray)
+                        Text("\(movie.endDate.formatted(date: .abbreviated, time: .omitted))")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.gray)
+                    }
+                }
             }
             .padding(.vertical)
             
             Spacer()
             
-            Image("matrixPoster")
-                .resizable()
-                .frame(width: 100, height: 150)
-                .cornerRadius(4)
-                .shadow(radius: 4)
+            CachedAsyncImage(url: URL(string: movie.poster), placeholder: {
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: 100, height: 150)
+                    .overlay(Text("?"))
+            })
+            .frame(width: 100, height: 150)
+            .cornerRadius(4)
+            .shadow(radius: 4)
             
         }
         .padding()
