@@ -63,8 +63,3 @@ final class CollectionItem: Identifiable, Codable, Hashable, Equatable {
         lhs.id == rhs.id
     }
 }
-
-struct CollectionResponse: Codable {
-    let success: Bool
-    let message: String?
-}
