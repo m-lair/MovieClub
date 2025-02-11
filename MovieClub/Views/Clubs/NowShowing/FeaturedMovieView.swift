@@ -19,30 +19,17 @@ struct FeaturedMovieView: View {
     
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            
             // MARK: - Background Image (Vertical Backdrop)
             if let verticalBackdrop = movie.apiData?.backdropVertical,
                let url = URL(string: verticalBackdrop) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            // If you want it behind the nav bar, uncomment:
-                            // .ignoresSafeArea(edges: .top)
-                            .frame(width: width, height: 510)
-                            .clipped()
-                    default:
-                        Rectangle()
-                            .fill(Color.black)
-                            .frame(width: width, height: 510)
-                    }
-                }
-            } else {
-                Rectangle()
-                    .fill(Color.black)
-                    .frame(width: width, height: 510)
+                CachedAsyncImage(url: url, placeholder: {
+                    Rectangle()
+                        .fill(Color.black)
+                        .frame(width: width, height: 510)
+                })
+                .scaledToFill()
+                .frame(width: width, height: 510)
+                .clipped()
             }
             
             LinearGradient(
@@ -58,22 +45,16 @@ struct FeaturedMovieView: View {
             HStack(alignment: .top, spacing: 16) {
                 
                 // Poster
-                AsyncImage(url: URL(string: movie.poster)) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 130, height: 190)
-                            .cornerRadius(8)
-                            .overlay(collected ?
-                                     Rectangle().stroke(.yellow, lineWidth: 2) : nil)
-                    case .empty, .failure:
-                        Color.gray
-                            .frame(width: 130, height: 190)
-                            .cornerRadius(8)
-                    }
-                }
+                CachedAsyncImage(url: URL(string: movie.poster), placeholder:  {
+                    Color.gray
+                        .frame(width: 130, height: 190)
+                        .cornerRadius(8)
+                })
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 130, height: 190)
+                .cornerRadius(8)
+                .overlay(collected ?
+                         Rectangle().stroke(.yellow, lineWidth: 2) : nil)
                 
                 // Text Stack
                 VStack(alignment: .leading, spacing: 8) {

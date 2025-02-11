@@ -13,36 +13,44 @@ import SwiftUI
 struct HomePageView: View {
     @Environment(DataManager.self) var data: DataManager
     @Binding var navPath: NavigationPath
-    
+    @State private var isLoading: Bool = true
+
     var userClubs: [MovieClub] {
         data.userClubs.sorted {
             guard let date1 = $0.createdAt, let date2 = $1.createdAt else { return false }
             return date1 < date2
         }
     }
+    
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            if userClubs.isEmpty {
-                VStack {
-                    Spacer()
-                    WaveLoadingView()
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            
+            if isLoading {
+                WaveLoadingView()
             } else {
-                ScrollView {
+                // Original layout without extra padding/spacing changes
+                if userClubs.isEmpty {
                     VStack {
-                        ForEach(userClubs, id: \.self) { movieClub in
-                            NavigationLink(value: movieClub) {
-                                MovieClubCardView(movieClub: movieClub)
+                        Spacer()
+                        Text("No clubs Found")
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    ScrollView {
+                        VStack {
+                            ForEach(userClubs, id: \.self) { movieClub in
+                                NavigationLink(value: movieClub) {
+                                    MovieClubCardView(movieClub: movieClub)
+                                }
                             }
                         }
-                    }
-                    .navigationDestination(for: MovieClub.self) { club in
-                        ClubDetailView(navPath: $navPath, club: club)
-                            .navigationTitle(club.name)
-                            .navigationBarTitleDisplayMode(.inline)
+                        .navigationDestination(for: MovieClub.self) { club in
+                            ClubDetailView(navPath: $navPath, club: club)
+                                .navigationTitle(club.name)
+                                .navigationBarTitleDisplayMode(.inline)
+                        }
                     }
                 }
             }
@@ -67,11 +75,15 @@ struct HomePageView: View {
                 await data.fetchUserClubs()
             }
         }
+        .onAppear {
+            Task {
+                await data.fetchUserClubs()
+                isLoading = false
+            }
+        }
     }
 }
 
 enum Path: Hashable {
     case newClub
 }
-
-
