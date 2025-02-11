@@ -3,7 +3,6 @@ import * as admin from "firebase-admin";
 import { MovieData } from "../movieClubs/movies/movieTypes";
 import { UserData } from "src/users/userTypes";
 import { getUser } from "src/users/userHelpers";
-import { getMovie } from "src/movieClubs/movies/movieHelpers";
 import { getMovieClub } from "src/movieClubs/movieClubHelpers";
 
 export const notifyPosterCollected = onDocumentUpdated(
@@ -11,8 +10,12 @@ export const notifyPosterCollected = onDocumentUpdated(
   async (event) => {
     const beforeData = event.data?.before.data() as MovieData;
     const afterData = event.data?.after.data() as MovieData;
+    // Log the event parameters for debugging
+    console.log("Club ID:", event.params.clubId);
+    console.log("Movie ID:", event.params.movieId);
+
     if (!beforeData || !afterData) {
-      console.log("Missing poster data");
+      console.log("Missing poster data in before/after snapshots.");
       return null;
     }
 
@@ -22,30 +25,43 @@ export const notifyPosterCollected = onDocumentUpdated(
     const newCollectors = afterCollectors.filter(
       (userId) => !beforeCollectors.includes(userId)
     );
+
+    console.log("Before collectors:", beforeCollectors);
+    console.log("After collectors:", afterCollectors);
+    console.log("New collectors:", newCollectors);
+
     if (newCollectors.length === 0) {
       console.log("No new collectors.");
       return null;
     }
 
     // Get new collectors info
-    const collectorPromises = newCollectors.map((userId) => getUser(userId));
-    const collectorSnapshots = await Promise.all(collectorPromises);
-    const collectorData = collectorSnapshots.map(
-      (snapshot) => snapshot.data() as UserData
-    );
-    if (collectorData.length === 0) {
-      console.log("No collector data found");
-      return null;
-    }
+    try {
+      const collectorPromises = newCollectors.map((userId) => getUser(userId));
+      const collectorSnapshots = await Promise.all(collectorPromises);
+      const collectorData = collectorSnapshots.map(
+        (snapshot) => snapshot.data() as UserData
+      );
+      console.log("Collector data array:", collectorData);
 
-    // Get the movie author (assume movie doc holds the original author's id)
-    const { clubId, movieId } = event.params;
-    const movieSnapshot = await getMovie(clubId, movieId);
-    const movieData = movieSnapshot.data() as MovieData;
-    const movieAuthorId = movieData.userId;
-    if (!movieAuthorId) {
-      console.log("Movie doc is missing a userId field.");
-    }
+      if (collectorData.length === 0) {
+        console.log("No collector data found.");
+        return null;
+      }
+
+      // Get the movie doc
+      const { clubId } = event.params;
+
+      // Attempt to read the userId
+      const movieAuthorId = afterData.userId;
+      console.log("movieAuthorId:", movieAuthorId);
+
+      if (!movieAuthorId) {
+        console.log(
+          "Movie doc is missing a userId field or userId is undefined."
+        );
+        return null;
+      }
     // Get club info
     const clubSnapshot = await getMovieClub(clubId);
     const clubName = clubSnapshot.data()?.name || "Unnamed Club";
@@ -77,7 +93,7 @@ export const notifyPosterCollected = onDocumentUpdated(
         data: {
           type: "collected",
           clubId: clubId,
-          movieId: movieData.imdbId, // or use movieId if preferred
+          movieId: afterData.imdbId, // or use movieId if preferred
         },
       };
 
@@ -114,7 +130,9 @@ export const notifyPosterCollected = onDocumentUpdated(
         );
       }
     }
-
-    return { success: true };
+      return { success: true };
+    } catch (error) {
+    
+    }
   }
 );
