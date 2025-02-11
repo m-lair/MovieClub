@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct FeaturedMovieView: View {
     @Environment(DataManager.self) var data: DataManager
     let collected: Bool
