@@ -24,7 +24,7 @@ struct ClubTabView: View {
                         .foregroundColor(selectedTabIndex == index ? .white : .gray)
                         
                 }
-                .padding(.horizontal, 10)
+                .padding(.horizontal, 5)
                 .background(selectedTabIndex == index ? Color.clear : Color.clear)
             }
         }

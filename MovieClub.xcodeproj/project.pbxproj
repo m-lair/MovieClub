@@ -64,7 +64,6 @@
 		2C8256BD2BF1E63800D2ED12 /* NewClubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256BC2BF1E63800D2ED12 /* NewClubView.swift */; };
 		2C8256C12BF1E8FE00D2ED12 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256C02BF1E8FE00D2ED12 /* ProfileView.swift */; };
 		2C8256C32BF1E90E00D2ED12 /* DiscoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256C22BF1E90E00D2ED12 /* DiscoverView.swift */; };
-		2C8256C52BF2FC2B00D2ED12 /* MovieClubCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256C42BF2FC2B00D2ED12 /* MovieClubCardView.swift */; };
 		2C8256C72BF2FE3400D2ED12 /* ClubDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8256C62BF2FE3400D2ED12 /* ClubDetailView.swift */; };
 		2C87B2A72C6B13C500A49B2B /* AviSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C87B2A62C6B13C500A49B2B /* AviSelector.swift */; };
 		2C87B2A92C6B145400A49B2B /* CircularImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C87B2A82C6B145400A49B2B /* CircularImageView.swift */; };
@@ -88,6 +87,7 @@
 		2CD71FF52CBEFC9300F9CF58 /* CreateSuggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FF42CBEFBFE00F9CF58 /* CreateSuggestion.swift */; };
 		2CD71FF72CC035CB00F9CF58 /* MembershipManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FF62CC035BA00F9CF58 /* MembershipManager.swift */; };
 		2CD71FFC2CC0A8DB00F9CF58 /* ClubTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FFB2CC0A89800F9CF58 /* ClubTabView.swift */; };
+		2CE0C97D2D5AC5A600ECC962 /* MovieClubCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE0C97C2D5AC5A600ECC962 /* MovieClubCardView.swift */; };
 		2CF7AF662D4158E3006A8EBD /* PosterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF7AF652D4158DC006A8EBD /* PosterManager.swift */; };
 		2CF7AF692D415C2C006A8EBD /* PostersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF7AF672D415C2C006A8EBD /* PostersTests.swift */; };
 		2CF7AF6B2D415E1E006A8EBD /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2CF7AF6A2D415E1E006A8EBD /* GoogleService-Info.plist */; };
@@ -162,7 +162,6 @@
 		2C8256BC2BF1E63800D2ED12 /* NewClubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewClubView.swift; sourceTree = "<group>"; };
 		2C8256C02BF1E8FE00D2ED12 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		2C8256C22BF1E90E00D2ED12 /* DiscoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverView.swift; sourceTree = "<group>"; };
-		2C8256C42BF2FC2B00D2ED12 /* MovieClubCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieClubCardView.swift; sourceTree = "<group>"; };
 		2C8256C62BF2FE3400D2ED12 /* ClubDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubDetailView.swift; sourceTree = "<group>"; };
 		2C87B2A62C6B13C500A49B2B /* AviSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AviSelector.swift; sourceTree = "<group>"; };
 		2C87B2A82C6B145400A49B2B /* CircularImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularImageView.swift; sourceTree = "<group>"; };
@@ -188,6 +187,7 @@
 		2CD71FF42CBEFBFE00F9CF58 /* CreateSuggestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateSuggestion.swift; sourceTree = "<group>"; };
 		2CD71FF62CC035BA00F9CF58 /* MembershipManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipManager.swift; sourceTree = "<group>"; };
 		2CD71FFB2CC0A89800F9CF58 /* ClubTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubTabView.swift; sourceTree = "<group>"; };
+		2CE0C97C2D5AC5A600ECC962 /* MovieClubCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieClubCardView.swift; sourceTree = "<group>"; };
 		2CF7AF652D4158DC006A8EBD /* PosterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PosterManager.swift; sourceTree = "<group>"; };
 		2CF7AF672D415C2C006A8EBD /* PostersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostersTests.swift; sourceTree = "<group>"; };
 		2CF7AF6A2D415E1E006A8EBD /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -368,10 +368,10 @@
 				2C1326B92CCABF680076E39C /* Archive */,
 				2C11FFEE2CA37F76004F54BC /* CommentViews */,
 				2C8256C62BF2FE3400D2ED12 /* ClubDetailView.swift */,
-				2C8256C42BF2FC2B00D2ED12 /* MovieClubCardView.swift */,
 				2CD71FFB2CC0A89800F9CF58 /* ClubTabView.swift */,
 				2CD71FDD2CB995DD00F9CF58 /* ClubToolbar.swift */,
 				2CD71FDB2CB856A900F9CF58 /* ClubEditView.swift */,
+				2CE0C97C2D5AC5A600ECC962 /* MovieClubCardView.swift */,
 			);
 			path = Clubs;
 			sourceTree = "<group>";
@@ -800,7 +800,6 @@
 				2C1326C02CCF36C60076E39C /* MovieButtonViews.swift in Sources */,
 				2C1100042CA38690004F54BC /* MovieManager.swift in Sources */,
 				2C11003C2CAC3A01004F54BC /* ErrorView.swift in Sources */,
-				2C8256C52BF2FC2B00D2ED12 /* MovieClubCardView.swift in Sources */,
 				2C4475002C06DE3A0034204C /* FeaturedMovieView.swift in Sources */,
 				2C5DEC7E2BF1B3F6000EF232 /* HomePageView.swift in Sources */,
 				2C8256C72BF2FE3400D2ED12 /* ClubDetailView.swift in Sources */,
@@ -853,6 +852,7 @@
 				2CAEABA12C5C5C9300A0011A /* BlurredBackground.swift in Sources */,
 				2C11FFDF2CA1DFED004F54BC /* User.swift in Sources */,
 				2CD71FFC2CC0A8DB00F9CF58 /* ClubTabView.swift in Sources */,
+				2CE0C97D2D5AC5A600ECC962 /* MovieClubCardView.swift in Sources */,
 				2CD71FED2CBD9E6A00F9CF58 /* SuggestionManager.swift in Sources */,
 				2C4475042C06DE6B0034204C /* CommentDetailView.swift in Sources */,
 				2C1100002CA3856F004F54BC /* AuthManager.swift in Sources */,

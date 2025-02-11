@@ -29,8 +29,7 @@ struct FeaturedMovieView: View {
                         image
                             .resizable()
                             .scaledToFill()
-                            // If you want it behind the nav bar, uncomment:
-                            // .ignoresSafeArea(edges: .top)
+
                             .frame(width: width, height: 510)
                             .clipped()
                     default:
