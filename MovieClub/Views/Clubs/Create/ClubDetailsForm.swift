@@ -58,8 +58,8 @@ struct ClubDetailsForm: View {
                     Task{
                         try await submit()
                         print("navPath: \(navPath)")
-                        navPath.removeLast(navPath.count)
                     }
+                    navPath.removeLast(navPath.count)
                 }label:{
                     Text("Create Club")
                 }

@@ -40,7 +40,7 @@ struct HomePageView: View {
                 } else {
                     ScrollView {
                         VStack {
-                            ForEach(userClubs, id: \.self) { movieClub in
+                            ForEach(userClubs, id: \.id) { movieClub in
                                 NavigationLink(value: movieClub) {
                                     MovieClubCardView(movieClub: movieClub)
                                 }

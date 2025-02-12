@@ -8,6 +8,7 @@ struct NewClubView: View {
     @Binding var path: NavigationPath
     @State private var searchText: String = ""
     @State private var clubList: [MovieClub] = []
+    @State private var isLoading: Bool = false
     
     var filteredClubs: [MovieClub] {
         clubList.filter { club in
@@ -29,11 +30,24 @@ struct NewClubView: View {
                     }
                     Button("Join") {
                         Task {
-                            try await data.joinClub(club: club)
-                            data.userClubs.append(club)
-                            dismiss()
+                            isLoading = true
+                            defer { isLoading = false }
+                            if let clubId = club.id {
+                                try await data.joinClub(club: club)
+                                guard let newClub = await data.fetchMovieClub(clubId: clubId) else { return }
+                                print("newClub.bannerUrl: \(newClub.bannerUrl ?? "")")
+                                if let movie = newClub.movies.first,
+                                   let verticalBackdrop = movie.apiData?.backdropHorizontal,
+                                   let backdropUrl = URL(string: verticalBackdrop) {
+                                    print("newClub Movie: \(movie.title) and backdropUrl: \(backdropUrl)")
+                                }
+                                data.userClubs.append(newClub)
+                                
+                            }
                         }
+                        dismiss()
                     }
+                    .disabled(isLoading)
                     .buttonBorderShape(.capsule)
                     .buttonStyle(.bordered)
                 }

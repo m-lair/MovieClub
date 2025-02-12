@@ -118,15 +118,12 @@ extension DataManager {
     }
 
     func collectPoster(collectionItem: CollectionItem) async throws {
-        let collectPoster: Callable<CollectionItem, CollectionResponse> = functions.httpsCallable("posters-collectPoster")
+        let collectPoster: Callable<CollectionItem, String?> = functions.httpsCallable("posters-collectPoster")
         
         do {
             let result = try await collectPoster(collectionItem)
-            if result.success {
-                print("poster collected successfully")
-            } else {
-                print("poster collect failed: \(result.message ?? "Unknown error")")
-                throw SuggestionError.custom(message: result.message ?? "Unknown error")
+            if result != nil {
+                print("poster collected successfully: \(result)")
             }
         } catch {
             throw error
