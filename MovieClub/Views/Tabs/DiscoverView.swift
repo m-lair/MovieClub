@@ -31,19 +31,18 @@ struct DiscoverView: View {
                                 MovieClubCardView(movieClub: club)
                                     .frame(width: 320, height: 200)
                                     .padding(.top)
+                                    .offset(y: 10)
                             }
                         }
                         .padding(.horizontal)
                     }
                 }
-                .padding(.bottom)
                 
                 // MARK: - Trending Movies
                 Group {
                     Text("Trending Movies")
                         .font(.title)
                         .padding(.leading)
-                    
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
                             ForEach(trendingMovies, id: \.id) { movie in
@@ -53,7 +52,6 @@ struct DiscoverView: View {
                         .padding(.horizontal)
                     }
                 }
-                .padding(.bottom)
                 
                 // MARK: - News
                 Group {
@@ -87,38 +85,6 @@ struct DiscoverView: View {
     }
 }
 
-struct MovieCardView: View {
-    let movieData: MovieAPIData
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            let posterURL = URL(string: "https://image.tmdb.org/t/p/w500\(movieData.poster)")
-                // Use AsyncImage or your own CachedAsyncImage
-                AsyncImage(url: posterURL) { image in
-                    image
-                        .resizable()
-                        .scaledToFit()
-                } placeholder: {
-                    Color.gray
-                }
-                .frame(width: 120, height: 180)
-            
-            
-            Text(movieData.title)
-                .font(.headline)
-                .foregroundColor(.white)
-        }
-        .padding()
-        .frame(width: 140)
-        .background(
-            RoundedRectangle(cornerRadius: 15)
-                .fill(Color.green)
-                .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
-        )
-    }
-}
-
-
 struct NewsItem: Identifiable, Codable {
     var id: String?
     var title: String
@@ -140,7 +106,6 @@ struct NewsCardView: View {
                 .font(.subheadline)
                 .foregroundColor(.white)
         }
-        .padding()
         .frame(width: 200, height: 120)
         .background(
             RoundedRectangle(cornerRadius: 15)
