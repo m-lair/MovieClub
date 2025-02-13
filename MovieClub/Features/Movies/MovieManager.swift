@@ -59,7 +59,7 @@ extension DataManager {
     // MARK: - Query for Movies
     func fetchTMDBMovies(query: String) async throws -> [MovieAPIData] {
         guard !query.isEmpty else { return [] }
-
+        
         do {
             let tmdbResults = try await tmdb.fetchMovies(query: query)
             return tmdbResults
@@ -77,5 +77,89 @@ extension DataManager {
         } catch {
             throw MovieError.custom(message: error.localizedDescription)
         }
+    }
+    
+    
+    // MARK: - Fetch Trending Clubs
+    func fetchTrendingClubs() async throws -> [MovieClub] {
+        // 1. Fetch all clubs from Firestore.
+        let snapshot = try await db.collection("movieclubs").getDocuments()
+        
+        // 2. For each club, concurrently get the count of documents in the "members" subcollection.
+        var clubsWithCount: [(MovieClub, Int)] = []
+        try await withThrowingTaskGroup(of: (MovieClub, Int).self) { group in
+            for document in snapshot.documents {
+                group.addTask { [weak self] in
+                    guard let self = self else {
+                        throw MovieError.custom(message: "Self is nil")
+                    }
+                    // Decode the club and set its id.
+                    var club = try document.data(as: MovieClub.self)
+                    club.id = document.documentID
+                    
+                    // Get the count of members from the "members" subcollection.
+                    let membersCollection = self.db
+                        .collection("movieclubs")
+                        .document(document.documentID)
+                        .collection("members")
+                    let countSnapshot = try await membersCollection.count.getAggregation(source: .server)
+                    let memberCount = Int(truncating: countSnapshot.count)
+                    
+                    return (club, memberCount)
+                }
+            }
+            // Collect all club/memberCount pairs.
+            for try await result in group {
+                clubsWithCount.append(result)
+            }
+        }
+        
+        // 3. Sort clubs by member count (descending) and pick the top 10.
+        let trendingClubs = clubsWithCount
+            .sorted { $0.1 > $1.1 }
+            .prefix(10)
+            .map { $0.0 }
+        
+        // 4. Using a task group, fetch the complete API data for each trending club concurrently.
+        let clubIds = trendingClubs.map { $0.id }
+        let clubs = try await withThrowingTaskGroup(of: MovieClub?.self) { group in
+            for clubId in clubIds {
+                group.addTask { [weak self] in
+                    guard let self = self else { return nil }
+                    return await self.fetchMovieClub(clubId: clubId ?? "")
+                }
+            }
+            
+            var clubList: [MovieClub] = []
+            for try await club in group {
+                if let club = club {
+                    clubList.append(club)
+                }
+            }
+            print("clubList: \(clubList)")
+            return clubList
+        }
+        
+        return clubs
+    }
+
+
+    
+    // MARK: - Fetch Trending Movies
+    func fetchTrendingMovies() async throws -> [MovieAPIData] {
+        // Example: If you have a "fetchTrendingMovies()" in your TMDB wrapper
+        do {
+            let trending = try await tmdb.fetchTrendingMovies()
+            // 'trending' is presumably an array of MovieAPIData or something similar
+            return trending
+        } catch {
+            throw MovieError.custom(message: "Failed to fetch trending movies: \(error.localizedDescription)")
+        }
+    }
+    
+    func fetchNewsItems() async throws -> [NewsItem] {
+        // Firestore or API call to get "news"
+        // Return an array of NewsItem objects
+        return []
     }
 }

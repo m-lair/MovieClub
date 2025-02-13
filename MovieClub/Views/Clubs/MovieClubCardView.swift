@@ -4,7 +4,7 @@
 //
 //  Created by Marcus Lair on 5/13/24.
 //
-
+import UIKit
 import SwiftUI
 
 struct MovieClubCardView: View {
