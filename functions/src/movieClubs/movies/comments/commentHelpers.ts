@@ -13,3 +13,7 @@ export const getCommentsRef = (clubId: string, movieId: string) => {
 export const getCommentsDocRef = (clubId: string, movieId: string, commentId: string) => {
   return getCommentsRef(clubId, movieId).doc(commentId);
 };
+
+export const getComment = async (movieId: string, clubId: string, commentId: string) => {
+  return await getCommentsDocRef(movieId, clubId, commentId).get();
+};
