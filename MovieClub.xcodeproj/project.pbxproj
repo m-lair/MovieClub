@@ -90,6 +90,9 @@
 		2CE0C97D2D5AC5A600ECC962 /* MovieClubCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE0C97C2D5AC5A600ECC962 /* MovieClubCardView.swift */; };
 		2CE0C97F2D5ACD0100ECC962 /* CachedAsyncImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE0C97E2D5ACD0100ECC962 /* CachedAsyncImage.swift */; };
 		2CE0C9812D5B0BE700ECC962 /* CommentsSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE0C9802D5B0BE700ECC962 /* CommentsSheetView.swift */; };
+		2CE0C9832D5D533300ECC962 /* MovieCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE0C9822D5D533300ECC962 /* MovieCardView.swift */; };
+		2CE0C9852D5D62FB00ECC962 /* DiamondCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE0C9842D5D62FB00ECC962 /* DiamondCardView.swift */; };
+		2CE0C9932D5D8F6400ECC962 /* Vortex in Frameworks */ = {isa = PBXBuildFile; productRef = 2CE0C9922D5D8F6400ECC962 /* Vortex */; };
 		2CF7AF662D4158E3006A8EBD /* PosterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF7AF652D4158DC006A8EBD /* PosterManager.swift */; };
 		2CF7AF692D415C2C006A8EBD /* PostersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF7AF672D415C2C006A8EBD /* PostersTests.swift */; };
 		2CF7AF6B2D415E1E006A8EBD /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2CF7AF6A2D415E1E006A8EBD /* GoogleService-Info.plist */; };
@@ -192,6 +195,8 @@
 		2CE0C97C2D5AC5A600ECC962 /* MovieClubCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieClubCardView.swift; sourceTree = "<group>"; };
 		2CE0C97E2D5ACD0100ECC962 /* CachedAsyncImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedAsyncImage.swift; sourceTree = "<group>"; };
 		2CE0C9802D5B0BE700ECC962 /* CommentsSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsSheetView.swift; sourceTree = "<group>"; };
+		2CE0C9822D5D533300ECC962 /* MovieCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieCardView.swift; sourceTree = "<group>"; };
+		2CE0C9842D5D62FB00ECC962 /* DiamondCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiamondCardView.swift; sourceTree = "<group>"; };
 		2CF7AF652D4158DC006A8EBD /* PosterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PosterManager.swift; sourceTree = "<group>"; };
 		2CF7AF672D415C2C006A8EBD /* PostersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostersTests.swift; sourceTree = "<group>"; };
 		2CF7AF6A2D415E1E006A8EBD /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -217,6 +222,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CE0C9932D5D8F6400ECC962 /* Vortex in Frameworks */,
 				2C1326A32CC9DF250076E39C /* FirebaseCrashlytics in Frameworks */,
 				2C1326A52CC9DF250076E39C /* FirebaseFirestore in Frameworks */,
 				2C1326AB2CC9DF250076E39C /* FirebaseMessaging in Frameworks */,
@@ -465,6 +471,8 @@
 		2CAEAB9F2C5C5C8100A0011A /* ComponentViews */ = {
 			isa = PBXGroup;
 			children = (
+				2CE0C9842D5D62FB00ECC962 /* DiamondCardView.swift */,
+				2CE0C9822D5D533300ECC962 /* MovieCardView.swift */,
 				2CE0C97E2D5ACD0100ECC962 /* CachedAsyncImage.swift */,
 				2CAEABA02C5C5C9300A0011A /* BlurredBackground.swift */,
 				2C5DEC772BF1B3F6000EF232 /* AddToCalendarView.swift */,
@@ -678,6 +686,7 @@
 				2C1326AA2CC9DF250076E39C /* FirebaseMessaging */,
 				2C1326AC2CC9DF250076E39C /* FirebaseStorage */,
 				2C1326AE2CC9DFA40076E39C /* FirebaseCore */,
+				2CE0C9922D5D8F6400ECC962 /* Vortex */,
 			);
 			productName = MovieClub;
 			productReference = 2C5DEC1B2BF1AC6C000EF232 /* MovieClub.app */;
@@ -713,6 +722,7 @@
 			mainGroup = 2C5DEC122BF1AC6C000EF232;
 			packageReferences = (
 				2C13269D2CC9DF250076E39C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				2CE0C9912D5D8DF700ECC962 /* XCRemoteSwiftPackageReference "Vortex" */,
 			);
 			productRefGroup = 2C5DEC1C2BF1AC6C000EF232 /* Products */;
 			projectDirPath = "";
@@ -798,6 +808,7 @@
 				2C1326B42CC9E9FD0076E39C /* Notification.swift in Sources */,
 				2C1326B82CC9EB400076E39C /* NotifListView.swift in Sources */,
 				2C11003E2CAC766B004F54BC /* ErrorManager.swift in Sources */,
+				2CE0C9852D5D62FB00ECC962 /* DiamondCardView.swift in Sources */,
 				2C11FFE32CA274C1004F54BC /* Comment.swift in Sources */,
 				2CE0C9812D5B0BE700ECC962 /* CommentsSheetView.swift in Sources */,
 				2C1326B62CC9EAB50076E39C /* NotifImageView.swift in Sources */,
@@ -860,6 +871,7 @@
 				2C11FFDF2CA1DFED004F54BC /* User.swift in Sources */,
 				2CD71FFC2CC0A8DB00F9CF58 /* ClubTabView.swift in Sources */,
 				2CE0C97D2D5AC5A600ECC962 /* MovieClubCardView.swift in Sources */,
+				2CE0C9832D5D533300ECC962 /* MovieCardView.swift in Sources */,
 				2CD71FED2CBD9E6A00F9CF58 /* SuggestionManager.swift in Sources */,
 				2C4475042C06DE6B0034204C /* CommentDetailView.swift in Sources */,
 				2CE0C97F2D5ACD0100ECC962 /* CachedAsyncImage.swift in Sources */,
@@ -1150,6 +1162,14 @@
 				minimumVersion = 11.4.0;
 			};
 		};
+		2CE0C9912D5D8DF700ECC962 /* XCRemoteSwiftPackageReference "Vortex" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/twostraws/Vortex.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.3;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1197,6 +1217,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2C13269D2CC9DF250076E39C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCore;
+		};
+		2CE0C9922D5D8F6400ECC962 /* Vortex */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2CE0C9912D5D8DF700ECC962 /* XCRemoteSwiftPackageReference "Vortex" */;
+			productName = Vortex;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
