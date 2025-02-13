@@ -2,7 +2,7 @@
 //  MainTabView.swift
 //  MovieClub
 //
-//  Created by Marcus Lair on 5/14/24.
+//  Created by Marcus Lair on 5/12/24.
 //
 
 import SwiftUI
@@ -10,13 +10,12 @@ import SwiftUI
 
 struct MainTabView: View {
     enum Tab {
-        case clubsPath, 
+        case clubsPath,
              discoverPath,
              notificationsPath,
              profilePath
     }
-    
-    @Environment(DataManager.self) var data: DataManager
+    @Environment(DataManager.self) var data
     @State private var selection: Tab = .clubsPath
     @State var clubsPath = NavigationPath()
     @State var discoverPath = NavigationPath()
@@ -69,7 +68,6 @@ struct MainTabView: View {
             .toolbarBackground(.gray, for: .navigationBar)
             .background(.black.opacity(0.1))
             .toolbarBackground(.visible, for: .tabBar)
-            
         }
     }
 }

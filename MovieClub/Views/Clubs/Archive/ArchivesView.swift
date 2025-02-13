@@ -8,26 +8,43 @@
 import SwiftUI
 
 struct ArchivesView: View {
-    let startDate = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
-    let endDate = Calendar.current.date(byAdding: .day, value: 7, to: Date())!
+    @Environment(DataManager.self) private var dataManager
+    @State private var showSheet: Bool = false
+    // Only archived movies
+    var archivedMovies: [Movie] {
+        dataManager.currentClub?.movies.filter { $0.status == "archived" }.reversed() ?? []
+    }
+    @State private var selectedMovie: Movie? = nil
     
     var body: some View {
-        let testMovie: Movie = Movie(userId: "0001", imdbId: "tt0133093", startDate: startDate, endDate: endDate, userName: "duhmarcus", status: "Archived")
         ScrollView {
             VStack {
-                ForEach(1..<6, id: \.self) { index in
-                    ArchiveRowView(movie: testMovie)
+                ForEach(archivedMovies, id: \.self) { movie in
+                    ArchiveRowView(movie: movie)
+                        .onTapGesture {
+                            selectedMovie = movie
+                            showSheet = true
+                        }
                     Divider()
                 }
             }
         }
         .ignoresSafeArea()
-
+        .onAppear {
+            if let clubId = dataManager.currentClub?.id {
+                Task {
+                    try await dataManager.fetchFirestoreMovies(clubId: clubId)
+                }
+            }
+        }
+        .sheet(item: $selectedMovie) { movie in
+            // A separate view for displaying the comments read-only
+            CommentsSheetView(movie: movie, onReply: handleReply(_:))
+        }
     }
-}
-                                 
-                                 
-
-#Preview {
-    ArchivesView()
+    
+    // MARK: - Helper Methods
+    private func handleReply(_ comment: Comment) {
+        print("do nothing")
+    }
 }

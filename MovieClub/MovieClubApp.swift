@@ -19,24 +19,34 @@ import FirebaseAnalytics
 class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication,
                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
-        application.registerForRemoteNotifications()
+        configureFirebase()
+        
+        configureUserNotifications()
+        
         Messaging.messaging().delegate = self
-        UNUserNotificationCenter.current().delegate = self
-        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-        UNUserNotificationCenter.current().requestAuthorization(
-            options: authOptions,
-            completionHandler: {_, _ in })
         Analytics.setAnalyticsCollectionEnabled(true)
         return true
+    }
+    
+    private func configureUserNotifications() {
+        UNUserNotificationCenter.current().delegate = self
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if let error = error {
+                print("Error requesting notification permissions: \(error)")
+            }
+            if granted {
+                DispatchQueue.main.async {
+                    UIApplication.shared.registerForRemoteNotifications()
+                }
+            } else {
+                print("User declined notification permissions.")
+            }
+        }
     }
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
             Messaging.messaging().apnsToken = deviceToken
         }
-    // Handle notification in the foreground
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
-        return [.banner, .sound, .badge]
-    }
 
     // Handle notification when user interacts with it
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
@@ -45,15 +55,22 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     }
     
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        if let fcm = Messaging.messaging().fcmToken {
-            //print("fcm: \(fcm)")
-            saveFCMTokenToFirestore(fcm)
+        guard let fcmToken = fcmToken else { return }
+        // 1) If the user is logged in, store it immediately.
+        if Auth.auth().currentUser?.uid != nil {
+            Task {
+                print("calling storeFCMTokenIfAuthenticated")
+                await DataManager().storeFCMTokenIfAuthenticated(token: fcmToken)
+            }
+        } else {
+            // 2) If no user is logged in yet, store it for later in UserDefaults (optional).
+            UserDefaults.standard.set(fcmToken, forKey: "pendingFCMToken")
         }
     }
     
     func saveFCMTokenToFirestore(_ fcmToken: String) {
         // Ensure the user is authenticated
-       /* guard let uid = Auth.auth().currentUser?.uid
+       guard let uid = Auth.auth().currentUser?.uid
         else {
             print("User is not authenticated. Cannot save FCM token.")
             return
@@ -67,7 +84,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
             } else {
                 print("FCM token successfully saved to Firestore")
             }
-        }*/
+        }
     }
 }
 
@@ -76,32 +93,26 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
 @main
 struct MovieClubApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @State var dataManager: DataManager
+    @State var dataManager: DataManager? = nil
+    @State var notifManager: NotificationManager? = nil
     @State var isLoading: Bool = true
-    
-    init() {
-        configureFirebase()
-        dataManager = DataManager()
-       
-    }
     
     var body: some Scene {
         WindowGroup {
             Group {
-                if dataManager.authCurrentUser != nil && dataManager.currentUser != nil {
-                    ContentView()
+                if let dataManager, let notifManager {
+                    HomeView()
+                        .environment(dataManager)
+                        .environment(notifManager)
                 } else {
-                    LoginView()
-                }
-            }
-            .task {
-                Task {
-                   try await dataManager.fetchUser()
+                    WaveLoadingView()
+                        .onAppear {
+                            dataManager = DataManager()
+                            notifManager = NotificationManager()
+                        }
                 }
             }
             .colorScheme(.dark)
-            
         }
-        .environment(dataManager)
     }
 }

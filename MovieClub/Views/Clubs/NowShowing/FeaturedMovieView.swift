@@ -16,84 +16,85 @@ struct FeaturedMovieView: View {
     @State private var showFullDetails = false
     
     var body: some View {
-        ZStack {
-            // Secondary Poster in the Background
-            /* AsyncImage(url: URL(string: movie.apiData.secPoster)) { phase in
-             switch phase {
-             case .success(let image):
-             image
-             .resizable()
-             .aspectRatio(contentMode: .fill)
-             .frame(width: width + 2, height: 510, alignment: .center)
-             .opacity(0.7)
-             .overlay(
-             LinearGradient(
-             gradient: Gradient(colors: [.black, .clear]),
-             startPoint: .bottom,
-             endPoint: .top
-             )
-             )
-             case .empty, .failure:
-             EmptyView()
-             }*/
+        ZStack(alignment: .bottomLeading) {
+            // MARK: - Background Image (Vertical Backdrop)
+            if let verticalBackdrop = movie.apiData?.backdropVertical,
+               let url = URL(string: verticalBackdrop) {
+                CachedAsyncImage(url: url, placeholder: {
+                    Rectangle()
+                        .fill(Color.black)
+                        .frame(width: width, height: 510)
+                })
+                .scaledToFill()
+                .frame(width: width, height: 510)
+                .clipped()
+            }
             
-            Rectangle()
-                .fill(Color.black)
-                .frame(width: width + 2, height: 510, alignment: .center)
-                .overlay(LinearGradient(
-                    gradient: Gradient(colors: [.black, .clear]),
-                    startPoint: .bottom,
-                    endPoint: .top
-                    )
-                    )
+            LinearGradient(
+                gradient: Gradient(colors: [.black.opacity(1.0), .clear]),
+                startPoint: .bottom,
+                endPoint: .top
+            )
+            .frame(width: width, height: 510)
+            .allowsHitTesting(false)
             
-            VStack(alignment: .leading) {
-                Spacer()
+            // MARK: - Foreground Content
+            // Poster on the left, text on the right
+            HStack(alignment: .top, spacing: 16) {
                 
-                Text(movie.title)
-                    .font(.title)
-                    .fontWeight(.heavy) +
-                Text(" (\(movie.yearFormatted))")
-                    .font(.title)
+                // Poster
+                CachedAsyncImage(url: URL(string: movie.poster), placeholder:  {
+                    Color.gray
+                        .frame(width: 130, height: 190)
+                        .cornerRadius(8)
+                })
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 130, height: 190)
+                .cornerRadius(8)
+                .overlay(collected ?
+                         Rectangle().stroke(.yellow, lineWidth: 2) : nil)
                 
-                HStack(alignment: .top) {
-                    // Primary Movie Poster
-                    AsyncImage(url: URL(string: movie.poster)) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(maxHeight: 250)
-                                .overlay(collected ?
-                                         Rectangle().stroke(.yellow, lineWidth: 2) : nil)
-                            
-                        case .empty, .failure:
-                            EmptyView()
-                        }
+                // Text Stack
+                VStack(alignment: .leading, spacing: 8) {
+                    
+                    // Title + Year
+                    (Text(movie.title)
+                        .font(.title)
+                        .fontWeight(.heavy)
+                     + Text(" (\(movie.yearFormatted))")
+                        .font(.title)
+                    )
+                    .foregroundColor(.white)
+                    
+                    // Cast
+                    HStack(alignment: .top, spacing: 4) {
+                        Text("Starring:")
+                            .fontWeight(.bold)
+                        Text(movie.castFormatted)
+                            .lineLimit(2)            // Limit lines
+                            .truncationMode(.tail)   // Truncate with "..."
                     }
-                    // Details Section
-                    VStack(alignment: .leading, spacing: 10) {
-                            Text("Starring: ")
-                                .fontWeight(.bold) +
-                            Text(movie.castFormatted)
-                                .font(.body)
-                        
-                            Text("Director: ")
-                                .fontWeight(.bold) +
-                            Text(movie.director)
-                                .font(.body)
-                            
-                            Text(movie.plot)
-                            .font(.callout)
-                                .lineLimit(4)
-                        
+                    .foregroundColor(.white)
+                    
+                    // Director
+                    HStack(alignment: .top, spacing: 4) {
+                        Text("Director:")
+                            .fontWeight(.bold)
+                        Text(movie.director)
                     }
-                    .padding(3)
+                    .foregroundColor(.white)
+                    
+                    // Plot
+                    Text(movie.plot)
+                        .font(.callout)
+                        .lineLimit(4)
+                        .truncationMode(.tail)
+                        .foregroundColor(.white)
                 }
             }
-            .padding(.horizontal, 5)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
         }
+        .frame(width: width, height: 510)
     }
 }
-

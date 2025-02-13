@@ -31,7 +31,7 @@ struct AviSelector: View {
             if let selectedImageData = selectedImageData {
                 // Show the preview of the selected image
                 CircularImageView(image: UIImage(data: selectedImageData))
-                    .frame(width: 150, height: 150)
+                    .frame(width: 100, height: 100)
                     .overlay(Circle().stroke(Color.white, lineWidth: 4))
                     .shadow(radius: 10)
                     .onTapGesture {
@@ -41,7 +41,7 @@ struct AviSelector: View {
                     }
             } else if let profileImageURL = data.currentUser?.image {
                 // Show the existing profile image from Firebase
-                CircularImageView(imageUrl: URL(string: profileImageURL), size: 150)
+                CircularImageView(imageUrl: URL(string: profileImageURL), size: 100)
                     .overlay(Circle().stroke(Color.white, lineWidth: 4))
                     .shadow(radius: 10)
                     .onTapGesture {
@@ -52,7 +52,7 @@ struct AviSelector: View {
             } else {
                 // Show a placeholder if no image is available
                 CircularImageView(imageUrl: nil)
-                    .frame(width: 150, height: 150)
+                    .frame(width: 100, height: 100)
                     .overlay(Circle().stroke(Color.white, lineWidth: 4))
                     .shadow(radius: 10)
                     .onTapGesture {

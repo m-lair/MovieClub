@@ -95,7 +95,7 @@ struct NowShowingView: View {
             Label("\(movie.userName)", systemImage: "hand.point.up.left.fill")
                 .font(.title)
                 .fontWeight(.bold)
-                .padding()
+                .padding(5)
             
             Spacer()
             
@@ -105,11 +105,10 @@ struct NowShowingView: View {
             } label: {
                 CollectButton(collected: $collected)
             }
-            
             ReviewThumbs(liked: $liked, disliked: $disliked)
                 
         }
-        .padding(.trailing, 20)
+        .padding(.trailing, 10)
     }
     
     private var progressBar: some View {
@@ -172,7 +171,7 @@ struct NowShowingView: View {
         else { return }
         
         let collectionItem = CollectionItem(
-            id: movieId,
+            movieId: movieId,
             imdbId: movie.imdbId,
             clubId: clubId,
             clubName: clubName,

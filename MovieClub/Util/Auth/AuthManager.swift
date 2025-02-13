@@ -106,7 +106,7 @@ extension DataManager {
     func signOut() {
         do {
             try auth.signOut()
-            self.authState = nil
+            self.currentUser = nil
         } catch {
             print(error.localizedDescription)
         }

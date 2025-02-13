@@ -11,46 +11,17 @@ import Foundation
 import FirebaseFunctions
 import FirebaseFirestore
 import FirebaseStorage
-import class FirebaseAuth.Auth
-import class FirebaseAuth.User
+import FirebaseAuth
 import class MovieClub.User
+import class MovieClub.Comment
+import class MovieClub.MovieClub
 @testable import MovieClub
-
-// MARK: - Firebase Service Protocols
-protocol AuthService {
-    var currentUser: FirebaseAuth.User? { get }
-    func signIn(withEmail email: String, password: String) async throws -> FirebaseAuth.User
-    func signOut() async throws
-}
-
-protocol DatastoreService {
-    func document(_ path: String, in collection: String) async throws -> [String: Any]?
-    func setDocument(_ data: [String: Any], at path: String, in collection: String) async throws
-    func deleteDocument(at path: String, in collection: String) async throws
-    func documentExists(path: String, in collection: String) async throws -> Bool
-}
-
-protocol FunctionsService {
-    func createUserWithEmail(email: String, password: String, name: String) async throws -> String
-    func createUserWithOAuth(_ email: String, signInProvider: String) async throws -> String
-    func deleteUser(_ id: String) async throws
-    
-}
-
-protocol StorageService {
-    func uploadFile(_ data: Data, path: String) async throws -> URL
-    func downloadFile(at path: String) async throws -> Data?
-    func deleteFile(at path: String) async throws
-}
-
 
 // MARK: - Live Firebase Implementations
 actor TestFirebaseAuth: @preconcurrency AuthService {
     private let auth: Auth
     
-    var currentUser: FirebaseAuth.User? {
-        auth.currentUser
-    }
+    var currentUser: FirebaseAuth.User?
     
     init(auth: Auth = Auth.auth()) {
         self.auth = auth
@@ -63,6 +34,11 @@ actor TestFirebaseAuth: @preconcurrency AuthService {
     
     func signOut() throws {
         try auth.signOut()
+    }
+    
+    func createUser(withEmail email: String, password: String) async throws -> FirebaseAuth.User {
+        let result = try await auth.createUser(withEmail: email, password: password)
+        return result.user
     }
 }
 
@@ -102,42 +78,147 @@ actor TestFirestore: DatastoreService {
 
 actor TestFunctions: FunctionsService {
     
-    private let functions: Functions!
+    private let functions: Functions
     
     init(functions: Functions = Functions.functions()) {
         self.functions = functions
     }
     
+    // MARK: - Users
     func createUserWithEmail(email: String, password: String, name: String) async throws -> String {
-        do {
-            let result = try await functions.httpsCallable("users-createUserWithEmail").call(
-                ["email": email,
-                 "password": password,
-                 "name": name])
-            
-            let uid = result.data as! String
-            return uid
-        } catch {
-            throw error
+        let result = try await functions
+            .httpsCallable("users-createUserWithEmail")
+            .call(["email": email, "password": password, "name": name])
+        
+        guard let uid = result.data as? String else {
+            throw URLError(.badServerResponse)
         }
+        return uid
     }
     
     func createUserWithOAuth(_ email: String, signInProvider: String) async throws -> String {
+        let result = try await functions
+            .httpsCallable("users-createUserWithSignInProvider")
+            .call(["email": email, "signInProvider": signInProvider])
+        
+        guard let uid = result.data as? String else {
+            throw URLError(.badServerResponse)
+        }
+        return uid
+    }
+    
+    func updateUser(userId: String, email: String?, displayName: String?) async throws {
+        _ = try await functions
+            .httpsCallable("users-updateUser")
+            .call([
+                "userId": userId,
+                "email": email,
+                "name": displayName
+            ])
+    }
+    
+    func deleteUser(_ id: String) async throws {
+        _ = try await functions
+            .httpsCallable("users-deleteUser")
+            .call(["userId": id])
+    }
+    
+    // MARK: - Comments
+    func postComment(movieId: String, clubId: String, comment: Comment) async throws -> String {
         do {
-            let result = try await functions.httpsCallable("users-createUserWithSignInProvider").call(["name": email, "signInProvider": signInProvider])
-            let uid = result.data as! String
-            return uid
+            let result = try await functions
+                .httpsCallable("comments-postComment")
+                .call(["movieId": movieId, "userName": comment.userName, "text": comment.text, "userId": comment.userId, "clubId": clubId])
+            return result.data as! String
         } catch {
             throw error
         }
     }
     
-    func deleteUser(_ id: String) async throws {
+    func likeComment(commentId: String, clubId: String, movieId: String) async throws {
         do {
-            _ = try await functions.httpsCallable("users-deleteUser").call(["userId": id])
+            _ = try await functions
+                .httpsCallable("comments-likeComment")
+                .call(["commentId": commentId, "clubId": clubId, "movieId": movieId])
         } catch {
-            throw error
+            print(error)
         }
+    }
+    
+    func unlikeComment(commentId: String, clubId: String, movieId: String) async throws {
+        _ = try await functions
+            .httpsCallable("comments-unlikeComment")
+            .call(["commentId": commentId, "clubId": clubId, "movieId": movieId])
+    }
+    
+    func deleteComment(commentId: String, clubId: String, movieId: String) async throws {
+        _ = try await functions
+            .httpsCallable("comments-deleteComment")
+            .call(["id": commentId, "clubId": clubId, "movieId": movieId])
+    }
+    
+    // MARK: - Suggestions
+    func createMovieClubSuggestion(clubId: String, suggestion: String) async throws -> String {
+        let result = try await functions
+            .httpsCallable("suggestions-createMovieClubSuggestion")
+            .call(["clubId": clubId, "suggestion": suggestion])
+        
+        guard let suggestionId = result.data as? String else {
+            throw URLError(.badServerResponse)
+        }
+        return suggestionId
+    }
+    
+    func deleteMovieClubSuggestion(suggestionId: String) async throws {
+        _ = try await functions
+            .httpsCallable("suggestions.deleteMovieClubSuggestion")
+            .call(["suggestionId": suggestionId])
+    }
+    
+    // MARK: - Memberships
+    func joinMovieClub(clubId: String, userId: String) async throws {
+        _ = try await functions
+            .httpsCallable("memberships.joinMovieClub")
+            .call(["clubId": clubId, "userId": userId])
+    }
+    
+    func leaveMovieClub(clubId: String, userId: String) async throws {
+        _ = try await functions
+            .httpsCallable("memberships.leaveMovieClub")
+            .call(["clubId": clubId, "userId": userId])
+    }
+    
+    // MARK: - Movie Clubs
+    func createMovieClub(movieClub: MovieClub) async throws -> String {
+        return try await functions
+            .httpsCallable("movieClubs-createMovieClub")
+            .call(movieClub)
+        
+    }
+    
+    func updateMovieClub(movieClub: MovieClub) async throws -> String? {
+        return try await functions
+            .httpsCallable("movieClubs-updateMovieClub")
+            .call(movieClub)
+                
+    }
+    
+    // MARK: - Movies
+    func handleMovieReaction(movieId: String, reaction: String) async throws {
+        _ = try await functions
+            .httpsCallable("movies-handleMovieReaction")
+            .call(["movieId": movieId, "reaction": reaction])
+    }
+    
+    func rotateMovie(movieId: String) async throws {
+        _ = try await functions
+            .httpsCallable("movies-rotateMovie")
+            .call(["movieId": movieId])
+    }
+    
+    // MARK: - Posters
+    func collectPoster(poster: CollectionItem) async throws -> String{
+        return try await functions.httpsCallable("posters-collectPoster").call(poster)
     }
 }
 

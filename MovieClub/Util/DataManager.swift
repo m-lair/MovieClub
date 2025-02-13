@@ -24,9 +24,6 @@ class DataManager: Identifiable {
     var authCurrentUser: FirebaseAuth.User? = nil
     var authState: AuthStateDidChangeListenerHandle?
     
-    // MARK: - API Key
-    var omdbKey: String
-    
     var comments: [CommentNode] = []
     var suggestions: [Suggestion] = []
     var movies: [Movie] = []
@@ -55,13 +52,44 @@ class DataManager: Identifiable {
     var commentsListener: ListenerRegistration?
     var suggestionsListener: ListenerRegistration?
     
+    // MARK: - TMDB (The Movie Database) Conroller
+    var tmdb: APIController
+    
+    // MARK: - Caches
+    private var movieDataCache: [String: Movie] = [:]
+    private let imageCache = NSCache<NSURL, UIImage>()
+    
     init() {
         // Initialize API Key
-        omdbKey = Bundle.main.infoDictionary?["OMDB_API_KEY"] as? String ?? "invalid api key"
+        let omdbKey = Bundle.main.infoDictionary?["OMDB_API_KEY"] as? String ?? "invalid api key"
         db = Firestore.firestore()
         functions = Functions.functions()
         auth = Auth.auth()
+        tmdb = APIController(apiKey: omdbKey)
         registerStateListener()
+        Task {
+            try await fetchUser()
+        }
+    }
+    
+    func loadImage(from url: URL) async throws -> UIImage {
+        // 1. Return cached image if available
+        let nsUrl = url as NSURL
+        if let cached = imageCache.object(forKey: nsUrl) {
+            return cached
+        }
+        
+        // 2. Otherwise fetch from network
+        let (data, response) = try await URLSession.shared.data(from: url)
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200,
+              let image = UIImage(data: data) else {
+            throw URLError(.badServerResponse)
+        }
+        
+        // 3. Cache it
+        imageCache.setObject(image, forKey: nsUrl)
+        return image
     }
     
     // MARK: - Collection References

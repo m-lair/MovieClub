@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 
-struct NotificationView: View {
+struct NotificationItemView: View {
     let notification: Notification
 
     var body: some View {
@@ -22,7 +22,7 @@ struct NotificationView: View {
                     .foregroundColor(.white)
                     .lineLimit(2)
 
-                Text(notification.time)
+                Text(notification.createdAt .formatted(date: .abbreviated, time: .shortened))
                     .font(.system(size: 12))
                     .foregroundColor(.gray)
             }
@@ -47,7 +47,7 @@ struct NotificationView: View {
         if let othersCount = notification.othersCount {
             return "[\(notification.clubName)] \(notification.userName) and \(othersCount) others \(notification.message)"
         } else {
-            return "[\(notification.clubName)] \(notification.userName) \(notification.message)"
+            return "[\(notification.clubName)] \(notification.message)"
         }
     }
 }

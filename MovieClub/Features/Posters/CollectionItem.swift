@@ -9,7 +9,7 @@ import Foundation
 import SwiftUICore
 
 final class CollectionItem: Identifiable, Codable, Hashable, Equatable {
-    var id: String?
+    var movieId: String?
     var colorStr: String
     var imdbId: String
     var clubId: String
@@ -18,7 +18,7 @@ final class CollectionItem: Identifiable, Codable, Hashable, Equatable {
     var collectedDate: Date?
     
     init(
-        id: String? = nil,
+        movieId: String? = nil,
         imdbId: String,
         clubId: String,
         clubName: String,
@@ -26,7 +26,7 @@ final class CollectionItem: Identifiable, Codable, Hashable, Equatable {
         posterUrl: String = "",
         collectedDate: Date? = nil
     ) {
-        self.id = id
+        self.movieId = movieId
         self.imdbId = imdbId
         self.clubId = clubId
         self.clubName = clubName
@@ -36,7 +36,7 @@ final class CollectionItem: Identifiable, Codable, Hashable, Equatable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case id
+        case movieId = "id"
         case colorStr
         case imdbId
         case clubId

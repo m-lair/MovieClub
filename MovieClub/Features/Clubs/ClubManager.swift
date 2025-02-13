@@ -66,61 +66,84 @@ extension DataManager {
             print("Can't find movie club: \(clubId)")
             return nil
         }
+        
         do {
-            let movieClub = try snapshot.data(as: MovieClub.self)
+            var movieClub = try snapshot.data(as: MovieClub.self)
             movieClub.id = snapshot.documentID
-            
+
+            // 1) Get total number of movies for this club
+            let allMoviesSnapshot = try await movieClubCollection()
+                .document(clubId)
+                .collection("movies")
+                .getDocuments()
+            movieClub.numMovies = allMoviesSnapshot.documents.count
+
+            // 2) Get total number of members for this club
+            let membersSnapshot = try await movieClubCollection()
+                .document(clubId)
+                .collection("members")
+                .getDocuments()
+            movieClub.numMembers = membersSnapshot.documents.count
+
+            // 3) Fetch the most recent "active" movie
             let moviesSnapshot = try await movieClubCollection()
                 .document(clubId)
                 .collection("movies")
                 .whereField("status", isEqualTo: "active")
+                .order(by: "createdAt", descending: true)
                 .limit(to: 1)
                 .getDocuments()
-            
+
             var needsRotation = false
             var baseMovie: Movie? = nil
-            
+
             if let document = moviesSnapshot.documents.first {
                 baseMovie = try document.data(as: Movie.self)
                 baseMovie?.id = document.documentID
-                // Check if the watch period has ended
-                if let endDate = baseMovie?.endDate, endDate < Date() {
+                
+                // Check if the watch period has ended (using dates standardized to midnight)
+                if let endDate = baseMovie?.endDate,
+                   endDate.midnight < Date().midnight {
                     needsRotation = true
                 }
             } else if self.suggestions.count > 0 {
                 // No active movie, check if there are suggestions to rotate
                 needsRotation = true
             }
-            
-            // If rotation is needed, call the rotateMovie Cloud Function
+
+            // 4) If rotation is needed, rotate the movie
             if needsRotation {
                 let rotationResult = try await rotateMovie(clubId: clubId)
-                if !rotationResult {
-                   // Do nothing
-                } else {
+                if rotationResult {
                     // After rotation, fetch the new active movie
                     let newMoviesSnapshot = try await movieClubCollection()
                         .document(clubId)
                         .collection("movies")
                         .whereField("status", isEqualTo: "active")
+                        .order(by: "createdAt", descending: true)
                         .limit(to: 1)
                         .getDocuments()
+                    
                     if let newDocument = newMoviesSnapshot.documents.first {
                         baseMovie = try newDocument.data(as: Movie.self)
                         baseMovie?.id = newDocument.documentID
                     }
                 }
             }
-            
-            // If we have a base movie, fetch API data
+
+            // 5) If we have a base movie, fetch the API data
             if let baseMovie = baseMovie {
-                // Fetch API data for the movie
-                if let apiMovie = try await fetchMovieDetails(for: baseMovie) {
-                    baseMovie.apiData = MovieAPIData(from: apiMovie)
+                // Fetch TMDB data for the movie
+                if let apiMovie = try await tmdb.fetchMovieDetails(baseMovie.imdbId) {
+                    baseMovie.apiData = apiMovie
                 }
+                
+                // Assign to your club model
                 movieClub.movieEndDate = baseMovie.endDate
                 movieClub.movies = [baseMovie]
+                movieClub.suggestions = try await fetchSuggestions(clubId: snapshot.documentID)
                 movieClub.bannerUrl = baseMovie.poster
+                
             }
             
             return movieClub
@@ -129,6 +152,7 @@ extension DataManager {
             return nil
         }
     }
+
     
     // MARK: - Remove Club Relationship
     
@@ -153,5 +177,12 @@ extension DataManager {
         let url = try await storageRef.downloadURL()
         //print("Club image URL: \(url)")
         return url.absoluteString
+    }
+}
+
+extension Date {
+    /// Returns the date set to midnight (00:00) for the current day.
+    var midnight: Date {
+        return Calendar.current.startOfDay(for: self)
     }
 }

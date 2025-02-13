@@ -31,18 +31,23 @@ class BaseTests {
     }
     
     func setUp() async throws {
-        let uid = Int.random(in: 1...100)
+        let uid = Int.random(in: 1...1000)
         mockAuth = TestFirebaseAuth()
         mockFirestore = TestFirestore()
         mockFunctions = TestFunctions()
-        mockUser = User(id: "\(uid)", email: "test\(uid)@example.com", name: "test-user-\(uid)")
-        print(mockUser.name)
+        mockUser = User(id: "", email: "test\(uid)@example.com", name: "test-user-\(uid)")
+        
     }
     
     func tearDown() async throws {
-        mockAuth = nil
         mockFirestore = nil
         mockFunctions = nil
         mockUser = nil
+    }
+    
+    func createTestUserAuth() async throws -> String {
+        _ = try await mockAuth.createUser(withEmail: mockUser.email, password: "123456")
+        mockAuth.currentUser = try await mockAuth.signIn(withEmail: mockUser.email, password: "123456")
+       return mockAuth.currentUser!.uid
     }
 }
