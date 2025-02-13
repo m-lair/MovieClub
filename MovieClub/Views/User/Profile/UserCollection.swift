@@ -61,7 +61,7 @@ struct UserCollectionView: View {
         }
         .fullScreenCover(item: $selectedItem) { item in
             //CollectionCardView(collectionItem: item)
-            DiamondCardView(posterUrl: URL(string: item.posterUrl)!, color: item.color)
+            DiamondCardView(posterUrl: URL(string: item.posterUrl)!, color: item.color, item: item)
         }
     }
     
