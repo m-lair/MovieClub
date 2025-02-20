@@ -100,7 +100,9 @@ struct NowShowingView: View {
             Spacer()
             
             Button {
-                collected = true
+                withAnimation(.easeInOut) {
+                    collected = true
+                }
                 Task { await collectPoster() }
             } label: {
                 CollectButton(collected: $collected)

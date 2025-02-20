@@ -15,7 +15,7 @@ struct CollectButton: View {
                 .frame(width: 85, height: 30)
                 .clipShape(.capsule)
                 .foregroundStyle(collected ? .yellow : .white)
-            Text("Collect")
+            Text(collected ? "Collected" : "Collect")
                 .fontWeight(.bold)
                 .foregroundStyle(.black)
         }
