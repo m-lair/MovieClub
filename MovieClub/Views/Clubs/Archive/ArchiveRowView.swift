@@ -36,7 +36,35 @@ struct ArchiveRowView: View {
                         Text("\(movie.endDate.formatted(date: .abbreviated, time: .omitted))")
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundColor(.gray)
+                    
                     }
+                    Label {
+                        Text("\(movie.likedBy.count)")
+                    } icon: {
+                        Image(systemName: "hand.thumbsup.circle.fill")
+                            .resizable()
+                            .frame(width: 30, height: 30)
+                    }
+                    .foregroundStyle(.green)
+                    
+                    Label {
+                        Text("\(movie.dislikedBy.count)")
+                    } icon: {
+                        Image(systemName: "hand.thumbsdown.circle.fill")
+                            .resizable()
+                            .frame(width: 30, height: 30)
+                    }
+                    .foregroundStyle(.red)
+                    
+                    Label {
+                        Text("\(movie.collectedBy.count)")
+                    } icon: {
+                        Image("collectIcon")
+                            .resizable()
+                            .frame(width: 30, height: 30)
+                    }
+                    .foregroundStyle(.yellow)
+
                 }
             }
             .padding(.vertical)
