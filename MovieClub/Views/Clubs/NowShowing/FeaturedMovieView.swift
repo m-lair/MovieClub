@@ -49,10 +49,20 @@ struct FeaturedMovieView: View {
                         .cornerRadius(8)
                 })
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 130, height: 190)
                 .cornerRadius(8)
-                .overlay(collected ?
-                         Rectangle().stroke(.yellow, lineWidth: 2) : nil)
+                .overlay(
+                    // 1) The border animation
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(lineWidth: 4)
+                        .fill(collected ? Color.yellow : Color.clear)
+                        .mask(
+                            Rectangle()
+                                .fill(collected ? Color.white : Color.clear)
+                                .offset(y: collected ? 0 : 250)
+                                .frame(width: 140, height: 200)
+                        )
+                )
+                .frame(width: 130, height: 190)
                 
                 // Text Stack
                 VStack(alignment: .leading, spacing: 8) {
