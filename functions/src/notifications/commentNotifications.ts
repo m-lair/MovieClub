@@ -1,8 +1,8 @@
 import { onDocumentCreated, onDocumentUpdated } from "firebase-functions/v2/firestore";
 import * as admin from "firebase-admin";
 import { CommentData } from "../movieClubs/movies/comments/commentTypes";
-import { getComment } from "../movieClubs/movies/comments/commentHelpers";
 import { getMovieClub } from "../movieClubs/movieClubHelpers";
+import { getComment } from "../movieClubs/movies/comments/commentHelpers";
 import { UserData } from "src/users/userTypes";
 import { getUser } from "src/users/userHelpers";
 
@@ -35,81 +35,73 @@ export const notifyClubMembersOnComment = onDocumentCreated(
         .collection(`movieclubs/${clubId}/members`)
         .get();
 
-      // 2. Filter out comment author, get member IDs
+      // 2. Filter out comment author and get member IDs
       const memberIds = membersSnapshot.docs
         .map(doc => doc.id)
         .filter(userId => userId !== commentAuthorId && userId !== parentCommentAuthorId);
 
-      // 3. Grab user data for all members in parallel
-      const userPromises = memberIds.map(userId => getUser(userId));
+      // 3. Get user data for all members in parallel
+      const userPromises = memberIds.map((userId) =>
+        getUser(userId)
+      );
       const userSnapshots = await Promise.all(userPromises);
 
       // Get club info
       const clubSnapshot = await getMovieClub(clubId);
-      const clubName = clubSnapshot.data()?.name ?? "Unnamed Club";
+      const clubName = clubSnapshot.data()?.name || "Unnamed Club";
 
-      // 4. Build an array of messages (for sendAll) and batch notification writes
-      const messages: admin.messaging.Message[] = [];
-      const notificationWrites: { userId: string; data: any }[] = [];
-
-      for (const userSnap of userSnapshots) {
+      // 4. Prepare and send notifications
+      const notifications = userSnapshots.map(async (userSnap) => {
         const userData = userSnap.data() as UserData | undefined;
-        if (!userData?.fcmToken) continue; // Skip if no token
+        if (!userData) return null;
 
-        const payload: admin.messaging.Message = {
-          token: userData.fcmToken,
+        // Check FCM token
+        const fcmToken = userData.fcmToken;
+        if (!fcmToken) return null;
+
+        // Prepare payload for push
+        const payload = {
+          token: fcmToken,
           notification: {
-            title: `New Comments in ${clubName}!`,
+            title: `New Comments in ${clubName}`,
             body: `${commentData.userName} commented in ${clubName}!`,
           },
           data: {
-            type: "commented",
-            clubName,
+            type: 'commented',
+            clubName: clubName,
             userName: commentData.userName,
           },
         };
 
-        messages.push(payload);
+        // Send FCM message
+        try {
+          await admin.messaging().send(payload);
+          console.log(`Notification sent to ${userSnap.id}`);
 
-        // We'll queue up the Firestore notification doc for later batch write
-        notificationWrites.push({
-          userId: userSnap.id,
-          data: {
-            clubName,
-            userName: commentData.userName,
-            othersCount: null,
-            message: `${commentData.userName} left a comment`,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            type: "commented",
-          },
-        });
-      }
-
-      // 5. Send all messages in a single call
-      if (messages.length > 0) {
-        const batchResponse = await admin.messaging().sendAll(messages);
-        console.log(
-          `Messages sent. Success: ${batchResponse.successCount}, Fail: ${batchResponse.failureCount}`
-        );
-      } else {
-        console.log("No valid tokens to send.");
-      }
-
-      // 6. Write notification docs in a single batch
-      if (notificationWrites.length > 0) {
-        const batch = admin.firestore().batch();
-        notificationWrites.forEach(item => {
-          const ref = admin
+          // Add a document to user/{userId}/notifications
+          await admin
             .firestore()
-            .collection(`users/${item.userId}/notifications`)
-            .doc(); // auto-id
-          batch.set(ref, item.data);
-        });
-        await batch.commit();
-        console.log(`Wrote ${notificationWrites.length} user notification docs.`);
-      }
+            .collection(`users/${userSnap.id}/notifications`)
+            .add({
+              clubName: clubName,
+              userName: commentData.userName,
+              othersCount: null, // or set to 0 or actual count if needed
+              message: `${commentData.userName} left a comment`,
+              createdAt: admin.firestore.FieldValue.serverTimestamp(),
+              type: "commented", // maps to your NotificationType
+            });
 
-      return { success: true };
+          return { success: true, userId: userSnap.id };
+        } catch (error) {
+          console.error(`Failed to notify ${userSnap.id}:`, error);
+          return null;
+        }
+      });
+
+      // Wait for all notifications to complete
+      const results = await Promise.all(notifications);
+      console.log(`Processed ${results.length} notifications`);
+      return { success: true, notifiedUsers: results.filter(Boolean) };
     } catch (error) {
       console.error("Notification workflow failed:", error);
       return null;
