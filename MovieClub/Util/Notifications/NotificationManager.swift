@@ -48,14 +48,17 @@ class NotificationManager{
                 .order(by: "createdAt", descending: true)
                 .getDocuments()
             
-            let fetchedNotifications = try snapshot.documents.compactMap { document in
-                try document.data(as: Notification.self)
+            var fetchedNotifications: [Notification] = []
+            for document in snapshot.documents {
+                do {
+                    let notif = try document.data(as: Notification.self)
+                    fetchedNotifications.append(notif)
+                } catch {
+                    print("Failed to decode notification \(document.documentID): \(error.localizedDescription)")
+                }
             }
-            
-            // Make sure to update UI-bound properties on the main thread.
-            await MainActor.run {
-                self.notifications = fetchedNotifications
-            }
+    
+            self.notifications = fetchedNotifications
         } catch {
             if let nsError = error as NSError? {
                 print("Failed to fetch notifications: \(nsError.localizedDescription) (code: \(nsError.code))")
@@ -64,6 +67,7 @@ class NotificationManager{
             }
         }
     }
+
 
     
     func getAuthStatus() async {
