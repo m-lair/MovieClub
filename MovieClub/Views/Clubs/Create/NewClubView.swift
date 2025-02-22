@@ -55,6 +55,7 @@ struct NewClubView: View {
             
             let clubs = try await data.fetchAllPublicClubs()
             for clubId in clubs {
+                if clubList.contains(where: { $0.id == clubId }) { continue }
                 guard let club = await data.fetchMovieClub(clubId: clubId) else { return }
                 clubList.append(club)
             }
