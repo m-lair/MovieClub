@@ -25,7 +25,7 @@ struct NotificationListView: View {
             }
             .navigationDestination(for: Notification.self) { notification in
                 switch notification.type {
-                case .commented:
+                case .commented, .collected, .liked, .replied:
                     if let club = data.userClubs.first(where: { $0.id == notification.clubId }) {
                         ClubDetailView(navPath: $navPath, club: club)
                             .navigationTitle(club.name)
