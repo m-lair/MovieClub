@@ -199,8 +199,10 @@ export const notifyCommentLiked = onDocumentUpdated(
             .firestore()
             .collection(`users/${commentAuthorId}/notifications`)
             .add({
+              clubId: clubId,
               clubName: clubName,
               userName: likerName,
+              userId: likerId,
               othersCount: null,
               message: `${likerName} liked your comment`,
               createdAt: admin.firestore.FieldValue.serverTimestamp(),

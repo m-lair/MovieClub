@@ -13,7 +13,7 @@ struct NewClubView: View {
     var filteredClubs: [MovieClub] {
         clubList.filter { club in
             !data.userClubs.contains { $0.id == club.id } &&
-            (searchText.isEmpty || club.name.localizedStandardContains(searchText)) && club.isPublic
+            (searchText.isEmpty || club.name.localizedStandardContains(searchText))
         }
     }
     
@@ -82,6 +82,7 @@ struct NewClubView: View {
             club.id = document.documentID
             return club
         }
+        print("durrentClubList: \(data.userClubs)")
         return clubList
     }
 }

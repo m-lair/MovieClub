@@ -9,16 +9,17 @@ import Foundation
 import FirebaseFirestore
 import SwiftUI
 
-struct Notification: Identifiable, Codable {
+struct Notification: Identifiable, Codable, Hashable {
     @DocumentID var id: String?
     let clubName: String
+    let clubId: String
     let userName: String
+    let userId: String
     let othersCount: Int?
     let message: String
     let createdAt: Date
     let type: NotificationType
 }
-
 
 enum NotificationType: String, Codable {
     case liked

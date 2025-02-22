@@ -45,7 +45,17 @@ extension DataManager {
             signOut()
             throw error
         }
-        await fetchUserClubs()
+        _ = await fetchUserClubs(forUserId: user.uid)
+    }
+    
+    func fetchProfile(id: String) async throws -> User? {
+        guard
+            let snapshot = try? await usersCollection().document(id).getDocument()
+        else {
+            print("error getting user document")
+            return nil
+        }
+        return try snapshot.data(as: User.self)
     }
     
     func storeFCMTokenIfAuthenticated(token: String) async {
@@ -63,21 +73,17 @@ extension DataManager {
         }
     }
     
-    // MARK: - Fetch User Clubs
-    
-    func fetchUserClubs() async {
+    // MARK: - Fetch User Clubs for a Specific User
+
+    func fetchUserClubs(forUserId userId: String) async -> [MovieClub] {
         do {
-            guard let user = currentUser else {
-                print("no user")
-                authCurrentUser = nil
-                return
-            }
-            let snapshot = try await usersCollection().document(user.id ?? "")
+            let snapshot = try await usersCollection().document(userId)
                 .collection("memberships")
                 .getDocuments()
             
             let clubIds = snapshot.documents.compactMap { $0.documentID }
-            let clubs = try await withThrowingTaskGroup(of: MovieClub?.self) { group in
+            
+            let clubs: [MovieClub] = try await withThrowingTaskGroup(of: MovieClub?.self) { group in
                 for clubId in clubIds {
                     group.addTask { [weak self] in
                         guard let self = self else { return nil }
@@ -87,17 +93,21 @@ extension DataManager {
                 
                 var clubList: [MovieClub] = []
                 for try await club in group {
-                    if let club {
+                    if let club = club {
                         clubList.append(club)
                     }
                 }
                 return clubList
             }
-            self.userClubs = clubs
+            
+            return clubs
         } catch {
-            print("Error fetching user clubs: \(error)")
+            print("Error fetching user clubs for userId \(userId): \(error)")
+            return []
         }
     }
+
+
     
     // MARK: - Update Profile Picture
     

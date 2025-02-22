@@ -1,4 +1,5 @@
 export interface UserData {
+  id?: string;
   bio?: string;
   image?: string;
   fcmToken?: string;

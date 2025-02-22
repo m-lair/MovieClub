@@ -10,19 +10,7 @@ import FirebaseFunctions
 
 extension DataManager {
     
-    func fetchCurrentCollection() async {
-        do {
-            let items = try await fetchCollectionItems()
-            self.currentCollection = items
-        } catch {
-            print("Error fetching collection items: \(error)")
-        }
-    }
-    
-    func fetchCollectionItems() async throws -> [CollectionItem] {
-        guard let user = currentUser,
-              let userId = user.id
-        else { return [] }
+    func fetchCollectionItems(for userId: String) async throws -> [CollectionItem] {
         print("begin fetching collection items")
         let snapshot = try await usersCollection().document(userId).collection("posters").getDocuments()
         let collectionItems = try snapshot.documents.map { document -> CollectionItem in
@@ -71,7 +59,6 @@ extension DataManager {
                     
                     // Calculate color based on movie data
                     let color: String
-                    
                     if movieData.dislikes == 0 && movieData.likes == 0 {
                         color = "black"
                     } else {
@@ -84,7 +71,7 @@ extension DataManager {
                     let posterUrl = await posterUrlTask ?? item.posterUrl // Fallback to existing URL if fetch fails
                     
                     // Create new item with updated color and poster URL
-                    let updatedItem = item
+                    var updatedItem = item
                     updatedItem.colorStr = color
                     updatedItem.posterUrl = posterUrl
                     return updatedItem
@@ -103,6 +90,7 @@ extension DataManager {
         
         return items
     }
+
 
     private func determineColor(fromRatio ratio: Double) -> String {
         switch ratio {

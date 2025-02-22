@@ -9,21 +9,32 @@ import SwiftUI
 
 struct UserMembershipsView: View {
     @Environment(DataManager.self) private var data
-    var userClubs: [MovieClub] {
-        data.userClubs.sorted {
-            guard let date1 = $0.createdAt, let date2 = $1.createdAt else { return false }
-            return date1 < date2
+    let userId: String?
+    @State var userClubs: [MovieClub] = []
+    var sortedUserClubs: [MovieClub] {
+        userClubs.sorted { club1, club2 in
+            if let date1 = club1.createdAt, let date2 = club2.createdAt {
+                return date1 < date2
+            }
+            return club1.createdAt != nil
         }
     }
-    @State var clubsPath = NavigationPath()
     var body: some View {
         ScrollView {
-            ForEach(userClubs, id: \.self) { movieClub in
+            ForEach(sortedUserClubs, id: \.id) { movieClub in
                 MovieClubCardView(movieClub: movieClub)
                     .padding(.top, 4)
             }
         }
         .scrollIndicators(.hidden)
+        .task {
+            Task {
+                if let userId = userId {
+                    print("userId \(userId)")
+                    self.userClubs = await data.fetchUserClubs(forUserId: userId)
+                }
+            }
+        }
     }
 }
 
