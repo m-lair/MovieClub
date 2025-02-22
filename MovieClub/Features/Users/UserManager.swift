@@ -76,15 +76,14 @@ extension DataManager {
     // MARK: - Fetch User Clubs for a Specific User
 
     func fetchUserClubs(forUserId userId: String) async -> [MovieClub] {
-        var clubList: [MovieClub] = []
         do {
-            
             let snapshot = try await usersCollection().document(userId)
                 .collection("memberships")
                 .getDocuments()
             
             let clubIds = snapshot.documents.compactMap { $0.documentID }
-            let clubs = try await withThrowingTaskGroup(of: MovieClub?.self) { group in
+            
+            let clubs: [MovieClub] = try await withThrowingTaskGroup(of: MovieClub?.self) { group in
                 for clubId in clubIds {
                     group.addTask { [weak self] in
                         guard let self = self else { return nil }
@@ -92,17 +91,22 @@ extension DataManager {
                     }
                 }
                 
+                var clubList: [MovieClub] = []
                 for try await club in group {
                     if let club = club {
                         clubList.append(club)
                     }
                 }
+                return clubList
             }
+            
+            return clubs
         } catch {
             print("Error fetching user clubs for userId \(userId): \(error)")
+            return []
         }
-        return clubList
     }
+
 
     
     // MARK: - Update Profile Picture

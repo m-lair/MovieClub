@@ -75,6 +75,7 @@ struct HomePageView: View {
             Task {
                 if let userId = Auth.auth().currentUser?.uid {
                     self.userClubs =  await data.fetchUserClubs(forUserId: userId)
+                    data.userClubs = self.userClubs
                 }
             }
         }
@@ -82,6 +83,7 @@ struct HomePageView: View {
             Task {
                 if let userId = Auth.auth().currentUser?.uid {
                     self.userClubs =  await data.fetchUserClubs(forUserId: userId)
+                    data.userClubs = self.userClubs
                     isLoading = false
                 }
             }
