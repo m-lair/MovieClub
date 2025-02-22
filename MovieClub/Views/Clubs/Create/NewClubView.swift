@@ -6,66 +6,80 @@ struct NewClubView: View {
     @Environment(\.dismiss) private var dismiss
 
     @Binding var path: NavigationPath
-    @State private var searchText: String = ""
+    @State private var searchText = ""
     @State private var clubList: [MovieClub] = []
-    @State private var isLoading: Bool = false
+    @State private var isLoading = false
 
     var filteredClubs: [MovieClub] {
         clubList.filter { club in
-            !data.userClubs.contains { $0.id == club.id } &&
+            !data.userClubs.contains(where: { $0.id == club.id }) &&
             (searchText.isEmpty || club.name.localizedStandardContains(searchText))
         }
     }
 
     var body: some View {
         VStack {
-            List(filteredClubs) { club in
-                MovieClubRowView(club: club) {
-                    Task {
-                        isLoading = true
-                        defer { isLoading = false }
-                        if let clubId = club.id {
-                            try await data.joinClub(club: club)
-                            if let newClub = await data.fetchMovieClub(clubId: clubId) {
-                                data.userClubs.append(newClub)
+            if isLoading {
+                WaveLoadingView()
+            } else {
+                List {
+                    ForEach(filteredClubs, id: \.id) { club in
+                        MovieClubRowView(club: club) {
+                            Task {
+                                await joinClub(club)
                             }
                         }
-                        dismiss()
+                        .transition(.move(edge: .bottom))
                     }
                 }
+                // Animate changes to the ForEach
+                .animation(.easeInOut, value: filteredClubs)
             }
-            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
-            .navigationTitle("Find or Create Club")
-            .listStyle(.plain)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink(destination: ClubDetailsForm(navPath: $path)) {
-                        Text("Create")
-                    }
+        }
+        .searchable(text: $searchText)
+        .navigationTitle("Find or Create Club")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink(destination: ClubDetailsForm(navPath: $path)) {
+                    Text("Create")
                 }
             }
         }
-        .onAppear {
-            Task {
-                do {
-                    clubList = try await getClubList()
-                } catch {
-                    print("Error retrieving clubs: \(error)")
-                }
-            }
+        .task {
+            await loadClubs()
         }
     }
 
-    func getClubList() async throws -> [MovieClub] {
-        let snapshot = try await data.movieClubCollection()
-            .whereField("isPublic", isEqualTo: "true")
-            .getDocuments()
-        let clubList: [MovieClub] = try snapshot.documents.compactMap { document in
-            var club = try document.data(as: MovieClub.self)
-            club.id = document.documentID
-            return club
+    func loadClubs() async {
+        do {
+            
+            let clubs = try await data.fetchAllPublicClubs()
+            for clubId in clubs {
+                guard let club = await data.fetchMovieClub(clubId: clubId) else { return }
+                clubList.append(club)
+            }
+            
+        } catch {
+            print("Error retrieving clubs: \(error)")
         }
-        return clubList
+        
+    }
+
+    func joinClub(_ club: MovieClub) async {
+        do {
+            isLoading = true
+            // Join logic
+            try await data.joinClub(club: club)
+            // Re-fetch or locally update userClubs
+            if let clubId = club.id,
+               let newClub = await data.fetchMovieClub(clubId: clubId) {
+                data.userClubs.append(newClub)
+            }
+        } catch {
+            print("Error joining club: \(error)")
+        }
+        isLoading = false
+        dismiss()
     }
 }
 
@@ -77,8 +91,9 @@ struct MovieClubRowView: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            // Club banner image or a placeholder if none exists.
-            if let bannerUrl = club.bannerUrl, let url = URL(string: bannerUrl) {
+            // Check if the bannerUrl is valid.
+            if let bannerUrl = club.bannerUrl,
+               let url = URL(string: bannerUrl) {
                 AsyncImage(url: url) { image in
                     image.resizable()
                          .scaledToFill()
@@ -125,15 +140,13 @@ struct MovieClubRowView: View {
                     .clipShape(Capsule())
             }
         }
+        .padding(.vertical, 8)
         .task {
-            Task {
-                if let clubId = club.id {
-                    if let loadedClub = await data.fetchMovieClub(clubId: clubId) {
-                        self.club = loadedClub
-                    }
-                }
+            if let clubId = club.id {
+                guard let loadingClub = await data.fetchMovieClub(clubId: clubId) else { return }
+                //print("club fetched: \(loadingClub.name), id: \(loadingClub.id ?? "nil"), members: \(loadingClub.numMembers ?? 0), bannerUrl: \(loadingClub.bannerUrl ?? "nil")")
+                self.club = loadingClub
             }
         }
-        .padding(.vertical, 8)
     }
 }

@@ -44,6 +44,7 @@ struct DiscoverView: View {
                         }
                         .padding(.horizontal)
                     }
+                    .frame(height: 220)
                 }
                 
                 // MARK: - Trending Movies
@@ -59,6 +60,7 @@ struct DiscoverView: View {
                         }
                         .padding(.horizontal)
                     }
+                    .frame(height: 320)
                 }
                 
                 // MARK: - News
