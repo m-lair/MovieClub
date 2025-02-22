@@ -12,6 +12,7 @@ struct DiscoverView: View {
     @Environment(DataManager.self) private var data
     
     // Local states to hold fetched content
+    @State private var navPath = NavigationPath()
     @State private var trendingClubs: [MovieClub] = []
     @State private var trendingMovies: [MovieAPIData] = []
     @State private var newsItems: [NewsItem] = []
@@ -28,11 +29,18 @@ struct DiscoverView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 10){
                             ForEach(trendingClubs, id: \.id) { club in
-                                MovieClubCardView(movieClub: club)
-                                    .frame(width: 320, height: 200)
-                                    .padding(.top)
-                                    .offset(y: 10)
+                                NavigationLink(value: club) {
+                                    MovieClubCardView(movieClub: club)
+                                        .frame(width: 320, height: 200)
+                                        .padding(.top)
+                                        .offset(y: 10)
+                                }
                             }
+                        }
+                        .navigationDestination(for: MovieClub.self) { club in
+                            ClubDetailView(navPath: $navPath, club: club)
+                                .navigationTitle(club.name)
+                                .navigationBarTitleDisplayMode(.inline)
                         }
                         .padding(.horizontal)
                     }
