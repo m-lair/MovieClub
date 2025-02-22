@@ -163,21 +163,6 @@ extension DataManager {
             print("Could not delete club membership: \(error)")
         }
     }
-    
-    // MARK: - Upload Club Image
-    
-    func uploadClubImage(image: UIImage, clubId: String) async throws -> String {
-        guard let imageData = image.jpegData(compressionQuality: 0.25) else {
-            return ""
-        }
-        let storageRef = Storage.storage().reference().child("Clubs/\(clubId)/banner.jpg")
-        let metadata = StorageMetadata()
-        metadata.contentType = "image/jpeg"
-        _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
-        let url = try await storageRef.downloadURL()
-        //print("Club image URL: \(url)")
-        return url.absoluteString
-    }
 }
 
 extension Date {

@@ -56,7 +56,9 @@ struct MainTabView: View {
                 .tag(Tab.notificationsPath)
                 
                 NavigationStack(path: $profilePath){
-                    ProfileView()
+                    if let userId = data.currentUser?.id {
+                        ProfileView(userId: userId)
+                    }
                 }
                 .tabItem {
                     Label("", systemImage: "person.circle")

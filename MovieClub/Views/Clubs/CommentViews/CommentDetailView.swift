@@ -19,10 +19,12 @@ struct CommentDetailView: View {
         HStack {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    CircularImageView(userId: comment.userId, size: 20)
-                    Text(comment.userName)
-                        .font(.headline)
-                        .fontWeight(.semibold)
+                    NavigationLink(destination: ProfileView(userId: comment.userId)) {
+                        CircularImageView(userId: comment.userId, size: 20)
+                        Text(comment.userName)
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                    }
                     Circle()
                         .fill(Color.gray)
                         .frame(width: 5, height: 5)

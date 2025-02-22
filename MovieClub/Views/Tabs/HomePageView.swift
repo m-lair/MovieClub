@@ -5,20 +5,21 @@
 //  Created by Marcus Lair on 5/7/24.
 //
 
-
-
 import SwiftUI
+import FirebaseAuth
 
 
 struct HomePageView: View {
     @Environment(DataManager.self) var data: DataManager
     @Binding var navPath: NavigationPath
     @State private var isLoading: Bool = true
-
-    var userClubs: [MovieClub] {
-        data.userClubs.sorted {
-            guard let date1 = $0.createdAt, let date2 = $1.createdAt else { return false }
-            return date1 < date2
+    @State var userClubs: [MovieClub] = []
+    var sortedUserClubs: [MovieClub] {
+        userClubs.sorted { club1, club2 in
+            if let date1 = club1.createdAt, let date2 = club2.createdAt {
+                return date1 < date2
+            }
+            return club1.createdAt != nil
         }
     }
     
@@ -40,7 +41,7 @@ struct HomePageView: View {
                 } else {
                     ScrollView {
                         VStack {
-                            ForEach(userClubs, id: \.id) { movieClub in
+                            ForEach(sortedUserClubs, id: \.id) { movieClub in
                                 NavigationLink(value: movieClub) {
                                     MovieClubCardView(movieClub: movieClub)
                                 }
@@ -72,13 +73,17 @@ struct HomePageView: View {
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {
             Task {
-                await data.fetchUserClubs()
+                if let userId = Auth.auth().currentUser?.uid {
+                    self.userClubs =  await data.fetchUserClubs(forUserId: userId)
+                }
             }
         }
         .onAppear {
             Task {
-                await data.fetchUserClubs()
-                isLoading = false
+                if let userId = Auth.auth().currentUser?.uid {
+                    self.userClubs =  await data.fetchUserClubs(forUserId: userId)
+                    isLoading = false
+                }
             }
         }
     }

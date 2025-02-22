@@ -12,8 +12,10 @@ import FirebaseFirestore
 struct UserCollectionView: View {
     @Environment(DataManager.self) private var data: DataManager
     @Environment(\.dismiss) var dismiss
-    var collection: [CollectionItem] {
-        data.currentCollection.sorted {
+    let userId: String?
+    @State var collection: [CollectionItem] = []
+    var sortedCollection: [CollectionItem] {
+        collection.sorted {
             guard let date1 = $0.collectedDate, let date2 = $1.collectedDate else { return false }
             return date1 > date2
         }
@@ -56,7 +58,9 @@ struct UserCollectionView: View {
         .scrollIndicators(.hidden)
         .onAppear {
             Task {
-                await data.fetchCurrentCollection()
+                if let userId {
+                    self.collection = try await data.fetchCollectionItems(for: userId)
+                }
             }
         }
         .fullScreenCover(item: $selectedItem) { item in
