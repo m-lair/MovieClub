@@ -85,7 +85,11 @@ final class Comment: Identifiable, Codable, Hashable, Equatable {
 }
 
 @Observable
-class CommentNode: Identifiable {
+class CommentNode: Identifiable, Equatable {
+    static func == (lhs: CommentNode, rhs: CommentNode) -> Bool {
+        lhs.id == rhs.id
+    }
+    
     var id: String
     var comment: Comment
     var replies: [CommentNode] = []

@@ -84,7 +84,9 @@ export const notifyClubMembersOnComment = onDocumentCreated(
             .collection(`users/${userSnap.id}/notifications`)
             .add({
               clubName: clubName,
+              clubId: clubId,
               userName: commentData.userName,
+              userId: userSnap.id,
               othersCount: null, // or set to 0 or actual count if needed
               message: `${commentData.userName} left a comment`,
               createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -303,7 +305,9 @@ export const notifyCommentReply = onDocumentCreated(
         .collection(`users/${parentCommentAuthorId}/notifications`)
         .add({
           clubName: clubName,
+          clubId: clubId,
           userName: commentData.userName,
+          userId: commentData.userId,
           othersCount: null,
           message: `${commentData.userName} replied to your comment`,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),

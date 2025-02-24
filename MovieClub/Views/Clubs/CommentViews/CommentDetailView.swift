@@ -10,7 +10,6 @@ import SwiftUI
 struct CommentDetailView: View {
     @Environment(DataManager.self) private var data
     let comment: Comment
-    var onReply: (Comment) -> Void
     @State var imageUrl: String = ""
     
     @State private var isLiked: Bool = false
@@ -29,28 +28,23 @@ struct CommentDetailView: View {
                         .fill(Color.gray)
                         .frame(width: 5, height: 5)
                     
+                    
                     TimelineView(.everyMinute) { context in
                         Text(timeAgoDisplay(referenceDate: context.date))
                             .font(.caption)
                             .foregroundColor(.gray)
                     }
                 }
-                
-                Text(comment.text)
-                    .font(.body)
-                    .lineLimit(8)
-                    .padding(.leading, 30)
-                
                 HStack {
-                    Button {
-                        onReply(comment)
-                    } label: {
-                        Label("reply", systemImage: "arrow.turn.down.right")
-                    }
+                    Text(comment.text)
+                        .font(.body)
+                        .lineLimit(8)
+                        .padding(.leading, 30)
+                    
                     Spacer()
                     Button {
                         Task {
-                           await toggleLike()
+                            await toggleLike()
                         }
                     } label: {
                         HStack {
