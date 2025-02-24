@@ -15,6 +15,7 @@ struct ClubTabView: View {
 
     var body: some View {
         HStack {
+            Spacer()
             ForEach(tabs.indices, id: \.self) { index in
                 Button {
                     selectedTabIndex = index
@@ -22,10 +23,11 @@ struct ClubTabView: View {
                     Text(tabs[index])
                         .fontWeight(.semibold)
                         .foregroundColor(selectedTabIndex == index ? .white : .gray)
+                        .lineLimit(1)
                         
                 }
-                .padding(.horizontal, 5)
                 .background(selectedTabIndex == index ? Color.clear : Color.clear)
+                Spacer()
             }
         }
     }

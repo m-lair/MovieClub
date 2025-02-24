@@ -11,29 +11,44 @@ struct ArchivesView: View {
     @Environment(DataManager.self) private var dataManager
     @State private var showSheet: Bool = false
     // Only archived movies
-    var archivedMovies: [Movie] {
-        dataManager.currentClub?.movies.filter { $0.status == "archived" }.reversed() ?? []
-    }
+    @State var archivedMovies: [Movie] = []
     @State private var selectedMovie: Movie? = nil
     
     var body: some View {
         ScrollView {
-            VStack {
-                ForEach(archivedMovies, id: \.self) { movie in
+            LazyVStack {
+                ForEach(archivedMovies, id: \.id) { movie in
                     ArchiveRowView(movie: movie)
                         .onTapGesture {
                             selectedMovie = movie
-                            showSheet = true
                         }
-                    Divider()
+                        .transition(.move(edge: .trailing))
                 }
             }
+            .animation(.easeInOut, value: archivedMovies)
         }
         .ignoresSafeArea()
         .onAppear {
             if let clubId = dataManager.currentClub?.id {
                 Task {
-                    try await dataManager.fetchFirestoreMovies(clubId: clubId)
+                    let moviesSnapshot = try await dataManager.movieClubCollection()
+                        .document(clubId)
+                        .collection("movies")
+                        .order(by: "endDate", descending: true)
+                        .whereField("status", isEqualTo: "archived")
+                        .getDocuments()
+                    
+                    for document in moviesSnapshot.documents {
+                        let baseMovie = try document.data(as: Movie.self)
+                        baseMovie.id = document.documentID
+                        
+                        // Fetch and attach API data to the movie
+                        if let apiMovieData = try await dataManager.fetchMovieAPIData(for: baseMovie.imdbId) {
+                            baseMovie.apiData = apiMovieData
+                        }
+                        
+                        archivedMovies.append(baseMovie)
+                    }
                 }
             }
         }
