@@ -31,7 +31,7 @@ struct UserCollectionView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: columns) {
-                ForEach(collection) { item in
+                ForEach(sortedCollection) { item in
                     VStack {
                         if let url = URL(string: item.posterUrl) {
                             CachedAsyncImage(url: url) {
