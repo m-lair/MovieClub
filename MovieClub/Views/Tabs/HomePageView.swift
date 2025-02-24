@@ -12,6 +12,7 @@ import FirebaseAuth
 struct HomePageView: View {
     @Environment(DataManager.self) var data: DataManager
     @Binding var navPath: NavigationPath
+    @Namespace private var namespace
     @State private var isLoading: Bool = true
     @State var userClubs: [MovieClub] = []
     var sortedUserClubs: [MovieClub] {
@@ -43,16 +44,31 @@ struct HomePageView: View {
                         VStack {
                             ForEach(sortedUserClubs, id: \.id) { movieClub in
                                 NavigationLink(value: movieClub) {
-                                    MovieClubCardView(movieClub: movieClub)
+                                    if #available(iOS 18.0, *) {
+                                        MovieClubCardView(movieClub: movieClub)
+                                            .padding(.vertical, 5)
+                                            .matchedTransitionSource(id: movieClub.id, in: namespace)
+                                    } else {
+                                        MovieClubCardView(movieClub: movieClub)
+                                            .padding(.vertical, 5)
+                                    }
                                 }
                             }
                         }
                         .navigationDestination(for: MovieClub.self) { club in
-                            ClubDetailView(navPath: $navPath, club: club)
-                                .navigationTitle(club.name)
-                                .navigationBarTitleDisplayMode(.inline)
+                            if #available(iOS 18.0, *) {
+                                ClubDetailView(navPath: $navPath, club: club)
+                                    .navigationTransition(.zoom(sourceID: club.id, in: namespace))
+                                    .navigationTitle(club.name)
+                                    .navigationBarTitleDisplayMode(.inline)
+                            } else {
+                                ClubDetailView(navPath: $navPath, club: club)
+                                    .navigationTitle(club.name)
+                                    .navigationBarTitleDisplayMode(.inline)
+                            }
                         }
                     }
+                
                 }
             }
         }

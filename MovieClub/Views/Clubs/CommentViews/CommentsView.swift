@@ -7,127 +7,184 @@
 
 import SwiftUI
 
+struct FlattenedComment: Identifiable {
+    let node: CommentNode
+    let level: Int
+    var id: String { node.id }
+}
+
 struct CommentsView: View {
     @Environment(DataManager.self) private var data: DataManager
     
     var onReply: (Comment) -> Void
     var comments: [CommentNode] { data.comments }
     
+    @State private var expandedNodes = Set<String>()
     @State var isLoading: Bool = false
     @State private var error: Error?
-    
-    
+
     var body: some View {
-        VStack(alignment: .leading) {
-            Group {
-                if comments.isEmpty {
-                    VStack {
-                        if isLoading {
-                            ProgressView()
-                        } else {
-                            Text ("No comments yet")
-                        }
-                    }
+        ScrollView {
+            VStack(alignment: .leading) {
+                let flatList = flattenComments(comments, level: 0, expandedNodes: expandedNodes)
+                
+                if flatList.isEmpty {
+                    Text(isLoading ? "Loading..." : "No comments yet")
                 } else {
-                    
-                    ForEach(comments) { commentNode in
-                        CommentRow(commentNode: commentNode, onReply: onReply)
+                    // 2) Render the flattened list
+                    ForEach(flatList) { item in
+                        CommentRow(
+                            node: item.node,
+                            level: item.level,
+                            isExpanded: expandedNodes.contains(item.node.id),
+                            onToggle: toggleExpand,
+                            onReply: onReply
+                        )
+                        Divider()
+                            .mask(LinearGradient(colors: [.clear.opacity(0.5), .white, .clear.opacity(0.5)], startPoint: .leading, endPoint: .trailing))
                     }
-                    
                 }
-            }
-        }
-        .alert("Error", isPresented: .constant(error != nil)) {
-            Button("OK") {
-                error = nil
-            }
-            Button("Retry") {
-                Task {
-                    await refreshComments()
-                }
-            }
-        } message: {
-            if let error = error {
-                Text(error.localizedDescription)
             }
         }
         .task {
             setupCommentListener()
         }
-        .onDisappear {
-            data.comments = []
-            data.commentsListener?.remove()
-            data.commentsListener = nil
+        .onChange(of: comments) {
+            if expandedNodes.isEmpty {
+                expandedNodes = collectExpandedNodes(nodes: comments, maxDepth: 3)
+            }
+        }
+    }
+    
+    private func flattenComments(
+        _ nodes: [CommentNode],
+        level: Int,
+        expandedNodes: Set<String>
+    ) -> [FlattenedComment] {
+        var result = [FlattenedComment]()
+        for node in nodes {
+            result.append(FlattenedComment(node: node, level: level))
+            // If parent is expanded, include its children
+            if expandedNodes.contains(node.id) {
+                result.append(contentsOf: flattenComments(node.replies, level: level + 1, expandedNodes: expandedNodes))
+            }
+        }
+        return result
+    }
+    
+    private func toggleExpand(_ nodeId: String) {
+        if expandedNodes.contains(nodeId) {
+            // Collapse: remove this node and all its descendants
+            removeDescendants(for: nodeId, in: comments)
+        } else {
+            expandedNodes.insert(nodeId)
         }
     }
 
-    private func setupCommentListener() {
-        data.listenToComments(movieId: data.movieId)
+    private func removeDescendants(for nodeId: String, in nodes: [CommentNode]) {
+        // First, remove the node itself
+        expandedNodes.remove(nodeId)
+        // Then find the node in the tree and remove its children recursively
+        for node in nodes {
+            if node.id == nodeId {
+                for child in node.replies {
+                    removeDescendants(for: child.id, in: child.replies)
+                }
+            } else {
+                removeDescendants(for: nodeId, in: node.replies)
+            }
+        }
     }
     
-    private func refreshComments() async {
-        isLoading = true
-        defer { isLoading = false }
-        
-        do {
-            _ = try await data.fetchComments(clubId: data.clubId, movieId: data.movieId)
-        } catch {
-            print("Error fetching comments: \(error)")
+    /// Recursively collect IDs for all nodes at or below `maxDepth`
+    private func collectExpandedNodes(
+        nodes: [CommentNode],
+        maxDepth: Int,
+        currentDepth: Int = 0
+    ) -> Set<String> {
+        var expanded = Set<String>()
+        for node in nodes {
+            // If we haven't reached maxDepth yet, mark this comment as expanded
+            if currentDepth < maxDepth {
+                expanded.insert(node.id)
+                // Recurse to children and add their IDs too (they'll appear expanded)
+                let childIDs = collectExpandedNodes(
+                    nodes: node.replies,
+                    maxDepth: maxDepth,
+                    currentDepth: currentDepth + 1
+                )
+                expanded.formUnion(childIDs)
+            }
+            // If currentDepth == maxDepth, we do NOT expand further
+            // so children remain collapsed by default.
         }
+        return expanded
+    }
+    
+    private func setupCommentListener() {
+        data.listenToComments(movieId: data.movieId)
     }
 }
 
 struct CommentRow: View {
-    var commentNode: CommentNode
-    var onReply: (Comment) -> Void
-    @State private var isExpanded = true
+    let colors: [Color] = [.blue, .green, .yellow, .orange, .red]
+    let node: CommentNode
+    let level: Int
+    let isExpanded: Bool
+    let onToggle: (String) -> Void
+    let onReply: (Comment) -> Void
+    
+    var canReply: Bool = true
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Display the main comment
-            CommentDetailView(comment: commentNode.comment, onReply: onReply)
+        HStack(alignment: .top) {
+            // Decorative vertical line to indicate nesting (only for nested replies)
+            if level > 0 {
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(colors[level % colors.count].opacity(0.5))
+                    .mask(LinearGradient(colors: [.clear, colors[level % colors.count].opacity(0.5)], startPoint: .top, endPoint: .bottom))
+                    .frame(width: 2)
+            }
             
-            // Check if there are replies
-            if !commentNode.replies.isEmpty {
-                // Expand/Collapse Button
-                Button {
-                    withAnimation {
-                        isExpanded.toggle()
-                    }
-                } label: {
-                    HStack {
-                        Text(isExpanded ? "Hide Replies" : "Show Replies (\(commentNode.replies.count))")
-                            .font(.subheadline)
-                            .foregroundColor(.accentColor)
-                        Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                            .foregroundColor(.blue)
-                    }
-                    .padding(.leading, 30)
-                }
+            VStack(alignment: .leading) {
+                CommentDetailView(comment: node.comment)
+                    .padding(.leading, CGFloat(level * 4))
                 
-                // Replies Section
-                if isExpanded {
-                    VStack(alignment: .leading, spacing: 0) {
-                        ForEach(commentNode.replies, id: \.id) { replyNode in
-                            HStack(alignment: .top, spacing: 0) {
-                                // Thread line container with enhanced styling
-                                VStack(alignment: .center, spacing: 0) {
-                                    // Vertical line
-                                    RoundedRectangle(cornerRadius: 2, style: .continuous)
-                                        .frame(width: 2)
-                                        .frame(maxHeight: .infinity)
-                                        .padding(.leading, 9)
-                                }
-                                .frame(width: 20)
-                                
-                                // Child comment
-                                CommentRow(commentNode: replyNode, onReply: onReply)
-                            }
+                HStack {
+                    if canReply {
+                        Button {
+                            onReply(node.comment)
+                        } label: {
+                            Label("reply", systemImage: "arrow.turn.down.right")
                         }
                     }
-                    .padding(.leading, 20) // Indent replies for hierarchy
+                    if !node.replies.isEmpty {
+                        Button {
+                            withAnimation {
+                                onToggle(node.id)
+                            }
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text(isExpanded ? "Hide Replies" : "Show Replies (\(node.replies.count))")
+                                Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                            }
+                            .font(.subheadline)
+                            .foregroundColor(.accentColor)
+                            .padding(.vertical, 4)
+                            .padding(.horizontal, 4)
+                            .background(
+                                Capsule()
+                                    .stroke(Color.accentColor, lineWidth: 1)
+                            )
+                        }
+                        .padding(.leading, 4)
+                        .padding(.top, 4)
+                    }
                 }
             }
         }
+        .padding(.vertical, 3)
+        .padding(.leading, CGFloat(level * 16))
+        
     }
 }

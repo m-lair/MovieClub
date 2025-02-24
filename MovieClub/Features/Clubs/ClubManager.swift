@@ -163,6 +163,20 @@ extension DataManager {
             print("Could not delete club membership: \(error)")
         }
     }
+    
+    func fetchAllPublicClubs() async throws -> [String] {
+        let snapshot = try await movieClubCollection()
+            .whereField("isPublic", isEqualTo: "true")
+            .getDocuments()
+
+        let clubs: [String] = snapshot.documents.compactMap { doc in
+            // For this to work, MovieClub should conform to Decodable
+            // and match your Firestore fields
+            return doc.documentID
+        }
+        return clubs
+    }
+
 }
 
 extension Date {

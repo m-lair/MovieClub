@@ -25,6 +25,7 @@ class DataManager: Identifiable {
     var authState: AuthStateDidChangeListenerHandle?
     
     var comments: [CommentNode] = []
+    var commentsTask: Task<Void, Never>?
     var suggestions: [Suggestion] = []
     var movies: [Movie] = []
     

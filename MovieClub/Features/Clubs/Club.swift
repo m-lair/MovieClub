@@ -35,7 +35,7 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         timeInterval: Int,
         ownerId: String,
         isPublic: Bool,
-        bannerUrl: String? = "no-image",
+        bannerUrl: String? = nil,
         numMovies: Int = 0,
         members: [Member]? = [],
         suggestions: [Suggestion]? = [],
@@ -67,7 +67,6 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         timeInterval = try container.decode(Int.self, forKey: .timeInterval)
         movieEndDate = try container.decodeIfPresent(Date.self, forKey: .movieEndDate)
         ownerId = try container.decode(String.self, forKey: .ownerId)
-        bannerUrl = try container.decodeIfPresent(String.self, forKey: .bannerUrl)
         numMovies = try container.decodeIfPresent(Int.self, forKey: .numMovies)
         movies = []
         
