@@ -13,19 +13,24 @@ struct NotificationItemView: View {
     let notification: Notification
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top) {
             NotificationImageView(type: notification.type)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(buildNotificationText())
-                    .font(.system(size: 16, weight: .bold))
+                Text("[\(notification.clubName)]")
+                    .font(.headline)
+                    .fontWeight(.heavy)
+                
+                Text("\(notification.message)")
+                    .font(.body)
                     .foregroundColor(.white)
-                    .lineLimit(2)
-
+                
                 Text(notification.createdAt .formatted(date: .abbreviated, time: .shortened))
                     .font(.system(size: 12))
                     .foregroundColor(.gray)
+                 
             }
+            .padding(.leading, 5)
 
             Spacer()
 

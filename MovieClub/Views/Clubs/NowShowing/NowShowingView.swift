@@ -33,16 +33,18 @@ struct NowShowingView: View {
         VStack {
             if let movie {
                 movieContent(movie)
-                    .overlay(animate ?
-                        LottieView(animation: .named("Falling-Confetti"))
-                        .playbackMode(.playing(.toProgress(2, loopMode: .playOnce)))
-                        .offset(y: -250)
-                        .ignoresSafeArea() : nil
-                    )
+                   
             } else {
                 loadingView
             }
         }
+        .overlay(animate ?
+            LottieView(animation: .named("Falling-Confetti"))
+            .playbackMode(.playing(.toProgress(2, loopMode: .playOnce)))
+            .mask(LinearGradient(colors: [.black, .black, .clear], startPoint: .top, endPoint: .bottom))
+            .offset(y: -250)
+            .ignoresSafeArea() : nil
+        )
         .onAppear {
             Task { await refreshClub() }
         }
