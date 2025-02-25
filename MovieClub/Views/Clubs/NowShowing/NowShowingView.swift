@@ -35,7 +35,7 @@ struct NowShowingView: View {
                 movieContent(movie)
                     .overlay(animate ?
                         LottieView(animation: .named("Falling-Confetti"))
-                        .playbackMode(.playing(.toProgress(2, loopMode: .loop)))
+                        .playbackMode(.playing(.toProgress(2, loopMode: .playOnce)))
                         .offset(y: -250)
                         .ignoresSafeArea() : nil
                     )
