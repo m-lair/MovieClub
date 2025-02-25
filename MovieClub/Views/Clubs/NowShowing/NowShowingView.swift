@@ -1,9 +1,11 @@
 import SwiftUI
+import Lottie
 
 struct NowShowingView: View {
     // MARK: - Environment & State
     @Environment(DataManager.self) private var data: DataManager
     @FocusState private var isCommentInputFocused: Bool
+    @State private var animate = false
     
     @State private var error: Error? = nil
     @State private var isLoading = false
@@ -31,10 +33,18 @@ struct NowShowingView: View {
         VStack {
             if let movie {
                 movieContent(movie)
+                   
             } else {
                 loadingView
             }
         }
+        .overlay(animate ?
+            LottieView(animation: .named("Falling-Confetti"))
+            .playbackMode(.playing(.toProgress(2, loopMode: .playOnce)))
+            .mask(LinearGradient(colors: [.black, .black, .clear], startPoint: .top, endPoint: .bottom))
+            .offset(y: -250)
+            .ignoresSafeArea() : nil
+        )
         .onAppear {
             Task { await refreshClub() }
         }
@@ -102,6 +112,7 @@ struct NowShowingView: View {
             Button {
                 withAnimation(.easeInOut) {
                     collected = true
+                    animate = true
                 }
                 Task { await collectPoster() }
             } label: {

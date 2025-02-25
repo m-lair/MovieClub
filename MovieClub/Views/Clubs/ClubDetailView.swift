@@ -2,7 +2,7 @@ import SwiftUI
 import FirebaseFirestore
 
 struct ClubDetailView: View {
-    let tabs: [String] = ["Bulletin", "Now Showing", "Upcoming", "Archives"]
+    let tabs: [String] = ["About", "Now Showing", "Upcoming", "Archives"]
     
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.editMode) var editMode
@@ -18,7 +18,7 @@ struct ClubDetailView: View {
         VStack {
             ClubTabView(tabs: tabs, selectedTabIndex: $selectedTabIndex)
             TabView(selection: $selectedTabIndex) {
-                BulletinView()
+                ClubAboutView()
                     .tag(0)
         
                 NowShowingView()
