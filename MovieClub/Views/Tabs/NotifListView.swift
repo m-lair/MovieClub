@@ -4,7 +4,7 @@
 //
 //  Created by Marcus Lair on 10/23/24.
 //
-
+ 
 import Foundation
 import SwiftUI
 
@@ -12,6 +12,8 @@ struct NotificationListView: View {
     @Environment(NotificationManager.self) var notifManager
     @State var navPath: NavigationPath = NavigationPath()
     @Environment(DataManager.self) var data
+    @State private var showError = false
+    @State private var errorMessage = ""
 
     var body: some View {
         ScrollView {
@@ -19,6 +21,20 @@ struct NotificationListView: View {
                 ForEach(notifManager.notifications, id: \.id) { notification in
                     NavigationLink(value: notification) {
                         NotificationItemView(notification: notification)
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                        Button(role: .destructive) {
+                            Task {
+                                do {
+                                    try await notifManager.deleteNotification(notification)
+                                } catch {
+                                    errorMessage = error.localizedDescription
+                                    showError = true
+                                }
+                            }
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
                     }
                     Divider()
                 }
@@ -38,6 +54,11 @@ struct NotificationListView: View {
                     EmptyView()
                 }
             }
+        }
+        .alert("Error", isPresented: $showError) {
+            Button("OK") { }
+        } message: {
+            Text(errorMessage)
         }
         .refreshable {
             await notifManager.fetchUserNotifications()
