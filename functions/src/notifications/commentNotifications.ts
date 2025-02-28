@@ -87,10 +87,10 @@ export const notifyClubMembersOnComment = onDocumentCreated(
               clubId: clubId,
               userName: commentData.userName,
               userId: userSnap.id,
-              othersCount: null, // or set to 0 or actual count if needed
-              message: `${commentData.userName} left a comment`,
+              othersCount: null,
+              message: `${commentData.userName} left a comment in ${clubName}`,
               createdAt: admin.firestore.FieldValue.serverTimestamp(),
-              type: "commented", // maps to your NotificationType
+              type: "commented",
             });
 
           return { success: true, userId: userSnap.id };
@@ -161,7 +161,7 @@ export const notifyCommentLiked = onDocumentUpdated(
           return;
         }
 
-        // Look up the liker’s user data to get their name
+        // Look up the liker's user data to get their name
         const likerDoc = await admin.firestore().doc(`users/${likerId}`).get();
         if (!likerDoc.exists) {
           console.log("Liker user not found for:", likerId);
@@ -206,7 +206,7 @@ export const notifyCommentLiked = onDocumentUpdated(
               userName: likerName,
               userId: likerId,
               othersCount: null,
-              message: `${likerName} liked your comment`,
+              message: `${likerName} liked your comment in ${clubName}`,
               createdAt: admin.firestore.FieldValue.serverTimestamp(),
               type: "liked",
             });
@@ -309,7 +309,7 @@ export const notifyCommentReply = onDocumentCreated(
           userName: commentData.userName,
           userId: commentData.userId,
           othersCount: null,
-          message: `${commentData.userName} replied to your comment`,
+          message: `${commentData.userName} replied to your comment in ${clubName}`,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
           type: "replied",
         });

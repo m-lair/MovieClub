@@ -101,7 +101,7 @@ export const notifyClubMembersOnNewSuggestion = onDocumentCreated(
               userName: suggestionData.userName,
               userId: suggestionData.userId,
               othersCount: null,
-              message: notificationMessage,
+              message: `${suggestionData.userName} suggested a movie in ${clubName}`,
               createdAt: admin.firestore.FieldValue.serverTimestamp(),
               type: "suggested",
               imdbId: suggestionData.imdbId,

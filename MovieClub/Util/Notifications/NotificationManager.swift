@@ -79,7 +79,7 @@ class NotificationManager{
         let data: [String: Any] = ["notificationId": notificationId]
         
         do {
-            _ = try await functions.httpsCallable("deleteNotification").call(data)
+            _ = try await functions.httpsCallable("notificationFunctions-deleteNotification").call(data)
             // Remove the notification from local array
             if let index = notifications.firstIndex(where: { $0.id == notification.id }) {
                 notifications.remove(at: index)

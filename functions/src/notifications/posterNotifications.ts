@@ -120,7 +120,7 @@ export const notifyPosterCollected = onDocumentUpdated(
             userName: userName,
             userId: authorData.id,
             othersCount: null,
-            message: "Your movie has a new collector",
+            message: `${userName} collected your movie in ${clubName}`,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             type: "collected",
           });

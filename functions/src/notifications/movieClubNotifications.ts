@@ -90,7 +90,7 @@ export const notifyClubOwnerOnNewMember = onDocumentCreated(
             userName: memberName,
             userId: userId,
             othersCount: null,
-            message: `${memberName} joined your club`,
+            message: `${memberName} joined your club ${clubName}`,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             type: "joined",
           });
