@@ -8,51 +8,74 @@
 import Foundation
 import SwiftUI
 
-
 struct NotificationItemView: View {
     let notification: Notification
 
     var body: some View {
-        HStack(alignment: .top) {
-            NotificationImageView(type: notification.type)
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: notification.type.iconName)
+                .font(.system(size: 20))
+                .foregroundColor(.white)
+                .frame(width: 40, height: 40)
+                .background(notification.type.iconColor)
+                .clipShape(Circle())
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("[\(notification.clubName)]")
+                Text(getNotificationTitle())
                     .font(.headline)
-                    .fontWeight(.heavy)
-                
-                Text("\(notification.message)")
-                    .font(.body)
+                    .fontWeight(.semibold)
                     .foregroundColor(.white)
                 
-                Text(notification.createdAt .formatted(date: .abbreviated, time: .shortened))
-                    .font(.system(size: 12))
+                Text(notification.message)
+                    .font(.subheadline)
                     .foregroundColor(.gray)
-                 
+                    .lineLimit(2)
+                
+                if let othersCount = notification.othersCount, othersCount > 0 {
+                    Text("\(notification.userName) and \(othersCount) others")
+                        .font(.footnote)
+                        .foregroundColor(.gray)
+                }
             }
-            .padding(.leading, 5)
+            .padding(.leading, 2)
 
             Spacer()
 
-            Button {
-                // Handle more action (e.g., dismiss or show options)
-            } label: {
-                Image(systemName: "ellipsis")
-                    .foregroundColor(.gray)
-            }
+            Text(formattedTime())
+                .font(.caption)
+                .foregroundColor(.gray)
+                .padding(.top, 3)
         }
-        .padding()
-        .background(.clear)
-        .cornerRadius(10)
-        .padding(.horizontal, 2)
-        .navigationTitle("Notifications")
+        .padding(.vertical, 8)
     }
-
-    func buildNotificationText() -> String {
-        if let othersCount = notification.othersCount {
-            return "[\(notification.clubName)] \(notification.userName) and \(othersCount) others \(notification.message)"
+    
+    private func getNotificationTitle() -> String {
+        switch notification.type {
+        case .commented:
+            return "New comment"
+        case .replied:
+            return "New reply"
+        case .liked:
+            return "New like"
+        case .collected:
+            return "Movie collected"
+        case .suggestion:
+            return "New suggestion"
+        case .joined:
+            return "New member"
+        }
+    }
+    
+    private func formattedTime() -> String {
+        let calendar = Calendar.current
+        if calendar.isDateInToday(notification.createdAt) {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "h:mm a"
+            return formatter.string(from: notification.createdAt)
         } else {
-            return "[\(notification.clubName)] \(notification.message)"
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MMM d, yyyy"
+            return formatter.string(from: notification.createdAt)
         }
     }
 }

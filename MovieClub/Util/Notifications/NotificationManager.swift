@@ -4,12 +4,13 @@
 //
 //  Created by Marcus Lair on 8/17/24.
 //
-
+ 
 import Foundation
 import FirebaseFirestore
 import FirebaseAuth
 import UserNotifications
 import Observation
+import FirebaseFunctions
 
 @Observable
 class NotificationManager{
@@ -68,7 +69,25 @@ class NotificationManager{
         }
     }
 
-
+    func deleteNotification(_ notification: Notification) async throws {
+        guard let uid = Auth.auth().currentUser?.uid,
+              let notificationId = notification.id else {
+            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid notification or user ID"])
+        }
+        
+        let functions = Functions.functions()
+        let data: [String: Any] = ["notificationId": notificationId]
+        
+        do {
+            _ = try await functions.httpsCallable("notificationFunctions-deleteNotification").call(data)
+            // Remove the notification from local array
+            if let index = notifications.firstIndex(where: { $0.id == notification.id }) {
+                notifications.remove(at: index)
+            }
+        } catch {
+            throw error
+        }
+    }
     
     func getAuthStatus() async {
         let settings = await UNUserNotificationCenter.current().notificationSettings()

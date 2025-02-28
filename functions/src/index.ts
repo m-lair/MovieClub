@@ -8,5 +8,8 @@ import * as movies from "./movieClubs/movies/movieFunctions";
 import * as suggestions from "./movieClubs/suggestions/suggestionFunctions";
 import * as users from "./users/userFunctions";
 import * as posters from "./users/posters/posterFunctions";
+import * as notificationFunctions from "./notifications/notificationFunctions";
+import * as movieClubNotifications from "./notifications/movieClubNotifications";
 
-export { comments, config, memberships, movieClubs, movies, suggestions, users, posters, commentNotifications, posterNotifications };
+export { comments, config, memberships, movieClubs, movies, suggestions, users, posters, commentNotifications, posterNotifications, notificationFunctions, movieClubNotifications };
+

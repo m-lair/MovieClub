@@ -51,7 +51,6 @@ exports.rotateMovie = functions.https.onCall(
         return { success: false, message: "No suggestions available." };
       }
 
-
       const suggestionData = nextSuggestionDoc.data() as SuggestionData;
 
       // Set up the new movie's watch period
@@ -61,7 +60,6 @@ exports.rotateMovie = functions.https.onCall(
 
       const startDate = new Date();
       const endDate = new Date(startDate.getTime() + clubData.timeInterval * 7 * 24 * 60 * 60 * 1000);
-
 
       const movieData: MovieData = {
         ...suggestionData,
@@ -81,13 +79,17 @@ exports.rotateMovie = functions.https.onCall(
 
       // Add the new movie as 'active'
       const movieCollectionRef = getMovieRef(clubId);
-      await movieCollectionRef.add(movieData);
+      const newMovieRef = await movieCollectionRef.add(movieData);
+      const newMovieId = newMovieRef.id;
 
       // Delete the suggestion
       await nextSuggestionDoc.ref.delete();
 
       // Update movieEndDate in the movieClub document
       await clubDocRef.update({ movieEndDate: endDate });
+
+      // Send notifications to all club members about the new movie
+      await notifyMembersAboutNewMovie(clubId, clubData.name, suggestionData, newMovieId);
 
       logVerbose('Movie rotated successfully!');
       return { success: true };
@@ -97,6 +99,98 @@ exports.rotateMovie = functions.https.onCall(
     }
   }
 );
+
+// Helper function to notify members about a new movie
+async function notifyMembersAboutNewMovie(
+  clubId: string, 
+  clubName: string, 
+  suggestionData: SuggestionData,
+  movieId: string
+) {
+  try {
+    // Get all club members
+    const membersSnapshot = await firebaseAdmin
+      .firestore()
+      .collection(`movieclubs/${clubId}/members`)
+      .get();
+    
+    if (membersSnapshot.empty) {
+      console.log("No members to notify about new movie");
+      return;
+    }
+    
+    const memberIds = membersSnapshot.docs.map(doc => doc.id);
+    
+    // Get movie details - you might want to fetch more details from an external API
+    // For now we'll use a generic message
+    const movieTitle = "a new movie"; // Could be fetched using suggestionData.imdbId
+    
+    // Prepare notification message
+    const notificationMessage = `New movie to watch: ${movieTitle}`;
+    
+    // Process each member
+    const notificationPromises = memberIds.map(async (memberId) => {
+      // Get user data for FCM token
+      const userDoc = await firebaseAdmin.firestore().doc(`users/${memberId}`).get();
+      if (!userDoc.exists) return null;
+      
+      const userData = userDoc.data();
+      const fcmToken = userData?.fcmToken;
+      
+      // Send push notification if token exists
+      if (fcmToken) {
+        const payload = {
+          token: fcmToken,
+          notification: {
+            title: `New Movie in ${clubName}`,
+            body: notificationMessage,
+          },
+          data: {
+            type: 'rotated',
+            clubName: clubName,
+            clubId: clubId,
+            imdbId: suggestionData.imdbId,
+            movieId: movieId
+          },
+        };
+        
+        try {
+          await firebaseAdmin.messaging().send(payload);
+          console.log(`Movie rotation notification sent to ${memberId}`);
+        } catch (error) {
+          console.error(`Failed to send movie rotation notification to ${memberId}:`, error);
+        }
+      }
+      
+      // Add notification document to user's notifications collection
+      try {
+        await firebaseAdmin
+          .firestore()
+          .collection(`users/${memberId}/notifications`)
+          .add({
+            clubName: clubName,
+            clubId: clubId,
+            message: notificationMessage,
+            createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
+            type: "rotated",
+            imdbId: suggestionData.imdbId,
+            movieId: movieId
+          });
+        
+        return { success: true, userId: memberId };
+      } catch (error) {
+        console.error(`Failed to write movie rotation notification for ${memberId}:`, error);
+        return null;
+      }
+    });
+    
+    await Promise.all(notificationPromises);
+    console.log(`Processed movie rotation notifications for club ${clubId}`);
+    
+  } catch (error) {
+    console.error("Failed to notify members about new movie:", error);
+  }
+}
 
 export const handleMovieReaction = functions.https.onCall(
   async (request: CallableRequest<MovieLikeRequest & { isLike: boolean }>) => {
