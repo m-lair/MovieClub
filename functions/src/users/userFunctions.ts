@@ -387,3 +387,29 @@ exports.updateUser = functions.https.onCall(
     }
   }
 );
+
+exports.updateUserProfileImage = functions.https.onCall(
+  async (request: CallableRequest<{ imageUrl: string }>): Promise<void> => {
+    try {
+      const { data, auth } = request;
+      const { uid } = verifyAuth(auth);
+
+      // Verify the image URL is from our stock images bucket
+      if (!data.imageUrl.includes('stockimages')) {
+        throwHttpsError(
+          "invalid-argument",
+          "Invalid image URL. Must be from stock images.",
+          data
+        );
+      }
+
+      await firestore.collection(USERS).doc(uid).update({
+        image: data.imageUrl
+      });
+
+      logVerbose("User profile image updated successfully!");
+    } catch (error: any) {
+      handleCatchHttpsError(`Error updating user profile image ${request.auth?.uid}`, error);
+    }
+  }
+);

@@ -11,31 +11,47 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(DataManager.self) var data
     @Environment(\.dismiss) var dismiss
-
+    @State private var showingEditProfile = false
+    var user: User? { data.currentUser }
+    
     var body: some View {
         NavigationStack {
             if let user = data.currentUser {
-               SettingsDivider()
+                SettingsDivider()
                 VStack(alignment: .leading) {
-                    NavigationLink(destination: LoginInformationView()) {
+                    NavigationLink(destination: UserEditView()) {
                         HStack {
-                            Circle()
+                            // Profile Image
+                            if let imageUrl = user.image, let url = URL(string: imageUrl) {
+                                CachedAsyncImage(url: url) {
+                                    Circle()
+                                        .fill(Color.gray.opacity(0.3))
+                                }
+                                .aspectRatio(contentMode: .fill)
                                 .frame(width: 60, height: 60)
+                                .clipShape(Circle())
                                 .padding(.leading)
+                                .id(user.image)
+                            } else {
+                                Circle()
+                                    .fill(Color.gray.opacity(0.3))
+                                    .frame(width: 60, height: 60)
+                                    .padding(.leading)
+                            }
                             
                             VStack(alignment: .leading) {
                                 Text(user.name)
                                     .font(.title)
                                     .fontWeight(.bold)
                                 
-                                Text("Edit Username, Email, and Password")
+                                Text("Edit Profile")
                                     .font(.caption)
                                     .fontWeight(.light)
                             }
                         }
                         Spacer()
                     }
-            
+                    
                     SettingsDivider()
                         .padding(.bottom)
                     
@@ -54,7 +70,7 @@ struct SettingsView: View {
                     SettingsDivider()
                     
                     SettingsRowView(icon: "bell.fill", label: "Notifications", destination: NotifSettingsView())
-                        
+                    
                     SettingsDivider()
                     
                     SettingsRowView(icon: "info.circle.fill", label: "About", destination: AboutView())
@@ -66,7 +82,28 @@ struct SettingsView: View {
                     SettingsDivider()
                 }
                 Spacer()
+                
+                Button {
+                    guard let userId = user.id else { return }
+                    Task {
+                        try await data.deleteUserAccount(userId: userId)
+                        data.authCurrentUser = nil
+                    }
+                } label: {
+                    Text("Delete Account")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.red)
+                        .cornerRadius(10)
+                }
+                .padding(.top, 20)
+                .frame(maxWidth: UIScreen.main.bounds.width - 40)
             }
+        }
+        .onAppear {
+            refreshUserData()
         }
         .toolbar {
             ToolbarItem {
@@ -77,6 +114,18 @@ struct SettingsView: View {
             }
         }
         .toolbarRole(.editor)
+    }
+    
+    private func refreshUserData() {
+        Task {
+            if let userId = data.currentUser?.id {
+                if let updatedUser = try? await data.fetchProfile(id: userId) {
+                    await MainActor.run {
+                        data.currentUser = updatedUser
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -99,145 +148,6 @@ struct SettingsRowView<Destination: View>: View {
             }
             .padding(.leading)
             .padding(.vertical, 8)
-        }
-    }
-}
-
-struct LoginInformationView: View {
-    @Environment(DataManager.self) var data
-    @Environment(\.dismiss) var dismiss
-    @State var error: Error? = nil
-    @State var editing = false
-    @State var name: String = ""
-    @State var email: String = ""
-    @State var bio: String = ""
-    
-    var body: some View {
-        if let user = data.currentUser {
-            VStack {
-                //AviSelector()
-                  //  .padding(.vertical)
-                
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("Username")
-                        .padding(5)
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
-                    
-                    TextField(text: $name, label: { Text(user.name).foregroundStyle(.white) })
-                        .padding(.leading, 10)
-                    Divider()
-                    Text("Email")
-                        .padding(5)
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
-                    
-                    TextField(text: $email, label: { Text(user.email).foregroundStyle(.white) })
-                        .padding(.leading, 10)
-                    
-                }
-                .padding(5)
-                .frame(maxWidth: UIScreen.main.bounds.width - 40)
-                .background(RoundedRectangle(cornerRadius: 5).fill(Color(red: 29/255, green: 29/255, blue: 29/255)))
-                
-                Button {
-                    guard let userId = user.id else { return }
-                    Task {
-                        try await data.deleteUserAccount(userId: userId)
-                        data.authCurrentUser = nil
-                    }
-                } label: {
-                    Text("Delete Account")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.red)
-                        .cornerRadius(10)
-                }
-                .padding(.top, 20)
-                .frame(maxWidth: UIScreen.main.bounds.width - 40)
-                
-                Spacer()
-            }
-            .toolbar {
-                if editing {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("Done") {
-                            Task {
-                                await submit()
-                            }
-                            dismiss()
-                        }
-                    }
-                }
-            }
-            .alert("Error", isPresented: .constant(error != nil), actions: {
-                Button("OK") {
-                    error = nil
-                }
-            }, message: {
-                if let error = error {
-                    Text(error.localizedDescription)
-                }
-            })
-            .onChange(of: [name, email, bio]) {
-                editing = true
-                if name.isEmpty && email.isEmpty && bio.isEmpty {
-                    editing = false
-                }
-            }
-        }
-    }
-    
-    func submit() async {
-        guard let currentUser = data.currentUser else { return }
-        
-        // Start with the current values
-        var updatedName = currentUser.name
-        var updatedEmail = currentUser.email
-        var updatedBio = currentUser.bio
-
-        // Apply updates only if non-empty and different
-        if !name.isEmpty, name != currentUser.name {
-            updatedName = name
-        }
-
-        if !email.isEmpty, email != currentUser.email {
-            updatedEmail = email
-        }
-
-        if !bio.isEmpty, bio != currentUser.bio {
-            updatedBio = bio
-        }
-
-        // Check if anything changed by comparing fields
-        let somethingChanged =
-            (updatedName != currentUser.name) ||
-            (updatedEmail != currentUser.email) ||
-            (updatedBio != currentUser.bio)
-
-        // Proceed only if there's an actual change
-        if somethingChanged {
-            do {
-                // Create a new user instance with updated values
-                let updatedUser = User(email: updatedEmail, bio: updatedBio, name: updatedName)
-                
-                // Perform the update
-                try await data.updateUserDetails(user: updatedUser)
-                
-                // After a successful update, set currentUser to the updated instance
-                // If currentUser is a class, you could also just update its properties
-                // directly instead of creating a new instance:
-                currentUser.email = updatedEmail
-                currentUser.name = updatedName
-                currentUser.bio = updatedBio
-
-                // If desired, you can explicitly update `data.currentUser` as well:
-                data.currentUser = currentUser
-            } catch {
-                self.error = error
-            }
         }
     }
 }

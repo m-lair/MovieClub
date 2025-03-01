@@ -48,7 +48,7 @@ class DataManager: Identifiable {
     var db: Firestore
     var functions: Functions
     var auth: Auth
-    
+    var storage: Storage
     // MARK: - Content Listeners
     var commentsListener: ListenerRegistration?
     var suggestionsListener: ListenerRegistration?
@@ -66,6 +66,7 @@ class DataManager: Identifiable {
         db = Firestore.firestore()
         functions = Functions.functions()
         auth = Auth.auth()
+        storage = Storage.storage()
         tmdb = APIController(apiKey: omdbKey)
         registerStateListener()
         Task {
@@ -107,6 +108,38 @@ class DataManager: Identifiable {
         self.currentUser = user
     }
     
+    // MARK: - Stock Images
+    func fetchStockProfilePictureURLs() async -> [URL] {
+        let stockImagesRef = storage.reference().child("stockimages")
+        
+        do {
+            // List all items in the stockimages folder
+            let result = try await stockImagesRef.listAll()
+            
+            // Get download URLs for all items
+            let urls = try await withThrowingTaskGroup(of: URL?.self) { group in
+                for item in result.items {
+                    group.addTask {
+                        try? await item.downloadURL()
+                    }
+                }
+                
+                var urlArray: [URL] = []
+                for try await url in group {
+                    if let url = url {
+                        urlArray.append(url)
+                    }
+                }
+                return urlArray
+            }
+            
+            return urls
+        } catch {
+            print("Error fetching stock images: \(error)")
+            return []
+        }
+    }
+    
     // MARK: Cleanup
 
     func removeStateListener() {
@@ -127,6 +160,16 @@ class DataManager: Identifiable {
         removeStateListener()
         removeCommentsListener()
         removeSuggestionsListener()
+    }
+
+    func refreshUserProfile() async {
+        if let userId = currentUser?.id {
+            if let updatedUser = try? await fetchProfile(id: userId) {
+                await MainActor.run {
+                    self.currentUser = updatedUser
+                }
+            }
+        }
     }
 }
 

@@ -13,60 +13,225 @@ import SwiftUI
 struct UserEditView: View {
     @Environment(DataManager.self) var data: DataManager
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.editMode) private var editMode
-    @State var errorMessage: String = ""
-    @State var errorShowing: Bool = false
-    @State var name: String = ""
-    @State var bio: String = ""
+    
+    // MARK: - Local States for Profile Fields
+    @State private var name: String = ""
+    @State private var bio: String = ""
+    
+    // MARK: - Error Handling
+    @State private var errorShowing: Bool = false
+    @State private var errorMessage: String = ""
+    
+    // Original values (to detect changes)
+    @State private var originalName: String = ""
+    @State private var originalBio: String = ""
+    @State private var originalPhotoURL: String = ""
+    
+    // MARK: - Stock Images
+    @State private var stockImages: [URL] = []
+    @State private var selectedStockURL: URL? = nil
     
     var body: some View {
-        VStack(spacing: 10){
-            if let user = data.currentUser {
-                Text(user.bio ?? "")
-                    .font(.caption)
-                    .frame(width: 200, height: 100)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 5)
-                            .stroke(.gray, lineWidth: 1)
-                    )
+        NavigationStack {
+            ZStack {
+                // Background gradient
+                LinearGradient(
+                    colors: [.blue.opacity(0.25), .black],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
                 
-                Button {
-                    guard let userId = user.id else { return }
-                    Task {
-                        try await data.deleteUserAccount(userId: userId)
-                        data.authCurrentUser = nil
-                    }
-                } label: {
-                    Text("Delete Account")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.red)
-                        .cornerRadius(10)
+                VStack(spacing: 20) {
+                    // 1) Profile Details Form
+                    ProfileDetailsForm(
+                        name: $name,
+                        bio: $bio
+                    )
+                    .frame(maxHeight: 150)
+                    
+                    // 2) Stock Avatar Picker
+                    StockAvatarPicker(
+                        stockImages: stockImages,
+                        selectedStockURL: $selectedStockURL
+                    )
+                    
+                    Spacer()
+                    // Action Buttons
+                    ActionButtons(
+                        onCancel: { dismiss() },
+                        onSave: { saveProfileChanges() }
+                    )
+                }
+                .padding(.horizontal, 16)
+            }
+            .navigationTitle("Edit Profile")
+            .navigationBarTitleDisplayMode(.inline)
+            .task {
+                await loadExistingProfile()
+                // Fetch stock avatar URLs
+                stockImages = await data.fetchStockProfilePictureURLs()
+                
+                // If current photoURL is one of the stock images, highlight it
+                if let currentURL = URL(string: originalPhotoURL),
+                   stockImages.contains(currentURL) {
+                    selectedStockURL = currentURL
                 }
             }
         }
-        .alert(errorMessage, isPresented: $errorShowing) {
-            Button("OK", role: .cancel) { }
+    }
+    
+    // MARK: - Helper Methods
+    private func loadExistingProfile() async {
+        if let existingUser = data.currentUser {
+            // Store originals for comparison
+            originalName = existingUser.name
+            originalBio = existingUser.bio ?? ""
+            originalPhotoURL = existingUser.image ?? ""
+            
+            // Fill text fields
+            name = originalName
+            bio = originalBio
         }
     }
     
-    private func submit() async throws {
-        if editMode?.wrappedValue.isEditing == false {
-            if name.isEmpty || bio.isEmpty { return }
-            guard let userUpdates = data.currentUser else { return }
+    private func hasProfileChanged() -> Bool {
+        return (name != originalName || bio != originalBio || 
+                (selectedStockURL?.absoluteString != originalPhotoURL))
+    }
+    
+    private func saveProfileChanges() {
+        Task {
+            if name.isEmpty { return }
+            guard var userUpdates = data.currentUser else { return }
+            
             do {
-                userUpdates.name = name
-                userUpdates.bio = bio
-                try await data.updateUserDetails(user: userUpdates)
-                data.currentUser = userUpdates
+                if hasProfileChanged() {
+                    userUpdates.name = name
+                    userUpdates.bio = bio
+                    
+                    // Update photo URL if changed
+                    if let chosenURL = selectedStockURL,
+                       chosenURL.absoluteString != originalPhotoURL {
+                        print("setting image to \(chosenURL.absoluteString)")
+                        userUpdates.image = chosenURL.absoluteString
+                    }
+                    
+                    try await data.updateUserDetails(user: userUpdates)
+                    data.currentUser = userUpdates
+                    
+                }
                 dismiss()
-            } catch let error as NSError {
+            } catch {
                 print(error)
                 errorMessage = error.localizedDescription
                 errorShowing = true
             }
+        }
+    }
+}
+
+// MARK: - Subview #1: Profile Details Form
+struct ProfileDetailsForm: View {
+    @Binding var name: String
+    @Binding var bio: String
+    
+    var body: some View {
+        Form {
+            Section("Profile Details") {
+                TextField("Name", text: $name)
+                
+                TextField("Bio", text: $bio, axis: .vertical)
+                    .lineLimit(3)
+                    .textInputAutocapitalization(.none)
+                    .autocorrectionDisabled(true)
+            }
+        }
+        .formStyle(.grouped)
+        .cornerRadius(20)
+    }
+}
+
+// MARK: - Subview #2: Action Buttons
+fileprivate struct ActionButtons: View {
+    let onCancel: () -> Void
+    let onSave: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            Button(role: .cancel) {
+                onCancel()
+            } label: {
+                Text("Cancel")
+            }
+            .padding(.bottom)
+            .buttonStyle(.bordered)
+            
+            Button("Save") {
+                onSave()
+            }
+            .padding(.bottom)
+            .buttonStyle(.borderedProminent)
+            .tint(.blue)
+        }
+    }
+}
+
+// Add new StockAvatarPicker:
+struct StockAvatarPicker: View {
+    let stockImages: [URL]
+    @Binding var selectedStockURL: URL?
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            Text("Choose Avatar")
+                .font(.headline)
+            
+            TabView(selection: $selectedStockURL) {
+                ForEach(stockImages, id: \.self) { url in
+                    ZStack {
+                        // Circular image
+                        ZStack {
+                            AsyncImage(url: url) { image in
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                            } placeholder: {
+                                Circle().fill(Color.gray.opacity(0.3))
+                            }
+                            .frame(width: 150, height: 150)
+                            .clipShape(Circle())
+                            .overlay(
+                                Circle()
+                                    .stroke(
+                                        (selectedStockURL == url) ? Color.blue : Color.clear,
+                                        lineWidth: 5
+                                    )
+                            )
+                        }
+                        .onTapGesture {
+                            selectedStockURL = url
+                        }
+                        
+                        // Checkmark overlay if selected
+                        if selectedStockURL == url {
+                            VStack {
+                                HStack {
+                                    Spacer()
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 32))
+                                        .foregroundColor(.green)
+                                        .padding([.top, .trailing], 6)
+                                }
+                                Spacer()
+                            }
+                        }
+                    }
+                    .tag(url)
+                }
+            }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+            .frame(height: 250)
         }
     }
 }

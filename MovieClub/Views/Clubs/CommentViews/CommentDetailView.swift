@@ -10,16 +10,35 @@ import SwiftUI
 struct CommentDetailView: View {
     @Environment(DataManager.self) private var data
     let comment: Comment
-    @State var imageUrl: String = ""
-    
     @State private var isLiked: Bool = false
     @State private var likesCount: Int = 0
+    @State private var userImage: String?
+    
     var body: some View {
-        HStack {
+        HStack(alignment: .top, spacing: 12) {
+            NavigationLink(destination: ProfileView(userId: comment.userId)) {
+                if let imageUrl = userImage, let url = URL(string: imageUrl) {
+                    CachedAsyncImage(url: url) { 
+                        Circle()
+                            .fill(Color.gray.opacity(0.3))
+                    }
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 40, height: 40)
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
+                    .shadow(radius: 2)
+                } else {
+                    Circle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(width: 40, height: 40)
+                        .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
+                        .shadow(radius: 2)
+                }
+            }
+            
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     NavigationLink(destination: ProfileView(userId: comment.userId)) {
-                        CircularImageView(userId: comment.userId, size: 20)
                         Text(comment.userName)
                             .font(.headline)
                             .fontWeight(.semibold)
@@ -28,36 +47,42 @@ struct CommentDetailView: View {
                         .fill(Color.gray)
                         .frame(width: 5, height: 5)
                     
-                    
                     TimelineView(.everyMinute) { context in
                         Text(timeAgoDisplay(referenceDate: context.date))
                             .font(.caption)
                             .foregroundColor(.gray)
                     }
                 }
+                
                 HStack {
                     Text(comment.text)
                         .font(.body)
-                        .lineLimit(8)
-                        .padding(.leading, 30)
+                        .lineLimit(10)
                     
                     Spacer()
+                    
                     Button {
-                        Task {
-                            await toggleLike()
-                        }
+                            Task {
+                                await toggleLike()
+                            }
                     } label: {
                         HStack {
                             Image(systemName: "heart.fill")
                                 .foregroundStyle(isLiked ? .red : .gray)
                             Text("\(likesCount)")
+                                .foregroundStyle(isLiked ? .red : .gray)
                         }
                     }
                 }
+                
             }
-            .padding()
-            
             Spacer()
+        }
+        .padding()
+        .task {
+            if let user = try? await data.fetchProfile(id: comment.userId) {
+                userImage = user.image
+            }
         }
         .onChange(of: comment.likedBy) {
             updateLikeState()
