@@ -12,7 +12,7 @@ struct SettingsView: View {
     @Environment(DataManager.self) var data
     @Environment(\.dismiss) var dismiss
     @State private var showingEditProfile = false
-    var user: User? { data.currentUser }
+    //var user: User? { data.currentUser }
     
     var body: some View {
         NavigationStack {
@@ -113,7 +113,6 @@ struct SettingsView: View {
                 .foregroundStyle(.red)
             }
         }
-        .toolbarRole(.editor)
     }
     
     private func refreshUserData() {

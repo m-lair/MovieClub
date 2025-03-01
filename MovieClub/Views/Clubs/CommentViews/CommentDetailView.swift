@@ -16,7 +16,7 @@ struct CommentDetailView: View {
     
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            NavigationLink(destination: ProfileView(userId: comment.userId)) {
+            NavigationLink(destination: ProfileDisplayView(userId: comment.userId)) {
                 if let imageUrl = userImage, let url = URL(string: imageUrl) {
                     CachedAsyncImage(url: url) { 
                         Circle()
@@ -38,7 +38,7 @@ struct CommentDetailView: View {
             
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    NavigationLink(destination: ProfileView(userId: comment.userId)) {
+                    NavigationLink(destination: ProfileDisplayView(userId: comment.userId)) {
                         Text(comment.userName)
                             .font(.headline)
                             .fontWeight(.semibold)

@@ -56,8 +56,8 @@ struct MainTabView: View {
                 .tag(Tab.notificationsPath)
                 
                 NavigationStack(path: $profilePath){
-                    if let userId = data.currentUser?.id {
-                        ProfileView(userId: userId)
+                    if let user = data.currentUser {
+                        ProfileDisplayView()
                     }
                 }
                 .tabItem {
