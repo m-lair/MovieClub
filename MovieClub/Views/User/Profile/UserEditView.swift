@@ -182,56 +182,75 @@ struct StockAvatarPicker: View {
     let stockImages: [URL]
     @Binding var selectedStockURL: URL?
     
+    // Grid layout configuration
+    private let columns = [
+        GridItem(.flexible(), spacing: 15),
+        GridItem(.flexible(), spacing: 15),
+        GridItem(.flexible(), spacing: 15),
+        GridItem(.flexible(), spacing: 15)
+    ]
+    
     var body: some View {
-        VStack(spacing: 8) {
-            Text("Choose Avatar")
-                .font(.headline)
+        VStack(alignment: .center, spacing: 20) {
+            // Title and subtitle
+            VStack(spacing: 5) {
+                Text("Choose an avatar")
+                    .font(.title)
+                    .fontWeight(.bold)
+            }
+            .padding(.bottom, 5)
             
-            TabView(selection: $selectedStockURL) {
-                ForEach(stockImages, id: \.self) { url in
-                    ZStack {
-                        // Circular image
-                        ZStack {
-                            AsyncImage(url: url) { image in
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                            } placeholder: {
-                                Circle().fill(Color.gray.opacity(0.3))
-                            }
-                            .frame(width: 150, height: 150)
-                            .clipShape(Circle())
-                            .overlay(
-                                Circle()
-                                    .stroke(
-                                        (selectedStockURL == url) ? Color.blue : Color.clear,
-                                        lineWidth: 5
-                                    )
-                            )
-                        }
-                        .onTapGesture {
-                            selectedStockURL = url
-                        }
-                        
-                        // Checkmark overlay if selected
-                        if selectedStockURL == url {
-                            VStack {
-                                HStack {
-                                    Spacer()
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .font(.system(size: 32))
-                                        .foregroundColor(.green)
-                                        .padding([.top, .trailing], 6)
-                                }
-                                Spacer()
-                            }
-                        }
+            // Main selected avatar display
+            ZStack(alignment: .topTrailing) {
+                if let selectedURL = selectedStockURL {
+                    AsyncImage(url: selectedURL) { image in
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    } placeholder: {
+                        Circle().fill(Color.gray.opacity(0.3))
                     }
-                    .tag(url)
+                    .frame(width: 150, height: 150)
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.white, lineWidth: 4))
+                    .shadow(radius: 5)
+
+                } else {
+                    Circle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(width: 150, height: 150)
+                        .overlay(Circle().stroke(Color.white, lineWidth: 4))
+                        .shadow(radius: 5)
                 }
             }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
-            .frame(height: 250)
+            .padding(.bottom, 20)
+            
+            // Grid of avatar options
+            LazyVGrid(columns: columns, spacing: 15) {
+                ForEach(stockImages, id: \.self) { url in
+                    Button(action: {
+                        selectedStockURL = url
+                    }) {
+                        AsyncImage(url: url) { image in
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        } placeholder: {
+                            Circle().fill(Color.gray.opacity(0.3))
+                        }
+                        .frame(width: 70, height: 70)
+                        .clipShape(Circle())
+                        .overlay(
+                            Circle()
+                                .stroke(
+                                    (selectedStockURL == url) ? Color.blue : Color.white,
+                                    lineWidth: 3
+                                )
+                        )
+                    }
+                }
+            }
+            .padding(.horizontal)
         }
     }
 }

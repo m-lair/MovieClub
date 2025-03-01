@@ -98,7 +98,7 @@ struct SettingsView: View {
                         .background(Color.red)
                         .cornerRadius(10)
                 }
-                .padding(.top, 20)
+                .padding(.bottom, 20)
                 .frame(maxWidth: UIScreen.main.bounds.width - 40)
             }
         }
