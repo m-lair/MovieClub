@@ -121,13 +121,14 @@ struct UserEditView: View {
                     data.currentUser = userUpdates
                     
                 }
-                dismiss()
+                
             } catch {
                 print(error)
                 errorMessage = error.localizedDescription
                 errorShowing = true
             }
         }
+        dismiss()
     }
 }
 
