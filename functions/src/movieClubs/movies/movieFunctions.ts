@@ -8,11 +8,11 @@ import {
   verifyRequiredFields,
 } from "helpers";
 import { verifyMembership } from "src/users/memberships/membershipHelpers";
-import { MovieData, MovieLikeRequest, MovieReactionData } from "./movieTypes";
+import { LikeMovieData, MovieData, MovieLikeRequest, MovieReactionData } from "./movieTypes";
 import { MovieClubData } from "../movieClubTypes";
 import { SuggestionData } from "../suggestions/suggestionTypes";
 import { getMovieClubDocRef } from "../movieClubHelpers";
-import { getActiveMovieDoc, getMovieRef } from "./movieHelpers";
+import { getActiveMovieDoc, getMovieDocRef, getMovieRef } from "./movieHelpers";
 import { getNextSuggestionDoc } from "../suggestions/suggestionHelpers";
 import { firebaseAdmin } from "firestore";
 
@@ -269,3 +269,66 @@ export const handleMovieReaction = functions.https.onCall(
     }
   }
 );
+
+exports.likeMovie = functions.https.onCall(
+  async (request: CallableRequest<LikeMovieData>) => {
+    try {
+      const { data, auth } = request;
+      const { uid } = verifyAuth(auth);
+
+      const requiredFields = ["movieClubId", "movieId", "name"];
+      verifyRequiredFields(data, requiredFields);
+
+      await verifyMembership(uid, data.movieClubId);
+
+      const movieDocRef = getMovieDocRef(data.movieId, data.movieClubId)
+
+      let params = {
+        likedBy: firebaseAdmin.firestore.FieldValue.arrayUnion(data.name),
+        dislikedBy: firebaseAdmin.firestore.FieldValue.arrayRemove(data.name)
+      }
+
+      if (data.undo) {
+        params.likedBy = firebaseAdmin.firestore.FieldValue.arrayRemove(data.name)
+      }
+
+      await movieDocRef.update(params);
+
+      return { success: true };
+    } catch (error) {
+      handleCatchHttpsError('Error liking comment:', error);
+    }
+  }
+)
+
+exports.dislikeMovie = functions.https.onCall(
+  async (request: CallableRequest<LikeMovieData>) => {
+
+    try {
+      const { data, auth } = request;
+      const { uid } = verifyAuth(auth);
+
+      const requiredFields = ["movieClubId", "movieId", "name"];
+      verifyRequiredFields(data, requiredFields);
+
+      await verifyMembership(uid, data.movieClubId);
+
+      const movieDocRef = getMovieDocRef(data.movieId, data.movieClubId)
+
+      let params = {
+        dislikedBy: firebaseAdmin.firestore.FieldValue.arrayUnion(data.name),
+        likedBy: firebaseAdmin.firestore.FieldValue.arrayRemove(data.name),
+      }
+
+      if (data.undo){
+        params.dislikedBy = firebaseAdmin.firestore.FieldValue.arrayRemove(data.name)
+      }
+
+      await movieDocRef.update(params);
+
+      return { success: true };
+    } catch (error) {
+      handleCatchHttpsError('Error disliking comment:', error);
+    }
+  }
+)

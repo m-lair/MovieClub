@@ -28,6 +28,12 @@ export interface MovieReactionData {
   likes: number;
   likedBy: string[];
   dislikes: number;
-  dislikedBy: string[];
-  
+  dislikedBy: string[]; 
+}
+
+export interface LikeMovieData {
+  movieClubId: string;
+  movieId: string;
+  name: string;
+  undo?: boolean;
 }
