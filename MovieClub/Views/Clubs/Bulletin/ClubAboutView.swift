@@ -49,8 +49,30 @@ struct ClubAboutView: View {
                         LazyVStack(alignment: .leading, spacing: 12) {
                             ForEach(members, id: \.id) { member in
                                 HStack {
-                                    Label(member.userName, systemImage: "person.fill")
+                                    NavigationLink(destination: ProfileDisplayView(userId: member.id)) {
+                                        
+                                        if let imageUrl = member.image, let url = URL(string: imageUrl) {
+                                            CachedAsyncImage(url: url) {
+                                                Circle()
+                                                    .fill(Color.gray.opacity(0.3))
+                                            }
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 30, height: 30)
+                                            .clipShape(Circle())
+                                            .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
+                                        
+                                        } else {
+                                            Image(systemName: "person.fill")
+                                                .resizable()
+                                                .frame(width: 20, height: 20)
+                                                .padding(.horizontal, 3)
+                                        }
+                                    }
+                                    
+                                    Text(member.userName)
                                         .font(.headline)
+                                        .fontWeight(.bold)
+                                       
                                     Spacer()
                                 }
                                 .padding()
@@ -62,14 +84,16 @@ struct ClubAboutView: View {
                     }
                 }
             } else {
-                Text("No club available")
+                Text("No details available")
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
             }
+            Spacer()
         }
         .padding()
         .task {
             await loadMembers()
+            
         }
     }
     
@@ -78,17 +102,23 @@ struct ClubAboutView: View {
         isLoading = true
         defer { isLoading = false }
         do {
-            let moviesSnapshot = try await dataManager.movieClubCollection()
+            let clubsSnapshot = try await dataManager.movieClubCollection()
                 .document(clubId)
                 .collection("members")
                 .order(by: "createdAt", descending: true)
                 .getDocuments()
             
             var loadedMembers: [Member] = []
-            for document in moviesSnapshot.documents {
+            for document in clubsSnapshot.documents {
                 do {
                     var member = try document.data(as: Member.self)
                     member.id = document.documentID
+                    
+                    // Fetch profile image for the member
+                    if let userId = member.id {
+                        member.image = try await dataManager.getProfileImage(userId: userId)
+                    }
+                    
                     loadedMembers.append(member)
                 } catch {
                     print("Error decoding member: \(error)")
