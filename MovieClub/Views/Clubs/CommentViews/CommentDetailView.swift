@@ -18,7 +18,7 @@ struct CommentDetailView: View {
         HStack(alignment: .top, spacing: 12) {
             NavigationLink(destination: ProfileDisplayView(userId: comment.userId)) {
                 if let imageUrl = userImage, let url = URL(string: imageUrl) {
-                    CachedAsyncImage(url: url) { 
+                    CachedAsyncImage(url: url) {
                         Circle()
                             .fill(Color.gray.opacity(0.3))
                     }

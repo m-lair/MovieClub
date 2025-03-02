@@ -28,11 +28,11 @@ struct NotificationListView: View {
         case .all:
             return notifManager.notifications
         case .comments:
-            return notifManager.notifications.filter { $0.type == .commented || $0.type == .replied }
+            return notifManager.notifications.filter { $0.type == .commented || $0.type == .replied || $0.type == .liked }
         case .movieClubs:
-            return notifManager.notifications.filter { $0.type == .collected }
+            return notifManager.notifications.filter { $0.type == .joined }
         case .posters:
-            return notifManager.notifications.filter { $0.type == .liked }
+            return notifManager.notifications.filter { $0.type == .collected }
         }
     }
     

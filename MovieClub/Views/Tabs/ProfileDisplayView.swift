@@ -28,6 +28,9 @@ struct ProfileDisplayView: View {
     @State private var user: User?
     @State private var isProfileCollapsed: Bool = false
     @State private var scrollOffset: CGFloat = 0
+    @State private var isTabSwitching: Bool = false  // Flag to track tab switching
+    @State private var initialScrollAfterTabSwitch: Bool = false // Track initial scroll after tab switch
+    @State private var lastTabSwitchTime: Date = Date()
     let tabs: [String] = ["Clubs", "Collection"]
     @State var selectedTabIndex: Int = 0
     
@@ -38,6 +41,9 @@ struct ProfileDisplayView: View {
     // Threshold for collapsing/expanding the profile
     private let collapseThreshold: CGFloat = 30
     
+    // Timer to reset tab switching state
+    private let tabSwitchResetDelay: TimeInterval = 0.4
+
     var body: some View {
         ZStack(alignment: .top) {
             // Main content
@@ -133,7 +139,10 @@ struct ProfileDisplayView: View {
                                     }
                                     .padding(.bottom, 20) // Space at bottom for better scrolling
                                 }
-                                .transition(.opacity)
+                                .transition(AnyTransition.asymmetric(
+                                    insertion: .move(edge: .leading),
+                                    removal: .move(edge: .leading)
+                                ))
                             }
                             
                             // Tab 1 - Collection
@@ -150,16 +159,56 @@ struct ProfileDisplayView: View {
                                     }
                                     .padding(.bottom, 20) // Space at bottom for better scrolling
                                 }
-                                .transition(.opacity)
+                                .transition(AnyTransition.asymmetric(
+                                    insertion: .move(edge: .trailing),
+                                    removal: .move(edge: .trailing)
+                                ))
                             }
                         }
                         .frame(width: geometry.size.width, height: geometry.size.height)
+                        .gesture(
+                            DragGesture()
+                                .onEnded { gesture in
+                                    let threshold: CGFloat = 50
+                                    let horizontalDistance = gesture.translation.width
+                                    
+                                    // Ignore primarily vertical swipes
+                                    guard abs(horizontalDistance) > abs(gesture.translation.height) else { return }
+                                    
+                                    if horizontalDistance > threshold && selectedTabIndex > 0 {
+                                        // Swipe right - go to previous tab
+                                        withAnimation {
+                                            isTabSwitching = true  // Set flag when switching tabs
+                                            initialScrollAfterTabSwitch = true // Mark initial scroll state
+                                            lastTabSwitchTime = Date()
+                                            selectedTabIndex -= 1
+                                        }
+                                    } else if horizontalDistance < -threshold && selectedTabIndex < tabs.count - 1 {
+                                        // Swipe left - go to next tab
+                                        withAnimation {
+                                            isTabSwitching = true  // Set flag when switching tabs
+                                            initialScrollAfterTabSwitch = true // Mark initial scroll state
+                                            lastTabSwitchTime = Date()
+                                            selectedTabIndex += 1
+                                        }
+                                    }
+                                }
+                        )
                     }
-                    .animation(.easeInOut(duration: 0.2), value: selectedTabIndex)
+                    // Using onChange instead of inline animation for better control
+                    .onChange(of: selectedTabIndex) { 
+                        // Reset tab switching flag after animation completes
+                        Task { 
+                            try? await Task.sleep(for: .seconds(tabSwitchResetDelay))
+                            isTabSwitching = false
+                        }
+                    }
                 }
             }
         }
         .padding(.leading, 4)
+        .padding(.top, isProfileCollapsed ? (userId != nil ? 70 : 0) : 0) // Add top padding when collapsed in navigation context
+        .navigationBarBackButtonHidden(isProfileCollapsed)
         .navigationTitle(isProfileCollapsed ? "" : "Profile")
         .toolbar {
             if displayUser?.id == Auth.auth().currentUser?.uid {
@@ -187,6 +236,27 @@ struct ProfileDisplayView: View {
     
     private func updateScrollOffset(_ offset: CGFloat) {
         self.scrollOffset = offset
+        
+        // Skip collapse/expand logic during tab transitions
+        if isTabSwitching {
+            return
+        }
+        
+        // Prevent uncollapse during initial scroll after tab switch
+        if initialScrollAfterTabSwitch {
+            // Only proceed with uncollapsing if it's been more than a second since tab switch
+            // This prevents brief uncollapse when starting to scroll in new tab
+            let timeSinceTabSwitch = Date().timeIntervalSince(lastTabSwitchTime)
+            if timeSinceTabSwitch < 1.0 {
+                // If already collapsed, stay collapsed during initial post-tab-switch scrolling
+                if isProfileCollapsed && offset < collapseThreshold {
+                    return
+                }
+            } else {
+                // After 1 second, resume normal scrolling behavior
+                initialScrollAfterTabSwitch = false
+            }
+        }
         
         // Automatically collapse/expand based on scroll direction
         if offset > collapseThreshold && !isProfileCollapsed {
