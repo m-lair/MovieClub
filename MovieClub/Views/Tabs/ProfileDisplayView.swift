@@ -71,16 +71,20 @@ struct ProfileDisplayView: View {
                                     .overlay(Circle().stroke(Color.white, lineWidth: 1))
                                     .opacity(isProfileCollapsed ? 1 : 0)
                             }
-                            if isProfileCollapsed {
-                                Text(displayUser.name)
-                                    .font(.title)
-                                    .fontWeight(.bold)
-                            }
+                            
+                            // Always include the text but control visibility with opacity
+                            Text(displayUser.name)
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .opacity(isProfileCollapsed ? 1 : 0)
+                                .offset(x: isProfileCollapsed ? 0 : -20) // Add slight movement for better animation
+                            
                             Spacer()
                         }
                         .padding(.top)
                         .padding(.leading)
                         .zIndex(isProfileCollapsed ? 1 : 0)
+                        .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isProfileCollapsed)
                         
                         // Expanded profile content
                         VStack {
