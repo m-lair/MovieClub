@@ -48,9 +48,8 @@ struct ClubAboutView: View {
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 12) {
                             ForEach(members, id: \.id) { member in
-                                HStack {
-                                    NavigationLink(destination: ProfileDisplayView(userId: member.id)) {
-                                        
+                                NavigationLink(destination: ProfileDisplayView(userId: member.id)) {
+                                    HStack {
                                         if let imageUrl = member.image, let url = URL(string: imageUrl) {
                                             CachedAsyncImage(url: url) {
                                                 Circle()
@@ -60,7 +59,7 @@ struct ClubAboutView: View {
                                             .frame(width: 30, height: 30)
                                             .clipShape(Circle())
                                             .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
-                                        
+                                            
                                         } else {
                                             Image(systemName: "person.fill")
                                                 .resizable()
@@ -72,7 +71,7 @@ struct ClubAboutView: View {
                                     Text(member.userName)
                                         .font(.headline)
                                         .fontWeight(.bold)
-                                       
+                                    
                                     Spacer()
                                 }
                                 .padding()
@@ -82,6 +81,7 @@ struct ClubAboutView: View {
                         }
                         .padding(.horizontal)
                     }
+                    .ignoresSafeArea(edges: .bottom)
                 }
             } else {
                 Text("No details available")

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MovieClubCardView: View {
     let movieClub: MovieClub
-    @State private var bannerColor: Color = .purple
+    @State private var bannerColor: Color = .clear
 
     var featuredMovie: Movie? {
         movieClub.movies.first
