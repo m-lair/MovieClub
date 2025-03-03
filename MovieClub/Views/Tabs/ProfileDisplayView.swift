@@ -129,45 +129,43 @@ struct ProfileDisplayView: View {
                     GeometryReader { geometry in
                         // Using GeometryReader to get precise control over tab content
                         ZStack {
-                            // Tab 0 - Clubs
-                            if selectedTabIndex == 0 {
-                                ScrollViewWithOffset(showsIndicators: false, onOffsetChange: { offset in
+                            // Tab 0 - Clubs - Always keep in view hierarchy
+                            ScrollViewWithOffset(showsIndicators: false, onOffsetChange: { offset in
+                                if selectedTabIndex == 0 {
                                     updateScrollOffset(offset)
-                                }) {
-                                    VStack(spacing: 0) {
-                                        // Extra space at the top to prevent clipping
-                                        Color.clear.frame(height: 20)
-                                        
-                                        UserMembershipsView(userId: displayUser.id)
-                                            .padding(.horizontal, 2) // Small padding to prevent cards touching edge
-                                    }
-                                    .padding(.bottom, 20) // Space at bottom for better scrolling
                                 }
-                                .transition(AnyTransition.asymmetric(
-                                    insertion: .move(edge: .leading),
-                                    removal: .move(edge: .leading)
-                                ))
+                            }) {
+                                VStack(spacing: 0) {
+                                    // Extra space at the top to prevent clipping
+                                    Color.clear.frame(height: 20)
+                                    
+                                    UserMembershipsView(userId: displayUser.id)
+                                        .padding(.horizontal, 2) // Small padding to prevent cards touching edge
+                                }
+                                .padding(.bottom, 20) // Space at bottom for better scrolling
                             }
+                            .opacity(selectedTabIndex == 0 ? 1 : 0)
+                            .zIndex(selectedTabIndex == 0 ? 1 : 0)
+                            .allowsHitTesting(selectedTabIndex == 0)
                             
-                            // Tab 1 - Collection
-                            if selectedTabIndex == 1 {
-                                ScrollViewWithOffset(showsIndicators: false, onOffsetChange: { offset in
+                            // Tab 1 - Collection - Always keep in view hierarchy
+                            ScrollViewWithOffset(showsIndicators: false, onOffsetChange: { offset in
+                                if selectedTabIndex == 1 {
                                     updateScrollOffset(offset)
-                                }) {
-                                    VStack(spacing: 0) {
-                                        // Extra space at the top to prevent clipping
-                                        Color.clear.frame(height: 20)
-                                        
-                                        UserCollectionView(userId: displayUser.id)
-                                            .padding(.horizontal, 2) // Small padding to prevent cards touching edge
-                                    }
-                                    .padding(.bottom, 20) // Space at bottom for better scrolling
                                 }
-                                .transition(AnyTransition.asymmetric(
-                                    insertion: .move(edge: .trailing),
-                                    removal: .move(edge: .trailing)
-                                ))
+                            }) {
+                                VStack(spacing: 0) {
+                                    // Extra space at the top to prevent clipping
+                                    Color.clear.frame(height: 20)
+                                    
+                                    UserCollectionView(userId: displayUser.id)
+                                        .padding(.horizontal, 2) // Small padding to prevent cards touching edge
+                                }
+                                .padding(.bottom, 20) // Space at bottom for better scrolling
                             }
+                            .opacity(selectedTabIndex == 1 ? 1 : 0)
+                            .zIndex(selectedTabIndex == 1 ? 1 : 0)
+                            .allowsHitTesting(selectedTabIndex == 1)
                         }
                         .frame(width: geometry.size.width, height: geometry.size.height)
                         .gesture(
@@ -252,8 +250,8 @@ struct ProfileDisplayView: View {
             // This prevents brief uncollapse when starting to scroll in new tab
             let timeSinceTabSwitch = Date().timeIntervalSince(lastTabSwitchTime)
             if timeSinceTabSwitch < 1.0 {
-                // If already collapsed, stay collapsed during initial post-tab-switch scrolling
-                if isProfileCollapsed && offset < collapseThreshold {
+                // Always preserve collapsed state during tab transitions if already collapsed
+                if isProfileCollapsed {
                     return
                 }
             } else {
