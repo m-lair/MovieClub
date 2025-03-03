@@ -10,6 +10,7 @@ import * as users from "./users/userFunctions";
 import * as posters from "./users/posters/posterFunctions";
 import * as notificationFunctions from "./notifications/notificationFunctions";
 import * as movieClubNotifications from "./notifications/movieClubNotifications";
+import * as suggestionNotifications from "./notifications/suggestionNotifications";
 
-export { comments, config, memberships, movieClubs, movies, suggestions, users, posters, commentNotifications, posterNotifications, notificationFunctions, movieClubNotifications };
+export { comments, config, memberships, movieClubs, movies, suggestions, users, posters, commentNotifications, posterNotifications, notificationFunctions, movieClubNotifications, suggestionNotifications };
 

@@ -104,7 +104,14 @@ extension DataManager {
                 // Check if the watch period has ended (using dates standardized to midnight)
                 if let endDate = baseMovie?.endDate,
                    endDate.midnight < Date().midnight {
-                    needsRotation = true
+                    // Add a grace period check - don't rotate movies that were just created
+                    // Only rotate if the movie has been active for at least 1 hour
+                    if let startDate = baseMovie?.startDate,
+                       Date().timeIntervalSince(startDate) > 3600 {
+                        needsRotation = true
+                    } else {
+                        print("Not rotating movie \(baseMovie?.id ?? "") since it was recently activated")
+                    }
                 }
             } else if self.suggestions.count > 0 {
                 // No active movie, check if there are suggestions to rotate
@@ -127,6 +134,9 @@ extension DataManager {
                     if let newDocument = newMoviesSnapshot.documents.first {
                         baseMovie = try newDocument.data(as: Movie.self)
                         baseMovie?.id = newDocument.documentID
+                        
+                        // IMPORTANT: Don't check for rotation again in the same function call
+                        // The newly rotated movie should not be immediately rotated again
                     }
                 }
             }

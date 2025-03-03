@@ -82,7 +82,14 @@ export const notifyPosterCollected = onDocumentUpdated(
 
     // For each new collector, send a notification to the movie author
     for (const collector of collectorData) {
+      const collectorId = collector.id;
       const userName = collector.name;
+      
+      // Skip notification if the collector is the movie author
+      if (collectorId === movieAuthorId) {
+        console.log(`Skipping notification since collector (${collectorId}) is the movie author`);
+        continue;
+      }
 
       const payload = {
         token: fcmToken,
@@ -118,7 +125,7 @@ export const notifyPosterCollected = onDocumentUpdated(
             clubId: clubId,
             clubName: clubName,
             userName: userName,
-            userId: authorData.id,
+            userId: collectorId,
             othersCount: null,
             message: `${userName} collected your movie in ${clubName}`,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -134,7 +141,8 @@ export const notifyPosterCollected = onDocumentUpdated(
     }
       return { success: true };
     } catch (error) {
-    
+      console.error("Error processing poster collected notification:", error);
+      return null;
     }
   }
 );

@@ -40,8 +40,28 @@ exports.rotateMovie = functions.https.onCall(
           );
         }
 
-        // Mark the current movie as 'completed'
-        await activeMovieDoc.ref.update({ status: 'archived' });
+        // Add a grace period check to prevent movies from being rotated too quickly
+        // Only allow rotation if movie has been active for at least 1 hour
+        const now = new Date();
+        const startDate = activeMovie.startDate instanceof Date 
+          ? activeMovie.startDate 
+          : new Date(activeMovie.startDate);
+        
+        const ONE_HOUR_MS = 3600000;
+        if (now.getTime() - startDate.getTime() < ONE_HOUR_MS) {
+          logVerbose(`Not rotating movie as it was created less than 1 hour ago (${startDate})`);
+          throw new functions.https.HttpsError(
+            'failed-precondition',
+            'Cannot rotate a movie that was just activated. Please try again later.'
+          );
+        }
+
+        // Mark the current movie as 'archived' AND update its endDate to now
+        const currentDate = new Date();
+        await activeMovieDoc.ref.update({ 
+          status: 'archived',
+          endDate: currentDate  // Set the end date to the actual rotation date
+        });
       }
 
       // Retrieve the next suggestion
