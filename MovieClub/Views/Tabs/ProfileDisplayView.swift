@@ -144,9 +144,11 @@ struct ProfileDisplayView: View {
                                 }
                                 .padding(.bottom, 20) // Space at bottom for better scrolling
                             }
-                            .opacity(selectedTabIndex == 0 ? 1 : 0)
+                            .opacity(selectedTabIndex == 0 ? 1 : 0.3)
+                            .offset(x: selectedTabIndex == 0 ? 0 : -geometry.size.width)
                             .zIndex(selectedTabIndex == 0 ? 1 : 0)
                             .allowsHitTesting(selectedTabIndex == 0)
+                            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: selectedTabIndex)
                             
                             // Tab 1 - Collection - Always keep in view hierarchy
                             ScrollViewWithOffset(showsIndicators: false, onOffsetChange: { offset in
@@ -163,9 +165,11 @@ struct ProfileDisplayView: View {
                                 }
                                 .padding(.bottom, 20) // Space at bottom for better scrolling
                             }
-                            .opacity(selectedTabIndex == 1 ? 1 : 0)
+                            .opacity(selectedTabIndex == 1 ? 1 : 0.3)
+                            .offset(x: selectedTabIndex == 1 ? 0 : geometry.size.width)
                             .zIndex(selectedTabIndex == 1 ? 1 : 0)
                             .allowsHitTesting(selectedTabIndex == 1)
+                            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: selectedTabIndex)
                         }
                         .frame(width: geometry.size.width, height: geometry.size.height)
                         .gesture(
@@ -179,7 +183,7 @@ struct ProfileDisplayView: View {
                                     
                                     if horizontalDistance > threshold && selectedTabIndex > 0 {
                                         // Swipe right - go to previous tab
-                                        withAnimation {
+                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                                             isTabSwitching = true  // Set flag when switching tabs
                                             initialScrollAfterTabSwitch = true // Mark initial scroll state
                                             lastTabSwitchTime = Date()
@@ -187,7 +191,7 @@ struct ProfileDisplayView: View {
                                         }
                                     } else if horizontalDistance < -threshold && selectedTabIndex < tabs.count - 1 {
                                         // Swipe left - go to next tab
-                                        withAnimation {
+                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                                             isTabSwitching = true  // Set flag when switching tabs
                                             initialScrollAfterTabSwitch = true // Mark initial scroll state
                                             lastTabSwitchTime = Date()
@@ -198,7 +202,7 @@ struct ProfileDisplayView: View {
                         )
                     }
                     // Using onChange instead of inline animation for better control
-                    .onChange(of: selectedTabIndex) { 
+                    .onChange(of: selectedTabIndex) {
                         // Reset tab switching flag after animation completes
                         Task { 
                             try? await Task.sleep(for: .seconds(tabSwitchResetDelay))

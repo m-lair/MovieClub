@@ -17,6 +17,8 @@ struct CreateSuggestionView: View {
     
     @State var errorMessage: String = ""
     @State var errorShowing: Bool = false
+    @State var isSubmitting: Bool = false
+
     
     var body: some View {
         NavigationStack {
@@ -30,6 +32,33 @@ struct CreateSuggestionView: View {
                         Button("Cancel") { dismiss() }
                     }
                 }
+                .overlay {
+                    if isSubmitting {
+                        submittingOverlay
+                    }
+                }
+        }
+    }
+    
+    private var submittingOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 16) {
+                ProgressView()
+                    .controlSize(.large)
+                    .tint(.white)
+                
+                Text("Submitting suggestion...")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+            }
+            .padding(24)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(.ultraThinMaterial)
+            )
         }
     }
 }
@@ -66,13 +95,12 @@ extension CreateSuggestionView {
                 .padding(.top, 16)
             
             searchTextField
-            
             if !searchResults.isEmpty {
                 resultsList
             } else {
                 Spacer()
                 Text("Type above to search for a movie...")
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                 Spacer()
             }
         }
@@ -86,6 +114,11 @@ extension CreateSuggestionView {
             .background(
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(lineWidth: 3)
+                    .foregroundStyle(.secondary.opacity(0.3))
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.ultraThinMaterial)
+                    )
             )
             .padding(.horizontal)
             .focused($isSearching)
@@ -104,46 +137,105 @@ extension CreateSuggestionView {
                     try await submitSuggestion(imdbId: movie.id)
                 }
             } label: {
-                HStack(alignment: .top, spacing: 16) {
-                    // Poster thumbnail
-                    AsyncImage(url: URL(string: movie.poster)) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 60, height: 90)
-                                .cornerRadius(6)
-                        default:
-                            Color.gray
-                                .frame(width: 60, height: 90)
-                                .cornerRadius(6)
+                MovieResultRow(movie: movie)
+            }
+            .buttonStyle(.plain)
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+            .padding(.vertical, 4)
+        }
+        .scrollContentBackground(.hidden)
+        .listStyle(.plain)
+    }
+    
+    /// Individual movie result row with enhanced design
+    private struct MovieResultRow: View {
+        let movie: MovieAPIData
+        
+        var body: some View {
+            HStack(alignment: .top, spacing: 16) {
+                // Poster thumbnail with shadow and better scaling
+                AsyncImage(url: URL(string: movie.poster)) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 80, height: 120)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .shadow(radius: 4)
+                    case .failure:
+                        Image(systemName: "film")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .padding()
+                            .frame(width: 80, height: 120)
+                            .background(Color.gray.opacity(0.3))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    case .empty:
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 80, height: 120)
+                            .overlay {
+                                ProgressView()
+                            }
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+                
+                // Enhanced movie info with more details
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(movie.title)
+                        .font(.headline)
+                        .fontWeight(.bold)
+                    
+                    HStack {
+                        Text(String(movie.releaseYear))
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        
+                        if movie.runtime > 0 {
+                            Text("•")
+                                .foregroundStyle(.secondary)
+                            
+                            Text("\(movie.runtime) min")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
                         }
                     }
                     
-                    // Info
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(movie.title)
-                            .font(.headline)
-                        
-                        Text(String(movie.releaseYear))
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        
-                        // Optional short snippet of plot
-                        if !movie.plot.isEmpty {
-                            Text(movie.plot)
-                                .font(.footnote)
-                                .foregroundColor(.secondary)
-                                .lineLimit(2)
-                                .truncationMode(.tail)
-                        }
+                    if !movie.director.isEmpty && movie.director != "Unknown" {
+                        Text("Director: \(movie.director)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    if !movie.cast.isEmpty {
+                        Text("Cast: \(movie.cast.prefix(3).joined(separator: ", "))")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                    
+                    // Plot with better formatting
+                    if !movie.plot.isEmpty {
+                        Text(movie.plot)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(3)
+                            .padding(.top, 2)
                     }
                 }
             }
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(.ultraThinMaterial)
+                    .shadow(radius: 2)
+            )
+            .contentShape(Rectangle())
         }
-        .scrollContentBackground(.hidden)
-        .listStyle(.insetGrouped)
     }
 }
 
@@ -155,13 +247,31 @@ extension CreateSuggestionView {
             return
         }
         
+        // Set searching state
+        isSearching = true
+        defer { isSearching = false }
+        
         // Optional "debounce"
         try? await Task.sleep(nanoseconds: 300_000_000)
         
         guard !search.isEmpty else { return }
         
         do {
-            searchResults = try await data.fetchTMDBMovies(query: search)
+            // Fetch movies with enhanced details
+            let results = try await data.fetchTMDBMovies(query: search)
+            
+            // For each movie, try to fetch additional details
+            var enhancedResults: [MovieAPIData] = []
+            
+            for movie in results.prefix(10) { // Limit to first 10 for performance
+                if let details = try? await data.tmdb.fetchMovieDetails(movie.id) {
+                    enhancedResults.append(details)
+                } else {
+                    enhancedResults.append(movie)
+                }
+            }
+            
+            searchResults = enhancedResults
         } catch {
             errorMessage = "Something went wrong: \(error.localizedDescription)"
             errorShowing = true
@@ -179,15 +289,24 @@ extension CreateSuggestionView {
             return
         }
         
-        let newSuggestion = Suggestion(
-            imdbId: imdbId,
-            userId: userId,
-            userImage: "image",
-            userName: username,
-            clubId: clubId
-        )
+        // Set submitting state
+        isSubmitting = true
         
-        let _ = try await data.createSuggestion(suggestion: newSuggestion)
-        dismiss()
+        do {
+            let newSuggestion = Suggestion(
+                imdbId: imdbId,
+                userId: userId,
+                userImage: "image",
+                userName: username,
+                clubId: clubId
+            )
+            
+            let _ = try await data.createSuggestion(suggestion: newSuggestion)
+            dismiss()
+        } catch {
+            isSubmitting = false
+            errorMessage = "Failed to submit suggestion: \(error.localizedDescription)"
+            errorShowing = true
+        }
     }
 }
