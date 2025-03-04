@@ -78,7 +78,7 @@ extension CreateSuggestionView {
     /// The background gradient
     private var backgroundGradient: some View {
         LinearGradient(
-            gradient: Gradient(colors: [.gray.opacity(0.2), .red.opacity(0.3)]),
+            gradient: Gradient(colors: [.black, .black, .blue.opacity(0.3)]),
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )

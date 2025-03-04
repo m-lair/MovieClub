@@ -46,12 +46,11 @@ struct ClubDetailsForm: View {
     
     var body: some View {
         ZStack {
-            
+            Color.black.ignoresSafeArea()
             // Content
             ScrollView {
                     // Header section
                     VStack(alignment: .leading, spacing: 8) {
-                    
                     
                     // Club Details
                     VStack(alignment: .leading, spacing: 16) {
