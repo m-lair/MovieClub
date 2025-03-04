@@ -85,7 +85,6 @@ struct NewClubView: View {
                                 .frame(width: 120, height: 120)
                             
                             Image(systemName: "film")
-                                .font(.system(size: 50))
                                 .foregroundColor(.gray)
                         }
                         .padding(.bottom, 8)
@@ -167,20 +166,18 @@ struct NewClubView: View {
                     }
                 }
             }
-        }
-        .navigationTitle("Find or Create Club")
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(action: {
-                    showCreateSheet = true
-                }) {
-                    HStack {
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showCreateSheet = true
+                    } label: {
                         Text("Create")
+                            .foregroundColor(.white)
                     }
-                    .foregroundColor(.white)
                 }
             }
         }
+        .navigationTitle("Find or Create Club")
         .sheet(isPresented: $showCreateSheet) {
             ClubDetailsForm(navPath: $path)
                 .presentationDetents([.large])

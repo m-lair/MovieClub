@@ -19,7 +19,7 @@ struct ArchiveRowView: View {
                     .foregroundColor(.white)
                 HStack {
                     Text("Presented by:")
-                        .font(.system(size: 12))
+                        .font(.subheadline)
                         .foregroundColor(.gray)
                     
                     Text(movie.userName)

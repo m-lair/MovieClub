@@ -14,7 +14,7 @@ struct NotificationItemView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: notification.type.iconName)
-                .font(.system(size: 20))
+                .font(.title)
                 .foregroundColor(.white)
                 .frame(width: 40, height: 40)
                 .background(notification.type.iconColor)

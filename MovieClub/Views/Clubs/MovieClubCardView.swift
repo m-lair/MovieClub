@@ -65,7 +65,7 @@ struct MovieClubCardView: View {
                             VStack(alignment: .leading) {
                                 Spacer()
                                 Text(movieClub.name)
-                                    .font(.headline)
+                                    .font(Font.custom("Stolzl", size: 24, relativeTo: .headline))
                                     .shadow(color: .black, radius: 2)
                                     .fontWeight(.bold)
                                     .padding(.horizontal)
@@ -88,7 +88,7 @@ struct MovieClubCardView: View {
                                 Spacer()
                                 HStack {
                                     Text(movieClub.name)
-                                        .font(.headline)
+                                        .font(Font.custom("Stolzl", size: 24, relativeTo: .headline))
                                         .shadow(color: .black, radius: 2)
                                         .fontWeight(.bold)
                                         .padding(.horizontal)

@@ -73,7 +73,7 @@ struct LoginView: View {
                             .fontWeight(.bold)
                     }
                     .foregroundStyle(.blue)
-                    .font(.system(size: 14))
+                    .font(.body)
                 }
             }
         }
