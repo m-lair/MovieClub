@@ -74,8 +74,11 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
             createdAt = Date(timeIntervalSince1970: TimeInterval(timestamp)) // Convert Firestore Timestamp to Swift Date
         }
         
-        if let str = try? container.decode(String.self, forKey: .isPublic) {
-            isPublic = str.lowercased() == "true"
+        // Try to decode isPublic as a Boolean first, fall back to string if needed for backward compatibility
+        if let boolValue = try? container.decode(Bool.self, forKey: .isPublic) {
+            isPublic = boolValue
+        } else if let strValue = try? container.decode(String.self, forKey: .isPublic) {
+            isPublic = strValue.lowercased() == "true"
         } else {
             isPublic = false
         }
@@ -91,12 +94,7 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
         try container.encode(ownerName, forKey: .ownerName)
         try container.encode(desc, forKey: .desc)
         try container.encode(ownerId, forKey: .ownerId)
-        switch isPublic {
-        case true:
-            try container.encode("true", forKey: .isPublic)
-        case false :
-            try container.encode("false", forKey: .isPublic)
-        }
+        try container.encode(isPublic, forKey: .isPublic)
     }
     
     enum CodingKeys: String, CodingKey {

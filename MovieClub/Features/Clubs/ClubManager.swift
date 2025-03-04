@@ -9,6 +9,7 @@ import Foundation
 import FirebaseFirestore
 import FirebaseStorage
 import FirebaseFunctions
+import UIKit
 
 extension DataManager {
     
@@ -32,14 +33,31 @@ extension DataManager {
     // MARK: - Create Movie Club
     
     func createMovieClub(movieClub: MovieClub) async throws {
-        let createClub: Callable<MovieClub, String> = functions.httpsCallable("movieClubs-createMovieClub")
-        do {
-            let clubId = try await createClub(movieClub)
-            movieClub.id = clubId
-            userClubs.append(movieClub)
-        } catch {
-            print("unable to create movie club: \(movieClub.name)")
-            throw error
+        // Perform basic validation first
+        let basicValidationResult = ValidationService.validateClubNameBasic(movieClub.name)
+        
+        switch basicValidationResult {
+        case .failure(let error):
+            throw ClubError.custom(message: error.localizedDescription)
+        case .success:
+            // Proceed with server-side validation
+            let serverValidationResult = await ValidationService.validateClubNameOnServer(movieClub.name)
+            
+            switch serverValidationResult {
+            case .failure(let error):
+                throw ClubError.custom(message: error.localizedDescription)
+            case .success:
+                // Validation passed, proceed with club creation
+                let createClub: Callable<MovieClub, String> = functions.httpsCallable("movieClubs-createMovieClub")
+                do {
+                    let clubId = try await createClub(movieClub)
+                    movieClub.id = clubId
+                    userClubs.append(movieClub)
+                } catch {
+                    print("unable to create movie club: \(movieClub.name)")
+                    throw error
+                }
+            }
         }
     }
     
@@ -176,7 +194,7 @@ extension DataManager {
     
     func fetchAllPublicClubs() async throws -> [String] {
         let snapshot = try await movieClubCollection()
-            .whereField("isPublic", isEqualTo: "true")
+            .whereField("isPublic", isEqualTo: true)
             .getDocuments()
 
         let clubs: [String] = snapshot.documents.compactMap { doc in
