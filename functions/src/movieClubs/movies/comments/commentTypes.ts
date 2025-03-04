@@ -30,8 +30,24 @@ export interface UnlikeCommentData {
   commentId: string;
 }
 
+export interface AnonymizeCommentData {
+  clubId: string;
+  movieId: string;
+  commentId: string;
+}
+
+export interface ReportCommentData {
+  clubId: string;
+  movieId: string;
+  commentId: string;
+  reason: string;
+}
+
 export interface PostCommentData extends CommentData, ReplyData, CommentDataAssociations { }
 
+/**
+ * @deprecated Use AnonymizeCommentData instead
+ */
 export interface DeleteCommentData extends CommentDataAssociations {
   id: string;
 }

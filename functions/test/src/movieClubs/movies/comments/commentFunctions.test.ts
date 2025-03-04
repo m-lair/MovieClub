@@ -141,24 +141,37 @@ describe("Comment Functions", () => {
       commentData.id = comment.id;
     });
 
-    it("should delete a comment", async () => {
+    it("should anonymize a comment instead of deleting it", async () => {
       let snap;
 
       snap = await getCommentsDocRef(movieClub.id, movie.id, commentData.id).get();
-
-      assert.equal(snap.data()?.id, commentData.id);
+      assert(snap.exists);
 
       await deleteWrapped({ data: commentData, auth: auth });
 
       snap = await getCommentsDocRef(movieClub.id, movie.id, commentData.id).get();
-
-      assert.equal(snap.data(), undefined);
+      
+      // Check that the comment is anonymized instead of deleted
+      const anonymizedData = snap.data();
+      assert.equal(anonymizedData?.userId, "anonymous-user");
+      assert.equal(anonymizedData?.userName, "Deleted User");
+      assert.equal(anonymizedData?.text, "[This comment has been deleted by the user]");
+      assert.equal(anonymizedData?.likes, 0);
+      assert.deepEqual(anonymizedData?.likedBy, []);
     });
 
     it("should error with wrong user", async () => {
       try {
-        auth.uid = "wrong-uid";
-        await deleteWrapped({ data: commentData, auth: auth });
+        // Create a different auth object to simulate a different user
+        const wrongAuth = { uid: "wrong-uid" };
+        
+        // First make sure the user is a member of the club
+        await populateMembershipData({
+          userId: wrongAuth.uid,
+          movieClubId: movieClub.id,
+        });
+        
+        await deleteWrapped({ data: commentData, auth: wrongAuth });
         assert.fail("Expected error not thrown");
       } catch (error: any) {
         assert.match(
@@ -166,9 +179,10 @@ describe("Comment Functions", () => {
           /You cannot delete a comment that you don't own./,
         );
 
+        // Verify the comment wasn't anonymized
         const snap = await getCommentsDocRef(movieClub.id, movie.id, commentData.id).get();
-
-        assert.equal(snap.data()?.id, commentData.id);
+        assert(snap.exists);
+        assert.notEqual(snap.data()?.userId, "anonymous-user");
       }
     });
 
@@ -318,3 +332,4 @@ describe("Comment Functions", () => {
     });
   });
 });
+

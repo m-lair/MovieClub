@@ -16,33 +16,50 @@ struct CommentDetailView: View {
     
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            NavigationLink(destination: ProfileDisplayView(userId: comment.userId)) {
-                if let imageUrl = userImage, let url = URL(string: imageUrl) {
-                    CachedAsyncImage(url: url) {
-                        Circle()
-                            .fill(Color.gray.opacity(0.3))
-                    }
-                    .aspectRatio(contentMode: .fill)
+            // Show a generic placeholder avatar for anonymized comments
+            if comment.userId == "anonymous-user" {
+                Circle()
+                    .fill(Color.gray.opacity(0.2))
                     .frame(width: 40, height: 40)
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
-                    .shadow(radius: 2)
-                } else {
-                    Circle()
-                        .fill(Color.gray.opacity(0.3))
+                    .overlay(Circle().stroke(Color.gray.opacity(0.1), lineWidth: 1))
+            } else {
+                NavigationLink(destination: ProfileDisplayView(userId: comment.userId)) {
+                    if let imageUrl = userImage, let url = URL(string: imageUrl) {
+                        CachedAsyncImage(url: url) {
+                            Circle()
+                                .fill(Color.gray.opacity(0.3))
+                        }
+                        .aspectRatio(contentMode: .fill)
                         .frame(width: 40, height: 40)
+                        .clipShape(Circle())
                         .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
                         .shadow(radius: 2)
+                    } else {
+                        Circle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 40, height: 40)
+                            .overlay(Circle().stroke(Color.gray.opacity(0.2), lineWidth: 1))
+                            .shadow(radius: 2)
+                    }
                 }
             }
             
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    NavigationLink(destination: ProfileDisplayView(userId: comment.userId)) {
-                        Text(comment.userName)
+                    // For anonymized comments, don't make the username a navigation link
+                    if comment.userId == "anonymous-user" {
+                        Text("Deleted")
                             .font(.headline)
                             .fontWeight(.semibold)
+                            .foregroundStyle(.gray)
+                    } else {
+                        NavigationLink(destination: ProfileDisplayView(userId: comment.userId)) {
+                            Text(comment.userName)
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                        }
                     }
+                    
                     Circle()
                         .fill(Color.gray)
                         .frame(width: 5, height: 5)
@@ -52,29 +69,50 @@ struct CommentDetailView: View {
                             .font(.caption)
                             .foregroundColor(.gray)
                     }
-                }
-                
-                HStack {
-                    Text(comment.text)
-                        .font(.body)
-                        .lineLimit(10)
                     
                     Spacer()
                     
-                    Button {
-                            Task {
-                                await toggleLike()
-                            }
-                    } label: {
-                        HStack {
-                            Image(systemName: "heart.fill")
-                                .foregroundStyle(isLiked ? .red : .gray)
-                            Text("\(likesCount)")
-                                .foregroundStyle(isLiked ? .red : .gray)
-                        }
+                    // Only show the menu for non-anonymized comments
+                    if comment.userId != "anonymous-user" {
+                        CommentMenuView(comment: comment)
                     }
                 }
                 
+                if comment.userId == "anonymous-user" {
+                    // Special styling for deleted comments
+                    Text(comment.text)
+                        .font(.body)
+                        .lineLimit(10)
+                        .foregroundStyle(.gray)
+                        .italic()
+                        .padding(8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.gray.opacity(0.1))
+                        )
+                } else {
+                    HStack {
+                        Text(comment.text)
+                            .font(.body)
+                            .lineLimit(10)
+                        
+                        Spacer()
+                        
+                        // Only show like button for non-anonymized comments
+                        Button {
+                                Task {
+                                    await toggleLike()
+                                }
+                        } label: {
+                            HStack {
+                                Image(systemName: "heart.fill")
+                                    .foregroundStyle(isLiked ? .red : .gray)
+                                Text("\(likesCount)")
+                                    .foregroundStyle(isLiked ? .red : .gray)
+                            }
+                        }
+                    }
+                }
             }
             Spacer()
         }

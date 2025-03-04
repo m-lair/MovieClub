@@ -88,6 +88,7 @@
 		2CD71FF52CBEFC9300F9CF58 /* CreateSuggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FF42CBEFBFE00F9CF58 /* CreateSuggestion.swift */; };
 		2CD71FF72CC035CB00F9CF58 /* MembershipManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FF62CC035BA00F9CF58 /* MembershipManager.swift */; };
 		2CD71FFC2CC0A8DB00F9CF58 /* ClubTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FFB2CC0A89800F9CF58 /* ClubTabView.swift */; };
+		2CDB72E32D764293004C0B2F /* CommentMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDB72E22D764293004C0B2F /* CommentMenuView.swift */; };
 		2CE0C97D2D5AC5A600ECC962 /* MovieClubCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE0C97C2D5AC5A600ECC962 /* MovieClubCardView.swift */; };
 		2CE0C97F2D5ACD0100ECC962 /* CachedAsyncImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE0C97E2D5ACD0100ECC962 /* CachedAsyncImage.swift */; };
 		2CE0C9812D5B0BE700ECC962 /* CommentsSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE0C9802D5B0BE700ECC962 /* CommentsSheetView.swift */; };
@@ -193,6 +194,7 @@
 		2CD71FF42CBEFBFE00F9CF58 /* CreateSuggestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateSuggestion.swift; sourceTree = "<group>"; };
 		2CD71FF62CC035BA00F9CF58 /* MembershipManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipManager.swift; sourceTree = "<group>"; };
 		2CD71FFB2CC0A89800F9CF58 /* ClubTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubTabView.swift; sourceTree = "<group>"; };
+		2CDB72E22D764293004C0B2F /* CommentMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentMenuView.swift; sourceTree = "<group>"; };
 		2CE0C97C2D5AC5A600ECC962 /* MovieClubCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieClubCardView.swift; sourceTree = "<group>"; };
 		2CE0C97E2D5ACD0100ECC962 /* CachedAsyncImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedAsyncImage.swift; sourceTree = "<group>"; };
 		2CE0C9802D5B0BE700ECC962 /* CommentsSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsSheetView.swift; sourceTree = "<group>"; };
@@ -292,6 +294,7 @@
 		2C11FFEE2CA37F76004F54BC /* CommentViews */ = {
 			isa = PBXGroup;
 			children = (
+				2CDB72E22D764293004C0B2F /* CommentMenuView.swift */,
 				2C4475032C06DE6B0034204C /* CommentDetailView.swift */,
 				2C4475052C17CFFC0034204C /* CommentInputView.swift */,
 				2C4475012C06DE4F0034204C /* CommentsView.swift */,
@@ -836,6 +839,7 @@
 				2C5DEC7E2BF1B3F6000EF232 /* HomePageView.swift in Sources */,
 				2C8256C72BF2FE3400D2ED12 /* ClubDetailView.swift in Sources */,
 				2C5DEC422BF1B12D000EF232 /* DataManager.swift in Sources */,
+				2CDB72E32D764293004C0B2F /* CommentMenuView.swift in Sources */,
 				2C11FFDB2CA13330004F54BC /* Movie.swift in Sources */,
 				2C87B2B12C6D08F300A49B2B /* ProfileDisplayView.swift in Sources */,
 				2CF7B2882D4EE24B006A8EBD /* HomeView.swift in Sources */,
