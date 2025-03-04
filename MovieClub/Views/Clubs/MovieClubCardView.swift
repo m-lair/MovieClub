@@ -77,7 +77,17 @@ struct MovieClubCardView: View {
                             }
                             .padding(.horizontal)
                         } else {
-                            Color.black
+                            VStack(alignment: .leading) {
+                                Spacer()
+                                HStack {
+                                    Text(movieClub.name)
+                                        .font(.headline)
+                                        .shadow(color: .black, radius: 2)
+                                        .fontWeight(.bold)
+                                        .padding(.horizontal)
+                                    Spacer()
+                                }
+                            }
                         }
                     }
 

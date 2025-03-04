@@ -15,6 +15,11 @@ struct HomePageView: View {
     @Namespace private var namespace
     @State private var isLoading: Bool = true
     @State var userClubs: [MovieClub] = []
+    // Animation states
+    @State private var cardsAppeared = false
+    @State private var cardOffsets: [CGFloat] = []
+    @State private var cardOpacities: [Double] = []
+    
     var sortedUserClubs: [MovieClub] {
         userClubs.sorted { club1, club2 in
             if let date1 = club1.createdAt, let date2 = club2.createdAt {
@@ -42,15 +47,19 @@ struct HomePageView: View {
                 } else {
                     ScrollView {
                         VStack {
-                            ForEach(sortedUserClubs, id: \.id) { movieClub in
+                            ForEach(Array(sortedUserClubs.enumerated()), id: \.element.id) { index, movieClub in
                                 NavigationLink(value: movieClub) {
                                     if #available(iOS 18.0, *) {
                                         MovieClubCardView(movieClub: movieClub)
                                             .padding(.vertical, 5)
                                             .matchedTransitionSource(id: movieClub.id, in: namespace)
+                                            .offset(y: index < cardOffsets.count ? cardOffsets[index] : 50)
+                                            .opacity(index < cardOpacities.count ? cardOpacities[index] : 0)
                                     } else {
                                         MovieClubCardView(movieClub: movieClub)
                                             .padding(.vertical, 5)
+                                            .offset(y: index < cardOffsets.count ? cardOffsets[index] : 50)
+                                            .opacity(index < cardOpacities.count ? cardOpacities[index] : 0)
                                     }
                                 }
                             }
@@ -90,8 +99,18 @@ struct HomePageView: View {
         .refreshable {
             Task {
                 if let userId = Auth.auth().currentUser?.uid {
-                    self.userClubs =  await data.fetchUserClubs(forUserId: userId)
+                    // Reset animation states before fetching new data
+                    cardOffsets = Array(repeating: 100, count: userClubs.count)
+                    cardOpacities = Array(repeating: 0, count: userClubs.count)
+                    cardsAppeared = false
+                    
+                    // Fetch new data
+                    self.userClubs = await data.fetchUserClubs(forUserId: userId)
                     data.userClubs = self.userClubs
+                    
+                    // Initialize and animate with new data
+                    initializeAnimationArrays()
+                    animateCardsAppearance()
                 }
             }
         }
@@ -101,9 +120,34 @@ struct HomePageView: View {
                     self.userClubs =  await data.fetchUserClubs(forUserId: userId)
                     data.userClubs = self.userClubs
                     isLoading = false
+                    
+                    // Initialize animation arrays after clubs are loaded
+                    initializeAnimationArrays()
+                    // Animate cards with a slight delay after loading
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        animateCardsAppearance()
+                    }
                 }
             }
         }
+    }
+    
+    // Initialize animation arrays based on number of clubs
+    private func initializeAnimationArrays() {
+        cardOffsets = Array(repeating: 100, count: sortedUserClubs.count)
+        cardOpacities = Array(repeating: 0, count: sortedUserClubs.count)
+    }
+    
+    // Animation function for staggered card appearance
+    private func animateCardsAppearance() {
+        // Animate cards with staggered timing
+        for i in 0..<cardOffsets.count {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.7).delay(Double(i) * 0.1)) {
+                cardOffsets[i] = 0
+                cardOpacities[i] = 1
+            }
+        }
+        cardsAppeared = true
     }
 }
 

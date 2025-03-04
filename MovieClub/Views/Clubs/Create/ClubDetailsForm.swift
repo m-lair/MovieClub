@@ -16,189 +16,298 @@ struct ClubDetailsForm: View {
     @Binding var navPath: NavigationPath
     
     @State private var photoItem: PhotosPickerItem?
+    @State private var selectedImage: UIImage?
     @State private var name = ""
     @State private var isPublic = true // Default to public
-    @State private var selectedOwnerIndex = 0
     @State private var timeInterval: Int = 2
-    @State private var screenWidth = UIScreen.main.bounds.size.width
-   
+    @State private var desc = ""
+    
     @State private var validationError: String? = nil
     @State private var isValidating = false
     @State private var showSuccessAnimation = false
     
-    let weeks: [Int] = [1,2,3,4]
-    @State private var desc = ""
+    let weeks: [Int] = [1, 2, 3, 4]
     @State private var showPicker = false
     
-    // Colors for modern UI
-    private var accentColor: Color { Color.blue }
-    private var errorColor: Color { Color.red }
-    private var backgroundColor: Color { colorScheme == .dark ? Color(white: 0.15) : Color(white: 0.97) }
-    private var cardColor: Color { colorScheme == .dark ? Color(white: 0.2) : .white }
+    // Animation states
+    @State private var nameFieldShake = false
+    @State private var formAppeared = false
+    @State private var cardOffset: [CGFloat] = [100, 130, 160]
+    @State private var cardOpacity: [Double] = [0, 0, 0]
+    
+    // Modern UI colors
+    private let accentColor = Color(.blue.opacity(0.5))
+    private let cardColor = Color(.gray.opacity(0.25))
+    private let textColor = Color.white
+    private let subtitleColor = Color.white.opacity(0.7)
+    private let fieldBackgroundColor = Color.white.opacity(0.1)
+    private let borderColor = Color.white.opacity(0.2)
+    private let errorColor = Color.red.opacity(0.9)
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                // Header
-                Text("Create New Club")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
-                
-                // Club details card
-                VStack(spacing: 16) {
-                    // Name field
+        ZStack {
+            
+            // Content
+            ScrollView {
+                    // Header section
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Club Name")
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
-                        
-                        TextField("Enter club name", text: $name)
-                            .font(.title3)
-                            .fontWeight(.medium)
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(backgroundColor)
-                            )
-                            .onChange(of: name) { _, _ in
-                                validationError = nil
-                            }
-                        
-                        if let error = validationError {
-                            Label(error, systemImage: "exclamationmark.triangle.fill")
-                                .font(.caption)
-                                .foregroundStyle(errorColor)
-                                .padding(.horizontal, 4)
-                                .transition(.opacity)
-                        }
-                    }
                     
-                    // Description field
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Description")
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
-                        
-                        TextField("What's your club about?", text: $desc, axis: .vertical)
-                            .font(.body)
-                            .padding()
-                            .frame(minHeight: 100, alignment: .topLeading)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(backgroundColor)
-                            )
-                            .lineLimit(4...)
-                    }
-                }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(cardColor)
-                        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
-                )
-                .padding(.horizontal)
-                
-                // Settings card
-                VStack(spacing: 16) {
-                    Text("Settings")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, alignment: .leading)
                     
-                    // Public/Private toggle
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Club Visibility")
-                                .font(.headline)
+                    // Club Details
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Club Details")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(textColor)
+                            .padding(.top, 16)
+                        
+                        // Club name card
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(cardColor)
+                                .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 5)
                             
-                            Text(isPublic ? "Anyone can find and join your club" : "Only people with a direct link can join")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        
-                        Spacer()
-                        
-                        Toggle("", isOn: $isPublic)
-                            .toggleStyle(.switch)
-                            .tint(accentColor)
-                            .labelsHidden()
-                    }
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(backgroundColor)
-                    )
-                    
-                    // Week interval
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Movie Rotation Interval")
-                            .font(.headline)
-                        
-                        Text("How often should movies rotate in your club?")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        
-                        Picker("Week Interval", selection: $timeInterval) {
-                            ForEach(weeks, id: \.self) { option in
-                                Text("\(option) \(option == 1 ? "Week" : "Weeks")").tag(option)
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text("Club Name")
+                                    .font(.headline)
+                                    .foregroundColor(subtitleColor)
+                                
+                                HStack {
+                                    Image(systemName: "person.3.fill")
+                                        .foregroundColor(borderColor)
+                                        .font(.system(size: 18))
+                                    
+                                    TextField("Enter club name", text: $name)
+                                        .font(.body)
+                                        .foregroundColor(textColor)
+                                        .padding(.vertical, 12)
+                                }
+                                .padding(.horizontal, 16)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(fieldBackgroundColor)
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(validationError != nil ? errorColor : borderColor, lineWidth: 1)
+                                )
+                                .modifier(ShakeEffect(animatableData: nameFieldShake ? 1 : 0))
+                                
+                                if let error = validationError {
+                                    HStack {
+                                        Image(systemName: "exclamationmark.triangle.fill")
+                                            .foregroundColor(errorColor)
+                                            .font(.caption)
+                                        
+                                        Text(error)
+                                            .font(.caption)
+                                            .foregroundColor(errorColor)
+                                    }
+                                    .padding(.horizontal, 4)
+                                    .transition(.opacity)
+                                }
+                                
+                                // Description field
+                                Text("Description")
+                                    .font(.headline)
+                                    .foregroundColor(subtitleColor)
+                                
+                                HStack(alignment: .top) {
+                                    Image(systemName: "text.bubble")
+                                        .foregroundColor(borderColor)
+                                        .font(.system(size: 18))
+                                        .padding(.top, 8)
+                                    
+                                    TextField("What's your club about?", text: $desc, axis: .vertical)
+                                        .font(.body)
+                                        .foregroundColor(textColor)
+                                        .lineLimit(3...)
+                                        .padding(.vertical, 8)
+                                }
+                                .padding(.horizontal, 16)
+                                .frame(height: 100, alignment: .topLeading)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(fieldBackgroundColor)
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(borderColor, lineWidth: 1)
+                                )
+                                
+                                // Public toggle
+                                HStack {
+                                    HStack(spacing: 10) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(isPublic ? .green.opacity(0.2) : .red.opacity(0.2))
+                                                .frame(width: 36, height: 36)
+                                                .animation(.spring(response: 0.3), value: isPublic)
+                                            
+                                            Image(systemName: isPublic ? "globe" : "lock.fill")
+                                                .foregroundColor(isPublic ? .green.opacity(0.7) : .red.opacity(0.7))
+                                                .font(.system(size: 16, weight: .medium))
+                                                .contentTransition(.symbolEffect(.replace.downUp.byLayer))
+                                        }
+                                        
+                                        Text(isPublic ? "Public club" : "Private club")
+                                            .font(.headline)
+                                            .foregroundColor(textColor)
+                                            .transition(.asymmetric(
+                                                insertion: .move(edge: .bottom).combined(with: .opacity),
+                                                removal: .move(edge: .top).combined(with: .opacity)
+                                            ))
+                                            .animation(.snappy(duration: 0.4), value: isPublic)
+                                            .id(isPublic) // Forces view recreation for better animation
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Toggle("", isOn: $isPublic)
+                                        .toggleStyle(SwitchToggleStyle(tint: .green.opacity(0.5)))
+                                        .labelsHidden()
+                                }
+                                .padding(.vertical, 8)
                             }
+                            .padding(24)
                         }
-                        .pickerStyle(.segmented)
-                        .padding(.top, 4)
+                        .offset(y: cardOffset[1])
+                        .opacity(cardOpacity[1])
                     }
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(backgroundColor)
-                    )
-                }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(cardColor)
-                        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
-                )
-                .padding(.horizontal)
-                
-                // Create button
-                Button {
-                    Task {
-                        await validateAndSubmit()
-                    }
-                } label: {
-                    HStack {
-                        if isValidating {
-                            ProgressView()
-                                .tint(.white)
-                                .padding(.trailing, 8)
-                        } else if showSuccessAnimation {
-                            Image(systemName: "checkmark")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .padding(.trailing, 8)
-                        }
+                    
+                    // More review section
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Movie Details")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(textColor)
+                            .padding(.top, 16)
                         
-                        Text("Create Club")
-                            .font(.headline)
-                            .foregroundColor(.white)
+                        // Rotation interval card
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(cardColor)
+                                .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 5)
+                            
+                            VStack(alignment: .leading, spacing: 16) {
+                                HStack {
+                                    Image(systemName: "calendar")
+                                        .foregroundColor(textColor)
+                                        .font(.system(size: 18))
+                                    
+                                    Text("Movie Rotation Interval")
+                                        .font(.headline)
+                                        .foregroundColor(subtitleColor)
+                                }
+                                Text("How long should your clubs watch period be?")
+                                    .font(.caption)
+                                    .padding([.bottom, .top], 5)
+                                
+                                HStack(spacing: 12) {
+                                    ForEach(weeks, id: \.self) { option in
+                                        Button {
+                                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                                timeInterval = option
+                                            }
+                                        } label: {
+                                            Text("\(option) \(option == 1 ? "Week" : "Weeks")")
+                                                .font(.body)
+                                                .foregroundColor(textColor)
+                                                .frame(maxWidth: .infinity)
+                                                .padding(.vertical, 12)
+                                                .background(
+                                                    RoundedRectangle(cornerRadius: 12)
+                                                        .fill(timeInterval == option ? accentColor : fieldBackgroundColor)
+                                                )
+                                        }
+                                        .buttonStyle(ScaleButtonStyle())
+                                    }
+                                }
+                            }
+                            .padding(24)
+                        }
+                        .offset(y: cardOffset[2])
+                        .opacity(cardOpacity[2])
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(isValidating || validationError != nil ? accentColor.opacity(0.6) : accentColor)
-                    )
+                    
+                    // Create button
+                    Button {
+                        Task {
+                            await validateAndSubmit()
+                        }
+                    } label: {
+                        HStack {
+                            if isValidating {
+                                ProgressView()
+                                    .tint(.black)
+                                    .padding(.trailing, 8)
+                            } else if showSuccessAnimation {
+                                Image(systemName: "checkmark")
+                                    .font(.headline)
+                                    .foregroundColor(.black)
+                                    .padding(.trailing, 8)
+                            }
+                            
+                            Text("Create Club")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(name.isEmpty ? .white.opacity(0.5) : .white)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(
+                            Capsule()
+                                .fill(accentColor)
+                                .opacity(isValidating || name.isEmpty ? 0.6 : 1)
+                        )
+                    }
+                    .buttonStyle(ScaleButtonStyle())
+                    .disabled(isValidating || name.isEmpty)
+                    .padding(.top, 24)
+                    .padding(.bottom, 40)
+                    .offset(y: cardOffset[2])
+                    .opacity(cardOpacity[2])
                 }
-                .buttonStyle(.plain)
-                .disabled(isValidating || name.isEmpty)
-                .padding(.horizontal)
-                .padding(.top, 10)
+                .padding(24)
             }
-            .padding(.vertical, 20)
         }
-        .scrollDismissesKeyboard(.interactively)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                HStack {
+                    Text("MovieClub")
+                        .font(.headline)
+                        .foregroundColor(textColor)
+                }
+            }
+        }
+        .onAppear {
+            animateFormAppearance()
+        }
+    }
+    
+    // Tab bar icons
+    private let tabBarIcons = [
+        "house.fill", 
+        "book.fill", 
+        "trophy.fill", 
+        "person.fill", 
+        "bell.fill"
+    ]
+    
+    // Animation function
+    private func animateFormAppearance() {
+        withAnimation(.easeOut(duration: 0.5)) {
+            formAppeared = true
+        }
+        
+        // Animate cards with staggered timing
+        for i in 0..<cardOffset.count {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.7).delay(Double(i) * 0.15)) {
+                cardOffset[i] = 0
+                cardOpacity[i] = 1
+            }
+        }
     }
     
     func encodeImageToBase64(_ image: UIImage) -> String? {
@@ -219,6 +328,11 @@ struct ClubDetailsForm: View {
         case .failure(let error):
             withAnimation(.spring) {
                 validationError = error.localizedDescription
+                nameFieldShake = true
+            }
+            // Reset shake animation after a delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                nameFieldShake = false
             }
             isValidating = false
             return
@@ -276,6 +390,24 @@ struct ClubDetailsForm: View {
         } catch {
             print("error submitting club \(error)")
             throw error
+        }
+    }
+    
+    // Custom button style with scale animation
+    struct ScaleButtonStyle: ButtonStyle {
+        func makeBody(configuration: Configuration) -> some View {
+            configuration.label
+                .scaleEffect(configuration.isPressed ? 0.97 : 1)
+                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+        }
+    }
+    
+    // Shake effect modifier
+    struct ShakeEffect: GeometryEffect {
+        var animatableData: CGFloat
+        
+        func effectValue(size: CGSize) -> ProjectionTransform {
+            ProjectionTransform(CGAffineTransform(translationX: 10 * sin(animatableData * .pi * 2), y: 0))
         }
     }
 }
