@@ -19,6 +19,9 @@ struct HomePageView: View {
     @State private var cardsAppeared = false
     @State private var cardOffsets: [CGFloat] = []
     @State private var cardOpacities: [Double] = []
+    @State private var refreshTrigger = UUID() // Add refresh trigger
+    @State private var initialLoadComplete = false // Track initial load
+    @State private var animationStartTime: Date? = nil
     
     var sortedUserClubs: [MovieClub] {
         userClubs.sorted { club1, club2 in
@@ -53,13 +56,15 @@ struct HomePageView: View {
                                         MovieClubCardView(movieClub: movieClub)
                                             .padding(.vertical, 5)
                                             .matchedTransitionSource(id: movieClub.id, in: namespace)
-                                            .offset(y: index < cardOffsets.count ? cardOffsets[index] : 50)
-                                            .opacity(index < cardOpacities.count ? cardOpacities[index] : 0)
+                                            .offset(y: !initialLoadComplete ? (index < cardOffsets.count ? cardOffsets[index] : 50) : 0)
+                                            .opacity(!initialLoadComplete ? (index < cardOpacities.count ? cardOpacities[index] : 0) : 1)
+                                            .id("\(refreshTrigger)-\(movieClub.id ?? "")-\(movieClub.numMovies ?? 0)-\(movieClub.movies.first?.id ?? "none")")
                                     } else {
                                         MovieClubCardView(movieClub: movieClub)
                                             .padding(.vertical, 5)
-                                            .offset(y: index < cardOffsets.count ? cardOffsets[index] : 50)
-                                            .opacity(index < cardOpacities.count ? cardOpacities[index] : 0)
+                                            .offset(y: !initialLoadComplete ? (index < cardOffsets.count ? cardOffsets[index] : 50) : 0)
+                                            .opacity(!initialLoadComplete ? (index < cardOpacities.count ? cardOpacities[index] : 0) : 1)
+                                            .id("\(refreshTrigger)-\(movieClub.id ?? "")-\(movieClub.numMovies ?? 0)-\(movieClub.movies.first?.id ?? "none")")
                                     }
                                 }
                             }
@@ -77,7 +82,17 @@ struct HomePageView: View {
                             }
                         }
                     }
-                
+                    // Use TimelineView to track animation completion
+                    .overlay {
+                        if !initialLoadComplete && animationStartTime != nil {
+                            TimelineView(.animation) { timeline in
+                                Color.clear
+                                    .onChange(of: timeline.date) {
+                                        checkAnimationCompletion(currentTime: timeline.date)
+                                    }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -99,32 +114,43 @@ struct HomePageView: View {
         .refreshable {
             Task {
                 if let userId = Auth.auth().currentUser?.uid {
-                    // Reset animation states before fetching new data
-                    cardOffsets = Array(repeating: 100, count: userClubs.count)
-                    cardOpacities = Array(repeating: 0, count: userClubs.count)
-                    cardsAppeared = false
+                    // Only reset animation states if this is the initial load
+                    if !initialLoadComplete {
+                        cardOffsets = Array(repeating: 100, count: userClubs.count)
+                        cardOpacities = Array(repeating: 0, count: userClubs.count)
+                        cardsAppeared = false
+                    }
+                    
+                    // Generate new refresh trigger to force view updates
+                    refreshTrigger = UUID()
                     
                     // Fetch new data
                     self.userClubs = await data.fetchUserClubs(forUserId: userId)
                     data.userClubs = self.userClubs
                     
-                    // Initialize and animate with new data
-                    initializeAnimationArrays()
-                    animateCardsAppearance()
+                    // Only animate if this is the initial load
+                    if !initialLoadComplete {
+                        initializeAnimationArrays()
+                        animateCardsAppearance()
+                    }
                 }
             }
         }
         .onAppear {
             Task {
                 if let userId = Auth.auth().currentUser?.uid {
-                    self.userClubs =  await data.fetchUserClubs(forUserId: userId)
+                    // Generate new refresh trigger to force view updates
+                    refreshTrigger = UUID()
+                    
+                    self.userClubs = await data.fetchUserClubs(forUserId: userId)
                     data.userClubs = self.userClubs
                     isLoading = false
                     
-                    // Initialize animation arrays after clubs are loaded
-                    initializeAnimationArrays()
-                    // Animate cards with a slight delay after loading
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    // Only initialize and animate if this is the first load
+                    if !initialLoadComplete {
+                        // Initialize animation arrays after clubs are loaded
+                        initializeAnimationArrays()
+                        // Start animation with a slight delay
                         animateCardsAppearance()
                     }
                 }
@@ -140,6 +166,9 @@ struct HomePageView: View {
     
     // Animation function for staggered card appearance
     private func animateCardsAppearance() {
+        // Set animation start time
+        animationStartTime = Date()
+        
         // Animate cards with staggered timing
         for i in 0..<cardOffsets.count {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.7).delay(Double(i) * 0.1)) {
@@ -148,6 +177,21 @@ struct HomePageView: View {
             }
         }
         cardsAppeared = true
+    }
+    
+    // Check if animation has completed based on elapsed time
+    private func checkAnimationCompletion(currentTime: Date) {
+        guard let startTime = animationStartTime, !initialLoadComplete else { return }
+        
+        // Calculate total animation duration (base animation time + delay for each card)
+        let totalAnimationTime = 0.6 + (Double(cardOffsets.count) * 0.1)
+        let elapsedTime = currentTime.timeIntervalSince(startTime)
+        
+        // If animation should be complete, update state
+        if elapsedTime >= totalAnimationTime {
+            initialLoadComplete = true
+            animationStartTime = nil
+        }
     }
 }
 
