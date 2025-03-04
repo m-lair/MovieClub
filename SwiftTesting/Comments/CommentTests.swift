@@ -122,8 +122,8 @@ class CommentTests: BaseTests {
         try await super.tearDown()
     }
 
-    @Test("Delete comment successfully")
-    func testDeleteComment_Success() async throws {
+    @Test("Anonymize comment successfully")
+    func testAnonymizeComment_Success() async throws {
         try await super.setUp()
         let userId = try await super.createTestUserAuth()
         try await populateTestData()
@@ -134,24 +134,31 @@ class CommentTests: BaseTests {
             userId: userId,
             userName: "test-user",
             createdAt: Date(),
-            text: "testing delete",
+            text: "testing anonymize",
             likes: 0
         )
         let commentId = try await mockFunctions.postComment(movieId: "test-movie", clubId: "test-club", comment: comment)
 
-        // Delete it
-        try await mockFunctions.deleteComment(commentId: commentId, clubId: "test-club", movieId: "test-movie")
+        // Anonymize it
+        let result = try await mockFunctions.anonymizeComment(commentId: commentId, clubId: "test-club", movieId: "test-movie")
+        
+        // Verify the result
+        #expect(result["success"] as? Bool == true)
+        #expect(result["alreadyAnonymized"] as? Bool == false)
 
-        // Expect the doc no longer exists
-        let deletedDoc = try await db.collection("movieclubs")
+        // Expect the doc still exists but is anonymized
+        let anonymizedDoc = try await db.collection("movieclubs")
             .document("test-club")
             .collection("movies")
             .document("test-movie")
             .collection("comments")
             .document(commentId)
             .getDocument()
-
-        #expect(deletedDoc.exists == false)
+            
+        #expect(anonymizedDoc.exists)
+        #expect(anonymizedDoc.data()?["userId"] as? String == "anonymous-user")
+        #expect(anonymizedDoc.data()?["userName"] as? String == "Deleted User")
+        #expect(anonymizedDoc.data()?["text"] as? String == "[This comment has been deleted by the user]")
 
         try await super.tearDown()
     }

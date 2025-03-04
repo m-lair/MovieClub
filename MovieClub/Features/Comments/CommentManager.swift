@@ -75,21 +75,53 @@ extension DataManager {
                 return
             }
             
-            let fetchedComments = snapshot.documents.compactMap { document -> Comment? in
-                do {
-                    var comment = try document.data(as: Comment.self)
-                    comment.id = document.documentID
-                    return comment
-                } catch {
-                    print("Error decoding comment: \(error)")
-                    return nil
+            self.processCommentSnapshot(snapshot)
+        }
+    }
+    
+    // Method to manually refresh comments
+    func refreshComments() {
+        guard !movieId.isEmpty else {
+            print("movieId is empty")
+            return
+        }
+        
+        Task {
+            do {
+                let snapshot = try await movieClubCollection()
+                    .document(clubId)
+                    .collection("movies")
+                    .document(movieId)
+                    .collection("comments")
+                    .order(by: "createdAt", descending: false)
+                    .getDocuments()
+                
+                // Process on the main thread
+                await MainActor.run {
+                    processCommentSnapshot(snapshot)
                 }
+            } catch {
+                print("Error refreshing comments: \(error)")
             }
-            
-            // Organize comments into a hierarchical structure
-            DispatchQueue.main.async {
-                self.comments = self.buildCommentTree(from: fetchedComments)
+        }
+    }
+    
+    // Helper method to process comment snapshots
+    private func processCommentSnapshot(_ snapshot: QuerySnapshot) {
+        let fetchedComments = snapshot.documents.compactMap { document -> Comment? in
+            do {
+                var comment = try document.data(as: Comment.self)
+                comment.id = document.documentID
+                return comment
+            } catch {
+                print("Error decoding comment: \(error)")
+                return nil
             }
+        }
+        
+        // Organize comments into a hierarchical structure
+        DispatchQueue.main.async {
+            self.comments = self.buildCommentTree(from: fetchedComments)
         }
     }
     
@@ -119,6 +151,19 @@ extension DataManager {
         for node in commentDict.values {
             node.replies.sort { $0.comment.createdAt < $1.comment.createdAt }
         }
+        
+        // Filter out anonymized comments that have no replies
+        rootComments = rootComments.filter { node in
+            // Keep the comment if it's not anonymized or if it has replies
+            return node.comment.userId != "anonymous-user" || !node.replies.isEmpty
+        }
+        
+        // Do the same for all replies recursively
+        for node in commentDict.values {
+            node.replies = node.replies.filter { childNode in
+                return childNode.comment.userId != "anonymous-user" || !childNode.replies.isEmpty
+            }
+        }
 
         return rootComments
     }
@@ -127,14 +172,60 @@ extension DataManager {
     
     // MARK: - Delete Comment
     
+    @available(*, deprecated, message: "Use anonymizeComment instead")
     func deleteComment(movieClubId: String, movieId: String, commentId: String) async throws {
+        // Forward to anonymizeComment for backward compatibility
         let parameters: [String: Any] = [
-            "movieClubId": movieClubId,
+            "commentId": commentId,
+            "clubId": movieClubId,
             "movieId": movieId
         ]
         
         do {
-            let _ = try await functions.httpsCallable("comments-deleteComment").call(parameters)
+            _ = try await functions.httpsCallable("comments-anonymizeComment").call(parameters)
+        } catch {
+            throw error
+        }
+    }
+    
+    // MARK: - Anonymize Comment
+    
+    func anonymizeComment(commentId: String) async throws -> [String: Any] {
+        let parameters: [String: Any] = [
+            "commentId": commentId,
+            "clubId": clubId,
+            "movieId": movieId
+        ]
+        
+        do {
+            let result = try await functions.httpsCallable("comments-anonymizeComment").call(parameters)
+            if let data = result.data as? [String: Any] {
+                return data
+            } else {
+                return ["success": true]
+            }
+        } catch {
+            throw error
+        }
+    }
+    
+    // MARK: - Report Comment
+    
+    func reportComment(commentId: String, reason: String) async throws -> [String: Any] {
+        let parameters: [String: Any] = [
+            "commentId": commentId,
+            "clubId": clubId,
+            "movieId": movieId,
+            "reason": reason
+        ]
+        
+        do {
+            let result = try await functions.httpsCallable("comments-reportComment").call(parameters)
+            if let data = result.data as? [String: Any] {
+                return data
+            } else {
+                return ["success": true]
+            }
         } catch {
             throw error
         }

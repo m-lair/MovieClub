@@ -151,10 +151,24 @@ actor TestFunctions: FunctionsService {
             .call(["commentId": commentId, "clubId": clubId, "movieId": movieId])
     }
     
+    @available(*, deprecated, message: "Use anonymizeComment instead")
     func deleteComment(commentId: String, clubId: String, movieId: String) async throws {
+        // Forward to anonymizeComment for backward compatibility
         _ = try await functions
-            .httpsCallable("comments-deleteComment")
-            .call(["id": commentId, "clubId": clubId, "movieId": movieId])
+            .httpsCallable("comments-anonymizeComment")
+            .call(["commentId": commentId, "clubId": clubId, "movieId": movieId])
+    }
+    
+    func anonymizeComment(commentId: String, clubId: String, movieId: String) async throws -> [String: Any] {
+        let result = try await functions
+            .httpsCallable("comments-anonymizeComment")
+            .call(["commentId": commentId, "clubId": clubId, "movieId": movieId])
+        
+        if let data = result.data as? [String: Any] {
+            return data
+        } else {
+            return ["success": true]
+        }
     }
     
     // MARK: - Suggestions

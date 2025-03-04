@@ -136,6 +136,10 @@ struct CommentRow: View {
     
     var canReply: Bool = true
     
+    private var isAnonymized: Bool {
+        node.comment.userId == "anonymous-user"
+    }
+    
     var body: some View {
         HStack(alignment: .top) {
             // Decorative vertical line to indicate nesting (only for nested replies)
@@ -151,7 +155,8 @@ struct CommentRow: View {
                     .padding(.leading, CGFloat(level * 4))
                 
                 HStack {
-                    if canReply {
+                    // Only show reply button for non-anonymized comments
+                    if canReply && !isAnonymized {
                         Button {
                             onReply(node.comment)
                         } label: {

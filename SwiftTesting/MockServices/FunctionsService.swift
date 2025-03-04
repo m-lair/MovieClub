@@ -27,7 +27,9 @@ protocol FunctionsService {
     func postComment(movieId: String, clubId: String, comment: Comment) async throws -> String
     func likeComment(commentId: String, clubId: String, movieId: String) async throws
     func unlikeComment(commentId: String, clubId: String, movieId: String) async throws
+    @available(*, deprecated, message: "Use anonymizeComment instead")
     func deleteComment(commentId: String, clubId: String, movieId: String) async throws
+    func anonymizeComment(commentId: String, clubId: String, movieId: String) async throws -> [String: Any]
     
     // MARK: - Suggestions
     func createMovieClubSuggestion(clubId: String, suggestion: String) async throws -> String
