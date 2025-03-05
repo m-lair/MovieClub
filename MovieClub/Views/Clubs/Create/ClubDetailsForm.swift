@@ -39,87 +39,81 @@ private struct ClubDetailsCardView: View {
                     .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 5)
                 
                 VStack(alignment: .leading, spacing: 16) {
-                    nameSection
-                    descriptionSection
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Club Name")
+                            .font(.headline)
+                            .foregroundColor(subtitleColor)
+                        
+                        HStack {
+                            Image(systemName: "person.3.fill")
+                                .foregroundColor(borderColor)
+                                .font(.subheadline)
+                            
+                            TextField("Enter club name", text: $name)
+                                .font(.body)
+                                .foregroundColor(textColor)
+                                .padding(.vertical, 8)
+                        }
+                        .padding(.horizontal, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(fieldBackgroundColor)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(validationError != nil ? errorColor : borderColor, lineWidth: 1)
+                        )
+                        .frame(height: 44) // Reduced height for smaller screens
+                        .modifier(ShakeEffect(animatableData: nameFieldShake ? 1 : 0))
+                        
+                        if let error = validationError {
+                            HStack {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(errorColor)
+                                    .font(.caption)
+                                
+                                Text(error)
+                                    .font(.caption)
+                                    .foregroundColor(errorColor)
+                            }
+                            .padding(.horizontal, 4)
+                            .transition(.opacity)
+                        }
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Description")
+                            .font(.headline)
+                            .foregroundColor(subtitleColor)
+                        
+                        HStack(alignment: .top) {
+                            Image(systemName: "text.bubble")
+                                .foregroundColor(borderColor)
+                                .font(.subheadline)
+                                .padding(.top, 8)
+                            
+                            TextField("What's your club about?", text: $desc, axis: .vertical)
+                                .font(.body)
+                                .foregroundColor(textColor)
+                                .lineLimit(3...)
+                                .padding(.vertical, 6)
+                        }
+                        .padding(.horizontal, 12)
+                        .frame(height: 90, alignment: .topLeading) // Reduced height for smaller screens
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(fieldBackgroundColor)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(borderColor, lineWidth: 1)
+                        )
+                    }
                 }
-                .padding(24)
+                .padding(20) // Reduced padding for smaller screens
             }
             .offset(y: cardOffset)
             .opacity(cardOpacity)
-        }
-    }
-    
-    private var nameSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Club Name")
-                .font(.headline)
-                .foregroundColor(subtitleColor)
-            
-            HStack {
-                Image(systemName: "person.3.fill")
-                    .foregroundColor(borderColor)
-                    .font(.body)
-                
-                TextField("Enter club name", text: $name)
-                    .font(.body)
-                    .foregroundColor(textColor)
-                    .padding(.vertical, 12)
-            }
-            .padding(.horizontal, 16)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(fieldBackgroundColor)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(validationError != nil ? errorColor : borderColor, lineWidth: 1)
-            )
-            .modifier(ShakeEffect(animatableData: nameFieldShake ? 1 : 0))
-            
-            if let error = validationError {
-                HStack {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(errorColor)
-                        .font(.caption)
-                    
-                    Text(error)
-                        .font(.caption)
-                        .foregroundColor(errorColor)
-                }
-                .padding(.horizontal, 4)
-                .transition(.opacity)
-            }
-        }
-    }
-    
-    private var descriptionSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Description")
-                .font(.headline)
-                .foregroundColor(subtitleColor)
-            
-            HStack(alignment: .top) {
-                Image(systemName: "text.bubble")
-                    .foregroundColor(borderColor)
-                    .font(.headline)
-                    .padding(.top, 8)
-                
-                TextField("What's your club about?", text: $desc, axis: .vertical)
-                    .font(.body)
-                    .foregroundColor(textColor)
-                    .lineLimit(3...)
-                    .padding(.vertical, 8)
-            }
-            .padding(.horizontal, 16)
-            .frame(height: 100, alignment: .topLeading)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(fieldBackgroundColor)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(borderColor, lineWidth: 1)
-            )
         }
     }
 }
@@ -144,12 +138,12 @@ private struct PrivacyToggleView: View {
                     ZStack {
                         Circle()
                             .fill(isPublic ? .green.opacity(0.2) : .red.opacity(0.2))
-                            .frame(width: 36, height: 36)
+                            .frame(width: 32, height: 32) // Reduced size
                             .animation(.spring(response: 0.3), value: isPublic)
                         
                         Image(systemName: isPublic ? "globe" : "lock.fill")
                             .foregroundColor(isPublic ? .green.opacity(0.7) : .red.opacity(0.7))
-                            .font(.system(size: 16, weight: .medium))
+                            .font(.system(size: 14, weight: .medium)) // Smaller icon
                             .contentTransition(.symbolEffect(.replace.downUp.byLayer))
                     }
                     
@@ -170,7 +164,7 @@ private struct PrivacyToggleView: View {
                     .toggleStyle(SwitchToggleStyle(tint: .green.opacity(0.5)))
                     .labelsHidden()
             }
-            .padding(24)
+            .padding(20) // Reduced padding
         }
         .offset(y: cardOffset)
         .opacity(cardOpacity)
@@ -218,28 +212,35 @@ private struct MovieRotationIntervalView: View {
                         .font(.caption)
                         .padding([.bottom, .top], 5)
                     
-                    HStack(spacing: 12) {
-                        ForEach(weeks, id: \.self) { option in
-                            Button {
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                    timeInterval = option
+                    // Use GeometryReader to make the week buttons responsive
+                    GeometryReader { geometry in
+                        let buttonWidth = min(100, (geometry.size.width - 36) / 4)
+                        HStack(spacing: 8) {
+                            ForEach(weeks, id: \.self) { option in
+                                Button {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                        timeInterval = option
+                                    }
+                                } label: {
+                                    Text("\(option) \(option == 1 ? "Week" : "Weeks")")
+                                        .font(.subheadline)
+                                        .foregroundColor(textColor)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.8)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 12)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .fill(timeInterval == option ? accentColor : fieldBackgroundColor)
+                                        )
                                 }
-                            } label: {
-                                Text("\(option) \(option == 1 ? "Week" : "Weeks")")
-                                    .font(.body)
-                                    .foregroundColor(textColor)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .fill(timeInterval == option ? accentColor : fieldBackgroundColor)
-                                    )
+                                .buttonStyle(ScaleButtonStyle())
                             }
-                            .buttonStyle(ScaleButtonStyle())
                         }
                     }
+                    .frame(height: 44)
                 }
-                .padding(24)
+                .padding(20)
             }
         }
         .offset(y: cardOffset)
@@ -283,7 +284,7 @@ private struct CreateButtonView: View {
                     .foregroundColor(name.isEmpty ? .white.opacity(0.5) : .white)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
+            .frame(height: 48) // Consistent height
             .background(
                 Capsule()
                     .fill(accentColor)
@@ -358,7 +359,7 @@ struct ClubDetailsForm: View {
                         action: validateAndSubmit
                     )
                 }
-                .padding(24)
+                .padding(16) // Reduced padding for smaller devices
             }
         }
         .navigationBarTitleDisplayMode(.inline)
