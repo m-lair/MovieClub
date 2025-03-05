@@ -10,7 +10,9 @@ import SwiftUI
 struct MovieClubCardView: View {
     let movieClub: MovieClub
     @State private var bannerColor: Color = .clear
-
+    @State private var hasAppeared = false
+    @State private var currentFeaturedMovieId: String? = nil
+    
     var featuredMovie: Movie? {
         movieClub.movies.first
     }
@@ -47,21 +49,25 @@ struct MovieClubCardView: View {
                                 // Placeholder view (e.g. black or a spinner)
                                 Color.black
                             })
+                            .id("\(movieClub.id ?? "")-\(movie.id ?? "")-backdrop") // Unique ID for proper refresh
                             .scaledToFill()
                             .frame(width: cardWidth - 20, height: cardHeight * 0.6)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .opacity(0.8)
                             .onAppear {
                                 updateBannerColor(with: backdropUrl)
+                                // Track the current featured movie ID
+                                if currentFeaturedMovieId != movie.id {
+                                    currentFeaturedMovieId = movie.id
+                                }
                             }
 
                             VStack(alignment: .leading) {
                                 Spacer()
                                 Text(movieClub.name)
-                                    .font(.headline)
                                     .shadow(color: .black, radius: 2)
                                     .fontWeight(.bold)
-                                    .padding(.horizontal)
+                                    .padding(.horizontal, 5)
 
                                 // Use the computed dominant color for the banner
                                 Rectangle()
@@ -75,9 +81,19 @@ struct MovieClubCardView: View {
                                             .frame(maxWidth: .infinity, alignment: .leading)
                                     )
                             }
-                            .padding(.horizontal)
+                            .padding(.horizontal,5 )
                         } else {
-                            Color.black
+                            VStack(alignment: .leading) {
+                                Spacer()
+                                HStack {
+                                    Text(movieClub.name)
+                                        .font(Font.custom("Stolzl", size: 24, relativeTo: .headline))
+                                        .shadow(color: .black, radius: 2)
+                                        .fontWeight(.bold)
+                                        .padding(.horizontal)
+                                    Spacer()
+                                }
+                            }
                         }
                     }
 
@@ -115,8 +131,19 @@ struct MovieClubCardView: View {
                 .frame(width: cardWidth, height: cardHeight)
             }
             .frame(width: geometry.size.width, height: cardHeight)
+            .id("card-\(movieClub.id ?? "")-\(movieClub.numMovies ?? 0)-\(featuredMovie?.id ?? "none")")
         }
         .frame(height: UIScreen.main.bounds.width * 0.9 * 0.6)
+        .onAppear {
+            hasAppeared = true
+        }
+        .onChange(of: featuredMovie?.id) { oldValue, newValue in
+            if oldValue != newValue {
+                // Reset banner color when featured movie changes
+                bannerColor = .clear
+                currentFeaturedMovieId = newValue
+            }
+        }
     }
 }
 

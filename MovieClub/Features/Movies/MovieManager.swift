@@ -70,8 +70,53 @@ extension DataManager {
     
     // MARK: - Rotate Movie (Firebase Function)
     func rotateMovie(clubId: String) async throws -> Bool {
-        let rotateMovie: Callable<[String: String], MovieFunctionsResponse> = functions.httpsCallable("movies-rotateMovie")
+        // Additional safety check - verify if the current active movie is actually due for rotation
         do {
+            let moviesSnapshot = try await movieClubCollection()
+                .document(clubId)
+                .collection("movies")
+                .whereField("status", isEqualTo: "active")
+                .limit(to: 1)
+                .getDocuments()
+            
+            if let document = moviesSnapshot.documents.first,
+               let movie = try? document.data(as: Movie.self) {
+                
+                let now = Date()
+                
+                // Create a calendar instance for working with dates
+                let calendar = Calendar.current
+                
+                // Check if we're on the day after the end date - this is when we want to rotate
+                // Get end date components
+                let endDateDay = calendar.component(.day, from: movie.endDate)
+                let endDateMonth = calendar.component(.month, from: movie.endDate)
+                let endDateYear = calendar.component(.year, from: movie.endDate)
+                
+                // Get today's components
+                let todayDay = calendar.component(.day, from: now)
+                let todayMonth = calendar.component(.month, from: now)
+                let todayYear = calendar.component(.year, from: now)
+                
+                // If today is exactly the end date, don't rotate yet (wait until tomorrow)
+                if endDateDay == todayDay && endDateMonth == todayMonth && endDateYear == todayYear {
+                    print("Preventing rotation because today is exactly the end date - will rotate tomorrow")
+                    return false
+                }
+                
+                // Only rotate if today is after the end date
+                if let dayAfterEndDate = calendar.date(byAdding: .day, value: 1, to: movie.endDate.midnight),
+                   now.midnight >= dayAfterEndDate.midnight {
+                    // We're past the end date, proceed with rotation
+                    print("Rotation approved: today (\(now)) is after the end date (\(movie.endDate))")
+                } else {
+                    print("Preventing rotation because today (\(now)) is not after the end date (\(movie.endDate))")
+                    return false
+                }
+            }
+            
+            // If we get here, proceed with the rotation
+            let rotateMovie: Callable<[String: String], MovieFunctionsResponse> = functions.httpsCallable("movies-rotateMovie")
             let result = try await rotateMovie.call(["clubId": clubId])
             return result.success
         } catch {

@@ -79,7 +79,7 @@ struct CommentInputView: View {
                 .padding(.horizontal, 5)
             }
             
-            HStack(alignment: .top, spacing: 8) {
+            HStack(alignment: .center, spacing: 8) {
                 VStack(alignment: .leading, spacing: 4) {
                     TextField(textLabel, text: $commentText, axis: .vertical)
                         .padding(10)
@@ -140,11 +140,9 @@ struct CommentInputView: View {
                 .disabled(!isCommentValid || isSubmitting || showCheckmark)
                 .accessibilityLabel(submitButtonLabel)
                 .contentShape(Rectangle())
-                .padding(.top, 8)
             }
             .padding(.horizontal, 2)
         }
-        .padding(.bottom)
         .background(.clear)
         .alert(error, isPresented: $errorShowing) {
             Button("OK", role: .cancel) { }

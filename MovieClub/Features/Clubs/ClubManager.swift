@@ -9,6 +9,7 @@ import Foundation
 import FirebaseFirestore
 import FirebaseStorage
 import FirebaseFunctions
+import UIKit
 
 extension DataManager {
     
@@ -32,14 +33,31 @@ extension DataManager {
     // MARK: - Create Movie Club
     
     func createMovieClub(movieClub: MovieClub) async throws {
-        let createClub: Callable<MovieClub, String> = functions.httpsCallable("movieClubs-createMovieClub")
-        do {
-            let clubId = try await createClub(movieClub)
-            movieClub.id = clubId
-            userClubs.append(movieClub)
-        } catch {
-            print("unable to create movie club: \(movieClub.name)")
-            throw error
+        // Perform basic validation first
+        let basicValidationResult = ValidationService.validateClubNameBasic(movieClub.name)
+        
+        switch basicValidationResult {
+        case .failure(let error):
+            throw ClubError.custom(message: error.localizedDescription)
+        case .success:
+            // Proceed with server-side validation
+            let serverValidationResult = await ValidationService.validateClubNameOnServer(movieClub.name)
+            
+            switch serverValidationResult {
+            case .failure(let error):
+                throw ClubError.custom(message: error.localizedDescription)
+            case .success:
+                // Validation passed, proceed with club creation
+                let createClub: Callable<MovieClub, String> = functions.httpsCallable("movieClubs-createMovieClub")
+                do {
+                    let clubId = try await createClub(movieClub)
+                    movieClub.id = clubId
+                    userClubs.append(movieClub)
+                } catch {
+                    print("unable to create movie club: \(movieClub.name)")
+                    throw error
+                }
+            }
         }
     }
     
@@ -101,16 +119,35 @@ extension DataManager {
                 baseMovie = try document.data(as: Movie.self)
                 baseMovie?.id = document.documentID
                 
-                // Check if the watch period has ended (using dates standardized to midnight)
-                if let endDate = baseMovie?.endDate,
-                   endDate.midnight < Date().midnight {
-                    // Add a grace period check - don't rotate movies that were just created
-                    // Only rotate if the movie has been active for at least 1 hour
-                    if let startDate = baseMovie?.startDate,
-                       Date().timeIntervalSince(startDate) > 3600 {
-                        needsRotation = true
+                // Check if the watch period has ended
+                if let endDate = baseMovie?.endDate {
+                    let currentDate = Date()
+                    let calendar = Calendar.current
+                    
+                    // Get date components for comparison
+                    let endDay = calendar.component(.day, from: endDate)
+                    let endMonth = calendar.component(.month, from: endDate)
+                    let endYear = calendar.component(.year, from: endDate)
+                    
+                    let currentDay = calendar.component(.day, from: currentDate)
+                    let currentMonth = calendar.component(.month, from: currentDate)
+                    let currentYear = calendar.component(.year, from: currentDate)
+                    
+                    // If today is after the end date (not the same day as the end date)
+                    if (currentYear > endYear) || 
+                       (currentYear == endYear && currentMonth > endMonth) ||
+                       (currentYear == endYear && currentMonth == endMonth && currentDay > endDay) {
+                        
+                        // Add a grace period check - don't rotate movies that were just created
+                        if let startDate = baseMovie?.startDate,
+                           currentDate.timeIntervalSince(startDate) > 3600 {
+                            needsRotation = true
+                            print("Movie needs rotation: Today (\(currentDate)) is after end date (\(endDate))")
+                        } else {
+                            print("Not rotating movie \(baseMovie?.id ?? "") since it was recently activated")
+                        }
                     } else {
-                        print("Not rotating movie \(baseMovie?.id ?? "") since it was recently activated")
+                        print("Today (\(currentDate)) is not after end date (\(endDate)), no rotation needed")
                     }
                 }
             } else if self.suggestions.count > 0 {

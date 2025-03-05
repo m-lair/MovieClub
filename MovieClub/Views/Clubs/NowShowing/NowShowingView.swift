@@ -17,6 +17,7 @@ struct NowShowingView: View {
     private var movie: Movie? { data.currentClub?.movies.first }
     @State private var scrollToCommentId: String? = nil
     @State private var width = UIScreen.main.bounds.width
+    @State private var usernameScale: CGFloat = 1.0
     
     // MARK: - Computed Properties
     private var progress: Double {
@@ -101,27 +102,69 @@ struct NowShowingView: View {
     }
     
     private func userInfoHeader(_ movie: Movie) -> some View {
-        HStack {
+        ViewThatFits(in: .horizontal) {
+            // Option 1: Full size
+            standardHeaderContent(movie)
+            
+            // Option 2: Condensed with smaller font
+            condensedHeaderContent(movie)
+        }
+    }
+    
+    private func standardHeaderContent(_ movie: Movie) -> some View {
+        HStack(spacing: 8) {
             Label("\(movie.userName)", systemImage: "hand.point.up.left.fill")
                 .font(.title)
-                .fontWeight(.bold)
-                .padding(5)
+                .fontWeight(.semibold)
+                .lineLimit(1)
+                .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 4)
+                .padding(.horizontal, 8)
             
-            Spacer()
-            
-            Button {
-                withAnimation(.easeInOut) {
-                    collected = true
-                    animate = true
+            HStack(spacing: 12) {
+                Button {
+                    withAnimation(.easeInOut) {
+                        collected = true
+                        animate = true
+                    }
+                    Task { await collectPoster() }
+                } label: {
+                    CollectButton(collected: $collected)
                 }
-                Task { await collectPoster() }
-            } label: {
-                CollectButton(collected: $collected)
-            }
-            ReviewThumbs(liked: $liked, disliked: $disliked)
                 
+                ReviewThumbs(liked: $liked, disliked: $disliked)
+            }
         }
         .padding(.trailing, 10)
+    }
+    
+    private func condensedHeaderContent(_ movie: Movie) -> some View {
+        HStack(spacing: 6) {
+            Label("\(movie.userName)", systemImage: "hand.point.up.left.fill")
+                .font(.title3)
+                .fontWeight(.semibold)
+                .lineLimit(1)
+                .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 4)
+                .padding(.horizontal, 6)
+            
+            HStack(spacing: 8) {
+                Button {
+                    withAnimation(.easeInOut) {
+                        collected = true
+                        animate = true
+                    }
+                    Task { await collectPoster() }
+                } label: {
+                    CollectButton(collected: $collected)
+                        .scaleEffect(0.95)
+                }
+                
+                ReviewThumbs(liked: $liked, disliked: $disliked)
+                    .scaleEffect(0.95)
+            }
+        }
+        .padding(.trailing, 8)
     }
     
     private var progressBar: some View {

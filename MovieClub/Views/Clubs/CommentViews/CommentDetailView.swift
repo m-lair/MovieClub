@@ -116,7 +116,7 @@ struct CommentDetailView: View {
             }
             Spacer()
         }
-        .padding()
+        .padding(5)
         .task {
             if let user = try? await data.fetchProfile(id: comment.userId) {
                 userImage = user.image

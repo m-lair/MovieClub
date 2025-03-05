@@ -11,6 +11,7 @@ import * as posters from "./users/posters/posterFunctions";
 import * as notificationFunctions from "./notifications/notificationFunctions";
 import * as movieClubNotifications from "./notifications/movieClubNotifications";
 import * as suggestionNotifications from "./notifications/suggestionNotifications";
+import * as validateClubName from './moderation/validateClubName';
 
-export { comments, config, memberships, movieClubs, movies, suggestions, users, posters, commentNotifications, posterNotifications, notificationFunctions, movieClubNotifications, suggestionNotifications };
+export { comments, config, memberships, movieClubs, movies, suggestions, users, posters, commentNotifications, posterNotifications, notificationFunctions, movieClubNotifications, suggestionNotifications, validateClubName };
 

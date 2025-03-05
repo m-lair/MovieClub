@@ -28,6 +28,33 @@ exports.rotateMovie = functions.https.onCall(
       verifyRequiredFields(data, requiredFields);
       await verifyMembership(uid, clubId);
 
+      // First check if there's already a rotation in progress by looking for any recent archived movies
+      // that might have been created in the last hour
+      const recentArchiveCheck = await firebaseAdmin
+        .firestore()
+        .collection(`movieclubs/${clubId}/movies`)
+        .where("status", "==", "archived")
+        .orderBy("endDate", "desc")
+        .limit(1)
+        .get();
+
+      if (!recentArchiveCheck.empty) {
+        const recentArchive = recentArchiveCheck.docs[0].data() as MovieData;
+        const archiveTime = recentArchive.endDate instanceof Date 
+          ? recentArchive.endDate 
+          : new Date(recentArchive.endDate);
+        
+        // If there's a recently archived movie (archived in the last hour), prevent duplicate rotation
+        const ONE_HOUR_MS = 3600000;
+        if (new Date().getTime() - archiveTime.getTime() < ONE_HOUR_MS) {
+          logVerbose(`Rotation already happened recently (${archiveTime}). Preventing duplicate rotation.`);
+          throw new functions.https.HttpsError(
+            'failed-precondition',
+            'A movie rotation has already occurred recently. Please try again later.'
+          );
+        }
+      }
+
       const activeMovieDoc = await getActiveMovieDoc(clubId);
 
       if (activeMovieDoc) {
@@ -56,12 +83,23 @@ exports.rotateMovie = functions.https.onCall(
           );
         }
 
-        // Mark the current movie as 'archived' AND update its endDate to now
-        const currentDate = new Date();
+        // Mark the current movie as 'archived' AND update its endDate to 11:59 PM on its end date
+        // This ensures the end date is set to a consistent time (end of day)
+        const endDateObj = activeMovie.endDate instanceof Date 
+          ? activeMovie.endDate 
+          : new Date(activeMovie.endDate);
+          
+        // Set the time to 11:59:59 PM
+        const formattedEndDate = new Date(endDateObj);
+        formattedEndDate.setHours(23, 59, 59, 999);
+        
         await activeMovieDoc.ref.update({ 
           status: 'archived',
-          endDate: currentDate  // Set the end date to the actual rotation date
+          endDate: formattedEndDate  // Use the formatted end date with time set to 11:59:59 PM
         });
+        
+        // Wait a moment to ensure the update completes before proceeding
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
       // Retrieve the next suggestion
@@ -78,8 +116,14 @@ exports.rotateMovie = functions.https.onCall(
       const clubDoc = await clubDocRef.get();
       const clubData = clubDoc.data() as MovieClubData;
 
+      // Set start date to 12:00 AM today for consistency
       const startDate = new Date();
+      startDate.setHours(0, 0, 0, 0);  // Set to 12:00:00 AM
+
+      // Calculate end date based on timeInterval
       const endDate = new Date(startDate.getTime() + clubData.timeInterval * 7 * 24 * 60 * 60 * 1000);
+      // Set end date to 11:59:59 PM on the end day
+      endDate.setHours(23, 59, 59, 999);
 
       const movieData: MovieData = {
         ...suggestionData,
