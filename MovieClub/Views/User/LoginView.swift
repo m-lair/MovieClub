@@ -53,19 +53,24 @@ struct LoginView: View {
                     )
                     .padding(.horizontal, 50)
                     .padding(.bottom, 20)
-                    
-                    // Password field with validation
-                    ValidatedTextField(
-                        title: "Password",
-                        text: $userPwd,
-                        error: $passwordError,
-                        validate: UserValidationService.validatePassword,
-                        isSecure: true,
-                        icon: "lock"
+                    HStack {
+                        Image(systemName: "lock")
+                            .foregroundStyle(.gray)
+                        SecureField("Password", text: $userPwd)
+                           
+                            
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.gray.opacity(0.1))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(error == nil ? Color.clear : Color.red, lineWidth: 1)
+                            )
                     )
                     .padding(.horizontal, 50)
-                    .padding(.bottom, 50)
-                    
+                    .padding(.bottom, 20)
                     // Sign in button
                     PrimaryButton(
                         title: "Sign In",
@@ -123,7 +128,7 @@ struct LoginView: View {
         
         switch passwordValidation {
         case .success: passwordError = nil
-        case .failure(let validationError): passwordError = validationError.errorDescription
+        case .failure(let validationError): passwordError = nil
         }
         
         // Don't proceed if validation failed

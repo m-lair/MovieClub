@@ -79,7 +79,7 @@ struct CommentInputView: View {
                 .padding(.horizontal, 5)
             }
             
-            HStack(alignment: .center, spacing: 8) {
+            HStack(alignment: .top, spacing: 8) {
                 VStack(alignment: .leading, spacing: 4) {
                     TextField(textLabel, text: $commentText, axis: .vertical)
                         .padding(10)
@@ -132,6 +132,8 @@ struct CommentInputView: View {
                     }
                     .frame(width: 30, height: 30)
                 }
+                .padding(.top, 4)
+                
                 .foregroundStyle(
                     isCommentValid 
                     ? LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
@@ -203,12 +205,10 @@ struct CommentInputView: View {
             isFocused = false
             onCommentPosted() // Call the callback after successful comment post
             
-            // Reset button after delay
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                withAnimation {
-                    showCheckmark = false
-                }
+            withAnimation {
+                showCheckmark = false
             }
+            
             
         } catch {
             isSubmitting = false

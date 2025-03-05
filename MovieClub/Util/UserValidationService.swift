@@ -67,7 +67,7 @@ struct UserValidationService {
             return .failure(.passwordEmpty)
         }
         
-        if password.count < 8 {
+        if password.count < 6 {
             return .failure(.passwordTooShort)
         }
         
@@ -167,13 +167,13 @@ struct ValidatedTextField: View {
                 
                 if isSecure {
                     SecureField(title, text: $text)
-                        .onChange(of: text) { _, newValue in
-                            validateText(newValue)
+                        .onChange(of: text) {
+                            validateText(text)
                         }
                 } else {
                     TextField(title, text: $text)
-                        .onChange(of: text) { _, newValue in
-                            validateText(newValue)
+                        .onChange(of: text) {
+                            validateText(text)
                         }
                 }
             }
