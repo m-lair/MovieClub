@@ -430,6 +430,7 @@ struct MovieClubRowView: View {
                     .clipShape(Capsule())
             }
             .buttonStyle(ScaleButtonStyle())
+            .sensoryFeedback(.impact, trigger: true)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 12)

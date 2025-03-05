@@ -297,6 +297,7 @@ private struct CreateButtonView: View {
         .padding(.bottom, 40)
         .offset(y: cardOffset)
         .opacity(cardOpacity)
+        .sensoryFeedback(.impact, trigger: showSuccessAnimation)
     }
 }
 

@@ -18,6 +18,10 @@ struct NowShowingView: View {
     @State private var scrollToCommentId: String? = nil
     @State private var width = UIScreen.main.bounds.width
     @State private var usernameScale: CGFloat = 1.0
+    @State private var triggerSuccessHaptic = false
+    @State private var triggerHeavyImpact = false
+    @State private var triggerMediumImpact = false
+    @State private var triggerLightImpact = false
     
     // MARK: - Computed Properties
     private var progress: Double {
@@ -127,10 +131,18 @@ struct NowShowingView: View {
                         collected = true
                         animate = true
                     }
+                    performHapticSequence()
                     Task { await collectPoster() }
                 } label: {
                     CollectButton(collected: $collected)
                 }
+                .sensoryFeedback(.success, trigger: triggerSuccessHaptic)
+                .sensoryFeedback(.impact(weight: .heavy), trigger: triggerHeavyImpact)
+                .sensoryFeedback(.impact(weight: .medium), trigger: triggerMediumImpact)
+                .sensoryFeedback(.impact(weight: .light), trigger: triggerLightImpact)
+                .sensoryFeedback(.impact(weight: .heavy), trigger: triggerHeavyImpact)
+                .sensoryFeedback(.impact(weight: .medium), trigger: triggerMediumImpact)
+                .sensoryFeedback(.impact(weight: .light), trigger: triggerLightImpact)
                 
                 ReviewThumbs(liked: $liked, disliked: $disliked)
             }
@@ -154,11 +166,16 @@ struct NowShowingView: View {
                         collected = true
                         animate = true
                     }
+                    performHapticSequence()
                     Task { await collectPoster() }
                 } label: {
                     CollectButton(collected: $collected)
                         .scaleEffect(0.95)
                 }
+                .sensoryFeedback(.success, trigger: triggerSuccessHaptic)
+                .sensoryFeedback(.impact(weight: .heavy), trigger: triggerHeavyImpact)
+                .sensoryFeedback(.impact(weight: .medium), trigger: triggerMediumImpact)
+                .sensoryFeedback(.impact(weight: .light), trigger: triggerLightImpact)
                 
                 ReviewThumbs(liked: $liked, disliked: $disliked)
                     .scaleEffect(0.95)
@@ -184,6 +201,26 @@ struct NowShowingView: View {
     }
     
     // MARK: - Helper Methods
+    private func performHapticSequence() {
+        // First play success feedback
+        triggerSuccessHaptic.toggle()
+        
+        // Then play sequence of impacts with delays
+        triggerHeavyImpact.toggle()
+        
+        Task {
+            try? await Task.sleep(for: .milliseconds(200))
+            await MainActor.run {
+                triggerMediumImpact.toggle()
+            }
+            
+            try? await Task.sleep(for: .milliseconds(200))
+            await MainActor.run {
+                triggerLightImpact.toggle()
+            }
+        }
+    }
+    
     private func handleReply(_ comment: Comment) {
         replyToComment = comment
         isReplying = true

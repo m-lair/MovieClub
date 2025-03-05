@@ -36,6 +36,7 @@ struct MainTabView: View {
                 }
                 .background(ignoresSafeAreaEdges: .all)
                 .tag(Tab.clubsPath)
+                .sensoryFeedback(.impact, trigger: selection)
                 
                 NavigationStack(path: $discoverPath){
                     DiscoverView()
@@ -45,6 +46,7 @@ struct MainTabView: View {
                         .padding(.top)
                 }
                 .tag(Tab.discoverPath)
+                .sensoryFeedback(.impact, trigger: selection)
                 
                 NavigationStack(path: $notificationsPath){
                     NotificationListView()
@@ -54,6 +56,7 @@ struct MainTabView: View {
                         .padding(.top)
                 }
                 .tag(Tab.notificationsPath)
+                .sensoryFeedback(.impact, trigger: selection)
                 
                 NavigationStack(path: $profilePath){
                     if let user = data.currentUser {
@@ -66,6 +69,7 @@ struct MainTabView: View {
                     
                 }
                 .tag(Tab.profilePath)
+                .sensoryFeedback(.impact, trigger: selection)
             }
             .toolbarBackground(.gray, for: .navigationBar)
             .background(.black.opacity(0.1))
