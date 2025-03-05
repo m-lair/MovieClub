@@ -41,9 +41,14 @@ struct HomePageView: View {
             } else {
                 // Original layout without extra padding/spacing changes
                 if userClubs.isEmpty {
-                    VStack {
+                    VStack(spacing: 8) {
                         Spacer()
-                        Text("No clubs Found")
+                        
+                        Text("No Clubs Found")
+                            .font(.title)
+                            .fontWeight(.semibold)
+                        Text("Create or Join ne to get started")
+                            .font(.caption)
                         Spacer()
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
