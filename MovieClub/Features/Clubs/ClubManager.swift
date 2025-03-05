@@ -119,22 +119,35 @@ extension DataManager {
                 baseMovie = try document.data(as: Movie.self)
                 baseMovie?.id = document.documentID
                 
-                // Check if the watch period has ended (using dates standardized to midnight)
+                // Check if the watch period has ended
                 if let endDate = baseMovie?.endDate {
-                    // Instead of comparing with current date, compare with tomorrow's date
-                    // This ensures the full end date has passed before rotation
-                    let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
-                    if endDate.midnight < Date().midnight {
+                    let currentDate = Date()
+                    let calendar = Calendar.current
+                    
+                    // Get date components for comparison
+                    let endDay = calendar.component(.day, from: endDate)
+                    let endMonth = calendar.component(.month, from: endDate)
+                    let endYear = calendar.component(.year, from: endDate)
+                    
+                    let currentDay = calendar.component(.day, from: currentDate)
+                    let currentMonth = calendar.component(.month, from: currentDate)
+                    let currentYear = calendar.component(.year, from: currentDate)
+                    
+                    // If today is after the end date (not the same day as the end date)
+                    if (currentYear > endYear) || 
+                       (currentYear == endYear && currentMonth > endMonth) ||
+                       (currentYear == endYear && currentMonth == endMonth && currentDay > endDay) {
+                        
                         // Add a grace period check - don't rotate movies that were just created
-                        // Only rotate if the movie has been active for at least 1 hour
                         if let startDate = baseMovie?.startDate,
-                           Date().timeIntervalSince(startDate) > 3600,
-                           // Add this additional check to ensure we don't rotate on the same day
-                           !Calendar.current.isDate(endDate, inSameDayAs: Date()) {
+                           currentDate.timeIntervalSince(startDate) > 3600 {
                             needsRotation = true
+                            print("Movie needs rotation: Today (\(currentDate)) is after end date (\(endDate))")
                         } else {
-                            print("Not rotating movie \(baseMovie?.id ?? "") since it was recently activated or is on its end date")
+                            print("Not rotating movie \(baseMovie?.id ?? "") since it was recently activated")
                         }
+                    } else {
+                        print("Today (\(currentDate)) is not after end date (\(endDate)), no rotation needed")
                     }
                 }
             } else if self.suggestions.count > 0 {

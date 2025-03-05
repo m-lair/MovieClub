@@ -82,15 +82,35 @@ extension DataManager {
             if let document = moviesSnapshot.documents.first,
                let movie = try? document.data(as: Movie.self) {
                 
-                // Don't rotate if we're still on the same day as the end date
-                if Calendar.current.isDate(movie.endDate, inSameDayAs: Date()) {
-                    print("Preventing rotation because we're still on the same day as the end date")
+                let now = Date()
+                
+                // Create a calendar instance for working with dates
+                let calendar = Calendar.current
+                
+                // Check if we're on the day after the end date - this is when we want to rotate
+                // Get end date components
+                let endDateDay = calendar.component(.day, from: movie.endDate)
+                let endDateMonth = calendar.component(.month, from: movie.endDate)
+                let endDateYear = calendar.component(.year, from: movie.endDate)
+                
+                // Get today's components
+                let todayDay = calendar.component(.day, from: now)
+                let todayMonth = calendar.component(.month, from: now)
+                let todayYear = calendar.component(.year, from: now)
+                
+                // If today is exactly the end date, don't rotate yet (wait until tomorrow)
+                if endDateDay == todayDay && endDateMonth == todayMonth && endDateYear == todayYear {
+                    print("Preventing rotation because today is exactly the end date - will rotate tomorrow")
                     return false
                 }
                 
-                // Only rotate if the end date has actually passed
-                if movie.endDate.midnight >= Date().midnight {
-                    print("Preventing rotation because the end date hasn't passed yet")
+                // Only rotate if today is after the end date
+                if let dayAfterEndDate = calendar.date(byAdding: .day, value: 1, to: movie.endDate.midnight),
+                   now.midnight >= dayAfterEndDate.midnight {
+                    // We're past the end date, proceed with rotation
+                    print("Rotation approved: today (\(now)) is after the end date (\(movie.endDate))")
+                } else {
+                    print("Preventing rotation because today (\(now)) is not after the end date (\(movie.endDate))")
                     return false
                 }
             }
