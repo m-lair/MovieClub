@@ -21,6 +21,7 @@ struct ClubTabView: View {
                     selectedTabIndex = index
                 } label: {
                     Text(tabs[index])
+                        .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(selectedTabIndex == index ? .white : .gray)
                         .lineLimit(1)

@@ -12,7 +12,7 @@ struct NotificationItemView: View {
     let notification: Notification
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: 5) {
             Image(systemName: notification.type.iconName)
                 .font(.title)
                 .foregroundColor(.white)
@@ -27,9 +27,8 @@ struct NotificationItemView: View {
                     .foregroundColor(.white)
                 
                 Text(notification.message)
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundColor(.gray)
-                    .lineLimit(2)
                 
                 if let othersCount = notification.othersCount, othersCount > 0 {
                     Text("\(notification.userName) and \(othersCount) others")
@@ -46,7 +45,7 @@ struct NotificationItemView: View {
                 .foregroundColor(.gray)
                 .padding(.top, 3)
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 4)
     }
     
     private func getNotificationTitle() -> String {

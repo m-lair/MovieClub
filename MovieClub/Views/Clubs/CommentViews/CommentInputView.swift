@@ -83,7 +83,7 @@ struct CommentInputView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     TextField(textLabel, text: $commentText, axis: .vertical)
                         .padding(10)
-                        .lineLimit(5)
+                        .lineLimit(8)
                         .background(colorScheme == .dark ? Color.black.opacity(0.3) : Color.white.opacity(0.8))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(
@@ -140,11 +140,10 @@ struct CommentInputView: View {
                 .disabled(!isCommentValid || isSubmitting || showCheckmark)
                 .accessibilityLabel(submitButtonLabel)
                 .contentShape(Rectangle())
-                .padding(.top, 8)
+                .padding(.top, 7)
             }
             .padding(.horizontal, 2)
         }
-        .padding(.bottom)
         .background(.clear)
         .alert(error, isPresented: $errorShowing) {
             Button("OK", role: .cancel) { }

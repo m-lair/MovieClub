@@ -102,7 +102,6 @@ struct MovieClubApp: App {
             Group {
                 if let dataManager, let notifManager {
                     HomeView()
-                        .environment(\.font, Font.custom("Stolzl-Regular", size: 16))
                         .environment(dataManager)
                         .environment(notifManager)
                 } else {

@@ -90,6 +90,19 @@
 		2CD71FFC2CC0A8DB00F9CF58 /* ClubTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD71FFB2CC0A89800F9CF58 /* ClubTabView.swift */; };
 		2CDB72E32D764293004C0B2F /* CommentMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDB72E22D764293004C0B2F /* CommentMenuView.swift */; };
 		2CDB72E72D76BE19004C0B2F /* ValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDB72E62D76BE19004C0B2F /* ValidationService.swift */; };
+		2CDB72F02D77860E004C0B2F /* Stolzl-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 2CDB72ED2D77860E004C0B2F /* Stolzl-Regular.otf */; };
+		2CDB72F12D77860E004C0B2F /* Stolzl-Thin.otf in Resources */ = {isa = PBXBuildFile; fileRef = 2CDB72EE2D77860E004C0B2F /* Stolzl-Thin.otf */; };
+		2CDB72F22D77860E004C0B2F /* Stolzl-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 2CDB72EB2D77860E004C0B2F /* Stolzl-Light.otf */; };
+		2CDB72F32D77860E004C0B2F /* Stolzl-Book.otf in Resources */ = {isa = PBXBuildFile; fileRef = 2CDB72EA2D77860E004C0B2F /* Stolzl-Book.otf */; };
+		2CDB72F42D77860E004C0B2F /* Stolzl-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 2CDB72EC2D77860E004C0B2F /* Stolzl-Medium.otf */; };
+		2CDB72F52D77860E004C0B2F /* Stolzl-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 2CDB72E92D77860E004C0B2F /* Stolzl-Bold.otf */; };
+		2CDB72F72D77878F004C0B2F /* Stolzl-Bold.otf in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2CDB72E92D77860E004C0B2F /* Stolzl-Bold.otf */; };
+		2CDB72F82D77878F004C0B2F /* Stolzl-Book.otf in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2CDB72EA2D77860E004C0B2F /* Stolzl-Book.otf */; };
+		2CDB72F92D77878F004C0B2F /* Stolzl-Light.otf in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2CDB72EB2D77860E004C0B2F /* Stolzl-Light.otf */; };
+		2CDB72FA2D77878F004C0B2F /* Stolzl-Medium.otf in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2CDB72EC2D77860E004C0B2F /* Stolzl-Medium.otf */; };
+		2CDB72FB2D77878F004C0B2F /* Stolzl-Regular.otf in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2CDB72ED2D77860E004C0B2F /* Stolzl-Regular.otf */; };
+		2CDB72FC2D77878F004C0B2F /* Stolzl-Thin.otf in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2CDB72EE2D77860E004C0B2F /* Stolzl-Thin.otf */; };
+		2CDB72FE2D778DA7004C0B2F /* FontExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDB72FD2D778D9F004C0B2F /* FontExtensions.swift */; };
 		2CE0C97D2D5AC5A600ECC962 /* MovieClubCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE0C97C2D5AC5A600ECC962 /* MovieClubCardView.swift */; };
 		2CE0C97F2D5ACD0100ECC962 /* CachedAsyncImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE0C97E2D5ACD0100ECC962 /* CachedAsyncImage.swift */; };
 		2CE0C9812D5B0BE700ECC962 /* CommentsSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE0C9802D5B0BE700ECC962 /* CommentsSheetView.swift */; };
@@ -118,6 +131,24 @@
 			remoteInfo = MovieClub;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2CDB72F62D778767004C0B2F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Fonts/Stolzl;
+			dstSubfolderSpec = 7;
+			files = (
+				2CDB72F72D77878F004C0B2F /* Stolzl-Bold.otf in CopyFiles */,
+				2CDB72F82D77878F004C0B2F /* Stolzl-Book.otf in CopyFiles */,
+				2CDB72F92D77878F004C0B2F /* Stolzl-Light.otf in CopyFiles */,
+				2CDB72FA2D77878F004C0B2F /* Stolzl-Medium.otf in CopyFiles */,
+				2CDB72FB2D77878F004C0B2F /* Stolzl-Regular.otf in CopyFiles */,
+				2CDB72FC2D77878F004C0B2F /* Stolzl-Thin.otf in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2C033CCE2CD6C409006FE782 /* EmptyMovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyMovieView.swift; sourceTree = "<group>"; };
@@ -197,6 +228,13 @@
 		2CD71FFB2CC0A89800F9CF58 /* ClubTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClubTabView.swift; sourceTree = "<group>"; };
 		2CDB72E22D764293004C0B2F /* CommentMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentMenuView.swift; sourceTree = "<group>"; };
 		2CDB72E62D76BE19004C0B2F /* ValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationService.swift; sourceTree = "<group>"; };
+		2CDB72E92D77860E004C0B2F /* Stolzl-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Stolzl-Bold.otf"; sourceTree = "<group>"; };
+		2CDB72EA2D77860E004C0B2F /* Stolzl-Book.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Stolzl-Book.otf"; sourceTree = "<group>"; };
+		2CDB72EB2D77860E004C0B2F /* Stolzl-Light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Stolzl-Light.otf"; sourceTree = "<group>"; };
+		2CDB72EC2D77860E004C0B2F /* Stolzl-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Stolzl-Medium.otf"; sourceTree = "<group>"; };
+		2CDB72ED2D77860E004C0B2F /* Stolzl-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Stolzl-Regular.otf"; sourceTree = "<group>"; };
+		2CDB72EE2D77860E004C0B2F /* Stolzl-Thin.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Stolzl-Thin.otf"; sourceTree = "<group>"; };
+		2CDB72FD2D778D9F004C0B2F /* FontExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontExtensions.swift; sourceTree = "<group>"; };
 		2CE0C97C2D5AC5A600ECC962 /* MovieClubCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieClubCardView.swift; sourceTree = "<group>"; };
 		2CE0C97E2D5ACD0100ECC962 /* CachedAsyncImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedAsyncImage.swift; sourceTree = "<group>"; };
 		2CE0C9802D5B0BE700ECC962 /* CommentsSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsSheetView.swift; sourceTree = "<group>"; };
@@ -322,6 +360,7 @@
 				2CD39CE92D2A32D7003D6398 /* APIController.swift */,
 				2C11003D2CAC7667004F54BC /* ErrorManager.swift */,
 				2CDB72E62D76BE19004C0B2F /* ValidationService.swift */,
+				2CDB72FD2D778D9F004C0B2F /* FontExtensions.swift */,
 				2C5DEC412BF1B12D000EF232 /* DataManager.swift */,
 			);
 			path = Util;
@@ -428,6 +467,7 @@
 		2C5DEC1D2BF1AC6C000EF232 /* MovieClub */ = {
 			isa = PBXGroup;
 			children = (
+				2CDB72E82D7785EF004C0B2F /* Fonts */,
 				2CACA3C52D6D0D35000BD62C /* Animations */,
 				2CF7AF5B2D415273006A8EBD /* Features */,
 				2C1100342CA8C92F004F54BC /* Config */,
@@ -532,6 +572,27 @@
 				2CD71FF42CBEFBFE00F9CF58 /* CreateSuggestion.swift */,
 			);
 			path = Suggestions;
+			sourceTree = "<group>";
+		};
+		2CDB72E82D7785EF004C0B2F /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				2CDB72EF2D77860E004C0B2F /* Stolzl */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
+		2CDB72EF2D77860E004C0B2F /* Stolzl */ = {
+			isa = PBXGroup;
+			children = (
+				2CDB72E92D77860E004C0B2F /* Stolzl-Bold.otf */,
+				2CDB72EA2D77860E004C0B2F /* Stolzl-Book.otf */,
+				2CDB72EB2D77860E004C0B2F /* Stolzl-Light.otf */,
+				2CDB72EC2D77860E004C0B2F /* Stolzl-Medium.otf */,
+				2CDB72ED2D77860E004C0B2F /* Stolzl-Regular.otf */,
+				2CDB72EE2D77860E004C0B2F /* Stolzl-Thin.otf */,
+			);
+			path = Stolzl;
 			sourceTree = "<group>";
 		};
 		2CF7AF5B2D415273006A8EBD /* Features */ = {
@@ -686,6 +747,7 @@
 				2C5DEC182BF1AC6C000EF232 /* Frameworks */,
 				2C5DEC192BF1AC6C000EF232 /* Resources */,
 				2C11FFCC2C9D2984004F54BC /* Run Script */,
+				2CDB72F62D778767004C0B2F /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -767,6 +829,12 @@
 				2C5DEC262BF1AC6E000EF232 /* Preview Assets.xcassets in Resources */,
 				2CACA3C92D6D33E6000BD62C /* Falling-Confetti.json in Resources */,
 				2CF7AF6B2D415E1E006A8EBD /* GoogleService-Info.plist in Resources */,
+				2CDB72F02D77860E004C0B2F /* Stolzl-Regular.otf in Resources */,
+				2CDB72F12D77860E004C0B2F /* Stolzl-Thin.otf in Resources */,
+				2CDB72F22D77860E004C0B2F /* Stolzl-Light.otf in Resources */,
+				2CDB72F32D77860E004C0B2F /* Stolzl-Book.otf in Resources */,
+				2CDB72F42D77860E004C0B2F /* Stolzl-Medium.otf in Resources */,
+				2CDB72F52D77860E004C0B2F /* Stolzl-Bold.otf in Resources */,
 				2C5DEC232BF1AC6E000EF232 /* Assets.xcassets in Resources */,
 				2CD71F832CB5E3C500F9CF58 /* TestPlan.xctestplan in Resources */,
 				2CACA3C72D6D0D70000BD62C /* Confetti.json in Resources */,
@@ -891,6 +959,7 @@
 				2CD71FFC2CC0A8DB00F9CF58 /* ClubTabView.swift in Sources */,
 				2CE0C97D2D5AC5A600ECC962 /* MovieClubCardView.swift in Sources */,
 				2CDB72E72D76BE19004C0B2F /* ValidationService.swift in Sources */,
+				2CDB72FE2D778DA7004C0B2F /* FontExtensions.swift in Sources */,
 				2CE0C9832D5D533300ECC962 /* MovieCardView.swift in Sources */,
 				2CD71FED2CBD9E6A00F9CF58 /* SuggestionManager.swift in Sources */,
 				2C4475042C06DE6B0034204C /* CommentDetailView.swift in Sources */,

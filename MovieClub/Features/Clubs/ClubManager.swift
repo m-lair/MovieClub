@@ -120,15 +120,21 @@ extension DataManager {
                 baseMovie?.id = document.documentID
                 
                 // Check if the watch period has ended (using dates standardized to midnight)
-                if let endDate = baseMovie?.endDate,
-                   endDate.midnight < Date().midnight {
-                    // Add a grace period check - don't rotate movies that were just created
-                    // Only rotate if the movie has been active for at least 1 hour
-                    if let startDate = baseMovie?.startDate,
-                       Date().timeIntervalSince(startDate) > 3600 {
-                        needsRotation = true
-                    } else {
-                        print("Not rotating movie \(baseMovie?.id ?? "") since it was recently activated")
+                if let endDate = baseMovie?.endDate {
+                    // Instead of comparing with current date, compare with tomorrow's date
+                    // This ensures the full end date has passed before rotation
+                    let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
+                    if endDate.midnight < Date().midnight {
+                        // Add a grace period check - don't rotate movies that were just created
+                        // Only rotate if the movie has been active for at least 1 hour
+                        if let startDate = baseMovie?.startDate,
+                           Date().timeIntervalSince(startDate) > 3600,
+                           // Add this additional check to ensure we don't rotate on the same day
+                           !Calendar.current.isDate(endDate, inSameDayAs: Date()) {
+                            needsRotation = true
+                        } else {
+                            print("Not rotating movie \(baseMovie?.id ?? "") since it was recently activated or is on its end date")
+                        }
                     }
                 }
             } else if self.suggestions.count > 0 {

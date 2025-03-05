@@ -29,11 +29,6 @@ extension Font {
         return Font.custom("Stolzl-Light", size: UIFont.preferredFont(forTextStyle: .subheadline).pointSize)
     }
     
-    /// Create a font with the body text style.
-    public static var body: Font {
-        return Font.custom("Stolzl-Regular", size: UIFont.preferredFont(forTextStyle: .body).pointSize)
-    }
-    
     /// Create a font with the callout text style.
     public static var callout: Font {
         return Font.custom("Stolzl-Regular", size: UIFont.preferredFont(forTextStyle: .callout).pointSize)
@@ -53,10 +48,10 @@ extension Font {
         var font = "Stolzl-Regular"
         switch weight {
         case .bold: font = "Stolzl-Bold"
-        case .heavy: font = "Stolzl-ExtraBold"
+        case .heavy: font = "Stolzl-Bold"
         case .light: font = "Stolzl-Light"
         case .medium: font = "Stolzl-Regular"
-        case .semibold: font = "Stolzl-SemiBold"
+        case .semibold: font = "Stolzl-Bold"
         case .thin: font = "Stolzl-Light"
         case .ultraLight: font = "Stolzl-Light"
         default: break

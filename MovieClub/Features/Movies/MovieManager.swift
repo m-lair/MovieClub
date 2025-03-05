@@ -70,8 +70,33 @@ extension DataManager {
     
     // MARK: - Rotate Movie (Firebase Function)
     func rotateMovie(clubId: String) async throws -> Bool {
-        let rotateMovie: Callable<[String: String], MovieFunctionsResponse> = functions.httpsCallable("movies-rotateMovie")
+        // Additional safety check - verify if the current active movie is actually due for rotation
         do {
+            let moviesSnapshot = try await movieClubCollection()
+                .document(clubId)
+                .collection("movies")
+                .whereField("status", isEqualTo: "active")
+                .limit(to: 1)
+                .getDocuments()
+            
+            if let document = moviesSnapshot.documents.first,
+               let movie = try? document.data(as: Movie.self) {
+                
+                // Don't rotate if we're still on the same day as the end date
+                if Calendar.current.isDate(movie.endDate, inSameDayAs: Date()) {
+                    print("Preventing rotation because we're still on the same day as the end date")
+                    return false
+                }
+                
+                // Only rotate if the end date has actually passed
+                if movie.endDate.midnight >= Date().midnight {
+                    print("Preventing rotation because the end date hasn't passed yet")
+                    return false
+                }
+            }
+            
+            // If we get here, proceed with the rotation
+            let rotateMovie: Callable<[String: String], MovieFunctionsResponse> = functions.httpsCallable("movies-rotateMovie")
             let result = try await rotateMovie.call(["clubId": clubId])
             return result.success
         } catch {
