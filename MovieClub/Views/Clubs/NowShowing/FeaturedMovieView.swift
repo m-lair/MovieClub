@@ -96,7 +96,6 @@ struct FeaturedMovieView: View {
                     
                     // Plot
                     Text(movie.plot)
-                        .font(.callout)
                         .lineLimit(4)
                         .truncationMode(.tail)
                         .foregroundColor(.white)

@@ -12,154 +12,301 @@ import AuthenticationServices
 import CryptoKit
 import FirebaseFunctions
 
-
 struct SignUpView: View {
     @Environment(DataManager.self) private var data
     @Environment(\.dismiss) var dismiss
     
+    // State variables
     @State private var isLoading: Bool = false
-    
+    @State private var error: Error? = nil
     @State private var currentNonce: String? = nil
-    @State private var error: Error?
     
-    private var btnDisabled: Bool {
-        if (name.isEmpty ||
-            email.isEmpty ||
-            password.isEmpty ||
-            confirmPassword != password ||
-            error != nil) {
-            return true
-        } else {
-            return false
-        }
-    }
-    
-    @State private var confirmPassword = ""
+    // Form fields
     @State private var name: String = ""
     @State private var email: String = ""
     @State private var password: String = ""
-    @State private var bio: String = ""
+    @State private var confirmPassword = ""
+    
+    // Validation errors
+    @State private var nameError: String? = nil
+    @State private var emailError: String? = nil
+    @State private var passwordError: String? = nil
+    @State private var confirmPasswordError: String? = nil
+    
+    private var isFormValid: Bool {
+        return nameError == nil && 
+               emailError == nil && 
+               passwordError == nil && 
+               confirmPasswordError == nil &&
+               !name.isEmpty &&
+               !email.isEmpty &&
+               !password.isEmpty &&
+               !confirmPassword.isEmpty
+    }
     
     var body: some View {
-        VStack {
-            Spacer()
-            Text("Movie Club")
-                .font(.title)
-                .fontWeight(.bold)
-                .fontDesign(.rounded)
-                .padding(.bottom, 50)
-            
-            
-            SignInWithAppleButton(.signIn) { request in
-                // Use the AppleSignInManager to set up the Apple sign-in request
-                let nonce = AppleSignInManager.shared.startSignInWithAppleFlow()
-                
-                // Configure the request with scopes and nonce
-                request.requestedScopes = [.fullName, .email]
-                request.nonce = nonce
-            } onCompletion: { result in
-                // Handle the authorization result directly
-                AppleSignInManager.shared.handleAuthorization(result: result) { authResult in
-                    switch authResult {
-                    case .success:
+        ZStack {
+            ScrollView {
+                VStack(spacing: 20) {
+                    Spacer(minLength: 20)
+                    
+                    Text("Movie Club")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .fontDesign(.rounded)
+                        .padding(.bottom, 30)
+                    
+                    // Name field
+                    ValidatedTextField(
+                        title: "Name",
+                        text: $name,
+                        error: $nameError,
+                        validate: UserValidationService.validateName,
+                        icon: "person"
+                    )
+                    .padding(.horizontal, 50)
+                    
+                    // Email field
+                    ValidatedTextField(
+                        title: "Email",
+                        text: $email,
+                        error: $emailError,
+                        validate: UserValidationService.validateEmail,
+                        icon: "envelope"
+                    )
+                    .padding(.horizontal, 50)
+                    
+                    // Password field
+                    ValidatedTextField(
+                        title: "Password",
+                        text: $password,
+                        error: $passwordError,
+                        validate: UserValidationService.validatePassword,
+                        isSecure: true,
+                        icon: "lock"
+                    )
+                    .padding(.horizontal, 50)
+                    
+                    // Confirm password field
+                    ValidatedTextField(
+                        title: "Confirm Password",
+                        text: $confirmPassword,
+                        error: $confirmPasswordError,
+                        validate: { pwd in 
+                            UserValidationService.validatePasswordConfirmation(
+                                password: password, 
+                                confirmation: pwd
+                            )
+                        },
+                        isSecure: true,
+                        icon: "lock.shield"
+                    )
+                    .padding(.horizontal, 50)
+                    .padding(.bottom, 20)
+                    
+                    // Password strength indicator
+                    if !password.isEmpty {
+                        PasswordStrengthView(password: password)
+                            .padding(.horizontal, 50)
+                            .padding(.bottom, 30)
+                            .transition(.opacity)
+                    }
+                    
+                    // Signup button
+                    PrimaryButton(
+                        title: "Sign Up",
+                        action: {
+                            Task {
+                                await submit()
+                            }
+                        },
+                        isDisabled: !isFormValid,
+                        isLoading: isLoading
+                    )
+                    
+                    Spacer()
+                    
+                    // Sign in link
+                    Button {
                         dismiss()
-                    case .failure(let error):
-                        self.error = error
+                    } label: {
+                        HStack(spacing: 3) {
+                            Text("Have an Account?")
+                            Text("Sign In!")
+                                .bold()
+                        }
+                        .foregroundStyle(.blue)
+                    }
+                    .padding(.bottom, 20)
+                }
+                .padding(.vertical)
+            }
+            
+            // Error banner
+            VStack {
+                FormErrorBanner(error: error) {
+                    withAnimation {
+                        error = nil
                     }
                 }
-            }
-            .signInWithAppleButtonStyle(.black)
-            .frame(height: 45)
-            .padding(.horizontal, 50)
-            .hidden()
-            
-            
-            Divider()
-            TextField("Name", text: $name)
-                .padding()
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(8)
-                .padding(.horizontal, 50)
-                .padding(.bottom, 20)
-            
-            /* TextField("Bio", text: $bio)
-             .padding()
-             .background(Color.gray.opacity(0.1))
-             .cornerRadius(8)
-             .padding(.horizontal, 50)
-             .padding(.bottom, 20) */
-            
-            TextField("Email", text: $email)
-                .padding()
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(8)
-                .padding(.horizontal, 50)
-                .padding(.bottom, 20)
-        
-            
-            SecureField("Password", text: $password)
-                .padding()
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(8)
-                .padding(.horizontal, 50)
-                .padding(.bottom, 20)
-            
-            SecureField("Confirm Password", text: $confirmPassword)
-                .padding()
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(8)
-                .padding(.horizontal, 50)
-                .padding(.bottom, 50)
-            
-            Button {
-                Task {
-                    await submit()
-                }
-            } label: {
-                Text(isLoading ? "Loading..." : "Signup")
-                    .foregroundColor(.white)
-                    .frame(width: 200, height: 50)
-                    .background(btnDisabled ? Color.gray : Color.blue)
-                    .cornerRadius(8)
-            }
-            .disabled(btnDisabled)
-            
-            Spacer()
-            HStack{
-                Button{
-                    dismiss()
-                } label: {
-                    Text("Have an Account?")
-                    Text("Sign In!")
-                    
-                        .bold()
-                }
+                .padding(.top)
                 
-            }
-            .foregroundStyle(.blue)
-        }
-        .alert("Error", isPresented: .constant(error != nil)) {
-            Button("OK") {
-                error = nil
-            }
-        } message: {
-            if let error {
-                Text(error.localizedDescription)
+                Spacer()
             }
         }
     }
     
     func submit() async {
-        isLoading = true
-        defer { isLoading = false }
+        // Validate all fields
+        let nameValidation = UserValidationService.validateName(name)
+        let emailValidation = UserValidationService.validateEmail(email)
+        let passwordValidation = UserValidationService.validatePassword(password)
+        let confirmPasswordValidation = UserValidationService.validatePasswordConfirmation(
+            password: password,
+            confirmation: confirmPassword
+        )
         
-        if error == nil {
-            do{
-                _ = try await data.createUser(email: email, password: password, name: name)
-                try await data.signIn(email: email, password: password)
-            } catch {
+        // Update error states
+        switch nameValidation {
+        case .success: nameError = nil
+        case .failure(let error): nameError = error.errorDescription
+        }
+        
+        switch emailValidation {
+        case .success: emailError = nil
+        case .failure(let error): emailError = error.errorDescription
+        }
+        
+        switch passwordValidation {
+        case .success: passwordError = nil
+        case .failure(let error): passwordError = error.errorDescription
+        }
+        
+        switch confirmPasswordValidation {
+        case .success: confirmPasswordError = nil
+        case .failure(let error): confirmPasswordError = error.errorDescription
+        }
+        
+        // Don't proceed if any validation failed
+        if nameError != nil || emailError != nil || passwordError != nil || confirmPasswordError != nil {
+            return
+        }
+        
+        // Start loading
+        isLoading = true
+        
+        do {
+            _ = try await data.createUser(email: email, password: password, name: name)
+            try await data.signIn(email: email, password: password)
+            // Success - dismiss will happen automatically due to auth state change
+        } catch {
+            // Show error with animation
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                 self.error = error
             }
+        }
+        
+        // Hide loading
+        isLoading = false
+    }
+}
+
+// MARK: - Password Strength View
+struct PasswordStrengthView: View {
+    let password: String
+    
+    private var strength: PasswordStrength {
+        passwordStrength(password)
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Password Strength: \(strength.title)")
+                .font(.caption)
+                .foregroundColor(strength.color)
+            
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(height: 4)
+                    
+                    Rectangle()
+                        .fill(strength.color)
+                        .frame(width: CGFloat(strength.rawValue) / 4.0 * geometry.size.width, height: 4)
+                }
+            }
+            .frame(height: 4)
+            
+            if strength == .weak {
+                Text("Try adding uppercase letters, numbers or special characters.")
+                    .font(.caption2)
+                    .foregroundColor(.gray)
+            }
+        }
+    }
+    
+    enum PasswordStrength: Int {
+        case veryWeak = 1
+        case weak = 2
+        case medium = 3
+        case strong = 4
+        
+        var title: String {
+            switch self {
+            case .veryWeak: return "Very Weak"
+            case .weak: return "Weak"
+            case .medium: return "Medium"
+            case .strong: return "Strong"
+            }
+        }
+        
+        var color: Color {
+            switch self {
+            case .veryWeak: return .red
+            case .weak: return .orange
+            case .medium: return .yellow
+            case .strong: return .green
+            }
+        }
+    }
+    
+    func passwordStrength(_ password: String) -> PasswordStrength {
+        if password.count < 8 {
+            return .veryWeak
+        }
+        
+        var score = 0
+        
+        // Check for uppercase letters
+        let uppercaseRegex = ".*[A-Z]+.*"
+        if NSPredicate(format: "SELF MATCHES %@", uppercaseRegex).evaluate(with: password) {
+            score += 1
+        }
+        
+        // Check for numbers
+        let numberRegex = ".*[0-9]+.*"
+        if NSPredicate(format: "SELF MATCHES %@", numberRegex).evaluate(with: password) {
+            score += 1
+        }
+        
+        // Check for special characters
+        let specialCharRegex = ".*[!@#$%^&*()_\\-+=\\[\\]{}|:;\"'<>,.?/~`]+.*"
+        if NSPredicate(format: "SELF MATCHES %@", specialCharRegex).evaluate(with: password) {
+            score += 1
+        }
+        
+        // Check length
+        if password.count >= 12 {
+            score += 1
+        }
+        
+        switch score {
+        case 0: return .veryWeak
+        case 1: return .weak
+        case 2: return .medium
+        case 3, 4: return .strong
+        default: return .veryWeak
         }
     }
 }

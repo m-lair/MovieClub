@@ -22,7 +22,7 @@ struct ClubDetailView: View {
                     .tag(0)
         
                 NowShowingView()
-                        .tag(1)
+                    .tag(1)
                 
                 ComingSoonView(startDate: club.movieEndDate, timeInterval: club.timeInterval)
                     .tag(2)

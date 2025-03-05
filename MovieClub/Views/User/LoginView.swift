@@ -14,90 +14,142 @@ struct LoginView: View {
     
     @Environment(DataManager.self) private var data
     @Environment(\.dismiss) private var dismiss
-    @State var error: Error? = nil
-    @State var errorShowing: Bool = false
+    
+    // State variables
     @State private var userEmail = ""
     @State private var userPwd = ""
-    private var btnDisabled: Bool {
-        if userEmail.isEmpty || userPwd.isEmpty {
-            return true
-        }else{
-            return false
-        }
+    @State private var error: Error? = nil
+    @State private var isLoading = false
+    
+    // Validation error states
+    @State private var emailError: String? = nil
+    @State private var passwordError: String? = nil
+    
+    private var isFormValid: Bool {
+        return emailError == nil && 
+               passwordError == nil && 
+               !userEmail.isEmpty && 
+               !userPwd.isEmpty
     }
     
     var body: some View {
-        NavigationStack{
-            VStack {
-                Spacer()
-                Text("Movie Club")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .fontDesign(.rounded)
-                    .padding(.bottom, 50)
-                
-                TextField("Email", text: $userEmail)
-                    .padding()
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(8)
+        NavigationStack {
+            ZStack {
+                VStack {
+                    Spacer()
+                    Text("Movie Club")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .fontDesign(.rounded)
+                        .padding(.bottom, 50)
+                    
+                    // Email field with validation
+                    ValidatedTextField(
+                        title: "Email",
+                        text: $userEmail,
+                        error: $emailError,
+                        validate: UserValidationService.validateEmail,
+                        icon: "envelope"
+                    )
                     .padding(.horizontal, 50)
                     .padding(.bottom, 20)
-                
-                SecureField("Password", text: $userPwd)
+                    HStack {
+                        Image(systemName: "lock")
+                            .foregroundStyle(.gray)
+                        SecureField("Password", text: $userPwd)
+                           
+                            
+                    }
                     .padding()
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.gray.opacity(0.1))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(error == nil ? Color.clear : Color.red, lineWidth: 1)
+                            )
+                    )
                     .padding(.horizontal, 50)
-                    .padding(.bottom, 50)
-                
-                Button {
-                    Task{
-                        try await handleSignIn()
+                    .padding(.bottom, 20)
+                    // Sign in button
+                    PrimaryButton(
+                        title: "Sign In",
+                        action: {
+                            Task {
+                                await handleSignIn()
+                            }
+                        },
+                        isDisabled: !isFormValid,
+                        isLoading: isLoading
+                    )
+                    
+                    Spacer()
+                    
+                    // Sign up link
+                    NavigationLink {
+                        SignUpView()
+                            .navigationBarBackButtonHidden(true)
+                    } label: {
+                        HStack(spacing: 3) {
+                            Text("Don't have an account?")
+                            Text("Sign Up!")
+                                .fontWeight(.bold)
+                        }
+                        .foregroundStyle(.blue)
+                        .font(.body)
                     }
-                } label: {
-                    Text("Sign In")
-                        .foregroundColor(.white)
-                        .frame(width: 200, height: 50)
-                        .background(btnDisabled ? Color.gray : Color.blue)
-                        .cornerRadius(8)
                 }
-                .disabled(btnDisabled)
-                Spacer()
-                NavigationLink {
-                    SignUpView()
-                        .navigationBarBackButtonHidden(true)
-                } label: {
-                    HStack(spacing: 3){
-                        Text("Don't have an account?")
-                        Text("Sign Up!")
-                            .fontWeight(.bold)
+                
+                // Error banner that slides in from the top
+                VStack {
+                    FormErrorBanner(error: error) {
+                        withAnimation {
+                            error = nil
+                        }
                     }
-                    .foregroundStyle(.blue)
-                    .font(.body)
+                    .padding(.top)
+                    
+                    Spacer()
                 }
             }
         }
-        .alert("Error", isPresented: .constant(error != nil), actions: {
-            Button("OK") {
-                error = nil
-            }
-        }, message: {
-            if let error = error {
-                Text(error.localizedDescription)
-            }
-        })
     }
     
-    func handleSignIn() async throws {
-        if userEmail.isEmpty || userPwd.isEmpty {
-            error = "Please enter an email and password." as? any Error
+    func handleSignIn() async {
+        // Validate fields first
+        let emailValidation = UserValidationService.validateEmail(userEmail)
+        let passwordValidation = UserValidationService.validatePassword(userPwd)
+        
+        // Update validation errors
+        switch emailValidation {
+        case .success: emailError = nil
+        case .failure(let validationError): emailError = validationError.errorDescription
+        }
+        
+        switch passwordValidation {
+        case .success: passwordError = nil
+        case .failure(let validationError): passwordError = nil
+        }
+        
+        // Don't proceed if validation failed
+        if emailError != nil || passwordError != nil {
             return
         }
-        print("Signing in...")
+        
+        // Show loading state
+        isLoading = true
+        
         do {
             try await data.signIn(email: userEmail, password: userPwd)
+            // Success - dismiss will happen automatically since auth state changes
         } catch {
-            self.error = error
+            // Show error with animation
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                self.error = error
+            }
         }
+        
+        // Hide loading state
+        isLoading = false
     }
 }
