@@ -201,61 +201,125 @@ struct NewClubView: View {
 
     func loadClubs() async {
         do {
-            let clubs = try await data.fetchAllPublicClubs()
-            print("Fetched \(clubs.count) public clubs")
+            // Step 1: Fetch all public club IDs
+            let clubIds = try await data.fetchAllPublicClubs()
+            print("Fetched \(clubIds.count) public clubs")
             
-            for clubId in clubs {
-                if clubList.contains(where: { $0.id == clubId }) { continue }
-                guard let club = await data.fetchMovieClub(clubId: clubId) else { continue }
-                
-                // Debug print to check movie count
-                print("Club \(club.name) has \(club.movies.count) movies")
-                
-                clubList.append(club)
+            if clubIds.isEmpty {
+                isLoading = false
+                return
             }
             
-            // If no clubs were loaded, create sample data for testing
-            if clubList.isEmpty {
-                print("No clubs found, adding sample data for testing")
-                // This is just for testing - remove in production
-                let sampleClub1 = MovieClub(
-                    id: "sample1",
-                    name: "Sample Club 1",
-                    desc: "This is a sample club for testing",
-                    ownerName: "Test User",
-                    timeInterval: 2,
-                    ownerId: "testuser",
-                    isPublic: true,
-                    bannerUrl: nil
-                )
+            // Step 2: Create a task group to fetch basic club info in parallel
+            await withTaskGroup(of: MovieClub?.self) { group in
+                for clubId in clubIds {
+                    // Skip if we already have this club
+                    if clubList.contains(where: { $0.id == clubId }) { continue }
+                    
+                    group.addTask {
+                        // Fetch basic club info without TMDB data
+                        return await self.fetchBasicClubInfo(clubId: clubId)
+                    }
+                }
                 
-                let sampleClub2 = MovieClub(
-                    id: "sample2",
-                    name: "Sample Club 2",
-                    desc: "Another sample club for testing",
-                    ownerName: "Test User",
-                    timeInterval: 2,
-                    ownerId: "testuser",
-                    isPublic: true,
-                    bannerUrl: nil
-                )
-                
-                clubList.append(sampleClub1)
-                clubList.append(sampleClub2)
+                // Process results as they come in
+                for await club in group {
+                    if let club = club {
+                        // Add to our list immediately so it shows up in the UI
+                        clubList.append(club)
+                        
+                        // Update animation arrays
+                        rowOffsets.append(50)
+                        rowOpacities.append(0)
+                        
+                        // Animate the new row
+                        let index = clubList.count - 1
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                            rowOffsets[index] = 0
+                            rowOpacities[index] = 1
+                        }
+                        
+                        // Step 3: Fetch TMDB data asynchronously
+                        Task {
+                            await self.enrichClubWithTMDBData(club)
+                        }
+                    }
+                }
             }
-            
-            // Initialize animation arrays
-            rowOffsets = Array(repeating: 50, count: clubList.count)
-            rowOpacities = Array(repeating: 0, count: clubList.count)
-            
-            // Animate rows with a slight delay
-            animateRowsAppearance()
             
         } catch {
             print("Error retrieving clubs: \(error)")
         }
         
         isLoading = false
+    }
+    
+    // Helper function to fetch basic club info without TMDB data
+    private func fetchBasicClubInfo(clubId: String) async -> MovieClub? {
+        do {
+            // Get the club document
+            guard let snapshot = try? await data.movieClubCollection().document(clubId).getDocument() else {
+                print("Failed to fetch club document for ID: \(clubId)")
+                return nil
+            }
+            
+            // Parse basic club info
+            var club = try snapshot.data(as: MovieClub.self)
+            club.id = snapshot.documentID
+            
+            // Get member count
+            let membersSnapshot = try await data.movieClubCollection()
+                .document(clubId)
+                .collection("members")
+                .getDocuments()
+            club.numMembers = membersSnapshot.documents.count
+            
+            // Get active movie (but don't fetch TMDB data yet)
+            let moviesSnapshot = try await data.movieClubCollection()
+                .document(clubId)
+                .collection("movies")
+                .whereField("status", isEqualTo: "active")
+                .order(by: "createdAt", descending: true)
+                .limit(to: 1)
+                .getDocuments()
+            
+            if let document = moviesSnapshot.documents.first {
+                var movie = try document.data(as: Movie.self)
+                movie.id = document.documentID
+                club.movies = [movie]
+        
+            } else {
+                // No active movie found
+                club.movies = []
+                print("No active movie found for club: \(club.name)")
+            }
+            
+            return club
+        } catch {
+            print("Error fetching basic club info for \(clubId): \(error)")
+            return nil
+        }
+    }
+    
+    // Helper function to enrich a club with TMDB data
+    private func enrichClubWithTMDBData(_ club: MovieClub) async {
+        guard let clubId = club.id, let movie = club.movies.first else {
+            print("Missing required data for TMDB fetch: clubId=\(club.id ?? "nil"), movie=\(club.movies.isEmpty ? "empty" : "exists"), imdbId=\(club.movies.first?.imdbId ?? "nil")")
+            return
+        }
+        
+        do {
+            // Fetch TMDB data
+            if let apiMovie = try await data.tmdb.fetchMovieDetails(movie.imdbId) {
+                // Find the club in our list and update it
+                if let index = clubList.firstIndex(where: { $0.id == clubId }) {
+                    clubList[index].movies[0].apiData = apiMovie
+                    clubList[index].bannerUrl = movie.poster
+                }
+            }
+        } catch {
+            print("Error fetching TMDB data for club \(clubId): \(error)")
+        }
     }
     
     // Animation function for staggered row appearance
@@ -311,6 +375,7 @@ struct MovieClubRowView: View {
             clubImageView
                 .frame(width: 70, height: 70)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                .id(club.id ?? UUID().uuidString)
             
             // Club details
             VStack(alignment: .leading, spacing: 4) {
@@ -331,9 +396,10 @@ struct MovieClubRowView: View {
                         Image(systemName: "film")
                             .foregroundStyle(.gray)
                         
-                        Text(movie.title)
+                        Text(movie.title.isEmpty ? "Loading movie..." : movie.title)
                             .font(.body)
                             .foregroundColor(.white.opacity(0.9))
+                            .id("\(club.id ?? "")-title")
                     }
                     .lineLimit(1)
                 }
@@ -371,31 +437,42 @@ struct MovieClubRowView: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.gray.opacity(0.15))
         )
-        .task {
-            if let clubId = club.id {
-                guard let loadingClub = await data.fetchMovieClub(clubId: clubId) else { return }
-                self.club = loadingClub
-            }
-        }
     }
     
     // Extract club image view for cleaner code
     private var clubImageView: some View {
         Group {
             if let bannerUrl = club.bannerUrl,
+               !bannerUrl.isEmpty,
                let url = URL(string: bannerUrl) {
-                AsyncImage(url: url) { image in
-                    image.resizable()
-                        .scaledToFill()
-                } placeholder: {
-                    Color.gray.opacity(0.3)
+                AsyncImage(url: url, transaction: Transaction(animation: .easeInOut)) { phase in
+                    switch phase {
+                    case .empty:
+                        placeholderView
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .transition(.opacity)
+                    case .failure:
+                        placeholderView
+                    @unknown default:
+                        placeholderView
+                    }
                 }
             } else {
-                Image(systemName: "film")
-                    .foregroundColor(.gray)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.gray.opacity(0.3))
+                placeholderView
             }
+        }
+    }
+    
+    private var placeholderView: some View {
+        ZStack {
+            Color.gray.opacity(0.3)
+            
+            Image(systemName: "film")
+                .font(.system(size: 24, weight: .regular, design: .default))
+                .foregroundColor(.gray)
         }
     }
 }

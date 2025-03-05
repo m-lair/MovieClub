@@ -200,7 +200,7 @@ extension DataManager {
     
     func fetchAllPublicClubs() async throws -> [String] {
         let snapshot = try await movieClubCollection()
-            .whereField("isPublic", isEqualTo: true)
+            .whereField("isPublic", isEqualTo: "true")
             .getDocuments()
 
         let clubs: [String] = snapshot.documents.compactMap { doc in
