@@ -78,17 +78,6 @@ struct NewClubView: View {
                     VStack(spacing: 24) {
                         Spacer()
                         
-                        // Empty state illustration
-                        ZStack {
-                            Circle()
-                                .fill(Color.gray.opacity(0.1))
-                                .frame(width: 120, height: 120)
-                            
-                            Image(systemName: "film")
-                                .foregroundColor(.gray)
-                        }
-                        .padding(.bottom, 8)
-                        
                         Text(searchText.isEmpty ? "No public clubs available" : "No clubs match your search")
                             .font(.headline)
                             .foregroundColor(.gray)
@@ -317,7 +306,7 @@ struct MovieClubRowView: View {
     var joinAction: () -> Void
 
     var body: some View {
-        HStack(alignment: .center, spacing: 16) {
+        HStack(alignment: .center, spacing: 5) {
             // Check if the bannerUrl is valid.
             if let bannerUrl = club.bannerUrl,
                let url = URL(string: bannerUrl) {

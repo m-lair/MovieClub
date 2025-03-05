@@ -65,10 +65,9 @@ struct MovieClubCardView: View {
                             VStack(alignment: .leading) {
                                 Spacer()
                                 Text(movieClub.name)
-                                    .font(Font.custom("Stolzl", size: 24, relativeTo: .headline))
                                     .shadow(color: .black, radius: 2)
                                     .fontWeight(.bold)
-                                    .padding(.horizontal)
+                                    .padding(.horizontal, 5)
 
                                 // Use the computed dominant color for the banner
                                 Rectangle()
@@ -82,7 +81,7 @@ struct MovieClubCardView: View {
                                             .frame(maxWidth: .infinity, alignment: .leading)
                                     )
                             }
-                            .padding(.horizontal)
+                            .padding(.horizontal,5 )
                         } else {
                             VStack(alignment: .leading) {
                                 Spacer()
