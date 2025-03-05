@@ -55,14 +55,13 @@ struct NewClubView: View {
                         }
                     }
                 }
-                .padding(12)
+                .padding(10)
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 10)
                         .fill(Color.gray.opacity(0.15))
-                        .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 2)
                 )
                 .padding(.horizontal)
-                .padding(.bottom, 16)
+                .padding(.bottom, 12)
                 .offset(y: searchBarOffset)
                 .opacity(headerOpacity)
                 
@@ -95,8 +94,8 @@ struct NewClubView: View {
                                 Image(systemName: "plus.circle.fill")
                                 Text("Create Your Own Club")
                             }
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 14)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 12)
                             .background(
                                 LinearGradient(
                                     gradient: Gradient(colors: [Color.blue, Color.blue.opacity(0.7)]),
@@ -105,7 +104,7 @@ struct NewClubView: View {
                                 )
                             )
                             .foregroundColor(.white)
-                            .cornerRadius(12)
+                            .cornerRadius(10)
                             .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 2)
                         }
                         .buttonStyle(ScaleButtonStyle())
@@ -121,8 +120,7 @@ struct NewClubView: View {
                             // Header
                             HStack {
                                 Text("Clubs")
-                                    .font(.title2)
-                                    .fontWeight(.bold)
+                                    .font(.title3.bold())
                                     .foregroundColor(.white)
                                 
                                 Spacer()
@@ -132,17 +130,17 @@ struct NewClubView: View {
                                     .foregroundColor(.gray)
                             }
                             .padding(.horizontal)
-                            .padding(.bottom, 16)
+                            .padding(.bottom, 12)
                             .opacity(headerOpacity)
                             
-                            // Club list
+                            // Club list with consistent spacing
                             ForEach(Array(filteredClubs.enumerated()), id: \.element.id) { index, club in
                                 MovieClubRowView(club: club) {
                                     selectedClub = club
                                     showJoinConfirmation = true
                                 }
-                                .padding(.horizontal)
-                                .padding(.bottom, 8)
+                                .padding(.horizontal, 12)
+                                .padding(.bottom, 10)
                                 .offset(y: index < rowOffsets.count ? rowOffsets[index] : 50)
                                 .opacity(index < rowOpacities.count ? rowOpacities[index] : 0)
                             }
@@ -151,7 +149,7 @@ struct NewClubView: View {
                             Spacer()
                                 .frame(height: 20)
                         }
-                        .padding(.top, 16)
+                        .padding(.top, 12)
                     }
                 }
             }
@@ -162,6 +160,8 @@ struct NewClubView: View {
                     } label: {
                         Text("Create")
                             .foregroundColor(.white)
+                            .padding(.vertical, 4)
+                            .padding(.horizontal, 8)
                     }
                 }
             }
@@ -306,63 +306,66 @@ struct MovieClubRowView: View {
     var joinAction: () -> Void
 
     var body: some View {
-        HStack(alignment: .center, spacing: 5) {
-            // Check if the bannerUrl is valid.
-            if let bannerUrl = club.bannerUrl,
-               let url = URL(string: bannerUrl) {
-                AsyncImage(url: url) { image in
-                    image.resizable()
-                         .scaledToFill()
-                } placeholder: {
-                    Color.gray.opacity(0.3)
-                }
-                .frame(width: 80, height: 80)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            } else {
-                Image(systemName: "photo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 80, height: 80)
-                    .background(Color.gray.opacity(0.3))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-            }
-
+        HStack(spacing: 12) {
+            // Club image
+            clubImageView
+                .frame(width: 70, height: 70)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            
+            // Club details
             VStack(alignment: .leading, spacing: 4) {
                 Text(club.name)
                     .font(.headline)
                     .lineLimit(1)
+                
                 if let desc = club.desc {
                     Text(desc)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
-                        .lineLimit(2)
+                        .lineLimit(1)
                 }
+                
+                // Current movie
                 if let movie = featuredMovie {
-                    Text("Now showing: \(movie.title)")
-                        .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.9))
+                    HStack(spacing: 4) {
+                        Image(systemName: "film")
+                            .foregroundStyle(.gray)
+                        
+                        Text(movie.title)
+                            .font(.body)
+                            .foregroundColor(.white.opacity(0.9))
+                    }
+                    .lineLimit(1)
                 }
+                
+                // Member count
                 HStack(spacing: 4) {
                     Image(systemName: "person.2.fill")
+                        .font(.caption)
                         .foregroundColor(.secondary)
+                    
                     Text("\(club.numMembers ?? 0) Members")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
             }
+            .padding(.vertical, 4)
+            
             Spacer()
+            
+            // Join button
             Button(action: joinAction) {
                 Text("Join")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+                    .font(.subheadline.weight(.medium))
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
                     .background(Color.accentColor)
                     .foregroundColor(.black)
                     .clipShape(Capsule())
             }
+            .buttonStyle(ScaleButtonStyle())
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 12)
         .padding(.vertical, 12)
         .background(
             RoundedRectangle(cornerRadius: 12)
@@ -372,6 +375,26 @@ struct MovieClubRowView: View {
             if let clubId = club.id {
                 guard let loadingClub = await data.fetchMovieClub(clubId: clubId) else { return }
                 self.club = loadingClub
+            }
+        }
+    }
+    
+    // Extract club image view for cleaner code
+    private var clubImageView: some View {
+        Group {
+            if let bannerUrl = club.bannerUrl,
+               let url = URL(string: bannerUrl) {
+                AsyncImage(url: url) { image in
+                    image.resizable()
+                        .scaledToFill()
+                } placeholder: {
+                    Color.gray.opacity(0.3)
+                }
+            } else {
+                Image(systemName: "film")
+                    .foregroundColor(.gray)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.gray.opacity(0.3))
             }
         }
     }

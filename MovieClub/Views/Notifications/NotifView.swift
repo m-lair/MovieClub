@@ -12,7 +12,7 @@ struct NotificationItemView: View {
     let notification: Notification
 
     var body: some View {
-        HStack(alignment: .top, spacing: 5) {
+        HStack(alignment: .top) {
             Image(systemName: notification.type.iconName)
                 .font(.title)
                 .foregroundColor(.white)
@@ -20,14 +20,14 @@ struct NotificationItemView: View {
                 .background(notification.type.iconColor)
                 .clipShape(Circle())
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(getNotificationTitle())
                     .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                 
                 Text(notification.message)
-                    .font(.body)
+                    .font(.caption)
                     .foregroundColor(.gray)
                 
                 if let othersCount = notification.othersCount, othersCount > 0 {

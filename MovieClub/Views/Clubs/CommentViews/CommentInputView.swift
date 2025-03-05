@@ -79,11 +79,11 @@ struct CommentInputView: View {
                 .padding(.horizontal, 5)
             }
             
-            HStack(alignment: .top, spacing: 8) {
+            HStack(alignment: .center, spacing: 8) {
                 VStack(alignment: .leading, spacing: 4) {
                     TextField(textLabel, text: $commentText, axis: .vertical)
                         .padding(10)
-                        .lineLimit(8)
+                        .lineLimit(5)
                         .background(colorScheme == .dark ? Color.black.opacity(0.3) : Color.white.opacity(0.8))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(
@@ -140,7 +140,6 @@ struct CommentInputView: View {
                 .disabled(!isCommentValid || isSubmitting || showCheckmark)
                 .accessibilityLabel(submitButtonLabel)
                 .contentShape(Rectangle())
-                .padding(.top, 7)
             }
             .padding(.horizontal, 2)
         }
