@@ -24,11 +24,14 @@ struct CollectButton: View {
 
 struct ReviewThumbs: View {
     @Environment(DataManager.self) var data
+    @State private var triggerLikeHaptic: Bool = false
+    @State private var triggerDislikeHaptic: Bool = false
     @Binding var liked: Bool
     @Binding var disliked: Bool
     var body: some View {
         HStack {
             Button {
+                triggerLikeHaptic.toggle()
                 let wasLiked = liked
                 liked.toggle()
                 
@@ -50,8 +53,10 @@ struct ReviewThumbs: View {
                     .frame(width: 30, height: 30)
                     .foregroundStyle(liked ? .green : .white)
             }
+            .sensoryFeedback(.impact(weight: .medium), trigger: triggerLikeHaptic)
             
             Button {
+                triggerDislikeHaptic.toggle()
                 let wasDisliked = disliked
                 disliked.toggle()
                 
@@ -73,6 +78,7 @@ struct ReviewThumbs: View {
                     .frame(width: 30, height: 30)
                     .foregroundStyle(disliked ? .red : .white)
             }
+            .sensoryFeedback(.impact(weight: .medium), trigger: triggerDislikeHaptic)
         }
     }
     

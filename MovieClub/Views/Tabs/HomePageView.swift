@@ -37,7 +37,7 @@ struct HomePageView: View {
             Color.black.ignoresSafeArea()
             
             if isLoading {
-                WaveLoadingView()
+                // Nothing
             } else {
                 // Original layout without extra padding/spacing changes
                 if userClubs.isEmpty {
@@ -165,7 +165,8 @@ struct HomePageView: View {
     
     // Initialize animation arrays based on number of clubs
     private func initializeAnimationArrays() {
-        cardOffsets = Array(repeating: 100, count: sortedUserClubs.count)
+        // Start from more exaggerated positions for more noticeable animation
+        cardOffsets = Array(repeating: 150, count: sortedUserClubs.count)
         cardOpacities = Array(repeating: 0, count: sortedUserClubs.count)
     }
     
@@ -176,7 +177,8 @@ struct HomePageView: View {
         
         // Animate cards with staggered timing
         for i in 0..<cardOffsets.count {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.7).delay(Double(i) * 0.1)) {
+            withAnimation(.spring(response: 0.7, dampingFraction: 0.65).delay(Double(i) * 0.12)) {
+                // More pronounced animation
                 cardOffsets[i] = 0
                 cardOpacities[i] = 1
             }

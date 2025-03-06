@@ -148,6 +148,7 @@ struct ComingSoonView: View {
             )
             .foregroundStyle(.white)
         }
+        .sensoryFeedback(.impact, trigger: creatingSuggestion)
         .buttonStyle(.plain)
         .disabled(!canSuggest)
     }

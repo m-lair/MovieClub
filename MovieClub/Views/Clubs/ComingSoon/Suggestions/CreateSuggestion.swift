@@ -18,7 +18,8 @@ struct CreateSuggestionView: View {
     @State var errorMessage: String = ""
     @State var errorShowing: Bool = false
     @State var isSubmitting: Bool = false
-
+    @State private var isSearchLoading: Bool = false
+    @State private var searchTask: Task<Void, Never>?
     
     var body: some View {
         NavigationStack {
@@ -27,7 +28,6 @@ struct CreateSuggestionView: View {
                     Button("OK", role: .cancel) {}
                 }
                 .toolbar {
-                    // For a "Cancel" or "Close" button, if desired
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button("Cancel") { dismiss() }
                     }
@@ -36,6 +36,10 @@ struct CreateSuggestionView: View {
                     if isSubmitting {
                         submittingOverlay
                     }
+                }
+                .onDisappear {
+                    // Cancel any pending tasks when view disappears
+                    searchTask?.cancel()
                 }
         }
     }
@@ -95,47 +99,98 @@ extension CreateSuggestionView {
                 .padding(.top, 16)
             
             searchTextField
-            if !searchResults.isEmpty {
-                resultsList
-            } else {
-                Spacer()
-                Text("Type above to search for a movie...")
-                    .foregroundStyle(.secondary)
-                Spacer()
-            }
+            searchResultsContent
         }
         .padding(.bottom, 16)
     }
     
     /// The search field
     private var searchTextField: some View {
-        TextField("Search for a movie", text: $search)
-            .padding(12)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(lineWidth: 3)
-                    .foregroundStyle(.secondary.opacity(0.3))
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(.ultraThinMaterial)
-                    )
-            )
-            .padding(.horizontal)
-            .focused($isSearching)
-            .onChange(of: search) {
-                Task {
-                    try await searchMovies()
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.secondary)
+            
+            TextField("Search for a movie", text: $search)
+                .submitLabel(.search)
+                .focused($isSearching)
+                .onChange(of: search) {
+                    debounceSearch()
                 }
+                .onSubmit {
+                    searchWithImmediateFeedback()
+                }
+            
+            if !search.isEmpty {
+                Button {
+                    search = ""
+                    searchResults = []
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .transition(.opacity)
+                .animation(.easeInOut, value: !search.isEmpty)
             }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(lineWidth: 3)
+                .foregroundStyle(.secondary.opacity(0.3))
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(.ultraThinMaterial)
+                )
+        )
+        .padding(.horizontal)
+    }
+    
+    /// Content view for search results or appropriate placeholder
+    @ViewBuilder
+    private var searchResultsContent: some View {
+        if !searchResults.isEmpty {
+            resultsList
+        } else if isSearchLoading {
+            Spacer()
+            VStack(spacing: 16) {
+                ProgressView()
+                    .controlSize(.large)
+                Text("Searching...")
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+        } else if !search.isEmpty && searchResults.isEmpty && !isSearchLoading {
+            Spacer()
+            VStack(spacing: 12) {
+                Image(systemName: "film.stack")
+                    .font(.largeTitle)
+                    .foregroundStyle(.secondary)
+                Text("No movies found")
+                    .font(.headline)
+                Text("Try a different search term")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+        } else {
+            Spacer()
+            VStack(spacing: 16) {
+                Image(systemName: "magnifyingglass")
+                    .font(.largeTitle)
+                    .foregroundStyle(.secondary)
+                    .padding(.bottom, 8)
+                Text("Search for a movie to suggest")
+                    .font(.headline)
+            }
+            Spacer()
+        }
     }
     
     /// The list of search results
     private var resultsList: some View {
         List(searchResults, id: \.id) { movie in
             Button {
-                Task {
-                    try await submitSuggestion(imdbId: movie.id)
-                }
+                submitSuggestionForMovie(movie)
             } label: {
                 MovieResultRow(movie: movie)
             }
@@ -241,40 +296,156 @@ extension CreateSuggestionView {
 
 // MARK: - Networking/Logic
 extension CreateSuggestionView {
-    func searchMovies() async throws {
-        guard !search.isEmpty else {
+    /// Debounces the search to prevent excessive API calls
+    private func debounceSearch() {
+        // Cancel any pending search
+        searchTask?.cancel()
+        
+        // If search is empty, clear results immediately
+        if search.isEmpty {
             searchResults = []
+            isSearchLoading = false
             return
         }
         
-        // Set searching state
-        isSearching = true
-        defer { isSearching = false }
+        isSearchLoading = true
+        searchTask = Task {
+            do {
+                // Use Swift 6 style sleep with Duration
+                try await Task.sleep(for: .milliseconds(500))
+                
+                // Check if task was cancelled during wait
+                if !Task.isCancelled {
+                    try await performSearch()
+                }
+            } catch is CancellationError {
+                // Task was cancelled, no action needed
+            } catch {
+                // Some other error occurred
+                handleSearchError(error)
+            }
+        }
+    }
+    
+    /// Handle search errors on the main actor
+    private func handleSearchError(_ error: Error) {
+        errorMessage = "Search error: \(error.localizedDescription)"
+        errorShowing = true
+        isSearchLoading = false
+    }
+    
+    /// Immediately execute search with feedback (for submit button)
+    private func searchWithImmediateFeedback() {
+        Task {
+            do {
+                try await performSearch(immediate: true)
+            } catch {
+                handleSearchError(error)
+            }
+        }
+    }
+    
+    /// Submit suggestion for a selected movie
+    private func submitSuggestionForMovie(_ movie: MovieAPIData) {
+        Task {
+            do {
+                try await submitSuggestion(imdbId: movie.id)
+            } catch {
+                handleSubmissionError(error)
+            }
+        }
+    }
+    
+    private func handleSubmissionError(_ error: Error) {
+        let displayError = error as? SuggestionError ?? SuggestionError.submissionFailed(error)
+        errorMessage = displayError.errorDescription ?? error.localizedDescription
+        errorShowing = true
+        isSubmitting = false
+    }
+    
+    /// Core search implementation with structured concurrency
+    private func performSearch(immediate: Bool = false) async throws {
+        guard !search.isEmpty else {
+            searchResults = []
+            isSearchLoading = false
+            return
+        }
         
-        // Optional "debounce"
-        try? await Task.sleep(nanoseconds: 300_000_000)
+        // Skip additional delay for immediate searches
+        if !immediate {
+            try await Task.sleep(for: .milliseconds(300))
+        }
         
-        guard !search.isEmpty else { return }
+        guard !search.isEmpty, !Task.isCancelled else { return }
+        
+        isSearchLoading = true
+        
         
         do {
             // Fetch movies with enhanced details
             let results = try await data.fetchTMDBMovies(query: search)
-            
-            // For each movie, try to fetch additional details
-            var enhancedResults: [MovieAPIData] = []
-            
-            for movie in results.prefix(10) { // Limit to first 10 for performance
-                if let details = try? await data.tmdb.fetchMovieDetails(movie.id) {
-                    enhancedResults.append(details)
-                } else {
-                    enhancedResults.append(movie)
+            try await fetchDetailedMovies(from: results)
+        } catch {
+            isSearchLoading = false
+            throw error
+        }
+    }
+    
+    /// Fetch detailed information for movies using task groups
+    private func fetchDetailedMovies(from results: [MovieAPIData]) async throws {
+        // Early return if task is cancelled
+        if Task.isCancelled { return }
+        
+        // Limit results for performance
+        let limitedResults = results.prefix(10).map { $0 }
+        
+        // Use TaskGroup for parallel movie detail fetching
+        try await withThrowingTaskGroup(of: MovieAPIData.self) { group in
+            for movie in limitedResults {
+                group.addTask {
+                    if Task.isCancelled { return movie }
+                    
+                    // Try to get detailed info, fall back to basic info
+                    if let details = try? await self.data.tmdb.fetchMovieDetails(movie.id) {
+                        return details
+                    } else {
+                        return movie
+                    }
                 }
             }
             
-            searchResults = enhancedResults
-        } catch {
-            errorMessage = "Something went wrong: \(error.localizedDescription)"
-            errorShowing = true
+            // Collect results as they complete
+            var enhancedResults: [MovieAPIData] = []
+            enhancedResults.reserveCapacity(limitedResults.count)
+            
+            for try await movieData in group {
+                enhancedResults.append(movieData)
+                
+                if enhancedResults.count == limitedResults.count {
+                    break
+                }
+            }
+            
+            // Check if cancelled before updating UI
+            if !Task.isCancelled {
+                // Create a dictionary to preserve original order
+                let originalIndexMap = Dictionary(uniqueKeysWithValues:
+                                                    limitedResults.enumerated().map { ($0.element.id, $0.offset) }
+                )
+                
+                // Sort results to match original order
+                let sortedResults = enhancedResults.sorted {
+                    guard let index1 = originalIndexMap[$0.id],
+                            let index2 = originalIndexMap[$1.id] else {
+                        return false
+                    }
+                    return index1 < index2
+                }
+                
+                searchResults = sortedResults
+                isSearchLoading = false
+                
+            }
         }
     }
     
@@ -284,12 +455,9 @@ extension CreateSuggestionView {
             let username = data.currentUser?.name,
             let userId = data.currentUser?.id
         else {
-            errorMessage = "Invalid user data"
-            errorShowing = true
-            return
+            throw SuggestionError.userDataMissing
         }
         
-        // Set submitting state
         isSubmitting = true
         
         do {
@@ -302,11 +470,34 @@ extension CreateSuggestionView {
             )
             
             let _ = try await data.createSuggestion(suggestion: newSuggestion)
-            dismiss()
+            
+            // Dismiss on main actor
+            await MainActor.run {
+                dismiss()
+            }
         } catch {
-            isSubmitting = false
-            errorMessage = "Failed to submit suggestion: \(error.localizedDescription)"
-            errorShowing = true
+            // Reset submitting state on main actor
+            await MainActor.run {
+                isSubmitting = false
+            }
+            throw error
+        }
+    }
+}
+
+// MARK: - Custom Errors
+extension CreateSuggestionView {
+    enum SuggestionError: LocalizedError {
+        case userDataMissing
+        case submissionFailed(Error)
+        
+        var errorDescription: String? {
+            switch self {
+            case .userDataMissing:
+                return "Unable to create suggestion: You need to be logged in and part of a club"
+            case .submissionFailed(let error):
+                return "Failed to submit suggestion: \(error.localizedDescription)"
+            }
         }
     }
 }
