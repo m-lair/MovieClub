@@ -98,8 +98,7 @@ exports.updateMovieClub = functions.https.onCall(
       };
 
       await movieClubRef.update(movieClubUpdateData);
-
-      logVerbose("Movie Club updated successfully!");
+      return { success: true, message: "Movie Club updated successfully!" };
     } catch (error) {
       handleCatchHttpsError(
         `Error updating Movie Club ${request.data.id}:`,
