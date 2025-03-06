@@ -60,7 +60,13 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
         if Auth.auth().currentUser?.uid != nil {
             Task {
                 print("calling storeFCMTokenIfAuthenticated")
-                await DataManager().storeFCMTokenIfAuthenticated(token: fcmToken)
+                let dataManager = DataManager()
+                // Use try-catch to handle errors properly
+                do {
+                    try await dataManager.storeFCMTokenIfAuthenticated(token: fcmToken)
+                } catch {
+                    print("Error storing FCM token: \(error)")
+                }
             }
         } else {
             // 2) If no user is logged in yet, store it for later in UserDefaults (optional).
@@ -88,28 +94,39 @@ class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate, UNUserNot
     }
 }
 
-
-
 @main
 struct MovieClubApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @State var dataManager: DataManager? = nil
     @State var notifManager: NotificationManager? = nil
-    @State var isLoading: Bool = true
+    @State private var showSplash = true
     
     var body: some Scene {
         WindowGroup {
-            Group {
-                if let dataManager, let notifManager {
-                    HomeView()
-                        .environment(dataManager)
-                        .environment(notifManager)
+            ZStack {
+                if !showSplash {
+                    if let dataManager, let notifManager {
+                        HomeView()
+                            .environment(dataManager)
+                            .environment(notifManager)
+                            .animation(.easeInOut(duration: 0.8), value: showSplash)
+                    }
+                    
                 } else {
-                    WaveLoadingView()
+                    SplashScreenView()
                         .onAppear {
+                            // Initialize managers while splash is showing
                             dataManager = DataManager()
                             notifManager = NotificationManager()
+                            Task {
+                                try? await Task.sleep(for: .seconds(4.25))
+                                // Use longer animation duration for smoother transition
+                                withAnimation {
+                                    showSplash = false
+                                }
+                            }
                         }
+                        .transition(.opacity)
                 }
             }
             .colorScheme(.dark)

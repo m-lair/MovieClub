@@ -25,6 +25,7 @@ extension DataManager {
     
     // MARK: - Fetch User
     
+    @MainActor
     func fetchUser() async throws {
         guard let user = Auth.auth().currentUser else {
             print("User not logged in")
@@ -58,19 +59,18 @@ extension DataManager {
         return try snapshot.data(as: User.self)
     }
     
-    func storeFCMTokenIfAuthenticated(token: String) async {
+    func storeFCMTokenIfAuthenticated(token: String) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             print("No current user, cannot store FCM token yet.")
             return
         }
-        do {
-            try await db.collection("users")
-                .document(uid)
-                .setData(["fcmToken": token], merge: true)
-            print("Successfully saved FCM token for user \(uid).")
-        } catch {
-            print("Error saving FCM token: \(error)")
-        }
+        
+        // Use proper async/await pattern with throws
+        try await db.collection("users")
+            .document(uid)
+            .setData(["fcmToken": token], merge: true)
+        
+        print("Successfully saved FCM token for user \(uid).")
     }
     
     // MARK: - Fetch User Clubs for a Specific User
@@ -100,9 +100,18 @@ extension DataManager {
                 return clubList
             }
             
+            // Update userClubs on the main thread
+            await MainActor.run {
+                self.userClubs = clubs
+            }
+            
             return clubs
         } catch {
             print("Error fetching user clubs for userId \(userId): \(error)")
+            // Update userClubs on the main thread even in case of error
+            await MainActor.run {
+                self.userClubs = []
+            }
             return []
         }
     }

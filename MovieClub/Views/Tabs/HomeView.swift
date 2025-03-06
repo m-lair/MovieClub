@@ -9,23 +9,24 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(DataManager.self) var dataManager
-    @State private var isLoading = true
-
+    @State private var previouslyLoggedIn: Bool = false
+    
     var body: some View {
         Group {
-            if isLoading {
-                WaveLoadingView()
-            } else if dataManager.currentUser != nil {
+            if dataManager.currentUser != nil {
                 MainTabView()
+                  /*  .transition(.asymmetric(insertion: .opacity.combined(with: .move(edge: .trailing)),removal: .opacity.combined(with: .move(edge: .leading))))
+                    .onAppear {
+                        previouslyLoggedIn = true
+                    }*/
             } else {
                 LoginView()
+                    .transition(.opacity)
             }
         }
         .onAppear {
             Task {
-                // Replace this with your actual async logic for checking the user state
                 try await dataManager.fetchUser()
-                isLoading = false
             }
         }
     }

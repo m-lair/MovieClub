@@ -75,8 +75,17 @@ struct LoginView: View {
                     PrimaryButton(
                         title: "Sign In",
                         action: {
-                            Task {
-                                await handleSignIn()
+                            // Fix: Use a non-async wrapper for the button action
+                            isLoading = true
+                            // Store a reference to the task to avoid compiler warnings
+                            let _ = Task { @MainActor in
+                                do {
+                                    try await handleSignIn()
+                                } catch {
+                                    // Handle any errors from sign-in process
+                                    self.error = error
+                                }
+                                isLoading = false
                             }
                         },
                         isDisabled: !isFormValid,
@@ -115,7 +124,7 @@ struct LoginView: View {
         }
     }
     
-    func handleSignIn() async {
+    func handleSignIn() async throws {
         // Validate fields first
         let emailValidation = UserValidationService.validateEmail(userEmail)
         let passwordValidation = UserValidationService.validatePassword(userPwd)
@@ -133,23 +142,11 @@ struct LoginView: View {
         
         // Don't proceed if validation failed
         if emailError != nil || passwordError != nil {
-            return
+            throw NSError(domain: "Login", code: 400, userInfo: [NSLocalizedDescriptionKey: "Validation failed"])
         }
         
-        // Show loading state
-        isLoading = true
-        
-        do {
-            try await data.signIn(email: userEmail, password: userPwd)
-            // Success - dismiss will happen automatically since auth state changes
-        } catch {
-            // Show error with animation
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                self.error = error
-            }
-        }
-        
-        // Hide loading state
-        isLoading = false
+        // Sign in - this will throw if it fails
+        try await data.signIn(email: userEmail, password: userPwd)
+        // Success - dismiss will happen automatically since auth state changes
     }
 }
