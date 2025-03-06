@@ -99,18 +99,15 @@ struct CollectionCardView: View {
 
             VStack(spacing: 20) {
                 // Poster image, scaled up for fullscreen
-                AsyncImage(url: URL(string: collectionItem.posterUrl)) { image in
-                    image
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: 300, maxHeight: 450)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                } placeholder: {
+                CachedAsyncImage(url: URL(string: collectionItem.posterUrl)) {
                     ProgressView()
-                        .frame(width: 140, height: 200)
+                    
                 }
+                .scaledToFit()
+                .frame(maxWidth: 300, maxHeight: 450)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
                 .padding()
-
+                
                 // Could add more details here if desired:
                 // Text(collectionItem.title)
                 //     .font(.headline)

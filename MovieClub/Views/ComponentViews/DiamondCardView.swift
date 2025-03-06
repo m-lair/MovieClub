@@ -96,7 +96,7 @@ struct DiamondCardView: View {
                                 CachedAsyncImage(url: posterUrl) {
                                     EmptyView()
                                 }
-                                    .frame(width: 320, height: 510)
+                                .frame(width: 320, height: 510)
                             )
                             .cornerRadius(10)
                             .frame(width: 340, height: 530)

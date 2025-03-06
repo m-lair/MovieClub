@@ -205,6 +205,9 @@ struct CommentInputView: View {
             isFocused = false
             onCommentPosted() // Call the callback after successful comment post
             
+            // Add a delay before hiding the checkmark
+            try? await Task.sleep(nanoseconds: 1_500_000_000) // 1.5 second delay
+            
             withAnimation {
                 showCheckmark = false
             }
