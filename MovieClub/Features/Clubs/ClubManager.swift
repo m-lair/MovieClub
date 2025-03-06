@@ -26,9 +26,9 @@ extension DataManager {
     }
     
     struct MovieClubResponse: Codable {
-             let success: Bool
-             let message: String?
-         }
+        let success: Bool
+        let message: String?
+    }
     
     // MARK: - Create Movie Club
     
@@ -66,13 +66,19 @@ extension DataManager {
     func updateMovieClub(movieClub: MovieClub) async throws {
         let updateClub: Callable<MovieClub, MovieClubResponse> = functions.httpsCallable("movieClubs-updateMovieClub")
         do {
+            // The Firebase function doesn't return a structured response, it might return null
             let result = try await updateClub(movieClub)
+            
             if result.success {
-                //Do nothing
+                print("Club updated successfully: \(movieClub.name)")
             } else {
                 throw ClubError.custom(message: result.message ?? "Unknown error")
             }
+            
+            // If we get here, the update was successful
+            print("Club updated successfully: \(movieClub.name)")
         } catch {
+            print("Error updating club: \(error)")
             throw ClubError.networkError(error)
         }
     }
