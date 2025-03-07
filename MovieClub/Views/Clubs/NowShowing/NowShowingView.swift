@@ -33,6 +33,14 @@ struct NowShowingView: View {
         return elapsedDuration / totalDuration
     }
     
+    // Format date to show correct day regardless of time zone
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d"
+        formatter.timeZone = TimeZone(identifier: "UTC")
+        return formatter.string(from: date).uppercased()
+    }
+    
     // MARK: - Body
     var body: some View {
         VStack {
@@ -186,7 +194,8 @@ struct NowShowingView: View {
     
     private var progressBar: some View {
         HStack {
-            Text(movie?.startDate ?? Date(), format: .dateTime.day().month())
+            let _ = print("startDate: \(movie?.startDate)")
+            Text(movie?.startDate != nil ? formatDate(movie!.startDate) : "")
                 .font(.title3)
                 .textCase(.uppercase)
             
@@ -194,7 +203,7 @@ struct NowShowingView: View {
                 .progressViewStyle(ClubProgressViewStyle())
                 .frame(height: 10)
             
-            Text(movie?.endDate ?? Date(), format: .dateTime.day().month())
+            Text(movie?.endDate != nil ? formatDate(movie!.endDate) : "")
                 .font(.title3)
                 .textCase(.uppercase)
         }
