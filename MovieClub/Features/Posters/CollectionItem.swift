@@ -16,6 +16,7 @@ final class CollectionItem: Identifiable, Codable, Hashable, Equatable {
     var clubName: String
     var posterUrl: String
     var collectedDate: Date?
+    var revealDate: Date?
     
     init(
         movieId: String? = nil,
@@ -24,7 +25,8 @@ final class CollectionItem: Identifiable, Codable, Hashable, Equatable {
         clubName: String,
         colorStr: String,
         posterUrl: String = "",
-        collectedDate: Date? = nil
+        collectedDate: Date? = nil,
+        revealDate: Date? = nil
     ) {
         self.movieId = movieId
         self.imdbId = imdbId
@@ -32,6 +34,7 @@ final class CollectionItem: Identifiable, Codable, Hashable, Equatable {
         self.clubName = clubName
         self.posterUrl = posterUrl
         self.collectedDate = collectedDate
+        self.revealDate = revealDate
         self.colorStr = colorStr
     }
 
@@ -43,15 +46,33 @@ final class CollectionItem: Identifiable, Codable, Hashable, Equatable {
         case clubName
         case posterUrl
         case collectedDate
+        case revealDate
     }
     
     var color: Color {
         switch colorStr {
+        case "neutral":
+            return Color(red: 0.6, green: 0.6, blue: 0.6) // Medium gray
+        case "negative":
+            return Color(red: 0.8, green: 0.2, blue: 0.2) // Deep red
+        case "mixed":
+            return Color(red: 0.9, green: 0.6, blue: 0.2) // Orange
+        case "balanced":
+            return Color(red: 0.9, green: 0.8, blue: 0.2) // Yellow
+        case "positive":
+            return Color(red: 0.2, green: 0.7, blue: 0.3) // Green
+        case "verygood":
+            return Color(red: 0.2, green: 0.5, blue: 0.8) // Blue
+        case "excellent":
+            return Color(red: 0.5, green: 0.2, blue: 0.8) // Purple
+        // Keep backward compatibility with old color strings
         case "red": return .red
         case "blue": return .blue
         case "green": return .green
         case "yellow": return .yellow
-        default: return .black
+        case "purple": return .purple
+        case "gray": return .gray
+        default: return Color(red: 0.2, green: 0.2, blue: 0.2) // Dark gray for unknown
         }
     }
     
