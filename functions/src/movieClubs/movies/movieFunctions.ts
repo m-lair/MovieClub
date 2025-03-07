@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions";
 import { CallableRequest } from "firebase-functions/https";
+import { Timestamp } from 'firebase-admin/firestore';
 
 import {
   handleCatchHttpsError,
@@ -42,7 +43,7 @@ exports.rotateMovie = functions.https.onCall(
         const recentArchive = recentArchiveCheck.docs[0].data() as MovieData;
         const archiveTime = recentArchive.endDate instanceof Date 
           ? recentArchive.endDate 
-          : new Date(recentArchive.endDate);
+          : recentArchive.endDate.toDate();
         
         // If there's a recently archived movie (archived in the last hour), prevent duplicate rotation
         const ONE_HOUR_MS = 3600000;
@@ -60,7 +61,12 @@ exports.rotateMovie = functions.https.onCall(
       if (activeMovieDoc) {
         const activeMovie = activeMovieDoc.data() as MovieData;
 
-        if (new Date() < activeMovie.endDate) {
+        // Convert endDate to a JavaScript Date for comparison
+        const endDateAsDate = activeMovie.endDate instanceof Date 
+          ? activeMovie.endDate 
+          : activeMovie.endDate.toDate();
+
+        if (new Date() < endDateAsDate) {
           throw new functions.https.HttpsError(
             'failed-precondition',
             'The current movie\'s watch period has not ended.'
@@ -70,13 +76,13 @@ exports.rotateMovie = functions.https.onCall(
         // Add a grace period check to prevent movies from being rotated too quickly
         // Only allow rotation if movie has been active for at least 1 hour
         const now = new Date();
-        const startDate = activeMovie.startDate instanceof Date 
+        const startDateAsDate = activeMovie.startDate instanceof Date 
           ? activeMovie.startDate 
-          : new Date(activeMovie.startDate);
+          : activeMovie.startDate.toDate();
         
         const ONE_HOUR_MS = 3600000;
-        if (now.getTime() - startDate.getTime() < ONE_HOUR_MS) {
-          logVerbose(`Not rotating movie as it was created less than 1 hour ago (${startDate})`);
+        if (now.getTime() - startDateAsDate.getTime() < ONE_HOUR_MS) {
+          logVerbose(`Not rotating movie as it was created less than 1 hour ago (${startDateAsDate})`);
           throw new functions.https.HttpsError(
             'failed-precondition',
             'Cannot rotate a movie that was just activated. Please try again later.'
@@ -87,15 +93,18 @@ exports.rotateMovie = functions.https.onCall(
         // This ensures the end date is set to a consistent time (end of day)
         const endDateObj = activeMovie.endDate instanceof Date 
           ? activeMovie.endDate 
-          : new Date(activeMovie.endDate);
+          : activeMovie.endDate.toDate();
           
         // Set the time to 11:59:59 PM
         const formattedEndDate = new Date(endDateObj);
         formattedEndDate.setHours(23, 59, 59, 999);
         
+        // Convert to Firestore Timestamp before updating
+        const firestoreEndDate = Timestamp.fromDate(formattedEndDate);
+        
         await activeMovieDoc.ref.update({ 
           status: 'archived',
-          endDate: formattedEndDate  // Use the formatted end date with time set to 11:59:59 PM
+          endDate: firestoreEndDate  // Use the formatted end date with time set to 11:59:59 PM
         });
         
         // Wait a moment to ensure the update completes before proceeding
@@ -116,14 +125,37 @@ exports.rotateMovie = functions.https.onCall(
       const clubDoc = await clubDocRef.get();
       const clubData = clubDoc.data() as MovieClubData;
 
-      // Set start date to 12:00 AM today for consistency
-      const startDate = new Date();
-      startDate.setHours(0, 0, 0, 0);  // Set to 12:00:00 AM
+      // Delete the suggestion
+      await nextSuggestionDoc.ref.delete();
+
+      // Set start date to 12:00 AM on the day after the previous movie ends
+      let startDate;
+      if (activeMovieDoc) {
+        // If there was an active movie, set the start date to the day after it ends
+        const activeMovie = activeMovieDoc.data() as MovieData;
+        const previousEndDate = activeMovie.endDate instanceof Date
+          ? activeMovie.endDate
+          : activeMovie.endDate.toDate();
+        
+        // Create a new date for the day after the previous end date
+        startDate = new Date(previousEndDate);
+        startDate.setDate(startDate.getDate() + 1);
+        startDate.setHours(0, 0, 0, 0);  // Set to 12:00:00 AM
+      } else {
+        // If there was no active movie, start today at 12:00 AM
+        startDate = new Date();
+        startDate.setHours(0, 0, 0, 0);  // Set to 12:00:00 AM
+      }
 
       // Calculate end date based on timeInterval
-      const endDate = new Date(startDate.getTime() + clubData.timeInterval * 7 * 24 * 60 * 60 * 1000);
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + (clubData.timeInterval * 7));
       // Set end date to 11:59:59 PM on the end day
       endDate.setHours(23, 59, 59, 999);
+
+      // Convert to Firestore Timestamps for storage
+      const firestoreStartDate = Timestamp.fromDate(startDate);
+      const firestoreEndDate = Timestamp.fromDate(endDate);
 
       const movieData: MovieData = {
         ...suggestionData,
@@ -133,8 +165,8 @@ exports.rotateMovie = functions.https.onCall(
         numComments: 0,
         imdbId: suggestionData.imdbId,
         status: 'active',
-        startDate: startDate,
-        endDate: endDate,
+        startDate: firestoreStartDate,
+        endDate: firestoreEndDate,
         collectedBy: [],
         movieClubId: clubId,
         likedBy: [],
@@ -146,11 +178,8 @@ exports.rotateMovie = functions.https.onCall(
       const newMovieRef = await movieCollectionRef.add(movieData);
       const newMovieId = newMovieRef.id;
 
-      // Delete the suggestion
-      await nextSuggestionDoc.ref.delete();
-
       // Update movieEndDate in the movieClub document
-      await clubDocRef.update({ movieEndDate: endDate });
+      await clubDocRef.update({ movieEndDate: firestoreEndDate });
 
       // Send notifications to all club members about the new movie
       await notifyMembersAboutNewMovie(clubId, clubData.name, suggestionData, newMovieId);
