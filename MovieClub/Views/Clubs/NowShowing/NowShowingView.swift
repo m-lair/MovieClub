@@ -194,7 +194,6 @@ struct NowShowingView: View {
     
     private var progressBar: some View {
         HStack {
-            let _ = print("startDate: \(movie?.startDate)")
             Text(movie?.startDate != nil ? formatDate(movie!.startDate) : "")
                 .font(.title3)
                 .textCase(.uppercase)
