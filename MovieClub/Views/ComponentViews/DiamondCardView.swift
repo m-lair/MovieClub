@@ -19,12 +19,11 @@ struct DiamondCardView: View {
     @State private var translation: CGSize = .zero
     @State private var isDragging = false
     @GestureState private var press = false
-    
-    @State var likedBy: [String] = []
-    @State var dislikedBy: [String] = []
-    @State var collectedBy: [String] = []
+
     @State private var effectiveRevealDate: Date?
     @State private var isLoading: Bool = true
+    @State private var showScoreInfo: Bool = false
+    @State private var compositeScore: Double = 0.0
     
     private var shouldReveal: Bool {
         guard let revealDate = effectiveRevealDate ?? item.revealDate else {
@@ -38,14 +37,28 @@ struct DiamondCardView: View {
             ZStack {
                 // Accent glow behind the card
                 accentGlow
-                    .overlay(VortexView(.fireflies) {
+                    .overlay(VortexView(VortexSystem(
+                        tags: ["circle"],
+                        shape: .ellipse(radius: 0.5),
+                        birthRate: 200,
+                        lifespan: 2,
+                        speed: 0,
+                        speedVariation: 0.25,
+                        angleRange: .degrees(360),
+                        colors: colorToVortex(color),
+                        size: 0.01,
+                        sizeMultiplierAtDeath: 100
+                    )) {
                         Circle()
-                            .fill(color.opacity(0.3))
+                            .fill(.white)
                             .frame(width: 32)
                             .blur(radius: 3)
                             .blendMode(.plusLighter)
                             .tag("circle")
                     })
+                    .offset(y: -100)
+                    .frame(maxWidth: .infinity)
+                    
 
                 // The card itself
                 cardContent
@@ -56,8 +69,21 @@ struct DiamondCardView: View {
                         .scaleEffect(2.0)
                         .tint(.white)
                 }
+                
+                // Score info sheet
+                if showScoreInfo {
+                    scoreInfoCard
+                }
             }
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: { showScoreInfo.toggle() }) {
+                        Image(systemName: "info.circle")
+                            .foregroundColor(.white)
+                    }
+                    .disabled(isLoading) // Disable while loading
+                }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { dismiss() }) {
                         Image(systemName: "xmark")
@@ -81,14 +107,36 @@ struct DiamondCardView: View {
                             return
                         }
                         
-                        self.collectedBy = movieData.collectedBy
-                        self.likedBy = movieData.likedBy
-                        self.dislikedBy = movieData.dislikedBy
-                        
                         // If the item doesn't have a reveal date, try to get it from the movie
                         if item.revealDate == nil {
                             // Update our state variable with the movie's end date
                             self.effectiveRevealDate = movieData.endDate
+                        }
+                        
+                        // Get club member count
+                        let clubDoc = try await data.db
+                            .collection("movieclubs")
+                            .document(item.clubId)
+                            .getDocument()
+                        
+                        let totalMembers = (clubDoc.data()?["memberCount"] as? Int) ?? 10
+                        
+                        // Calculate composite score
+                        let likes = item.likes ?? 0
+                        let dislikes = item.dislikes ?? 0
+                        let collections = item.collections ?? 0
+                        
+                        // Skip score calculation if no data
+                        if likes > 0 || dislikes > 0 {
+                            // Calculate composite score
+                            let totalReactions = likes + dislikes
+                            let approvalRatio = totalReactions > 0 ? Double(likes) / Double(totalReactions) : 0.5
+                            let collectionRate = Double(collections) / Double(max(1, totalMembers))
+                            let engagementRate = Double(totalReactions) / Double(max(1, totalMembers))
+                            
+                            // Calculate and round to 2 decimal places
+                            let score = (approvalRatio * 0.6) + (collectionRate * 0.3) + (engagementRate * 0.1)
+                            self.compositeScore = (score * 100).rounded() / 100
                         }
                         
                         isLoading = false
@@ -110,21 +158,300 @@ struct DiamondCardView: View {
                     .cornerRadius(10)
                     .frame(width: 340, height: 530)
                     .scaleEffect(0.9)
-                    .applyCardEffects(translation: translation, isDragging: isDragging)
-                    .gesture(
-                        DragGesture()
-                            .onChanged { value in
-                                translation = value.translation
-                                isDragging = true
-                            }
-                            .onEnded { _ in
-                                withAnimation(.interactiveSpring(response: 0.4, dampingFraction: 0.6)) {
-                                    translation = .zero
-                                    isDragging = false
-                                }
-                            }
-                    )
+                
+                VStack(spacing: 16) {
+                    // Overall score display
+                    if compositeScore > 0 && shouldReveal {
+                        Text("Score: \(String(format: "%.2f", compositeScore))")
+                            .font(.title2.bold())
+                            .foregroundStyle(color)
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 20)
+                            .background(
+                                Capsule()
+                                    .fill(Color.black.opacity(0.7))
+                                    .overlay(
+                                        Capsule()
+                                            .strokeBorder(color, lineWidth: 2)
+                                    )
+                            )
+                    }
+                    
+                    // Stats row
+                    HStack {
+                        Label {
+                            Text("\(item.likes ?? 0)")
+                        } icon: {
+                            Image(systemName: "hand.thumbsup.circle.fill")
+                                .resizable()
+                                .frame(width: 60, height: 60)
+                        }
+                        .foregroundStyle(.green)
+                        .padding(.horizontal)
+                        
+                        Label {
+                            Text("\(item.dislikes ?? 0)")
+                        } icon: {
+                            Image(systemName: "hand.thumbsdown.circle.fill")
+                                .resizable()
+                                .frame(width: 60, height: 60)
+                        }
+                        .foregroundStyle(.red)
+                        .padding(.horizontal)
+
+                        
+                        Label {
+                            Text("\(item.collections ?? 0)")
+                        } icon: {
+                            Image("collectIcon")
+                                .resizable()
+                                .frame(width: 60, height: 60)
+                        }
+                        .foregroundStyle(.yellow)
+                        .padding(.horizontal)
+
+                    }
+                    .font(.title)
+                }
+                .padding()
             }
+            .applyCardEffects(translation: translation, isDragging: isDragging)
+            .gesture(
+                DragGesture()
+                    .onChanged { value in
+                        translation = value.translation
+                        isDragging = true
+                    }
+                    .onEnded { _ in
+                        withAnimation(.interactiveSpring(response: 0.4, dampingFraction: 0.6)) {
+                            translation = .zero
+                            isDragging = false
+                        }
+                    }
+            )
+        }
+    }
+    
+    // Score info explanation card
+    private var scoreInfoCard: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text("How Poster Scores Work")
+                    .font(.title2.bold())
+                    .foregroundColor(.white)
+                
+                Spacer()
+                
+                Button {
+                    showScoreInfo = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.white.opacity(0.7))
+                        .font(.title3)
+                }
+            }
+            .padding(.bottom, 8)
+            
+            Divider()
+                .background(Color.white.opacity(0.3))
+                
+            // Simple overview
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Your poster score is based on three factors:")
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+                    .padding(.bottom, 4)
+                
+                HStack {
+                    Text("Current Score:")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    
+                    Text(String(format: "%.2f", compositeScore))
+                        .font(.title3.bold())
+                        .foregroundColor(color)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color.black.opacity(0.5))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .strokeBorder(color.opacity(0.5), lineWidth: 1)
+                                )
+                        )
+                }
+            }
+            .padding(.bottom, 8)
+            
+            Group {
+                scoreFactorRow(
+                    title: "Likes vs. Dislikes (60%)",
+                    icon: "hand.thumbsup",
+                    description: "How many members liked vs. disliked this movie. This is the most important factor in your score.",
+                    value: { 
+                        if let likes = item.likes, let dislikes = item.dislikes, likes + dislikes > 0 {
+                            return "\(likes) likes, \(dislikes) dislikes"
+                        }
+                        return "No ratings yet"
+                    }()
+                )
+                
+                scoreFactorRow(
+                    title: "Collection Popularity (30%)",
+                    icon: "square.stack.fill",
+                    description: "How many club members have collected this poster compared to the total club size.",
+                    value: {
+                        guard let collections = item.collections else { return "None collected" }
+                        return "\(collections) collections"
+                    }()
+                )
+                
+                scoreFactorRow(
+                    title: "Member Engagement (10%)",
+                    icon: "person.3.fill",
+                    description: "How many club members have rated this movie compared to the total club size.",
+                    value: {
+                        if let likes = item.likes, let dislikes = item.dislikes {
+                            return "\(likes + dislikes) ratings"
+                        }
+                        return "No ratings yet"
+                    }()
+                )
+            }
+            
+            Divider()
+                .background(Color.white.opacity(0.3))
+            
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Poster Border Colors")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding(.bottom, 2)
+                
+                Text("The border color changes based on your movie's score:")
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.8))
+                    .padding(.bottom, 6)
+                
+                colorExplanationRow(range: "0.00-0.20", color: "negative", description: "Poorly received")
+                colorExplanationRow(range: "0.21-0.35", color: "mixed", description: "Mixed reception")
+                colorExplanationRow(range: "0.36-0.50", color: "balanced", description: "Balanced reception")
+                colorExplanationRow(range: "0.51-0.65", color: "positive", description: "Moderately positive")
+                colorExplanationRow(range: "0.66-0.80", color: "verygood", description: "Very positive")
+                colorExplanationRow(range: "0.81-1.00", color: "excellent", description: "Exceptional")
+            }
+            
+            Spacer()
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.black.opacity(0.85))
+                .shadow(color: color.opacity(0.6), radius: 15)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .strokeBorder(color.opacity(0.6), lineWidth: 2)
+        )
+        .frame(width: 350, height: 550)
+        .transition(.opacity)
+        .zIndex(10)
+    }
+    
+    // Simplified score factor explanation
+    private func scoreFactorRow(title: String, icon: String, description: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 10) {
+                Image(systemName: icon)
+                    .foregroundColor(.white)
+                    .font(.headline)
+                    .frame(width: 24, height: 24)
+                
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(.white)
+                
+                Spacer()
+            }
+            
+            HStack(alignment: .top) {
+                Rectangle()
+                    .fill(Color.clear)
+                    .frame(width: 24)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(description)
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.8))
+                        .fixedSize(horizontal: false, vertical: true)
+                    
+                    Text(value)
+                        .font(.callout.bold())
+                        .foregroundColor(color)
+                        .padding(.top, 2)
+                }
+            }
+        }
+        .padding(.vertical, 8)
+    }
+    
+    private func explanationRow(title: String, icon: String, description: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(.white)
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(.white)
+                Spacer()
+                Text(value)
+                    .font(.subheadline.bold())
+                    .foregroundColor(color)
+            }
+            
+            Text(description)
+                .font(.caption)
+                .foregroundColor(.white.opacity(0.7))
+        }
+        .padding(.vertical, 4)
+    }
+    
+    private func colorExplanationRow(range: String, color: String, description: String) -> some View {
+        HStack(spacing: 10) {
+            Text(range)
+                .font(.caption)
+                .foregroundColor(.white.opacity(0.9))
+                .frame(width: 80, alignment: .leading)
+            
+            Circle()
+                .fill(colorFromString(color))
+                .frame(width: 16, height: 16)
+            
+            Text(description)
+                .font(.caption)
+                .foregroundColor(.white.opacity(0.9))
+        }
+        .padding(.vertical, 2)
+    }
+    
+    private func colorFromString(_ colorStr: String) -> Color {
+        switch colorStr {
+        case "neutral":
+            return Color(red: 0.6, green: 0.6, blue: 0.6) // Medium gray
+        case "negative":
+            return Color(red: 0.8, green: 0.2, blue: 0.2) // Deep red
+        case "mixed":
+            return Color(red: 0.9, green: 0.6, blue: 0.2) // Orange
+        case "balanced":
+            return Color(red: 0.9, green: 0.8, blue: 0.2) // Yellow
+        case "positive":
+            return Color(red: 0.2, green: 0.7, blue: 0.3) // Green
+        case "verygood":
+            return Color(red: 0.2, green: 0.5, blue: 0.8) // Blue
+        case "excellent":
+            return Color(red: 0.5, green: 0.2, blue: 0.8) // Purple
+        default: return Color(red: 0.2, green: 0.2, blue: 0.2) // Dark gray for unknown
         }
     }
     
@@ -135,7 +462,8 @@ struct DiamondCardView: View {
             .overlay(gloss1.blendMode(.luminosity))
             .overlay(
                 LinearGradient(
-                    colors: [color.opacity(0.5), color],
+                    colors: [shouldReveal ? color.opacity(0.5) : Color.gray.opacity(0.3), 
+                             shouldReveal ? color : Color.gray.opacity(0.5)],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -144,7 +472,9 @@ struct DiamondCardView: View {
             .overlay(gloss1.blendMode(.overlay))
             .overlay(
                 LinearGradient(
-                    colors: [.clear, color.opacity(0.5), .clear],
+                    colors: [.clear, 
+                             shouldReveal ? color.opacity(0.5) : Color.gray.opacity(0.3), 
+                             .clear],
                     startPoint: .topLeading,
                     endPoint: UnitPoint(
                         x: abs(translation.height)/100 + 1,
@@ -161,7 +491,7 @@ struct DiamondCardView: View {
             RoundedRectangle(cornerRadius: 10)
                 .strokeBorder(
                     LinearGradient(
-                        colors: [.clear, color, .clear, color, .clear],
+                        colors: [.clear, shouldReveal ? color : Color.gray.opacity(0.3), .clear, shouldReveal ? color : Color.gray.opacity(0.3), .clear],
                         startPoint: .topLeading,
                         endPoint: UnitPoint(
                             x: abs(translation.width)/100 + 0.5,
@@ -172,7 +502,7 @@ struct DiamondCardView: View {
             RoundedRectangle(cornerRadius: 10)
                 .stroke(
                     LinearGradient(
-                        colors: [.clear, color, .clear, color, .clear],
+                        colors: [.clear, shouldReveal ? color : Color.gray.opacity(0.3), .clear, shouldReveal ? color : Color.gray.opacity(0.3), .clear],
                         startPoint: .topLeading,
                         endPoint: UnitPoint(
                             x: abs(translation.width)/100 + 0.8,
@@ -279,7 +609,7 @@ struct DiamondCardView: View {
     var accentGlow: some View {
         // Slight offset, a big blur, plus color
         RoundedRectangle(cornerRadius: 30)
-            .fill(color.opacity(0.5))
+            .fill(shouldReveal ? color.opacity(0.5) : Color.gray.opacity(0.3))
             .frame(width: 400, height: 580)
             .blur(radius: 60)
             .opacity(0.7)
@@ -303,38 +633,6 @@ struct DiamondCardView: View {
                 )
                 .frame(width: 392)
             )
-    }
-    
-    var posterStats: some View {
-        HStack {
-            VStack {
-                Text("\(likedBy.count)")
-                Image(systemName: "hand.thumbsup.circle.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundStyle(.green)
-                    .frame(width: 100, height: 100)
-                
-            }
-            
-            
-            VStack {
-                Text("\(dislikedBy.count)")
-                Image(systemName: "hand.thumbsdown.circle.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 100, height: 100)
-                    .foregroundStyle(.red)
-                   
-            }
-           
-
-            VStack {
-                Text("\(collectedBy.count)")
-                CollectIcon()
-                    .frame(width: 100, height: 100)
-            }
-        }
     }
 }
 
@@ -377,4 +675,33 @@ struct CollectIcon: View {
             }
         }
     }
+}
+
+// Helper function to map SwiftUI colors to Vortex colors
+private func colorToVortex(_ uiColor: Color) -> VortexSystem.ColorMode {
+    // Extract the UIColor/NSColor for proper color conversion
+    #if canImport(UIKit)
+    let components = UIColor(uiColor).cgColor.components ?? [0, 0, 0, 1]
+    #else
+    let components = NSColor(uiColor).cgColor.components ?? [0, 0, 0, 1]
+    #endif
+    
+    // Basic mapping from common colors to Vortex predefined colors
+    if uiColor == .red { return .ramp(.red, .red, .red.opacity(0)) }
+    if uiColor == .blue { return .ramp(.blue, .blue, .blue.opacity(0)) }
+    if uiColor == .green { return .ramp(.green, .green, .green.opacity(0)) }
+    if uiColor == .yellow { return .ramp(.yellow, .yellow, .yellow.opacity(0)) }
+    if uiColor == .orange { return .ramp(.orange, .orange, .orange.opacity(0)) }
+    if uiColor == .purple { return .ramp(.purple, .purple, .purple.opacity(0)) }
+    if uiColor == .pink { return .ramp(.pink, .pink, .pink.opacity(0)) }
+    
+    // For custom colors, create a custom Vortex.Color from components
+    let vortexColor = VortexSystem.Color(
+        red: Double(components[0]),
+        green: Double(components.count > 1 ? components[1] : 0),
+        blue: Double(components.count > 2 ? components[2] : 0),
+        opacity: Double(components.count > 3 ? components[3] : 1)
+    )
+    
+    return .ramp(vortexColor, vortexColor, vortexColor.opacity(0))
 }

@@ -17,6 +17,9 @@ final class CollectionItem: Identifiable, Codable, Hashable, Equatable {
     var posterUrl: String
     var collectedDate: Date?
     var revealDate: Date?
+    var likes: Int?
+    var dislikes: Int?
+    var collections: Int?
     
     init(
         movieId: String? = nil,
@@ -26,7 +29,10 @@ final class CollectionItem: Identifiable, Codable, Hashable, Equatable {
         colorStr: String,
         posterUrl: String = "",
         collectedDate: Date? = nil,
-        revealDate: Date? = nil
+        revealDate: Date? = nil,
+        likes: Int = 0,
+        dislikes: Int = 0,
+        collections: Int = 0
     ) {
         self.movieId = movieId
         self.imdbId = imdbId
@@ -36,6 +42,9 @@ final class CollectionItem: Identifiable, Codable, Hashable, Equatable {
         self.collectedDate = collectedDate
         self.revealDate = revealDate
         self.colorStr = colorStr
+        self.likes = likes
+        self.dislikes = dislikes
+        self.collections = collections
     }
 
     enum CodingKeys: String, CodingKey {
@@ -66,12 +75,6 @@ final class CollectionItem: Identifiable, Codable, Hashable, Equatable {
         case "excellent":
             return Color(red: 0.5, green: 0.2, blue: 0.8) // Purple
         // Keep backward compatibility with old color strings
-        case "red": return .red
-        case "blue": return .blue
-        case "green": return .green
-        case "yellow": return .yellow
-        case "purple": return .purple
-        case "gray": return .gray
         default: return Color(red: 0.2, green: 0.2, blue: 0.2) // Dark gray for unknown
         }
     }

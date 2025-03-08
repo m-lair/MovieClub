@@ -40,10 +40,6 @@ struct UserCollectionView: View {
                             .aspectRatio(2/3, contentMode: .fill) // gives that taller poster look
                             .clipped()
                             .modifier(PosterRevealModifier(revealDate: item.revealDate))
-                            .onTapGesture {
-                                selectedItem = item
-                                showInspectView = true
-                            }
                         } else {
                             PlaceholderView()
                         }
@@ -56,6 +52,14 @@ struct UserCollectionView: View {
                         Rectangle()
                             .stroke(Color.clear, lineWidth: 2)
                     )
+                    .contentShape(Rectangle()) // Ensure the entire area is tappable
+                    .onTapGesture {
+                        // Only show detail view if the poster should be revealed
+                        if shouldRevealPoster(revealDate: item.revealDate) {
+                            selectedItem = item
+                            showInspectView = true
+                        }
+                    }
                 }
             }
             .padding(.top) // spacing on the left/right
@@ -157,6 +161,12 @@ struct PosterRevealModifier: ViewModifier {
                                             .fill(Color.white.opacity(0.2))
                                     )
                             }
+                            
+                            // Add a hint that this poster can't be viewed yet
+                            Text("Preview unavailable")
+                                .font(.caption2)
+                                .foregroundColor(.white.opacity(0.7))
+                                .padding(.top, 8)
                         }
                         .padding()
                     }
@@ -196,11 +206,6 @@ struct CollectionCardView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .modifier(PosterRevealModifier(revealDate: collectionItem.revealDate))
                 .padding()
-                
-                // Could add more details here if desired:
-                // Text(collectionItem.title)
-                //     .font(.headline)
-                //     .foregroundColor(.white)
             }
             // 3D tilt effect
             .rotation3DEffect(
