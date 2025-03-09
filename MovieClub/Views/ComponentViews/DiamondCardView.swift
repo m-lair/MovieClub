@@ -258,7 +258,7 @@ struct DiamondCardView: View {
             // Simple overview
             VStack(alignment: .leading, spacing: 8) {
                 Text("Your poster score is based on three factors:")
-                    .font(.subheadline)
+                    .font(.caption)
                     .foregroundColor(.white)
                     .padding(.bottom, 4)
                 
@@ -330,7 +330,7 @@ struct DiamondCardView: View {
                     .padding(.bottom, 2)
                 
                 Text("The border color changes based on your movie's score:")
-                    .font(.caption)
+                    .font(.caption2)
                     .foregroundColor(.white.opacity(0.8))
                     .padding(.bottom, 6)
                 
@@ -458,29 +458,50 @@ struct DiamondCardView: View {
     // Card background with all the gradients and effects
     private var cardBackgroundView: some View {
         Color(.black)
-            .overlay(gloss1.blendMode(.softLight))
-            .overlay(gloss1.blendMode(.luminosity))
             .overlay(
-                LinearGradient(
-                    colors: [shouldReveal ? color.opacity(0.5) : Color.gray.opacity(0.3), 
-                             shouldReveal ? color : Color.gray.opacity(0.5)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .blendMode(.overlay)
-            )
-            .overlay(gloss1.blendMode(.overlay))
-            .overlay(
-                LinearGradient(
-                    colors: [.clear, 
-                             shouldReveal ? color.opacity(0.5) : Color.gray.opacity(0.3), 
-                             .clear],
-                    startPoint: .topLeading,
-                    endPoint: UnitPoint(
-                        x: abs(translation.height)/100 + 1,
-                        y: abs(translation.height)/100 + 1
+                ZStack {
+                    // Base gloss layers
+                    gloss1.blendMode(.softLight)
+                    gloss2.blendMode(.softLight).opacity(0.7)
+                    
+                    // Primary color gradient with improved contrast
+                    LinearGradient(
+                        colors: [color.opacity(0.6),
+                                 color.opacity(0.8),
+                                 color],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
                     )
-                )
+                    .blendMode(.overlay)
+                    
+                    // Adding depth with cross-gloss effects
+                    gloss1.blendMode(.overlay).opacity(0.8)
+                    gloss2.blendMode(.plusLighter).opacity(0.4)
+                    
+                    // Dynamic highlight based on card movement
+                    LinearGradient(
+                        colors: [.clear, 
+                                 shouldReveal ? color.opacity(0.6) : Color.gray.opacity(0.4), 
+                                 .clear],
+                        startPoint: .topLeading,
+                        endPoint: UnitPoint(
+                            x: abs(translation.height)/100 + 1,
+                            y: abs(translation.height)/100 + 1
+                        )
+                    )
+                    
+                    // Subtle inner glow for depth
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(
+                            LinearGradient(
+                                colors: [color.opacity(0.7), color.opacity(0.2)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                        .blendMode(.softLight)
+                }
             )
             .overlay(cardBorderView)
     }
@@ -488,30 +509,49 @@ struct DiamondCardView: View {
     // Card border with gradient effects
     private var cardBorderView: some View {
         ZStack {
+            // Primary border stroke
             RoundedRectangle(cornerRadius: 10)
                 .strokeBorder(
-                    LinearGradient(
-                        colors: [.clear, shouldReveal ? color : Color.gray.opacity(0.3), .clear, shouldReveal ? color : Color.gray.opacity(0.3), .clear],
-                        startPoint: .topLeading,
-                        endPoint: UnitPoint(
-                            x: abs(translation.width)/100 + 0.5,
-                            y: abs(translation.height)/100 + 0.5
-                        )
+                    AngularGradient(
+                        colors: [
+                            shouldReveal ? color.opacity(0.8) : Color.gray.opacity(0.5),
+                            shouldReveal ? color.opacity(0.5) : Color.gray.opacity(0.3),
+                            shouldReveal ? color.opacity(0.8) : Color.gray.opacity(0.5),
+                            shouldReveal ? color.opacity(0.9) : Color.gray.opacity(0.6)
+                        ],
+                        center: .center,
+                        startAngle: .degrees(0),
+                        endAngle: .degrees(360)
                     )
                 )
+            
+            // Outer glow
             RoundedRectangle(cornerRadius: 10)
                 .stroke(
-                    LinearGradient(
-                        colors: [.clear, shouldReveal ? color : Color.gray.opacity(0.3), .clear, shouldReveal ? color : Color.gray.opacity(0.3), .clear],
-                        startPoint: .topLeading,
-                        endPoint: UnitPoint(
-                            x: abs(translation.width)/100 + 0.8,
-                            y: abs(translation.height)/100 + 0.8
-                        )
+                    AngularGradient(
+                        colors: [
+                            shouldReveal ? color.opacity(0.7) : Color.gray.opacity(0.4),
+                            shouldReveal ? color.opacity(0.5) : Color.gray.opacity(0.3),
+                            shouldReveal ? color.opacity(0.7) : Color.gray.opacity(0.4),
+                            shouldReveal ? color.opacity(0.9) : Color.gray.opacity(0.6)
+                        ],
+                        center: .center,
+                        startAngle: .degrees(0),
+                        endAngle: .degrees(360)
                     ),
                     lineWidth: 10
                 )
                 .blur(radius: 10)
+            
+            // Additional light source for bottom-right corner
+            RoundedRectangle(cornerRadius: 10)
+                .trim(from: 0.5, to: 0.75) // Focus on bottom-right quadrant
+                .stroke(
+                    shouldReveal ? color.opacity(0.9) : Color.gray.opacity(0.6),
+                    lineWidth: 8
+                )
+                .blur(radius: 12)
+                .rotationEffect(.degrees(translation.width/20))
         }
     }
     
@@ -629,6 +669,25 @@ struct DiamondCardView: View {
                     endPoint: UnitPoint(
                         x: abs(translation.height)/100 + 1,
                         y: abs(translation.height)/100 + 1
+                    )
+                )
+                .frame(width: 392)
+            )
+    }
+    
+    // New rotated gloss for added dimension and light effect
+    var gloss2: some View {
+        Image("Gloss 1")
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .rotationEffect(.degrees(180))  // Rotate the image 180 degrees
+            .mask(
+                LinearGradient(
+                    colors: [.white, .clear, .white, .clear, .white],
+                    startPoint: .bottomTrailing,
+                    endPoint: UnitPoint(
+                        x: 1 - abs(translation.width)/150,
+                        y: 1 - abs(translation.width)/150
                     )
                 )
                 .frame(width: 392)
