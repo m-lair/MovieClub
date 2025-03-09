@@ -1,10 +1,12 @@
+import { Timestamp } from 'firebase-admin/firestore';
+
 export interface MovieData {
   likes: number;
   dislikes: number;
   numCollected: number;
   status: "active" | "archived";
-  startDate: Date;
-  endDate: Date;
+  startDate: Date | Timestamp;
+  endDate: Date | Timestamp;
   numComments: number;
   imdbId: string;
   collectedBy: string[];
