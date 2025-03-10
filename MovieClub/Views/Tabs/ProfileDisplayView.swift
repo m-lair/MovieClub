@@ -142,7 +142,7 @@ struct ProfileDisplayView: View {
                                     UserMembershipsView(userId: displayUser.id)
                                         .padding(.horizontal, 2) // Small padding to prevent cards touching edge
                                 }
-                                .padding(.bottom, 20) // Space at bottom for better scrolling
+                                .padding(.bottom, 100) // Increased space at bottom to prevent tab view overlap
                             }
                             .opacity(selectedTabIndex == 0 ? 1 : 0.3)
                             .offset(x: selectedTabIndex == 0 ? 0 : -geometry.size.width)
@@ -163,7 +163,7 @@ struct ProfileDisplayView: View {
                                     UserCollectionView(userId: displayUser.id)
                                         .padding(.horizontal, 2) // Small padding to prevent cards touching edge
                                 }
-                                .padding(.bottom, 20) // Space at bottom for better scrolling
+                                .padding(.bottom, 100) // Increased space at bottom to prevent tab view overlap
                             }
                             .opacity(selectedTabIndex == 1 ? 1 : 0.3)
                             .offset(x: selectedTabIndex == 1 ? 0 : geometry.size.width)
