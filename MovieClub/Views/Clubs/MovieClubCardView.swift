@@ -140,7 +140,7 @@ struct MovieClubCardView: View {
         .onChange(of: featuredMovie?.id) { oldValue, newValue in
             if oldValue != newValue {
                 // Reset banner color when featured movie changes
-                bannerColor = .clear
+                bannerColor = .gray
                 currentFeaturedMovieId = newValue
             }
         }

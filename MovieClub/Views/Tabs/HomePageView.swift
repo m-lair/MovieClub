@@ -146,7 +146,7 @@ struct HomePageView: View {
         }
         .onAppear {
             // Check for What's New after a slight delay to ensure view is loaded
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 checkForWhatsNew()
             }
             
@@ -175,7 +175,7 @@ struct HomePageView: View {
         .onChange(of: initialLoadComplete) {
             if initialLoadComplete {
                 // Check for What's New after animations are complete with a slight delay
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                     checkForWhatsNew()
                 }
             }
