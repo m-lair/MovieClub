@@ -7,7 +7,7 @@ struct WhatsNewView: View {
     // New features for the current version
     private var currentVersionFeatures: [WhatsNewFeature] {
         // Updated for each new version
-        if versionManager.isRunningVersion("0.2.1") {
+        if versionManager.isRunningVersion("0.2.12") {
             return [
                 WhatsNewFeature(
                     title: "Poster Scores",

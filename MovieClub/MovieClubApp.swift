@@ -121,9 +121,9 @@ struct MovieClubApp: App {
                             notifManager = NotificationManager()
                             versionManager = VersionManager()
                             Task {
-                                try? await Task.sleep(for: .seconds(2.5))
+                                try? await Task.sleep(for: .seconds(3.25))
                                 // Use longer animation duration for smoother transition
-                                withAnimation {
+                                withAnimation(.easeInOut(duration: 0.5)){
                                     showSplash = false
                                 }
                             }
