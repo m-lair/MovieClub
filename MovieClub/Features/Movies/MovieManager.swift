@@ -100,7 +100,6 @@ extension DataManager {
                 
                 // If today is exactly the end date, don't rotate yet (wait until tomorrow)
                 if endDateDay == todayDay && endDateMonth == todayMonth && endDateYear == todayYear {
-                    print("Preventing rotation because today is exactly the end date - will rotate tomorrow")
                     return false
                 }
                 
@@ -108,9 +107,7 @@ extension DataManager {
                 if let dayAfterEndDate = calendar.date(byAdding: .day, value: 1, to: movie.endDate.midnight),
                    now.midnight >= dayAfterEndDate.midnight {
                     // We're past the end date, proceed with rotation
-                    print("Rotation approved: today (\(now)) is after the end date (\(movie.endDate))")
                 } else {
-                    print("Preventing rotation because today (\(now)) is not after the end date (\(movie.endDate))")
                     return false
                 }
             }

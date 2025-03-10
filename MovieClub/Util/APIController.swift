@@ -152,7 +152,6 @@ class APIController {
                 if let differentBackdrop = collectionImages.backdrops.first(where: { $0.filePath != mainBackdropPath }) {
                     let altBackdropURL = "https://image.tmdb.org/t/p/w780\(differentBackdrop.filePath)"
                     verticalBackdrop = altBackdropURL
-                    print("Using unique vertical backdrop from collection images: \(altBackdropURL)")
                 }
             }
         }

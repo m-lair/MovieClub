@@ -276,7 +276,9 @@ struct NowShowingView: View {
             imdbId: movie.imdbId,
             clubId: clubId,
             clubName: clubName,
-            colorStr: ""
+            colorStr: "",
+            collectedDate: Date(),
+            revealDate: movie.endDate
         )
         
         do {

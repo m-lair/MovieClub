@@ -104,8 +104,10 @@
 		2CDB72FC2D77878F004C0B2F /* Stolzl-Thin.otf in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2CDB72EE2D77860E004C0B2F /* Stolzl-Thin.otf */; };
 		2CDB72FE2D778DA7004C0B2F /* FontExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDB72FD2D778D9F004C0B2F /* FontExtensions.swift */; };
 		2CDB73002D782FBA004C0B2F /* UserValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDB72FF2D782FBA004C0B2F /* UserValidationService.swift */; };
-		2CDB73022D78F46E004C0B2F /* SplashAnimation.json in Resources */ = {isa = PBXBuildFile; fileRef = 2CDB73012D78F46E004C0B2F /* SplashAnimation.json */; };
 		2CDB73042D78F5C5004C0B2F /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDB73032D78F5C5004C0B2F /* SplashScreenView.swift */; };
+		2CDB73082D7E4EED004C0B2F /* SplashAnimation.json in Resources */ = {isa = PBXBuildFile; fileRef = 2CDB73072D7E4EED004C0B2F /* SplashAnimation.json */; };
+		2CDB73102D7E5856004C0B2F /* VersionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDB730F2D7E5856004C0B2F /* VersionManager.swift */; };
+		2CDB73142D7E5AF7004C0B2F /* WhatsNewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDB73132D7E5AF7004C0B2F /* WhatsNewView.swift */; };
 		2CE0C97D2D5AC5A600ECC962 /* MovieClubCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE0C97C2D5AC5A600ECC962 /* MovieClubCardView.swift */; };
 		2CE0C97F2D5ACD0100ECC962 /* CachedAsyncImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE0C97E2D5ACD0100ECC962 /* CachedAsyncImage.swift */; };
 		2CE0C9812D5B0BE700ECC962 /* CommentsSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE0C9802D5B0BE700ECC962 /* CommentsSheetView.swift */; };
@@ -239,8 +241,10 @@
 		2CDB72EE2D77860E004C0B2F /* Stolzl-Thin.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Stolzl-Thin.otf"; sourceTree = "<group>"; };
 		2CDB72FD2D778D9F004C0B2F /* FontExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontExtensions.swift; sourceTree = "<group>"; };
 		2CDB72FF2D782FBA004C0B2F /* UserValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserValidationService.swift; sourceTree = "<group>"; };
-		2CDB73012D78F46E004C0B2F /* SplashAnimation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SplashAnimation.json; sourceTree = "<group>"; };
 		2CDB73032D78F5C5004C0B2F /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
+		2CDB73072D7E4EED004C0B2F /* SplashAnimation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SplashAnimation.json; sourceTree = "<group>"; };
+		2CDB730F2D7E5856004C0B2F /* VersionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionManager.swift; sourceTree = "<group>"; };
+		2CDB73132D7E5AF7004C0B2F /* WhatsNewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNewView.swift; sourceTree = "<group>"; };
 		2CE0C97C2D5AC5A600ECC962 /* MovieClubCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieClubCardView.swift; sourceTree = "<group>"; };
 		2CE0C97E2D5ACD0100ECC962 /* CachedAsyncImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedAsyncImage.swift; sourceTree = "<group>"; };
 		2CE0C9802D5B0BE700ECC962 /* CommentsSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsSheetView.swift; sourceTree = "<group>"; };
@@ -369,6 +373,7 @@
 				2CDB72E62D76BE19004C0B2F /* ValidationService.swift */,
 				2CDB72FD2D778D9F004C0B2F /* FontExtensions.swift */,
 				2C5DEC412BF1B12D000EF232 /* DataManager.swift */,
+				2CDB730F2D7E5856004C0B2F /* VersionManager.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -525,8 +530,8 @@
 		2CACA3C52D6D0D35000BD62C /* Animations */ = {
 			isa = PBXGroup;
 			children = (
+				2CDB73072D7E4EED004C0B2F /* SplashAnimation.json */,
 				2CDB73032D78F5C5004C0B2F /* SplashScreenView.swift */,
-				2CDB73012D78F46E004C0B2F /* SplashAnimation.json */,
 				2CACA3C82D6D33E6000BD62C /* Falling-Confetti.json */,
 				2CACA3C62D6D0D70000BD62C /* Confetti.json */,
 			);
@@ -536,6 +541,7 @@
 		2CAEAB9F2C5C5C8100A0011A /* ComponentViews */ = {
 			isa = PBXGroup;
 			children = (
+				2CDB73132D7E5AF7004C0B2F /* WhatsNewView.swift */,
 				2CE0C9842D5D62FB00ECC962 /* DiamondCardView.swift */,
 				2CE0C9822D5D533300ECC962 /* MovieCardView.swift */,
 				2CE0C97E2D5ACD0100ECC962 /* CachedAsyncImage.swift */,
@@ -843,7 +849,7 @@
 				2CDB72F22D77860E004C0B2F /* Stolzl-Light.otf in Resources */,
 				2CDB72F32D77860E004C0B2F /* Stolzl-Book.otf in Resources */,
 				2CDB72F42D77860E004C0B2F /* Stolzl-Medium.otf in Resources */,
-				2CDB73022D78F46E004C0B2F /* SplashAnimation.json in Resources */,
+				2CDB73082D7E4EED004C0B2F /* SplashAnimation.json in Resources */,
 				2CDB72F52D77860E004C0B2F /* Stolzl-Bold.otf in Resources */,
 				2C5DEC232BF1AC6E000EF232 /* Assets.xcassets in Resources */,
 				2CD71F832CB5E3C500F9CF58 /* TestPlan.xctestplan in Resources */,
@@ -910,6 +916,7 @@
 				2C11FFE32CA274C1004F54BC /* Comment.swift in Sources */,
 				2CE0C9812D5B0BE700ECC962 /* CommentsSheetView.swift in Sources */,
 				2C1326B62CC9EAB50076E39C /* NotifImageView.swift in Sources */,
+				2CDB73102D7E5856004C0B2F /* VersionManager.swift in Sources */,
 				2C87B2BB2C6F1B4100A49B2B /* ComingSoonRowView.swift in Sources */,
 				2CAEAB9A2C58972300A0011A /* ClubDetailsForm.swift in Sources */,
 				2CDB73042D78F5C5004C0B2F /* SplashScreenView.swift in Sources */,
@@ -947,6 +954,7 @@
 				2C8256BB2BF1BC9300D2ED12 /* LoginView.swift in Sources */,
 				2CD71FDE2CB995DD00F9CF58 /* ClubToolbar.swift in Sources */,
 				2C033CCF2CD6C409006FE782 /* EmptyMovieView.swift in Sources */,
+				2CDB73142D7E5AF7004C0B2F /* WhatsNewView.swift in Sources */,
 				2C1326B22CC9E9CC0076E39C /* NotifView.swift in Sources */,
 				2C87B2A72C6B13C500A49B2B /* AviSelector.swift in Sources */,
 				2CD71FEB2CBCF0FA00F9CF58 /* Suggestion.swift in Sources */,
@@ -1177,7 +1185,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.1;
+				MARKETING_VERSION = 0.2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "duhmarcus.Movie-Club";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1212,7 +1220,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.1;
+				MARKETING_VERSION = 0.2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "duhmarcus.Movie-Club";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

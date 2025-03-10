@@ -29,21 +29,6 @@ extension Font {
         return Font.custom("Stolzl-Light", size: UIFont.preferredFont(forTextStyle: .subheadline).pointSize)
     }
     
-    /// Create a font with the callout text style.
-    public static var callout: Font {
-        return Font.custom("Stolzl-Regular", size: UIFont.preferredFont(forTextStyle: .callout).pointSize)
-    }
-    
-    /// Create a font with the footnote text style.
-    public static var footnote: Font {
-        return Font.custom("Stolzl-Regular", size: UIFont.preferredFont(forTextStyle: .footnote).pointSize)
-    }
-    
-    /// Create a font with the caption text style.
-    public static var caption: Font {
-        return Font.custom("Stolzl-Regular", size: UIFont.preferredFont(forTextStyle: .caption1).pointSize)
-    }
-    
     public static func system(size: CGFloat, weight: Font.Weight = .regular, design: Font.Design = .default) -> Font {
         var font = "Stolzl-Regular"
         switch weight {
@@ -51,7 +36,6 @@ extension Font {
         case .heavy: font = "Stolzl-Bold"
         case .light: font = "Stolzl-Light"
         case .medium: font = "Stolzl-Regular"
-        case .semibold: font = "Stolzl-Bold"
         case .thin: font = "Stolzl-Light"
         case .ultraLight: font = "Stolzl-Light"
         default: break
