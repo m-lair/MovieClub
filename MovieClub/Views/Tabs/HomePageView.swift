@@ -146,7 +146,7 @@ struct HomePageView: View {
         }
         .onAppear {
             // Check for What's New after a slight delay to ensure view is loaded
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 checkForWhatsNew()
             }
             
