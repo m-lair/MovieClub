@@ -119,7 +119,7 @@ struct MovieClubApp: App {
                             dataManager = DataManager()
                             notifManager = NotificationManager()
                             Task {
-                                try? await Task.sleep(for: .seconds(4.25))
+                                try? await Task.sleep(for: .seconds(2.5))
                                 // Use longer animation duration for smoother transition
                                 withAnimation {
                                     showSplash = false
