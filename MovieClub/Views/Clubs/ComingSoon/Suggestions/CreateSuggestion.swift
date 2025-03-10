@@ -470,11 +470,8 @@ extension CreateSuggestionView {
             )
             
             let _ = try await data.createSuggestion(suggestion: newSuggestion)
+            dismiss()
             
-            // Dismiss on main actor
-            await MainActor.run {
-                dismiss()
-            }
         } catch {
             // Reset submitting state on main actor
             await MainActor.run {
