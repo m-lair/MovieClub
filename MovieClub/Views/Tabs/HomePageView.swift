@@ -11,6 +11,7 @@ import FirebaseAuth
 
 struct HomePageView: View {
     @Environment(DataManager.self) var data: DataManager
+    @Environment(VersionManager.self) var versionManager: VersionManager
     @Binding var navPath: NavigationPath
     @Namespace private var namespace
     @State private var isLoading: Bool = true
@@ -22,6 +23,8 @@ struct HomePageView: View {
     @State private var refreshTrigger = UUID() // Add refresh trigger
     @State private var initialLoadComplete = false // Track initial load
     @State private var animationStartTime: Date? = nil
+    // What's New sheet state
+    @State private var showWhatsNew: Bool = false
     
     var sortedUserClubs: [MovieClub] {
         userClubs.sorted { club1, club2 in
@@ -142,6 +145,11 @@ struct HomePageView: View {
             }
         }
         .onAppear {
+            // Check for What's New after a slight delay to ensure view is loaded
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                checkForWhatsNew()
+            }
+            
             Task {
                 if let userId = Auth.auth().currentUser?.uid {
                     // Generate new refresh trigger to force view updates
@@ -161,6 +169,28 @@ struct HomePageView: View {
                 }
             }
         }
+        .sheet(isPresented: $showWhatsNew) {
+            WhatsNewView(isPresented: $showWhatsNew)
+        }
+        .onChange(of: initialLoadComplete) {
+            if initialLoadComplete {
+                // Check for What's New after animations are complete with a slight delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    checkForWhatsNew()
+                }
+            }
+        }
+    }
+    
+    // New function to check if we should show What's New
+    private func checkForWhatsNew() {
+        // Standard version check
+        let shouldShow = versionManager.shouldShowWhatsNew()
+        if shouldShow {
+            showWhatsNew = true
+        }
+        // Debug output to console
+        print("VersionManager check: shouldShowWhatsNew = \(shouldShow), current version = \(versionManager.currentVersion), last viewed = \(versionManager.lastViewedVersion)")
     }
     
     // Initialize animation arrays based on number of clubs

@@ -1,11 +1,12 @@
 import Foundation
 
+@Observable
 class VersionManager {
-    private static let lastViewedVersionKey = "lastViewedVersion"
-    private static let firstLaunchKey = "isFirstLaunch"
+    private let lastViewedVersionKey = "lastViewedVersion"
+    private let firstLaunchKey = "isFirstLaunch"
     
     /// Get the current app version from the Info.plist
-    static var currentVersion: String {
+    var currentVersion: String {
         guard let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String else {
             return "1.0.0" // Default if unable to read version
         }
@@ -13,12 +14,12 @@ class VersionManager {
     }
     
     /// The last version the user viewed the What's New screen for
-    static var lastViewedVersion: String {
+    var lastViewedVersion: String {
         return UserDefaults.standard.string(forKey: lastViewedVersionKey) ?? ""
     }
     
     /// Check if this is the first launch of the app ever
-    static var isFirstLaunch: Bool {
+    var isFirstLaunch: Bool {
         let firstLaunch = !UserDefaults.standard.bool(forKey: firstLaunchKey)
         if firstLaunch {
             // Set it to false for next time
@@ -28,7 +29,7 @@ class VersionManager {
     }
     
     /// Check if there's a new version that hasn't been seen by the user
-    static func shouldShowWhatsNew() -> Bool {
+    func shouldShowWhatsNew() -> Bool {
         // Skip on first launch since onboarding is more appropriate
         if isFirstLaunch {
             // Still mark as seen so future updates will work properly
@@ -44,17 +45,17 @@ class VersionManager {
     }
     
     /// Check if we're running a specific version
-    static func isRunningVersion(_ version: String) -> Bool {
+    func isRunningVersion(_ version: String) -> Bool {
         return currentVersion == version
     }
     
     /// Mark the current version as seen
-    static func markCurrentVersionAsSeen() {
+     func markCurrentVersionAsSeen() {
         UserDefaults.standard.set(currentVersion, forKey: lastViewedVersionKey)
     }
     
     /// Reset the version tracking (for testing)
-    static func resetVersionTracking() {
+    func resetVersionTracking() {
         UserDefaults.standard.removeObject(forKey: lastViewedVersionKey)
     }
 } 

@@ -99,6 +99,7 @@ struct MovieClubApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @State var dataManager: DataManager? = nil
     @State var notifManager: NotificationManager? = nil
+    @State var versionManager: VersionManager? = nil
     @State private var showSplash = true
     
     var body: some Scene {
@@ -109,15 +110,16 @@ struct MovieClubApp: App {
                         HomeView()
                             .environment(dataManager)
                             .environment(notifManager)
+                            .environment(versionManager)
                             .animation(.easeInOut(duration: 0.8), value: showSplash)
                     }
-                    
                 } else {
                     SplashScreenView()
                         .onAppear {
                             // Initialize managers while splash is showing
                             dataManager = DataManager()
                             notifManager = NotificationManager()
+                            versionManager = VersionManager()
                             Task {
                                 try? await Task.sleep(for: .seconds(2.5))
                                 // Use longer animation duration for smoother transition

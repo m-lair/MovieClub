@@ -149,11 +149,7 @@ extension DataManager {
                            currentDate.timeIntervalSince(startDate) > 3600 {
                             needsRotation = true
                             print("Movie needs rotation: Today (\(currentDate)) is after end date (\(endDate))")
-                        } else {
-                            print("Not rotating movie \(baseMovie?.id ?? "") since it was recently activated")
                         }
-                    } else {
-                        print("Today (\(currentDate)) is not after end date (\(endDate)), no rotation needed")
                     }
                 }
             } else if self.suggestions.count > 0 {
