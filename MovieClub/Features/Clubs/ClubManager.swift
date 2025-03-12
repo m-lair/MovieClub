@@ -193,6 +193,11 @@ extension DataManager {
                 movieClub.suggestions = try await fetchSuggestions(clubId: snapshot.documentID)
                 movieClub.bannerUrl = baseMovie.poster
                 
+                // Calculate banner color if needed
+                if let backdropUrl = baseMovie.apiData?.backdropHorizontal,
+                   let url = URL(string: backdropUrl) {
+                    await calculateBannerColorIfNeeded(for: movieClub, with: url)
+                }
             }
             
             return movieClub
@@ -201,7 +206,51 @@ extension DataManager {
             return nil
         }
     }
-
+    
+    /// Calculates and caches the banner color for a movie club
+    /// - Parameters:
+    ///   - club: The movie club to calculate the color for
+    ///   - url: The URL of the backdrop image
+    func calculateBannerColorIfNeeded(for club: MovieClub, with url: URL) async {
+        guard let clubId = club.id, 
+              let movieId = club.movies.first?.id else { return }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            if let uiImage = UIImage(data: data),
+               let dominantUIColor = dominantColor(from: uiImage) {
+                club.bannerColor = dominantUIColor
+            }
+        } catch {
+            print("Error calculating banner color: \(error)")
+        }
+    }
+    
+    /// Extracts the dominant color from an image
+    /// - Parameter image: The UIImage to analyze
+    /// - Returns: The dominant UIColor or nil if extraction fails
+    func dominantColor(from image: UIImage) -> UIColor? {
+        guard let inputImage = CIImage(image: image) else { return nil }
+        let extent = inputImage.extent
+        let parameters = [kCIInputImageKey: inputImage,
+                          kCIInputExtentKey: CIVector(cgRect: extent)] as [String: Any]
+        guard let filter = CIFilter(name: "CIAreaAverage", parameters: parameters),
+              let outputImage = filter.outputImage else { return nil }
+        
+        var bitmap = [UInt8](repeating: 0, count: 4)
+        let context = CIContext(options: [.workingColorSpace: kCFNull as Any])
+        context.render(outputImage,
+                       toBitmap: &bitmap,
+                       rowBytes: 4,
+                       bounds: CGRect(x: 0, y: 0, width: 1, height: 1),
+                       format: .RGBA8,
+                       colorSpace: CGColorSpaceCreateDeviceRGB())
+        
+        return UIColor(red: CGFloat(bitmap[0]) / 255.0,
+                       green: CGFloat(bitmap[1]) / 255.0,
+                       blue: CGFloat(bitmap[2]) / 255.0,
+                       alpha: CGFloat(bitmap[3]) / 255.0)
+    }
     
     // MARK: - Remove Club Relationship
     
