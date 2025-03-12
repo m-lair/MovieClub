@@ -45,6 +45,7 @@ struct MovieClubCardView: View {
                                 Spacer()
                                 Text(movieClub.name)
                                     .shadow(color: .black, radius: 2)
+                                    .font(.headline)
                                     .fontWeight(.bold)
                                     .padding(.horizontal, 5)
 
@@ -67,7 +68,7 @@ struct MovieClubCardView: View {
                                 Spacer()
                                 HStack {
                                     Text(movieClub.name)
-                                        .font(Font.custom("Stolzl", size: 24, relativeTo: .headline))
+                                        .font(.headline)
                                         .shadow(color: .black, radius: 2)
                                         .fontWeight(.bold)
                                         .padding(.horizontal)

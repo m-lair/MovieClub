@@ -180,7 +180,6 @@ extension DataManager {
                 }
             }
 
-            // 5) If we have a base movie, fetch the API data
             if let baseMovie = baseMovie {
                 // Fetch TMDB data for the movie
                 if let apiMovie = try await tmdb.fetchMovieDetails(baseMovie.imdbId) {
@@ -189,7 +188,11 @@ extension DataManager {
                 
                 // Assign to your club model
                 movieClub.movieEndDate = baseMovie.endDate
+                
+                // Clear existing movies and set the new one
                 movieClub.movies = [baseMovie]
+                
+                // Fetch suggestions
                 movieClub.suggestions = try await fetchSuggestions(clubId: snapshot.documentID)
                 movieClub.bannerUrl = baseMovie.poster
                 
@@ -198,6 +201,9 @@ extension DataManager {
                    let url = URL(string: backdropUrl) {
                     await calculateBannerColorIfNeeded(for: movieClub, with: url)
                 }
+            } else {
+                // No active movie found, ensure movies array is empty
+                movieClub.movies = []
             }
             
             return movieClub

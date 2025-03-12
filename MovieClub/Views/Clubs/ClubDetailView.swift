@@ -23,6 +23,8 @@ struct ClubDetailView: View {
         
                 NowShowingView()
                     .tag(1)
+                    .id("now-showing-\(club.movies.first?.id ?? "unknown")")
+                    .transition(.opacity)
                 
                 ComingSoonView(startDate: club.movieEndDate, timeInterval: club.timeInterval)
                     .tag(2)
@@ -31,12 +33,17 @@ struct ClubDetailView: View {
                     .tag(3)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
+            .animation(.easeInOut, value: club.movies.first?.id)
             
         }
         .toolbar {
             ClubToolbar(club: $club)
         }
         .task {
+            data.currentClub = club
+        }
+        .onChange(of: club.movies) { oldMovies, newMovies in
+            // Update data.currentClub when club.movies changes
             data.currentClub = club
         }
         .onDisappear {

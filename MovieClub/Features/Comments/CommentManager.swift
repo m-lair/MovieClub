@@ -55,14 +55,15 @@ extension DataManager {
             return
         }
         
+        // Remove any existing listener
+        commentsListener?.remove()
+        
         let commentsRef = movieClubCollection()
             .document(clubId)
             .collection("movies")
             .document(movieId)
             .collection("comments")
             .order(by: "createdAt", descending: false) // Use ascending order for thread readability
-        
-        commentsListener?.remove()
         
         commentsListener = commentsRef.addSnapshotListener { [weak self] querySnapshot, error in
             guard let self = self else {

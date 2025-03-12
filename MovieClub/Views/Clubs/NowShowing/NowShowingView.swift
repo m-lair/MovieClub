@@ -83,6 +83,29 @@ struct NowShowingView: View {
         .onAppear {
             Task { await refreshClub() }
         }
+        .onChange(of: data.currentClub?.movies.first?.id) { oldId, newId in
+            if oldId != newId && newId != nil {
+                // Movie has changed, reset state and refresh data
+                withAnimation(.easeInOut(duration: 0.5)) {
+                    collected = false
+                    liked = false
+                    disliked = false
+                }
+                
+                // Only clear comments if we're switching to a different movie
+                if oldId != nil {
+                    data.comments = []
+                }
+                
+                Task { 
+                    await refreshClub()
+                    // Reset comment listener for the new movie
+                    if let movieId = data.currentClub?.movies.first?.id {
+                        data.listenToComments(movieId: movieId)
+                    }
+                }
+            }
+        }
         .alert("Error", isPresented: .constant(error != nil)) {
             Button("OK") { error = nil }
         } message: {
@@ -97,6 +120,7 @@ struct NowShowingView: View {
             ScrollView {
                 VStack(spacing: 0) {
                     FeaturedMovieView(collected: collected, movie: movie)
+                        .id("movie-\(movie.id ?? "unknown")")
                     userInfoHeader(movie)
                     progressBar
                     CommentsView(onReply: handleReply)
