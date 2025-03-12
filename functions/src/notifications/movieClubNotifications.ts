@@ -4,6 +4,7 @@ import { getMovieClub } from "../movieClubs/movieClubHelpers";
 import { MovieClubData } from "../movieClubs/movieClubTypes";
 import { UserData } from "src/users/userTypes";
 import { getUser } from "src/users/userHelpers";
+import { NotificationType } from "./notificationTypes";
 
 export const notifyClubOwnerOnNewMember = onDocumentCreated(
   "movieclubs/{clubId}/members/{userId}",
@@ -54,16 +55,19 @@ export const notifyClubOwnerOnNewMember = onDocumentCreated(
       const ownerData = ownerSnapshot.data() as UserData;
       const ownerFcmToken = ownerData.fcmToken;
       
+      // Create a more specific message
+      const notificationMessage = `${memberName} joined your club "${clubName}"`;
+      
       // Send push notification if owner has FCM token
       if (ownerFcmToken) {
         const payload = {
           token: ownerFcmToken,
           notification: {
             title: `New Member in ${clubName}`,
-            body: `${memberName} joined your club!`,
+            body: notificationMessage,
           },
           data: {
-            type: 'joined',
+            type: NotificationType.JOINED,
             clubName: clubName,
             userName: memberName,
             clubId: clubId,
@@ -90,9 +94,9 @@ export const notifyClubOwnerOnNewMember = onDocumentCreated(
             userName: memberName,
             userId: userId,
             othersCount: null,
-            message: `${memberName} joined your club ${clubName}`,
+            message: notificationMessage,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            type: "joined",
+            type: NotificationType.JOINED,
           });
         console.log(`Join notification document written for owner ${ownerId}`);
       } catch (error) {

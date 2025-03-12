@@ -16,6 +16,7 @@ struct Notification: Identifiable, Codable, Hashable {
     let userName: String
     let userId: String
     let othersCount: Int?
+    let imdbId: String?
     let message: String
     let createdAt: Date
     let type: NotificationType

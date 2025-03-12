@@ -30,7 +30,7 @@ struct NotificationListView: View {
         case .comments:
             return notifManager.notifications.filter { $0.type == .commented || $0.type == .replied || $0.type == .liked }
         case .movieClubs:
-            return notifManager.notifications.filter { $0.type == .joined }
+            return notifManager.notifications.filter { $0.type == .joined || $0.type == .suggestion }
         case .posters:
             return notifManager.notifications.filter { $0.type == .collected }
         }

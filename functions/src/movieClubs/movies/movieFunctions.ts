@@ -286,12 +286,23 @@ async function notifyMembersAboutNewMovie(
     
     const memberIds = membersSnapshot.docs.map(doc => doc.id);
     
-    // Get movie details - you might want to fetch more details from an external API
-    // For now we'll use a generic message
-    const movieTitle = "a new movie"; // Could be fetched using suggestionData.imdbId
+    // Get movie details if possible
+    let movieTitle = "a new movie";
+    if (suggestionData.imdbId) {
+      try {
+        // Import dynamically to avoid circular dependencies
+        const { getMovieDetails } = require("../../notifications/movieHelpers");
+        const movieDetails = await getMovieDetails(suggestionData.imdbId);
+        if (movieDetails && movieDetails.title) {
+          movieTitle = `"${movieDetails.title}"`;
+        }
+      } catch (error) {
+        console.error("Failed to fetch movie details:", error);
+      }
+    }
     
     // Prepare notification message
-    const notificationMessage = `New movie to watch: ${movieTitle}`;
+    const notificationMessage = `It's time to watch ${movieTitle} in ${clubName}`;
     
     // Process each member
     const notificationPromises = memberIds.map(async (memberId) => {
@@ -335,6 +346,9 @@ async function notifyMembersAboutNewMovie(
           .add({
             clubName: clubName,
             clubId: clubId,
+            userName: suggestionData.userName || "The club",
+            userId: suggestionData.userId,
+            othersCount: null,
             message: notificationMessage,
             createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
             type: "rotated",

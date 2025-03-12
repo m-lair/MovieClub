@@ -4,6 +4,8 @@ import { SuggestionData } from "../movieClubs/suggestions/suggestionTypes";
 import { getMovieClub } from "../movieClubs/movieClubHelpers";
 import { UserData } from "src/users/userTypes";
 import { getUser } from "src/users/userHelpers";
+import { NotificationType } from "./notificationTypes";
+import { getMovieDetails } from "../movieClubs/movies/movieHelpers";
 
 export const notifyClubMembersOnNewSuggestion = onDocumentCreated(
   "movieclubs/{clubId}/suggestions/{suggestionId}",
@@ -44,9 +46,18 @@ export const notifyClubMembersOnNewSuggestion = onDocumentCreated(
         return null;
       }
       
-      // Get movie details from IMDB ID if needed
-      // For now, we'll just use a generic message
-      const movieTitle = "a new movie"; // You could fetch the actual title if needed
+      // Get movie details from IMDB ID if available
+      let movieTitle = "a new movie";
+      if (suggestionData.imdbId) {
+        try {
+          const movieDetails = await getMovieDetails(suggestionData.imdbId);
+          if (movieDetails && movieDetails.title) {
+            movieTitle = `"${movieDetails.title}"`;
+          }
+        } catch (error) {
+          console.error("Failed to fetch movie details:", error);
+        }
+      }
       
       // Get user data for all members in parallel
       const userPromises = memberIds.map((userId) => getUser(userId));
@@ -63,7 +74,7 @@ export const notifyClubMembersOnNewSuggestion = onDocumentCreated(
         const fcmToken = userData.fcmToken;
         
         // Prepare notification message
-        const notificationMessage = `${suggestionData.userName} suggested ${movieTitle}`;
+        const notificationMessage = `${suggestionData.userName} suggested ${movieTitle} in ${clubName}`;
         
         // Send FCM push notification if token exists
         if (fcmToken) {
@@ -74,7 +85,7 @@ export const notifyClubMembersOnNewSuggestion = onDocumentCreated(
               body: notificationMessage,
             },
             data: {
-              type: 'suggested',
+              type: NotificationType.SUGGESTION,
               clubName: clubName,
               userName: suggestionData.userName,
               clubId: clubId,
@@ -101,9 +112,9 @@ export const notifyClubMembersOnNewSuggestion = onDocumentCreated(
               userName: suggestionData.userName,
               userId: suggestionData.userId,
               othersCount: null,
-              message: `${suggestionData.userName} suggested a movie in ${clubName}`,
+              message: notificationMessage,
               createdAt: admin.firestore.FieldValue.serverTimestamp(),
-              type: "suggested",
+              type: NotificationType.SUGGESTION,
               imdbId: suggestionData.imdbId,
             });
           

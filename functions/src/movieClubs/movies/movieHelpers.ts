@@ -8,6 +8,38 @@ export const getMovieRef = (movieClubId: string) => {
     .collection(MOVIES)
 };
 
+// Function to get movie details from TMDB API or fallback to Firestore
+export async function getMovieDetails(imdbId: string) {
+  try {
+    // First try to find the movie in Firestore across all clubs
+    const movieQuery = await firestore
+      .collectionGroup(MOVIES)
+      .where("imdbId", "==", imdbId)
+      .limit(1)
+      .get();
+    
+    if (!movieQuery.empty) {
+      const movieData = movieQuery.docs[0].data();
+      return {
+        title: movieData.title || "Unknown Movie",
+        imdbId: movieData.imdbId
+      };
+    }
+    
+    // If not found in Firestore, return a generic object
+    return {
+      title: "Unknown Movie",
+      imdbId: imdbId
+    };
+  } catch (error) {
+    console.error("Error fetching movie details:", error);
+    return {
+      title: "Unknown Movie",
+      imdbId: imdbId
+    };
+  }
+}
+
 export const getMovieDocRef = (uid: string, movieClubId: string) => {
   return getMovieRef(movieClubId).doc(uid);
 };
