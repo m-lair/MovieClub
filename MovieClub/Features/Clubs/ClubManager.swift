@@ -224,7 +224,7 @@ extension DataManager {
             
             return movieClub
         } catch {
-            print("Error fetching movie club: \(error.localizedDescription)")
+            print("Error fetching movie club: \(error.localizedDescription) for club: \(clubId)")
             return nil
         }
     }
