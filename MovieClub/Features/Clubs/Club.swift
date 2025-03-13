@@ -7,6 +7,8 @@
 
 import Foundation
 import Observation
+import UIKit
+import SwiftUI
 
 @Observable
 final class MovieClub: Identifiable, Codable, Hashable, Equatable {
@@ -25,6 +27,16 @@ final class MovieClub: Identifiable, Codable, Hashable, Equatable {
     var members: [Member]?
     var suggestions: [Suggestion]?
     var movies: [Movie]
+    
+    // Non-persisted properties
+    var bannerColor: UIColor? = nil
+    
+    var bannerColorForUI: Color {
+        if let color = bannerColor {
+            return Color(color)
+        }
+        return .gray
+    }
     
     init(
         id: String? = nil,

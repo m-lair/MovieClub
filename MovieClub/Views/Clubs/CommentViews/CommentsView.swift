@@ -22,6 +22,9 @@ struct CommentsView: View {
     @State private var expandedNodes = Set<String>()
     @State var isLoading: Bool = false
     @State private var error: Error?
+    
+    // Track the current movie ID to detect changes
+    @State private var currentMovieId: String = ""
 
     var body: some View {
         ScrollView {
@@ -30,6 +33,8 @@ struct CommentsView: View {
                 
                 if flatList.isEmpty {
                     Text(isLoading ? "Loading..." : "No comments yet")
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .center)
                 } else {
                     // 2) Render the flattened list
                     ForEach(flatList) { item in
@@ -40,20 +45,40 @@ struct CommentsView: View {
                             onToggle: toggleExpand,
                             onReply: onReply
                         )
+                        .transition(.opacity)
                         Divider()
                             .mask(LinearGradient(colors: [.clear.opacity(0.5), .white, .clear.opacity(0.5)], startPoint: .leading, endPoint: .trailing))
                     }
                 }
             }
+            .animation(.easeInOut, value: comments)
         }
         .task {
-            setupCommentListener()
+            if currentMovieId != data.movieId {
+                setupCommentListener()
+                currentMovieId = data.movieId
+            }
+        }
+        .onChange(of: data.movieId) { oldId, newId in
+            if oldId != newId && newId != "" {
+                // Only reset expanded nodes if we're switching to a different movie
+                if !comments.isEmpty {
+                    expandedNodes.removeAll()
+                }
+                
+                // Only set up a new listener if the movie ID has changed
+                if currentMovieId != newId {
+                    setupCommentListener()
+                    currentMovieId = newId
+                }
+            }
         }
         .onChange(of: comments) {
-            if expandedNodes.isEmpty {
+            if expandedNodes.isEmpty && !comments.isEmpty {
                 expandedNodes = collectExpandedNodes(nodes: comments, maxDepth: 3)
             }
         }
+        .id("comments-\(data.movieId)")
     }
     
     private func flattenComments(

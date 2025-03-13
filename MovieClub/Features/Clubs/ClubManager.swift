@@ -64,22 +64,38 @@ extension DataManager {
     // MARK: - Update Movie Club
     
     func updateMovieClub(movieClub: MovieClub) async throws {
-        let updateClub: Callable<MovieClub, MovieClubResponse> = functions.httpsCallable("movieClubs-updateMovieClub")
-        do {
-            // The Firebase function doesn't return a structured response, it might return null
-            let result = try await updateClub(movieClub)
+        
+        let basicValidationResult = ValidationService.validateClubNameBasic(movieClub.name)
+        
+        switch basicValidationResult {
+        case .failure(let error):
+            throw ClubError.custom(message: error.localizedDescription)
+        case .success:
+            // Proceed with server-side validation
+            let serverValidationResult = await ValidationService.validateClubNameOnServer(movieClub.name)
             
-            if result.success {
-                print("Club updated successfully: \(movieClub.name)")
-            } else {
-                throw ClubError.custom(message: result.message ?? "Unknown error")
+            switch serverValidationResult {
+            case .failure(let error):
+                throw ClubError.custom(message: error.localizedDescription)
+            case .success:
+                let updateClub: Callable<MovieClub, MovieClubResponse> = functions.httpsCallable("movieClubs-updateMovieClub")
+                do {
+                    // The Firebase function doesn't return a structured response, it might return null
+                    let result = try await updateClub(movieClub)
+                    
+                    if result.success {
+                        print("Club updated successfully: \(movieClub.name)")
+                    } else {
+                        throw ClubError.custom(message: result.message ?? "Unknown error")
+                    }
+                    
+                    // If we get here, the update was successful
+                    print("Club updated successfully: \(movieClub.name)")
+                } catch {
+                    print("Error updating club: \(error)")
+                    throw ClubError.networkError(error)
+                }
             }
-            
-            // If we get here, the update was successful
-            print("Club updated successfully: \(movieClub.name)")
-        } catch {
-            print("Error updating club: \(error)")
-            throw ClubError.networkError(error)
         }
     }
     
@@ -180,7 +196,6 @@ extension DataManager {
                 }
             }
 
-            // 5) If we have a base movie, fetch the API data
             if let baseMovie = baseMovie {
                 // Fetch TMDB data for the movie
                 if let apiMovie = try await tmdb.fetchMovieDetails(baseMovie.imdbId) {
@@ -189,10 +204,22 @@ extension DataManager {
                 
                 // Assign to your club model
                 movieClub.movieEndDate = baseMovie.endDate
+                
+                // Clear existing movies and set the new one
                 movieClub.movies = [baseMovie]
+                
+                // Fetch suggestions
                 movieClub.suggestions = try await fetchSuggestions(clubId: snapshot.documentID)
                 movieClub.bannerUrl = baseMovie.poster
                 
+                // Calculate banner color if needed
+                if let backdropUrl = baseMovie.apiData?.backdropHorizontal,
+                   let url = URL(string: backdropUrl) {
+                    await calculateBannerColorIfNeeded(for: movieClub, with: url)
+                }
+            } else {
+                // No active movie found, ensure movies array is empty
+                movieClub.movies = []
             }
             
             return movieClub
@@ -201,7 +228,51 @@ extension DataManager {
             return nil
         }
     }
-
+    
+    /// Calculates and caches the banner color for a movie club
+    /// - Parameters:
+    ///   - club: The movie club to calculate the color for
+    ///   - url: The URL of the backdrop image
+    func calculateBannerColorIfNeeded(for club: MovieClub, with url: URL) async {
+        guard let clubId = club.id, 
+              let movieId = club.movies.first?.id else { return }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            if let uiImage = UIImage(data: data),
+               let dominantUIColor = dominantColor(from: uiImage) {
+                club.bannerColor = dominantUIColor
+            }
+        } catch {
+            print("Error calculating banner color: \(error)")
+        }
+    }
+    
+    /// Extracts the dominant color from an image
+    /// - Parameter image: The UIImage to analyze
+    /// - Returns: The dominant UIColor or nil if extraction fails
+    func dominantColor(from image: UIImage) -> UIColor? {
+        guard let inputImage = CIImage(image: image) else { return nil }
+        let extent = inputImage.extent
+        let parameters = [kCIInputImageKey: inputImage,
+                          kCIInputExtentKey: CIVector(cgRect: extent)] as [String: Any]
+        guard let filter = CIFilter(name: "CIAreaAverage", parameters: parameters),
+              let outputImage = filter.outputImage else { return nil }
+        
+        var bitmap = [UInt8](repeating: 0, count: 4)
+        let context = CIContext(options: [.workingColorSpace: kCFNull as Any])
+        context.render(outputImage,
+                       toBitmap: &bitmap,
+                       rowBytes: 4,
+                       bounds: CGRect(x: 0, y: 0, width: 1, height: 1),
+                       format: .RGBA8,
+                       colorSpace: CGColorSpaceCreateDeviceRGB())
+        
+        return UIColor(red: CGFloat(bitmap[0]) / 255.0,
+                       green: CGFloat(bitmap[1]) / 255.0,
+                       blue: CGFloat(bitmap[2]) / 255.0,
+                       alpha: CGFloat(bitmap[3]) / 255.0)
+    }
     
     // MARK: - Remove Club Relationship
     
@@ -215,7 +286,7 @@ extension DataManager {
     
     func fetchAllPublicClubs() async throws -> [String] {
         let snapshot = try await movieClubCollection()
-            .whereField("isPublic", isEqualTo: "true")
+            .whereField("isPublic", isEqualTo: true)
             .getDocuments()
 
         let clubs: [String] = snapshot.documents.compactMap { doc in

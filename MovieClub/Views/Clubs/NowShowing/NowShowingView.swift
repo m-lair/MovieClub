@@ -27,14 +27,36 @@ struct NowShowingView: View {
     private var progress: Double {
         guard let movie else { return 0 }
         
-        let now = Date()
-        let totalDuration = DateInterval(start: movie.startDate, end: movie.endDate).duration
-        let elapsedDuration = DateInterval(start: movie.startDate, end: min(now, movie.endDate)).duration
-        return elapsedDuration / totalDuration
+        // Get the timestamps to avoid DateInterval issues
+        let startTime = movie.startDate.timeIntervalSince1970
+        let endTime = movie.endDate.timeIntervalSince1970
+        let nowTime = Date().timeIntervalSince1970
+        
+        // Validate timestamps
+        if startTime >= endTime || endTime <= startTime {
+            return 0
+        }
+        
+        // Calculate total duration
+        let totalDuration = endTime - startTime
+        
+        // Calculate elapsed duration (capped at total duration)
+        let cappedNowTime = min(nowTime, endTime)
+        let elapsedDuration = cappedNowTime - startTime
+        
+        // Ensure we don't divide by zero or get negative progress
+        if totalDuration <= 0 || elapsedDuration < 0 {
+            return 0
+        }
+        
+        // Calculate progress (capped at 1.0)
+        return min(elapsedDuration / totalDuration, 1.0)
     }
     
     // Format date to show correct day regardless of time zone
-    private func formatDate(_ date: Date) -> String {
+    private func formatDate(_ date: Date?) -> String {
+        guard let date = date else { return "N/A" }
+        
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM d"
         formatter.timeZone = TimeZone(identifier: "UTC")
@@ -61,6 +83,29 @@ struct NowShowingView: View {
         .onAppear {
             Task { await refreshClub() }
         }
+        .onChange(of: data.currentClub?.movies.first?.id) { oldId, newId in
+            if oldId != newId && newId != nil {
+                // Movie has changed, reset state and refresh data
+                withAnimation(.easeInOut(duration: 0.5)) {
+                    collected = false
+                    liked = false
+                    disliked = false
+                }
+                
+                // Only clear comments if we're switching to a different movie
+                if oldId != nil {
+                    data.comments = []
+                }
+                
+                Task { 
+                    await refreshClub()
+                    // Reset comment listener for the new movie
+                    if let movieId = data.currentClub?.movies.first?.id {
+                        data.listenToComments(movieId: movieId)
+                    }
+                }
+            }
+        }
         .alert("Error", isPresented: .constant(error != nil)) {
             Button("OK") { error = nil }
         } message: {
@@ -75,6 +120,7 @@ struct NowShowingView: View {
             ScrollView {
                 VStack(spacing: 0) {
                     FeaturedMovieView(collected: collected, movie: movie)
+                        .id("movie-\(movie.id ?? "unknown")")
                     userInfoHeader(movie)
                     progressBar
                     CommentsView(onReply: handleReply)
@@ -193,18 +239,31 @@ struct NowShowingView: View {
     }
     
     private var progressBar: some View {
-        HStack {
-            Text(movie?.startDate != nil ? formatDate(movie!.startDate) : "")
-                .font(.title3)
-                .textCase(.uppercase)
-            
-            ProgressView(value: progress)
-                .progressViewStyle(ClubProgressViewStyle())
-                .frame(height: 10)
-            
-            Text(movie?.endDate != nil ? formatDate(movie!.endDate) : "")
-                .font(.title3)
-                .textCase(.uppercase)
+        Group {
+            if let movie = movie, 
+               movie.startDate.timeIntervalSince1970 > 0,
+               movie.endDate.timeIntervalSince1970 > 0,
+               movie.startDate < movie.endDate {
+                // Only show progress bar when we have valid dates
+                HStack {
+                    Text(formatDate(movie.startDate))
+                        .font(.title3)
+                        .textCase(.uppercase)
+                    
+                    ProgressView(value: progress)
+                        .progressViewStyle(ClubProgressViewStyle())
+                        .frame(height: 10)
+                    
+                    Text(formatDate(movie.endDate))
+                        .font(.title3)
+                        .textCase(.uppercase)
+                }
+            } else {
+                // Fallback when dates are invalid
+                Text("Date information unavailable")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
         }
     }
     
@@ -277,8 +336,7 @@ struct NowShowingView: View {
             clubId: clubId,
             clubName: clubName,
             colorStr: "",
-            collectedDate: Date(),
-            revealDate: movie.endDate
+            collectedDate: Date()
         )
         
         do {

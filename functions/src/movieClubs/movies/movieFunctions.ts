@@ -13,9 +13,10 @@ import { MovieData, MovieLikeRequest, MovieReactionData } from "./movieTypes";
 import { MovieClubData } from "../movieClubTypes";
 import { SuggestionData } from "../suggestions/suggestionTypes";
 import { getMovieClubDocRef } from "../movieClubHelpers";
-import { getActiveMovieDoc, getMovieRef } from "./movieHelpers";
+import { getMovieRef } from "./movieHelpers";
 import { getNextSuggestionDoc } from "../suggestions/suggestionHelpers";
 import { firebaseAdmin } from "firestore";
+import { NotificationType } from "../../notifications/notificationTypes";
 
 
 // Cloud Function to rotate the movie
@@ -29,163 +30,235 @@ exports.rotateMovie = functions.https.onCall(
       verifyRequiredFields(data, requiredFields);
       await verifyMembership(uid, clubId);
 
-      // First check if there's already a rotation in progress by looking for any recent archived movies
-      // that might have been created in the last hour
-      const recentArchiveCheck = await firebaseAdmin
-        .firestore()
-        .collection(`movieclubs/${clubId}/movies`)
-        .where("status", "==", "archived")
-        .orderBy("endDate", "desc")
-        .limit(1)
-        .get();
-
-      if (!recentArchiveCheck.empty) {
-        const recentArchive = recentArchiveCheck.docs[0].data() as MovieData;
-        const archiveTime = recentArchive.endDate instanceof Date 
-          ? recentArchive.endDate 
-          : recentArchive.endDate.toDate();
+      // Create a lock document reference for this club's rotation
+      const lockRef = firebaseAdmin.firestore().doc(`movieclubs/${clubId}/system/rotationLock`);
+      
+      // Try to acquire the lock using a transaction
+      const lockResult = await firebaseAdmin.firestore().runTransaction(async (transaction) => {
+        const lockDoc = await transaction.get(lockRef);
         
-        // If there's a recently archived movie (archived in the last hour), prevent duplicate rotation
-        const ONE_HOUR_MS = 3600000;
-        if (new Date().getTime() - archiveTime.getTime() < ONE_HOUR_MS) {
-          logVerbose(`Rotation already happened recently (${archiveTime}). Preventing duplicate rotation.`);
-          throw new functions.https.HttpsError(
-            'failed-precondition',
-            'A movie rotation has already occurred recently. Please try again later.'
-          );
+        // Check if lock exists and is still valid
+        if (lockDoc.exists) {
+          const lockData = lockDoc.data();
+          if (lockData && lockData.expiresAt) {
+            const lockExpiry = lockData.expiresAt.toDate();
+            
+            // If lock is still valid, someone else is rotating
+            if (new Date() < lockExpiry) {
+              logVerbose(`Rotation already in progress for club ${clubId}. Lock expires at ${lockExpiry}`);
+              return { acquired: false };
+            }
+          }
         }
-      }
-
-      const activeMovieDoc = await getActiveMovieDoc(clubId);
-
-      if (activeMovieDoc) {
-        const activeMovie = activeMovieDoc.data() as MovieData;
-
-        // Convert endDate to a JavaScript Date for comparison
-        const endDateAsDate = activeMovie.endDate instanceof Date 
-          ? activeMovie.endDate 
-          : activeMovie.endDate.toDate();
-
-        if (new Date() < endDateAsDate) {
-          throw new functions.https.HttpsError(
-            'failed-precondition',
-            'The current movie\'s watch period has not ended.'
-          );
-        }
-
-        // Add a grace period check to prevent movies from being rotated too quickly
-        // Only allow rotation if movie has been active for at least 1 hour
-        const now = new Date();
-        const startDateAsDate = activeMovie.startDate instanceof Date 
-          ? activeMovie.startDate 
-          : activeMovie.startDate.toDate();
         
-        const ONE_HOUR_MS = 3600000;
-        if (now.getTime() - startDateAsDate.getTime() < ONE_HOUR_MS) {
-          logVerbose(`Not rotating movie as it was created less than 1 hour ago (${startDateAsDate})`);
-          throw new functions.https.HttpsError(
-            'failed-precondition',
-            'Cannot rotate a movie that was just activated. Please try again later.'
-          );
-        }
-
-        // Mark the current movie as 'archived' AND update its endDate to 11:59 PM on its end date
-        // This ensures the end date is set to a consistent time (end of day)
-        const endDateObj = activeMovie.endDate instanceof Date 
-          ? activeMovie.endDate 
-          : activeMovie.endDate.toDate();
-          
-        // Set the time to 11:59:59 PM
-        const formattedEndDate = new Date(endDateObj);
-        formattedEndDate.setHours(23, 59, 59, 999);
+        // Create or update lock with 30 second expiry
+        const lockExpiry = new Date();
+        lockExpiry.setSeconds(lockExpiry.getSeconds() + 30); // 30 second lock
         
-        // Convert to Firestore Timestamp before updating
-        const firestoreEndDate = Timestamp.fromDate(formattedEndDate);
-        
-        await activeMovieDoc.ref.update({ 
-          status: 'archived',
-          endDate: firestoreEndDate  // Use the formatted end date with time set to 11:59:59 PM
+        transaction.set(lockRef, {
+          lockedBy: uid,
+          acquiredAt: Timestamp.now(),
+          expiresAt: Timestamp.fromDate(lockExpiry)
         });
         
-        // Wait a moment to ensure the update completes before proceeding
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        return { acquired: true };
+      });
+      
+      // If we couldn't acquire the lock, another rotation is in progress
+      if (!lockResult.acquired) {
+        throw new functions.https.HttpsError(
+          'failed-precondition',
+          'A movie rotation is already in progress. Please try again later.'
+        );
       }
+      
+      try {
+        // First check if there's already a rotation in progress by looking for any recent archived movies
+        // that might have been created in the last hour
+        const recentArchiveCheck = await firebaseAdmin
+          .firestore()
+          .collection(`movieclubs/${clubId}/movies`)
+          .where("status", "==", "archived")
+          .orderBy("endDate", "desc")
+          .limit(1)
+          .get();
 
-      // Retrieve the next suggestion
-      const nextSuggestionDoc = await getNextSuggestionDoc(clubId);
-      if (!nextSuggestionDoc) {
-        logVerbose("No suggestions available to rotate to.");
-        return { success: false, message: "No suggestions available." };
+        if (!recentArchiveCheck.empty) {
+          const recentArchive = recentArchiveCheck.docs[0].data() as MovieData;
+          const archiveTime = recentArchive.endDate instanceof Date 
+            ? recentArchive.endDate 
+            : recentArchive.endDate.toDate();
+          
+          // If there's a recently archived movie (archived in the last hour), prevent duplicate rotation
+          const ONE_HOUR_MS = 3600000;
+          if (new Date().getTime() - archiveTime.getTime() < ONE_HOUR_MS) {
+            logVerbose(`Rotation already happened recently (${archiveTime}). Preventing duplicate rotation.`);
+            throw new functions.https.HttpsError(
+              'failed-precondition',
+              'A movie rotation has already occurred recently. Please try again later.'
+            );
+          }
+        }
+
+        // Check for active movies using a transaction to ensure consistency
+        const activeMovieResult = await firebaseAdmin.firestore().runTransaction(async (transaction) => {
+          const activeMoviesQuery = firebaseAdmin
+            .firestore()
+            .collection(`movieclubs/${clubId}/movies`)
+            .where("status", "==", "active");
+            
+          const activeMoviesSnapshot = await transaction.get(activeMoviesQuery);
+          
+          if (activeMoviesSnapshot.empty) {
+            return { hasActiveMovie: false };
+          }
+          
+          // Should only be one active movie, but handle multiple just in case
+          if (activeMoviesSnapshot.size > 1) {
+            logVerbose(`Warning: Found ${activeMoviesSnapshot.size} active movies for club ${clubId}`);
+          }
+          
+          // Process the first active movie
+          const activeMovieDoc = activeMoviesSnapshot.docs[0];
+          const activeMovie = activeMovieDoc.data() as MovieData;
+          
+          // Convert endDate to a JavaScript Date for comparison
+          const endDateAsDate = activeMovie.endDate instanceof Date 
+            ? activeMovie.endDate 
+            : activeMovie.endDate.toDate();
+
+          if (new Date() < endDateAsDate) {
+            throw new functions.https.HttpsError(
+              'failed-precondition',
+              'The current movie\'s watch period has not ended.'
+            );
+          }
+
+          // Add a grace period check to prevent movies from being rotated too quickly
+          // Only allow rotation if movie has been active for at least 1 hour
+          const now = new Date();
+          const startDateAsDate = activeMovie.startDate instanceof Date 
+            ? activeMovie.startDate 
+            : activeMovie.startDate.toDate();
+          
+          const ONE_HOUR_MS = 3600000;
+          if (now.getTime() - startDateAsDate.getTime() < ONE_HOUR_MS) {
+            logVerbose(`Not rotating movie as it was created less than 1 hour ago (${startDateAsDate})`);
+            throw new functions.https.HttpsError(
+              'failed-precondition',
+              'Cannot rotate a movie that was just activated. Please try again later.'
+            );
+          }
+
+          // Mark the current movie as 'archived' AND update its endDate to 11:59 PM on its end date
+          // This ensures the end date is set to a consistent time (end of day)
+          const endDateObj = activeMovie.endDate instanceof Date 
+            ? activeMovie.endDate 
+            : activeMovie.endDate.toDate();
+            
+          // Set the time to 11:59:59 PM
+          const formattedEndDate = new Date(endDateObj);
+          formattedEndDate.setHours(23, 59, 59, 999);
+          
+          // Convert to Firestore Timestamp before updating
+          const firestoreEndDate = Timestamp.fromDate(formattedEndDate);
+          
+          transaction.update(activeMovieDoc.ref, { 
+            status: 'archived',
+            endDate: firestoreEndDate  // Use the formatted end date with time set to 11:59:59 PM
+          });
+          
+          return { 
+            hasActiveMovie: true, 
+            activeMovieDoc: activeMovieDoc,
+            activeMovie: activeMovie
+          };
+        });
+
+        // Retrieve the next suggestion
+        const nextSuggestionDoc = await getNextSuggestionDoc(clubId);
+        if (!nextSuggestionDoc) {
+          logVerbose("No suggestions available to rotate to.");
+          return { success: false, message: "No suggestions available." };
+        }
+
+        const suggestionData = nextSuggestionDoc.data() as SuggestionData;
+
+        // Set up the new movie's watch period
+        const clubDocRef = getMovieClubDocRef(clubId);
+        const clubDoc = await clubDocRef.get();
+        const clubData = clubDoc.data() as MovieClubData;
+
+        // Delete the suggestion
+        await nextSuggestionDoc.ref.delete();
+
+        // Set start date to 12:00 AM on the day after the previous movie ends
+        let startDate;
+        if (activeMovieResult.hasActiveMovie && activeMovieResult.activeMovie) {
+          // If there was an active movie, set the start date to the day after it ends
+          const activeMovie = activeMovieResult.activeMovie;
+          const previousEndDate = activeMovie.endDate instanceof Date
+            ? activeMovie.endDate
+            : activeMovie.endDate.toDate();
+          
+          // Create a new date for the day after the previous end date
+          startDate = new Date(previousEndDate);
+          startDate.setDate(startDate.getDate() + 1);
+          startDate.setHours(0, 0, 0, 0);  // Set to 12:00:00 AM
+        } else {
+          // If there was no active movie, start today at 12:00 AM
+          startDate = new Date();
+          startDate.setHours(0, 0, 0, 0);  // Set to 12:00:00 AM
+        }
+
+        // Calculate end date based on timeInterval
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + (clubData.timeInterval * 7));
+        // Set end date to 11:59:59 PM on the end day
+        endDate.setHours(23, 59, 59, 999);
+
+        // Convert to Firestore Timestamps for storage
+        const firestoreStartDate = Timestamp.fromDate(startDate);
+        const firestoreEndDate = Timestamp.fromDate(endDate);
+
+        const movieData: MovieData = {
+          ...suggestionData,
+          likes: 0,
+          dislikes: 0,
+          numCollected: 0,
+          numComments: 0,
+          imdbId: suggestionData.imdbId,
+          status: 'active',
+          startDate: firestoreStartDate,
+          endDate: firestoreEndDate,
+          collectedBy: [],
+          movieClubId: clubId,
+          likedBy: [],
+          dislikedBy: []
+        };
+
+        // Add the new movie as 'active'
+        const movieCollectionRef = getMovieRef(clubId);
+        const newMovieRef = await movieCollectionRef.add(movieData);
+        const newMovieId = newMovieRef.id;
+
+        // Update movieEndDate in the movieClub document
+        await clubDocRef.update({ movieEndDate: firestoreEndDate });
+
+        // Send notifications to all club members about the new movie
+        await notifyMembersAboutNewMovie(clubId, clubData.name, suggestionData, newMovieId);
+
+        logVerbose('Movie rotated successfully!');
+        return { success: true };
+      } finally {
+        // Always release the lock when done, regardless of success or failure
+        try {
+          await lockRef.delete();
+          logVerbose(`Released rotation lock for club ${clubId}`);
+        } catch (lockError) {
+          console.error(`Failed to release rotation lock for club ${clubId}:`, lockError);
+        }
       }
-
-      const suggestionData = nextSuggestionDoc.data() as SuggestionData;
-
-      // Set up the new movie's watch period
-      const clubDocRef = getMovieClubDocRef(clubId);
-      const clubDoc = await clubDocRef.get();
-      const clubData = clubDoc.data() as MovieClubData;
-
-      // Delete the suggestion
-      await nextSuggestionDoc.ref.delete();
-
-      // Set start date to 12:00 AM on the day after the previous movie ends
-      let startDate;
-      if (activeMovieDoc) {
-        // If there was an active movie, set the start date to the day after it ends
-        const activeMovie = activeMovieDoc.data() as MovieData;
-        const previousEndDate = activeMovie.endDate instanceof Date
-          ? activeMovie.endDate
-          : activeMovie.endDate.toDate();
-        
-        // Create a new date for the day after the previous end date
-        startDate = new Date(previousEndDate);
-        startDate.setDate(startDate.getDate() + 1);
-        startDate.setHours(0, 0, 0, 0);  // Set to 12:00:00 AM
-      } else {
-        // If there was no active movie, start today at 12:00 AM
-        startDate = new Date();
-        startDate.setHours(0, 0, 0, 0);  // Set to 12:00:00 AM
-      }
-
-      // Calculate end date based on timeInterval
-      const endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + (clubData.timeInterval * 7));
-      // Set end date to 11:59:59 PM on the end day
-      endDate.setHours(23, 59, 59, 999);
-
-      // Convert to Firestore Timestamps for storage
-      const firestoreStartDate = Timestamp.fromDate(startDate);
-      const firestoreEndDate = Timestamp.fromDate(endDate);
-
-      const movieData: MovieData = {
-        ...suggestionData,
-        likes: 0,
-        dislikes: 0,
-        numCollected: 0,
-        numComments: 0,
-        imdbId: suggestionData.imdbId,
-        status: 'active',
-        startDate: firestoreStartDate,
-        endDate: firestoreEndDate,
-        collectedBy: [],
-        movieClubId: clubId,
-        likedBy: [],
-        dislikedBy: []
-      };
-
-      // Add the new movie as 'active'
-      const movieCollectionRef = getMovieRef(clubId);
-      const newMovieRef = await movieCollectionRef.add(movieData);
-      const newMovieId = newMovieRef.id;
-
-      // Update movieEndDate in the movieClub document
-      await clubDocRef.update({ movieEndDate: firestoreEndDate });
-
-      // Send notifications to all club members about the new movie
-      await notifyMembersAboutNewMovie(clubId, clubData.name, suggestionData, newMovieId);
-
-      logVerbose('Movie rotated successfully!');
-      return { success: true };
     } catch (error) {
       console.error('Error rotating movie:', error);
       handleCatchHttpsError('Error rotating movie:', error);
@@ -214,12 +287,23 @@ async function notifyMembersAboutNewMovie(
     
     const memberIds = membersSnapshot.docs.map(doc => doc.id);
     
-    // Get movie details - you might want to fetch more details from an external API
-    // For now we'll use a generic message
-    const movieTitle = "a new movie"; // Could be fetched using suggestionData.imdbId
+    // Get movie details if possible
+    let movieTitle = "a new movie";
+    if (suggestionData.imdbId) {
+      try {
+        // Import dynamically to avoid circular dependencies
+        const { getMovieDetails } = require("../../notifications/movieHelpers");
+        const movieDetails = await getMovieDetails(suggestionData.imdbId);
+        if (movieDetails && movieDetails.title) {
+          movieTitle = `"${movieDetails.title}"`;
+        }
+      } catch (error) {
+        console.error("Failed to fetch movie details:", error);
+      }
+    }
     
     // Prepare notification message
-    const notificationMessage = `New movie to watch: ${movieTitle}`;
+    const notificationMessage = `It's time to watch ${movieTitle} in ${clubName}`;
     
     // Process each member
     const notificationPromises = memberIds.map(async (memberId) => {
@@ -239,7 +323,7 @@ async function notifyMembersAboutNewMovie(
             body: notificationMessage,
           },
           data: {
-            type: 'rotated',
+            type: NotificationType.ROTATED,
             clubName: clubName,
             clubId: clubId,
             imdbId: suggestionData.imdbId,
@@ -263,9 +347,12 @@ async function notifyMembersAboutNewMovie(
           .add({
             clubName: clubName,
             clubId: clubId,
+            userName: suggestionData.userName || "The club",
+            userId: suggestionData.userId,
+            othersCount: null,
             message: notificationMessage,
-            createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
-            type: "rotated",
+            createdAt: new Date(),
+            type: NotificationType.ROTATED,
             imdbId: suggestionData.imdbId,
             movieId: movieId
           });

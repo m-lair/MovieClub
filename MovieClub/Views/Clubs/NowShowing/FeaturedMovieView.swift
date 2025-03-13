@@ -28,6 +28,8 @@ struct FeaturedMovieView: View {
                 .scaledToFill()
                 .frame(width: width, height: 510)
                 .clipped()
+                .id("backdrop-\(movie.id ?? "unknown")")
+                .transition(.opacity)
             }
             
             LinearGradient(
@@ -61,8 +63,11 @@ struct FeaturedMovieView: View {
                                 .offset(y: collected ? 0 : 250)
                                 .frame(width: 140, height: 200)
                         )
+                        .animation(.easeInOut(duration: 0.5), value: collected)
                 )
                 .frame(width: 130, height: 190)
+                .id("poster-\(movie.id ?? "unknown")")
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
                 
                 // Text Stack
                 VStack(alignment: .leading, spacing: 8) {
@@ -75,6 +80,7 @@ struct FeaturedMovieView: View {
                         .font(.title)
                     )
                     .foregroundColor(.white)
+                    .transition(.opacity.combined(with: .move(edge: .trailing)))
                     
                     // Cast
                     HStack(alignment: .top, spacing: 4) {
@@ -85,6 +91,7 @@ struct FeaturedMovieView: View {
                             .truncationMode(.tail)   // Truncate with "..."
                     }
                     .foregroundColor(.white)
+                    .transition(.opacity)
                     
                     // Director
                     HStack(alignment: .top, spacing: 4) {
@@ -93,17 +100,21 @@ struct FeaturedMovieView: View {
                         Text(movie.director)
                     }
                     .foregroundColor(.white)
+                    .transition(.opacity)
                     
                     // Plot
                     Text(movie.plot)
                         .lineLimit(4)
                         .truncationMode(.tail)
                         .foregroundColor(.white)
+                        .transition(.opacity)
                 }
+                .transition(.opacity.combined(with: .move(edge: .trailing)))
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 16)
         }
         .frame(width: width, height: 510)
+        .animation(.easeInOut, value: movie.id)
     }
 }

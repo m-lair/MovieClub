@@ -5,6 +5,8 @@ import { getMovieClub } from "../movieClubs/movieClubHelpers";
 import { getComment } from "../movieClubs/movies/comments/commentHelpers";
 import { UserData } from "src/users/userTypes";
 import { getUser } from "src/users/userHelpers";
+import { NotificationType } from "./notificationTypes";
+import { getMovieDetails } from "../movieClubs/movies/movieHelpers";
 
 export const notifyClubMembersOnComment = onDocumentCreated(
   "movieclubs/{clubId}/movies/{movieId}/comments/{commentId}",
@@ -21,13 +23,14 @@ export const notifyClubMembersOnComment = onDocumentCreated(
     let parentCommentAuthorId: string | null = null;
 
     if (commentData.parentId) {
-    // Fetch the parent comment to get its author's ID
-    const parentCommentSnapshot = await getComment(clubId, movieId, commentData.parentId);
-    if (parentCommentSnapshot.exists) {
+      // Fetch the parent comment to get its author's ID
+      const parentCommentSnapshot = await getComment(clubId, movieId, commentData.parentId);
+      if (parentCommentSnapshot.exists) {
         const parentCommentData = parentCommentSnapshot.data() as CommentData;
         parentCommentAuthorId = parentCommentData.userId;
       } 
     }
+    
     try {
       // 1. Get club members
       const membersSnapshot = await admin
@@ -49,6 +52,10 @@ export const notifyClubMembersOnComment = onDocumentCreated(
       // Get club info
       const clubSnapshot = await getMovieClub(clubId);
       const clubName = clubSnapshot.data()?.name || "Unnamed Club";
+      
+      // Get movie details
+      const movieDetails = await getMovieDetails(movieId);
+      const movieTitle = movieDetails.title || "a movie";
 
       // 4. Prepare and send notifications
       const notifications = userSnapshots.map(async (userSnap) => {
@@ -59,17 +66,22 @@ export const notifyClubMembersOnComment = onDocumentCreated(
         const fcmToken = userData.fcmToken;
         if (!fcmToken) return null;
 
+        // Create a more specific message
+        const notificationMessage = `${commentData.userName} commented on ${movieTitle} in ${clubName}`;
+
         // Prepare payload for push
         const payload = {
           token: fcmToken,
           notification: {
-            title: `New Comments in ${clubName}`,
-            body: `${commentData.userName} commented in ${clubName}!`,
+            title: `New Comment in ${clubName}`,
+            body: notificationMessage,
           },
           data: {
-            type: 'commented',
+            type: NotificationType.COMMENTED,
             clubName: clubName,
             userName: commentData.userName,
+            clubId: clubId,
+            movieId: movieId,
           },
         };
 
@@ -86,11 +98,12 @@ export const notifyClubMembersOnComment = onDocumentCreated(
               clubName: clubName,
               clubId: clubId,
               userName: commentData.userName,
-              userId: userSnap.id,
+              userId: commentData.userId,
               othersCount: null,
-              message: `${commentData.userName} left a comment in ${clubName}`,
-              createdAt: admin.firestore.FieldValue.serverTimestamp(),
-              type: "commented",
+              message: notificationMessage,
+              createdAt: new Date(),
+              type: NotificationType.COMMENTED,
+              imdbId: movieId,
             });
 
           return { success: true, userId: userSnap.id };
@@ -102,7 +115,7 @@ export const notifyClubMembersOnComment = onDocumentCreated(
 
       // Wait for all notifications to complete
       const results = await Promise.all(notifications);
-      console.log(`Processed ${results.length} notifications`);
+      console.log(`Processed ${results.filter(Boolean).length} notifications`);
       return { success: true, notifiedUsers: results.filter(Boolean) };
     } catch (error) {
       console.error("Notification workflow failed:", error);
@@ -139,9 +152,13 @@ export const notifyCommentLiked = onDocumentUpdated(
     }
 
     // Extract path params and get club info
-    const { clubId } = event.params;
+    const { clubId, movieId } = event.params;
     const clubSnapshot = await admin.firestore().doc(`movieclubs/${clubId}`).get();
     const clubName = clubSnapshot.data()?.name || "Unnamed Club";
+    
+    // Get movie details
+    const movieDetails = await getMovieDetails(movieId);
+    const movieTitle = movieDetails.title || "a movie";
 
     // Get comment author's user data (to retrieve fcmToken)
     const commentAuthorDoc = await admin.firestore().doc(`users/${commentAuthorId}`).get();
@@ -169,6 +186,9 @@ export const notifyCommentLiked = onDocumentUpdated(
         }
         const likerData = likerDoc.data() as UserData;
         const likerName = likerData.name || "Someone";
+        
+        // Create a more specific message
+        const notificationMessage = `${likerName} liked your comment on ${movieTitle} in ${clubName}`;
 
         // Prepare the FCM payload
         if (authorFcmToken) {
@@ -176,12 +196,14 @@ export const notifyCommentLiked = onDocumentUpdated(
             token: authorFcmToken,
             notification: {
               title: "Your comment was liked!",
-              body: `${likerName} liked your comment in ${clubName}!`,
+              body: notificationMessage,
             },
             data: {
-              type: "liked",
+              type: NotificationType.LIKED,
               clubName: clubName,
               userName: likerName,
+              clubId: clubId,
+              movieId: movieId,
             },
           };
 
@@ -206,9 +228,10 @@ export const notifyCommentLiked = onDocumentUpdated(
               userName: likerName,
               userId: likerId,
               othersCount: null,
-              message: `${likerName} liked your comment in ${clubName}`,
-              createdAt: admin.firestore.FieldValue.serverTimestamp(),
-              type: "liked",
+              message: notificationMessage,
+              createdAt: new Date(),
+              type: NotificationType.LIKED,
+              imdbId: movieId,
             });
           console.log("Like notification document written for", commentAuthorId);
         } catch (error) {
@@ -266,6 +289,10 @@ export const notifyCommentReply = onDocumentCreated(
       .doc(`movieclubs/${clubId}`)
       .get();
     const clubName = clubSnapshot.data()?.name || "Unnamed Club";
+    
+    // Get movie details
+    const movieDetails = await getMovieDetails(movieId);
+    const movieTitle = movieDetails.title || "a movie";
 
     // Get the original comment author's user data
     const userDoc = await admin.firestore().doc(`users/${parentCommentAuthorId}`).get();
@@ -275,6 +302,9 @@ export const notifyCommentReply = onDocumentCreated(
       return null;
     }
     const fcmToken = userData.fcmToken;
+    
+    // Create a more specific message
+    const notificationMessage = `${commentData.userName} replied to your comment on ${movieTitle} in ${clubName}`;
 
     // Prepare and send FCM push (if token exists)
     if (fcmToken) {
@@ -282,12 +312,14 @@ export const notifyCommentReply = onDocumentCreated(
         token: fcmToken,
         notification: {
           title: "New reply to your comment!",
-          body: `${commentData.userName} replied to your comment in ${clubName}!`,
+          body: notificationMessage,
         },
         data: {
-          type: "replied",
+          type: NotificationType.REPLIED,
           clubName: clubName,
           userName: commentData.userName,
+          clubId: clubId,
+          movieId: movieId,
         },
       };
       try {
@@ -309,9 +341,10 @@ export const notifyCommentReply = onDocumentCreated(
           userName: commentData.userName,
           userId: commentData.userId,
           othersCount: null,
-          message: `${commentData.userName} replied to your comment in ${clubName}`,
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-          type: "replied",
+          message: notificationMessage,
+          createdAt: new Date(),
+          type: NotificationType.REPLIED,
+          imdbId: movieId,
         });
       console.log("Reply notification document written for", parentCommentAuthorId);
     } catch (error) {
