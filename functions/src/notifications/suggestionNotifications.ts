@@ -5,7 +5,6 @@ import { getMovieClub } from "../movieClubs/movieClubHelpers";
 import { UserData } from "src/users/userTypes";
 import { getUser } from "src/users/userHelpers";
 import { NotificationType } from "./notificationTypes";
-import { getMovieDetails } from "../movieClubs/movies/movieHelpers";
 
 export const notifyClubMembersOnNewSuggestion = onDocumentCreated(
   "movieclubs/{clubId}/suggestions/{suggestionId}",
@@ -46,19 +45,6 @@ export const notifyClubMembersOnNewSuggestion = onDocumentCreated(
         return null;
       }
       
-      // Get movie details from IMDB ID if available
-      let movieTitle = "a new movie";
-      if (suggestionData.imdbId) {
-        try {
-          const movieDetails = await getMovieDetails(suggestionData.imdbId);
-          if (movieDetails && movieDetails.title) {
-            movieTitle = `"${movieDetails.title}"`;
-          }
-        } catch (error) {
-          console.error("Failed to fetch movie details:", error);
-        }
-      }
-      
       // Get user data for all members in parallel
       const userPromises = memberIds.map((userId) => getUser(userId));
       const userSnapshots = await Promise.all(userPromises);
@@ -74,7 +60,7 @@ export const notifyClubMembersOnNewSuggestion = onDocumentCreated(
         const fcmToken = userData.fcmToken;
         
         // Prepare notification message
-        const notificationMessage = `${suggestionData.userName} suggested ${movieTitle} in ${clubName}`;
+        const notificationMessage = `${suggestionData.userName} suggested a movie in ${clubName}`;
         
         // Send FCM push notification if token exists
         if (fcmToken) {
