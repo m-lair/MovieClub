@@ -62,6 +62,8 @@ struct NotificationItemView: View {
             return "New suggestion"
         case .joined:
             return "New member"
+        case .rotated:
+            return "New Movie"
         }
     }
     
