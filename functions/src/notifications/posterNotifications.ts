@@ -138,7 +138,7 @@ export const notifyPosterCollected = onDocumentUpdated(
               userId: collectorId,
               othersCount: null,
               message: notificationMessage,
-              createdAt: admin.firestore.FieldValue.serverTimestamp(),
+              createdAt: new Date(),
               type: NotificationType.COLLECTED,
               imdbId: afterData.imdbId || movieId,
             });

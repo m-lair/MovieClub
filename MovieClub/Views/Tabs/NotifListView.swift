@@ -30,7 +30,7 @@ struct NotificationListView: View {
         case .comments:
             return notifManager.notifications.filter { $0.type == .commented || $0.type == .replied || $0.type == .liked }
         case .movieClubs:
-            return notifManager.notifications.filter { $0.type == .joined || $0.type == .suggestion }
+            return notifManager.notifications.filter { $0.type == .joined || $0.type == .suggestion || $0.type == .rotated }
         case .posters:
             return notifManager.notifications.filter { $0.type == .collected }
         }
@@ -114,7 +114,7 @@ struct NotificationListView: View {
         }
         .navigationDestination(for: Notification.self) { notification in
             switch notification.type {
-            case .commented, .collected, .liked, .replied, .suggestion, .joined:
+            case .commented, .collected, .liked, .replied, .suggestion, .joined, .rotated:
                 if let club = data.userClubs.first(where: { $0.id == notification.clubId }) {
                     ClubDetailView(navPath: $navPath, club: club)
                         .navigationTitle(club.name)

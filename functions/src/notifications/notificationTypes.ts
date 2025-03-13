@@ -17,5 +17,6 @@ export enum NotificationType {
     REPLIED = "replied",
     COLLECTED = "collected",
     SUGGESTION = "suggestion",
-    JOINED = "joined"
+    JOINED = "joined",
+    ROTATED = "rotated"
 }

@@ -95,7 +95,7 @@ export const notifyClubOwnerOnNewMember = onDocumentCreated(
             userId: userId,
             othersCount: null,
             message: notificationMessage,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdAt: new Date(),
             type: NotificationType.JOINED,
           });
         console.log(`Join notification document written for owner ${ownerId}`);

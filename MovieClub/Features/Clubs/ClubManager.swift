@@ -64,22 +64,38 @@ extension DataManager {
     // MARK: - Update Movie Club
     
     func updateMovieClub(movieClub: MovieClub) async throws {
-        let updateClub: Callable<MovieClub, MovieClubResponse> = functions.httpsCallable("movieClubs-updateMovieClub")
-        do {
-            // The Firebase function doesn't return a structured response, it might return null
-            let result = try await updateClub(movieClub)
+        
+        let basicValidationResult = ValidationService.validateClubNameBasic(movieClub.name)
+        
+        switch basicValidationResult {
+        case .failure(let error):
+            throw ClubError.custom(message: error.localizedDescription)
+        case .success:
+            // Proceed with server-side validation
+            let serverValidationResult = await ValidationService.validateClubNameOnServer(movieClub.name)
             
-            if result.success {
-                print("Club updated successfully: \(movieClub.name)")
-            } else {
-                throw ClubError.custom(message: result.message ?? "Unknown error")
+            switch serverValidationResult {
+            case .failure(let error):
+                throw ClubError.custom(message: error.localizedDescription)
+            case .success:
+                let updateClub: Callable<MovieClub, MovieClubResponse> = functions.httpsCallable("movieClubs-updateMovieClub")
+                do {
+                    // The Firebase function doesn't return a structured response, it might return null
+                    let result = try await updateClub(movieClub)
+                    
+                    if result.success {
+                        print("Club updated successfully: \(movieClub.name)")
+                    } else {
+                        throw ClubError.custom(message: result.message ?? "Unknown error")
+                    }
+                    
+                    // If we get here, the update was successful
+                    print("Club updated successfully: \(movieClub.name)")
+                } catch {
+                    print("Error updating club: \(error)")
+                    throw ClubError.networkError(error)
+                }
             }
-            
-            // If we get here, the update was successful
-            print("Club updated successfully: \(movieClub.name)")
-        } catch {
-            print("Error updating club: \(error)")
-            throw ClubError.networkError(error)
         }
     }
     
@@ -270,7 +286,7 @@ extension DataManager {
     
     func fetchAllPublicClubs() async throws -> [String] {
         let snapshot = try await movieClubCollection()
-            .whereField("isPublic", isEqualTo: "true")
+            .whereField("isPublic", isEqualTo: true)
             .getDocuments()
 
         let clubs: [String] = snapshot.documents.compactMap { doc in

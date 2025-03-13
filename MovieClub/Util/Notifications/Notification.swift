@@ -29,6 +29,7 @@ enum NotificationType: String, Codable {
     case collected
     case suggestion
     case joined
+    case rotated
 
     var iconName: String {
         switch self {
@@ -44,6 +45,8 @@ enum NotificationType: String, Codable {
             return "lightbulb.fill"
         case .joined:
             return "person.fill"
+        case .rotated:
+            return "film.fill"
         }
     }
 
@@ -61,6 +64,8 @@ enum NotificationType: String, Codable {
             return .green
         case .joined:
             return .purple
+        case .rotated:
+            return .orange
         }
     }
 }

@@ -101,7 +101,7 @@ export const notifyClubMembersOnComment = onDocumentCreated(
               userId: commentData.userId,
               othersCount: null,
               message: notificationMessage,
-              createdAt: admin.firestore.FieldValue.serverTimestamp(),
+              createdAt: new Date(),
               type: NotificationType.COMMENTED,
               imdbId: movieId,
             });
@@ -229,7 +229,7 @@ export const notifyCommentLiked = onDocumentUpdated(
               userId: likerId,
               othersCount: null,
               message: notificationMessage,
-              createdAt: admin.firestore.FieldValue.serverTimestamp(),
+              createdAt: new Date(),
               type: NotificationType.LIKED,
               imdbId: movieId,
             });
@@ -342,7 +342,7 @@ export const notifyCommentReply = onDocumentCreated(
           userId: commentData.userId,
           othersCount: null,
           message: notificationMessage,
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          createdAt: new Date(),
           type: NotificationType.REPLIED,
           imdbId: movieId,
         });

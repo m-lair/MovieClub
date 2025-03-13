@@ -16,6 +16,7 @@ import { getMovieClubDocRef } from "../movieClubHelpers";
 import { getMovieRef } from "./movieHelpers";
 import { getNextSuggestionDoc } from "../suggestions/suggestionHelpers";
 import { firebaseAdmin } from "firestore";
+import { NotificationType } from "../../notifications/notificationTypes";
 
 
 // Cloud Function to rotate the movie
@@ -322,7 +323,7 @@ async function notifyMembersAboutNewMovie(
             body: notificationMessage,
           },
           data: {
-            type: 'rotated',
+            type: NotificationType.ROTATED,
             clubName: clubName,
             clubId: clubId,
             imdbId: suggestionData.imdbId,
@@ -350,8 +351,8 @@ async function notifyMembersAboutNewMovie(
             userId: suggestionData.userId,
             othersCount: null,
             message: notificationMessage,
-            createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
-            type: "rotated",
+            createdAt: new Date(),
+            type: NotificationType.ROTATED,
             imdbId: suggestionData.imdbId,
             movieId: movieId
           });

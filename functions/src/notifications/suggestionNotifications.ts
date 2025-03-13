@@ -113,7 +113,7 @@ export const notifyClubMembersOnNewSuggestion = onDocumentCreated(
               userId: suggestionData.userId,
               othersCount: null,
               message: notificationMessage,
-              createdAt: admin.firestore.FieldValue.serverTimestamp(),
+              createdAt: new Date(),
               type: NotificationType.SUGGESTION,
               imdbId: suggestionData.imdbId,
             });
