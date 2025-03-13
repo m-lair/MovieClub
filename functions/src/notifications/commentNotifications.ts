@@ -6,7 +6,6 @@ import { getComment } from "../movieClubs/movies/comments/commentHelpers";
 import { UserData } from "src/users/userTypes";
 import { getUser } from "src/users/userHelpers";
 import { NotificationType } from "./notificationTypes";
-import { getMovieDetails } from "../movieClubs/movies/movieHelpers";
 
 export const notifyClubMembersOnComment = onDocumentCreated(
   "movieclubs/{clubId}/movies/{movieId}/comments/{commentId}",
@@ -53,10 +52,6 @@ export const notifyClubMembersOnComment = onDocumentCreated(
       const clubSnapshot = await getMovieClub(clubId);
       const clubName = clubSnapshot.data()?.name || "Unnamed Club";
       
-      // Get movie details
-      const movieDetails = await getMovieDetails(movieId);
-      const movieTitle = movieDetails.title || "a movie";
-
       // 4. Prepare and send notifications
       const notifications = userSnapshots.map(async (userSnap) => {
         const userData = userSnap.data() as UserData | undefined;
@@ -67,7 +62,7 @@ export const notifyClubMembersOnComment = onDocumentCreated(
         if (!fcmToken) return null;
 
         // Create a more specific message
-        const notificationMessage = `${commentData.userName} commented on ${movieTitle} in ${clubName}`;
+        const notificationMessage = `${commentData.userName} commented in ${clubName}`;
 
         // Prepare payload for push
         const payload = {
@@ -155,11 +150,6 @@ export const notifyCommentLiked = onDocumentUpdated(
     const { clubId, movieId } = event.params;
     const clubSnapshot = await admin.firestore().doc(`movieclubs/${clubId}`).get();
     const clubName = clubSnapshot.data()?.name || "Unnamed Club";
-    
-    // Get movie details
-    const movieDetails = await getMovieDetails(movieId);
-    const movieTitle = movieDetails.title || "a movie";
-
     // Get comment author's user data (to retrieve fcmToken)
     const commentAuthorDoc = await admin.firestore().doc(`users/${commentAuthorId}`).get();
     if (!commentAuthorDoc.exists) {
@@ -188,7 +178,7 @@ export const notifyCommentLiked = onDocumentUpdated(
         const likerName = likerData.name || "Someone";
         
         // Create a more specific message
-        const notificationMessage = `${likerName} liked your comment on ${movieTitle} in ${clubName}`;
+        const notificationMessage = `${likerName} liked your comment in ${clubName}`;
 
         // Prepare the FCM payload
         if (authorFcmToken) {
@@ -289,11 +279,7 @@ export const notifyCommentReply = onDocumentCreated(
       .doc(`movieclubs/${clubId}`)
       .get();
     const clubName = clubSnapshot.data()?.name || "Unnamed Club";
-    
-    // Get movie details
-    const movieDetails = await getMovieDetails(movieId);
-    const movieTitle = movieDetails.title || "a movie";
-
+  
     // Get the original comment author's user data
     const userDoc = await admin.firestore().doc(`users/${parentCommentAuthorId}`).get();
     const userData = userDoc.data() as UserData;
@@ -304,7 +290,7 @@ export const notifyCommentReply = onDocumentCreated(
     const fcmToken = userData.fcmToken;
     
     // Create a more specific message
-    const notificationMessage = `${commentData.userName} replied to your comment on ${movieTitle} in ${clubName}`;
+    const notificationMessage = `${commentData.userName} replied to your comment in ${clubName}`;
 
     // Prepare and send FCM push (if token exists)
     if (fcmToken) {
